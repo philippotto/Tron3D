@@ -1,11 +1,11 @@
-
 #pragma once
 
 #include <QMainWindow>
 
-#include "viewerwidget.h"
+#include <osg/ref_ptr>
 
-class QGLWidget;
+#include "forwardDeclarations.h"
+
 
 class MainWindow : public QMainWindow
 {
@@ -18,13 +18,12 @@ public:
 
 	virtual ~MainWindow();
 
-protected:
-    QGLWidget *glWidget;
-
 private:
+    QGLWidget *m_glWidget;
+
 	osg::Camera * createCamera(int x, int y, int w, int h);
 
-	osg::Camera * m_camera;
-	osg::Node * m_scene;
+	osg::ref_ptr<osg::Camera> m_camera;
+	osg::ref_ptr<osg::Node> m_scene;
 	ViewerWidget * m_viewerWidget;
 };

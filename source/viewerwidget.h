@@ -1,11 +1,12 @@
-#include <QtCore/QtCore>
+#pragma once
+
+#include "forwardDeclarations.h"
+
 #include <QtGui/QtGui>
-#include <osgDB/ReadFile>
-#include <osgGA/TrackballManipulator>
-#include <osgViewer/ViewerEventHandlers>
-#include <osgViewer/Viewer>
-#include <osgQt/GraphicsWindowQt>
-#include <QVBoxLayout>
+#include <QWidget>
+
+#include <osg/ref_ptr>
+
 
 class ViewerWidget : public QWidget
 {
@@ -13,10 +14,8 @@ class ViewerWidget : public QWidget
 		ViewerWidget(osg::Camera* camera, osg::Node* scene);
 
 	protected:
-		virtual void paintEvent(QPaintEvent* event)
-		{
-			_viewer.frame();
-		}
-		osgViewer::Viewer _viewer;
-		QTimer _timer;
+		virtual void paintEvent(QPaintEvent* event);
+
+		osg::ref_ptr<osgViewer::Viewer> m_viewer;
+		QTimer m_timer;
 };

@@ -195,7 +195,6 @@ set(OSG_INCLUDE_DIRECTORIES
     ${OSGVIEWER_INCLUDE_DIR}
     ${OSGQT_INCLUDE_DIR}
 )
-
 set(OSG_LIBRARIES
     ${OPENTHREADS_LIBRARY}
     ${OSG_LIBRARY}
@@ -211,8 +210,9 @@ set(OSG_LIBRARIES
     ${OSGQT_LIBRARY}
 )
 
-# BULLET
+### TODO: Bullet, FMOD here!
 
+# BULLET
 # set(BULLET_INCLUDE_DIRECTORIES
 
 # )
@@ -222,27 +222,25 @@ set(OSG_LIBRARIES
 # )
 
 # FMOD
-
 # find_package(FMOD REQUIRED)
 
-### TODO: Bullet, FMOD here!
-
 # SOURCES
-set(headers
-    source/mainwindow.h
-)
-
-set(sources
-    source/main.cpp
-    source/mainwindow.cpp
-    source/mainwindow.h
-	source/viewerwidget.cpp
-	source/viewerwidget.h
-)
 
 #possibly: add subdirectories here
 add_subdirectory(source)
 
+set(headers
+	source/forwardDeclarations.h
+    source/MainWindow.h
+)
+
+set(sources
+    source/main.cpp
+    source/MainWindow.cpp
+    source/MainWindow.h
+	source/ViewerWidget.cpp
+	source/ViewerWidget.h
+)
 
 # TARGET
 # Set target name

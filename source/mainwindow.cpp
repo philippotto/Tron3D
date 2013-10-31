@@ -1,13 +1,17 @@
-
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 #include <QtOpenGL>
 #include <QDesktopWidget>
 
+#include <osg/ref_ptr>
+#include <osgDB/ReadFile>
+#include <osgQt/GraphicsWindowQt>
+
+#include "ViewerWidget.h"
 
 MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 :   QMainWindow(parent, flags),
-    glWidget(NULL)
+    m_glWidget(NULL)
 {
     // configure window
     setWindowTitle("Troen");
@@ -17,24 +21,24 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
     QRect displaySize = desktopWidget.screenGeometry();
     this->resize(displaySize.width()/3*2, displaySize.height()/3*2);
 	
-    // probably subclass the QGLWidget class for specific purposes
-    //glWidget = new QGLWidget;
-    //setCentralWidget(glWidget);
+    // subclass the QGLWidget class for specific purposes
+    m_glWidget = new QGLWidget;
+    setCentralWidget(m_glWidget);
 
-	m_camera = createCamera(50, 50, 640, 480);
-	m_scene = osgDB::readNodeFile("cow.osg");
+	//m_camera = createCamera(50, 50, 640, 480);
+	//m_scene = osgDB::readNodeFile("cow.osg");
 
-	// create and open MainWindow (subclass of QWidget)
-	m_viewerWidget = new ViewerWidget(m_camera, m_scene);
-	m_viewerWidget->setGeometry(100, 100, 800, 600);
-	m_viewerWidget->show();
+	//// create and open MainWindow (subclass of QWidget)
+	//m_viewerWidget = new ViewerWidget(m_camera, m_scene);
+	//m_viewerWidget->setGeometry(100, 100, 800, 600);
+	//m_viewerWidget->show();
 
 	//setCentralWidget(m_viewerWidget);
 }
 
 MainWindow::~MainWindow()
 {
-	delete m_viewerWidget;
+	//delete m_viewerWidget;
 }
 
 //OSG with Qt

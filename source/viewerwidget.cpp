@@ -1,19 +1,25 @@
-#include "viewerwidget.h"
+#include "ViewerWidget.h"
+
+#include <QVBoxLayout>
+
+#include <osgGA/TrackballManipulator>
+#include <osgViewer/ViewerEventHandlers>
+#include <osgViewer/Viewer>
+#include <osgQt/GraphicsWindowQt>
 
 ViewerWidget::ViewerWidget(osg::Camera* camera, osg::Node* scene) {
+	m_viewer = new osgViewer::Viewer;
 
-	_viewer.setCamera(camera);
-	_viewer.setSceneData(scene);
-	_viewer.addEventHandler(new osgViewer::StatsHandler);
-	_viewer.setCameraManipulator(
-		new osgGA::TrackballManipulator);
+	m_viewer->setCamera(camera);
+	m_viewer->setSceneData(scene);
+	m_viewer->addEventHandler(new osgViewer::StatsHandler);
+	m_viewer->setCameraManipulator(new osgGA::TrackballManipulator);
 
 	// Use single thread here to avoid known issues under Linux
-	_viewer.setThreadingModel(osgViewer::Viewer::SingleThreaded);
+	m_viewer->setThreadingModel(osgViewer::Viewer::SingleThreaded);
 
 	osgQt::GraphicsWindowQt* gw =
-		dynamic_cast<osgQt::GraphicsWindowQt*>(
-		camera->getGraphicsContext());
+		dynamic_cast<osgQt::GraphicsWindowQt*>(camera->getGraphicsContext());
 	if (gw)
 	{
 		QVBoxLayout* layout = new QVBoxLayout;
@@ -21,6 +27,11 @@ ViewerWidget::ViewerWidget(osg::Camera* camera, osg::Node* scene) {
 		setLayout(layout);
 	}
 
-	connect(&_timer, SIGNAL(timeout()), this, SLOT(update()));
-	_timer.start(40);
+	connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
+	m_timer.start(40);
+}
+
+void ViewerWidget::paintEvent(QPaintEvent* event)
+{
+	m_viewer->frame();
 }
