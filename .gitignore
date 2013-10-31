@@ -27,3 +27,5 @@ build
 
 CMakeLists.txt.user
 CMakeCache.txt
+
+/bullet
