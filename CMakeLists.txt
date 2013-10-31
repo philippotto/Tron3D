@@ -156,8 +156,11 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/glow/glow-version.h DESTINATION ${INST
 
 # Find externals
 find_package(OpenGL REQUIRED)
-find_package(GLM REQUIRED)
-find_package(GLEW REQUIRED)
+
+### TODO: add QT, OSG, Bullet, FMOD here!
+
+#find_package(GLM REQUIRED)
+#find_package(GLEW REQUIRED)
 
 # Include directories
 include_directories(
@@ -168,10 +171,11 @@ include_directories(
     ${GLEW_INCLUDE_DIR})
 
 
-# GLOW LIBRARIES
-
-add_subdirectory(source)
-install(FILES glow-config.cmake DESTINATION ".")
+# TODO: REMOVE / REPLACE ??
+## GLOW LIBRARIES
+#
+#add_subdirectory(source)
+#install(FILES glow-config.cmake DESTINATION ".")
 
 
 # EXAMPLES
