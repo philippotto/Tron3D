@@ -1,0 +1,28 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# build dir
+build
+/build
+/build
+/_configure.bat
+/_open-project.bat
+/_start-cmake-gui.bat
+/bin
+/build
+/lib
+/build
+/build
+
+CMakeLists.txt.user
