@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 project(troen)
 
 # PROJECT DESCRIPTION
-set(META_PROJECT_NAME        "Troen)
+set(META_PROJECT_NAME        "Troen")
 set(META_VERSION_MAJOR       "0")
 set(META_VERSION_MINOR       "1")
 set(META_VERSION_PATCH       "0")
@@ -136,7 +136,7 @@ endif()
 
 # DEPENDENCIES
 
-# Qt5
+# Qt5 - taken from cg2sandbox
 set(CMAKE_AUTOMOC ON)
 set(AUTOMOC_MOC_OPTIONS PROPERTIES FOLDER CMakeAutomocTargets)
 # Probably works in the next cmake release -> http://www.cmake.org/Bug/view.php?id=13788
@@ -215,10 +215,14 @@ set(OSG_LIBRARY_DIRECTORIES
 
 # SOURCES
 set(sources
-    src/main.cpp
-    src/mainwindow.cpp
-    src/mainwindow.h
+    source/main.cpp
+    source/mainwindow.cpp
+    source/mainwindow.h
 )
+
+#possibly: add subdirectories here
+add_subdirectory(source)
+
 
 # TARGET
 # Set target name
@@ -226,7 +230,7 @@ set(target troen)
 
 add_executable(${target} ${sources})
 
-qt5_use_modules(${target} OpenGL Gui Widgets)
+qt5_use_modules(${target} Core OpenGL Gui Widgets)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}
