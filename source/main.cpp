@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
     int result = -1;
 
     // setup application base settings
-    QApplication::setApplicationName("Troen");
+    QApplication::setApplicationName("Qt5 Template Application");
 	QApplication * application = new QApplication(argc, argv);
 
     // create and open MainWindow (subclass of QMainWindow)
