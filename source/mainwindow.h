@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "viewerwidget.h"
+
 class QGLWidget;
 
 class MainWindow : public QMainWindow
@@ -18,4 +20,11 @@ public:
 
 protected:
     QGLWidget *glWidget;
+
+private:
+	osg::Camera * createCamera(int x, int y, int w, int h);
+
+	osg::Camera * m_camera;
+	osg::Node * m_scene;
+	ViewerWidget * m_viewerWidget;
 };
