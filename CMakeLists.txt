@@ -193,7 +193,7 @@ set(OSG_INCLUDE_DIRECTORIES
     ${OSGTEXT_INCLUDE_DIR}
     ${OSGUTIL_INCLUDE_DIR}
     ${OSGVIEWER_INCLUDE_DIR}
-    $(OSGQT_INCLUDE_DIR)
+    ${OSGQT_INCLUDE_DIR}
 )
 
 set(OSG_LIBRARY
@@ -208,12 +208,12 @@ set(OSG_LIBRARY
     ${OSGTEXT_LIBRARY}
     ${OSGUTIL_LIBRARY}
     ${OSGVIEWER_LIBRARY}
-    $(OSGQT_LIBRARY)
+    ${OSGQT_LIBRARY}
 )
 
 ### TODO: Bullet, FMOD here!
 
-set(BULLET_LIBARY_DIRECTORIES
+set(BULLET_LIBARY_DIRECTORIES_Debug
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletCollision_Debug.lib
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletDynamics_Debug.lib
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletFileLoader_Debug.lib
@@ -227,7 +227,10 @@ set(BULLET_LIBARY_DIRECTORIES
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/LinearMath_Debug.lib
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/MiniCL_Debug.lib
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/OpenGLSupport_Debug.lib
-	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletCollision.lib
+)	
+
+set(BULLET_LIBARY_DIRECTORIES
+    ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletCollision.lib
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletDynamics.lib
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletFileLoader.lib
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletMultiThreaded.lib
@@ -240,7 +243,8 @@ set(BULLET_LIBARY_DIRECTORIES
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/LinearMath.lib
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/MiniCL.lib
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/OpenGLSupport.lib
-	)
+)
+
 set(BULLET_INCLUDE_DIRECTORIES
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/include
 	)
@@ -276,9 +280,45 @@ include_directories(
     # ${FMOD_INCLUDE_DIR}
 )
 
+# target_link_libraries(${target}
+#    debug ${OPENGL_LIBRARIES}
+#    debug ${OSG_LIBRARY}
+#    # ${FMOD_LIBRARIES}
+#	${BULLET_LIBARY_DIRECTORIES}
+# )
+
+
 target_link_libraries(${target}
-    ${OPENGL_LIBRARIES}
-    ${OSG_LIBRARY}
-    # ${FMOD_LIBRARIES}
-	${BULLET_LIBARY_DIRECTORIES}
+   ${OPENGL_LIBRARIES}
+   ${OSG_LIBRARY}
+   # ${FMOD_LIBRARIES}
+   
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletCollision.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletDynamics.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletFileLoader.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletMultiThreaded.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletSoftBody.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletSoftBodySolvers_OpenCL_Mini.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletWorldImporter.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletXmlWorldImporter.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/ConvexDecomposition.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/GIMPACTUtils.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/LinearMath.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/MiniCL.lib
+   optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/OpenGLSupport.lib
+   
+
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletCollision_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletDynamics_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletFileLoader_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletMultiThreaded_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletSoftBody_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletSoftBodySolvers_OpenCL_Mini_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletWorldImporter_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletXmlWorldImporter_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/ConvexDecomposition_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/GIMPACTUtils_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/LinearMath_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/MiniCL_Debug.lib
+   debug ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/OpenGLSupport_Debug.lib
 )
