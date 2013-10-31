@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 :   QMainWindow(parent, flags),
     glWidget(NULL)
 {
-    // configute window
+    // configure window
     setWindowTitle("Troen");
     
     // set window size
@@ -26,3 +26,4 @@ MainWindow::~MainWindow()
 {
     
 }
+

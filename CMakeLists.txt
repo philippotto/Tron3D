@@ -218,6 +218,8 @@ set(sources
     source/main.cpp
     source/mainwindow.cpp
     source/mainwindow.h
+	source/viewerwidget.cpp
+	source/viewerwidget.h
 )
 
 #possibly: add subdirectories here
