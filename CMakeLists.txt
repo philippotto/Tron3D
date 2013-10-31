@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 project(troen)
 
@@ -266,7 +265,7 @@ add_subdirectory(source)
 # Set target name
 set(target troen)
 
-add_executable(${target} $(headers) ${sources})
+add_executable(${target} ${headers} ${sources})
 
 qt5_use_modules(${target} Core OpenGL Gui Widgets)
 
