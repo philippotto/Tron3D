@@ -1,8 +1,4 @@
-#include "mainwindow.h"
-
-#include <iostream>
-#include <chrono>
-#include <ctime>
+#include "MainWindow.h"
 
 #include <QApplication>
 
@@ -11,8 +7,6 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <iostream>
-
-using namespace std;
 
 int main(int argc, char* argv[])
 {
@@ -94,11 +88,11 @@ int main(int argc, char* argv[])
 	
 
 	// setup application base settings
-	QApplication::setApplicationName("Qt5 Template Application");
+    QApplication::setApplicationName("Troen");
 	QApplication * application = new QApplication(argc, argv);
 
     // create and open MainWindow (subclass of QMainWindow)
-	MainWindow * mainWindow = new MainWindow();
+    MainWindow * mainWindow = new MainWindow();
     mainWindow->show();
 
 	result = application->exec();

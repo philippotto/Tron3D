@@ -14,8 +14,6 @@ set(META_AUTHOR_DOMAIN       "https://github.com/philippotto/GP2013")
 # OPTIONS
 option(OPTION_LIMIT_CONFIGS  "Generate limited configs (Release; Debug)" ON)
 option(OPTION_LOCAL_INSTALL  "Install to a local directory instead of the system" OFF)
-option(OPTION_BUILD_STATIC   "Build static libraries" OFF)
-option(OPTION_BUILD_EXAMPLES "Build examples" ON)
 option(OPTION_ERRORS_AS_EXCEPTION "Throw exceptions" OFF)
 
 
@@ -196,7 +194,7 @@ set(OSG_INCLUDE_DIRECTORIES
     ${OSGQT_INCLUDE_DIR}
 )
 
-set(OSG_LIBRARY
+set(OSG_LIBRARIES
     ${OPENTHREADS_LIBRARY}
     ${OSG_LIBRARY}
     ${OSGANIMATION_LIBRARY}
@@ -250,20 +248,23 @@ set(BULLET_INCLUDE_DIRECTORIES
 	)
 
 
-set(headers
-    source/mainwindow.h
-)	
-
 # SOURCES
-set(sources
-    source/main.cpp
-    source/mainwindow.cpp
-
-)
 
 #possibly: add subdirectories here
 add_subdirectory(source)
 
+set(headers
+	source/forwardDeclarations.h
+    source/MainWindow.h
+)
+
+set(sources
+    source/main.cpp
+    source/MainWindow.cpp
+    source/MainWindow.h
+    source/ViewerWidget.cpp
+    source/ViewerWidget.h
+)
 
 # TARGET
 # Set target name
@@ -276,7 +277,7 @@ qt5_use_modules(${target} Core OpenGL Gui Widgets)
 include_directories(
     ${CMAKE_SOURCE_DIR}
     ${OSG_INCLUDE_DIRECTORIES}
-	${BULLET_INCLUDE_DIRECTORIES}
+    ${BULLET_INCLUDE_DIRECTORIES}
     # ${FMOD_INCLUDE_DIR}
 )
 
