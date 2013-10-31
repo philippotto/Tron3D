@@ -8,6 +8,9 @@ ViewerWidget::ViewerWidget(osg::Camera* camera, osg::Node* scene) {
 	_viewer.setCameraManipulator(
 		new osgGA::TrackballManipulator);
 
+	// Use single thread here to avoid known issues under Linux
+	_viewer.setThreadingModel(osgViewer::Viewer::SingleThreaded);
+
 	osgQt::GraphicsWindowQt* gw =
 		dynamic_cast<osgQt::GraphicsWindowQt*>(
 		camera->getGraphicsContext());
