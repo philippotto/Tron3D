@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 project(troen)
 
@@ -196,7 +197,7 @@ set(OSG_INCLUDE_DIRECTORIES
     $(OSGQT_INCLUDE_DIR)
 )
 
-set(OSG_LIBRARIES
+set(OSG_LIBRARY
     ${OPENTHREADS_LIBRARY}
     ${OSG_LIBRARY}
     ${OSGANIMATION_LIBRARY}
@@ -211,30 +212,50 @@ set(OSG_LIBRARIES
     $(OSGQT_LIBRARY)
 )
 
-# BULLET
-
-# set(BULLET_INCLUDE_DIRECTORIES
-
-# )
-
-# set(BULLET_LIBRARY_DIRECTORIES
-
-# )
-
-# FMOD
-
-# find_package(FMOD REQUIRED)
-
 ### TODO: Bullet, FMOD here!
 
-# SOURCES
+set(BULLET_LIBARY_DIRECTORIES
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletCollision_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletDynamics_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletFileLoader_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletMultiThreaded_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletSoftBody_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletSoftBodySolvers_OpenCL_Mini_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletWorldImporter_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletXmlWorldImporter_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/ConvexDecomposition_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/GIMPACTUtils_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/LinearMath_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/MiniCL_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/OpenGLSupport_Debug.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletCollision.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletDynamics.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletFileLoader.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletMultiThreaded.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletSoftBody.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletSoftBodySolvers_OpenCL_Mini.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletWorldImporter.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletXmlWorldImporter.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/ConvexDecomposition.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/GIMPACTUtils.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/LinearMath.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/MiniCL.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/OpenGLSupport.lib
+	)
+set(BULLET_INCLUDE_DIRECTORIES
+	${CMAKE_CURRENT_SOURCE_DIR}/bullet/include
+	)
+
+
 set(headers
     source/mainwindow.h
-)
+)	
 
+# SOURCES
 set(sources
     source/main.cpp
     source/mainwindow.cpp
+
 )
 
 #possibly: add subdirectories here
@@ -245,18 +266,20 @@ add_subdirectory(source)
 # Set target name
 set(target troen)
 
-add_executable(${target} ${headers} ${sources})
+add_executable(${target} $(headers) ${sources})
 
 qt5_use_modules(${target} Core OpenGL Gui Widgets)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}
     ${OSG_INCLUDE_DIRECTORIES}
+	${BULLET_INCLUDE_DIRECTORIES}
     # ${FMOD_INCLUDE_DIR}
 )
 
 target_link_libraries(${target}
     ${OPENGL_LIBRARIES}
-    ${OSG_LIBRARIES}
+    ${OSG_LIBRARY}
     # ${FMOD_LIBRARIES}
+	${BULLET_LIBARY_DIRECTORIES}
 )
