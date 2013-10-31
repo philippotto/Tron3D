@@ -196,24 +196,42 @@ set(OSG_INCLUDE_DIRECTORIES
     $(OSGQT_INCLUDE_DIR)
 )
 
-set(OSG_LIBRARY_DIRECTORIES
-    ${OPENTHREADS_LIBRARY_DIR}
-    ${OSG_LIBRARY_DIR}
-    ${OSGANIMATION_LIBRARY_DIR}
-    ${OSGDB_LIBRARY_DIR}
-    ${OSGFX_LIBRARY_DIR}
-    ${OSGGA_LIBRARY_DIR}
-    ${OSGPARTICLE_LIBRARY_DIR}
-    ${OSGSHADOW_LIBRARY_DIR}
-    ${OSGTEXT_LIBRARY_DIR}
-    ${OSGUTIL_LIBRARY_DIR}
-    ${OSGVIEWER_LIBRARY_DIR}
-    $(OSGQT_LIBRARY_DIR)
+set(OSG_LIBRARIES
+    ${OPENTHREADS_LIBRARY}
+    ${OSG_LIBRARY}
+    ${OSGANIMATION_LIBRARY}
+    ${OSGDB_LIBRARY}
+    ${OSGFX_LIBRARY}
+    ${OSGGA_LIBRARY}
+    ${OSGPARTICLE_LIBRARY}
+    ${OSGSHADOW_LIBRARY}
+    ${OSGTEXT_LIBRARY}
+    ${OSGUTIL_LIBRARY}
+    ${OSGVIEWER_LIBRARY}
+    $(OSGQT_LIBRARY)
 )
+
+# BULLET
+
+# set(BULLET_INCLUDE_DIRECTORIES
+
+# )
+
+# set(BULLET_LIBRARY_DIRECTORIES
+
+# )
+
+# FMOD
+
+# find_package(FMOD REQUIRED)
 
 ### TODO: Bullet, FMOD here!
 
 # SOURCES
+set(headers
+    source/mainwindow.h
+)
+
 set(sources
     source/main.cpp
     source/mainwindow.cpp
@@ -230,16 +248,18 @@ add_subdirectory(source)
 # Set target name
 set(target troen)
 
-add_executable(${target} ${sources})
+add_executable(${target} ${headers} ${sources})
 
 qt5_use_modules(${target} Core OpenGL Gui Widgets)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}
     ${OSG_INCLUDE_DIRECTORIES}
+    # ${FMOD_INCLUDE_DIR}
 )
 
 target_link_libraries(${target}
     ${OPENGL_LIBRARIES}
-    ${OSG_LIBRARY_DIRECTORIES}
+    ${OSG_LIBRARIES}
+    # ${FMOD_LIBRARIES}
 )
