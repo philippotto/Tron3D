@@ -6,7 +6,7 @@ Audiovisual sex as a source of inspiration can be found here: http://www.youtube
 
 Set up OSG:
 - Copy the compiled OpenSceneGraph folder to C:\Program Files\ and create a System Variable "OSG_DIR" with the value: C:\Program Files\OpenSceneGraph
-- add %OSG_DIR%\lib to your PATH variable
+- add %OSG_DIR%\lib; %OSG_DIR%\bin to your PATH variable
 
 Set up FMOD:
 - Copy the fmod folder (in our Dropbox) to %ProjectDir%\3rdParty\fmod
