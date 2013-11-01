@@ -9,6 +9,7 @@
 
 #include "ViewerWidget.h"
 
+
 MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 :   QMainWindow(parent, flags),
     m_glWidget(NULL)
@@ -24,6 +25,18 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
     // subclass the QGLWidget class for specific purposes
     m_glWidget = new QGLWidget;
     setCentralWidget(m_glWidget);
+
+	// FMOD TEST
+	/*
+	m_fmodManager = cFMODManager::GetInstance();
+	m_fmodManager->InitFMOD(MAX_CHANNELS, BG_MUSIC_BASE);
+	uint soundIndex0 = m_fmodManager->LoadSound("sound.mp3", false, false, 1.0f);
+	uint soundIndex1 = m_fmodManager->LoadSound("sound.mp3", false, false, 1.0f);
+	uint soundIndex2 = m_fmodManager->LoadSound("sound.mp3", false, false, 1.0f);
+
+	std::cout << soundIndex0 << soundIndex1 << soundIndex2 << std::endl;
+	m_fmodManager->PlayFMODSound(soundIndex2);
+	*/
 
 	//m_camera = createCamera(50, 50, 640, 480);
 	//m_scene = osgDB::readNodeFile("cow.osg");

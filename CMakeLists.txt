@@ -209,8 +209,7 @@ set(OSG_LIBRARIES
     ${OSGQT_LIBRARY}
 )
 
-### TODO: Bullet, FMOD here!
-
+# Bullet
 set(BULLET_LIBARY_DIRECTORIES_Debug
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletCollision_Debug.lib
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Debug/BulletDynamics_Debug.lib
@@ -247,6 +246,20 @@ set(BULLET_INCLUDE_DIRECTORIES
 	${CMAKE_CURRENT_SOURCE_DIR}/bullet/include
 	)
 
+# FMOD
+find_package(FMOD REQUIRED)
+
+set(FMOD_INCLUDE_DIRECTORIES
+    ${FMOD_INCLUDE_DIR}
+    ${FMOD_EVENT_INCLUDE_DIR}
+)
+
+set(FMOD_LIBRARIES
+    ${FMOD_LIBRARY}
+    ${FMOD_EVENT_LIBRARY}
+)
+
+
 
 # SOURCES
 
@@ -256,14 +269,16 @@ add_subdirectory(source)
 set(headers
 	source/forwardDeclarations.h
     source/MainWindow.h
+    source/ViewerWidget.h
+    source/Fmod_manager.h
+
 )
 
 set(sources
     source/main.cpp
     source/MainWindow.cpp
-    source/MainWindow.h
     source/ViewerWidget.cpp
-    source/ViewerWidget.h
+    source/Fmod_manager.cpp
 )
 
 # TARGET
@@ -278,21 +293,21 @@ include_directories(
     ${CMAKE_SOURCE_DIR}
     ${OSG_INCLUDE_DIRECTORIES}
     ${BULLET_INCLUDE_DIRECTORIES}
-    # ${FMOD_INCLUDE_DIR}
+    ${FMOD_INCLUDE_DIRECTORIES}
 )
 
-# target_link_libraries(${target}
+# target_link_libraries( ${target}
 #    debug ${OPENGL_LIBRARIES}
-#    debug ${OSG_LIBRARY}
+#    debug ${OSG_LIBRARIES}
 #    # ${FMOD_LIBRARIES}
 #	${BULLET_LIBARY_DIRECTORIES}
 # )
 
 
-target_link_libraries(${target}
+target_link_libraries( ${target}
    ${OPENGL_LIBRARIES}
-   ${OSG_LIBRARY}
-   # ${FMOD_LIBRARIES}
+   ${OSG_LIBRARIES}
+   ${FMOD_LIBRARIES}
    
    optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletCollision.lib
    optimized ${CMAKE_CURRENT_SOURCE_DIR}/bullet/lib/Release/BulletDynamics.lib

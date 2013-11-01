@@ -1,0 +1,98 @@
+# - Find FMOD includes and library
+
+
+# Try the user's environment request before anything else.
+# Find FMOD Ex first 
+
+FIND_PATH(FMOD_INCLUDE_DIR fmod.h
+  HINTS
+  $ENV{FMOD_DIR}
+  $ENV{FMODDIR}
+  PATH_SUFFIXES api/inc
+  PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/fmod/api/inc
+)
+
+FIND_LIBRARY(FMOD_LIBRARY
+  NAMES fmodex64_vc
+  HINTS
+  $ENV{FMOD_DIR}
+  $ENV{FMODDIR}
+  PATH_SUFFIXES api/lib
+  PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/fmod/api/lib
+)
+
+FIND_LIBRARY(FMOD_LIBRARY_DEBUG 
+  NAMES fmodexL64_vc
+  HINTS
+  $ENV{FMOD_DIR}
+  $ENV{FMODDIR}
+  PATH_SUFFIXES api/lib
+  PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/fmod/api/lib
+)
+
+# Find FMOD Event next 
+
+
+FIND_PATH(FMOD_EVENT_INCLUDE_DIR fmod_event.h
+  HINTS
+  $ENV{FMOD_DIR}
+  $ENV{FMODDIR}
+  PATH_SUFFIXES fmoddesignerapi/api
+  PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/fmod/fmoddesignerapi/api/inc
+)
+
+FIND_LIBRARY(FMOD_EVENT_LIBRARY
+  NAMES fmod_event64
+  HINTS
+  $ENV{FMOD_DIR}
+  $ENV{FMODDIR}
+  PATH_SUFFIXES fmoddesignerapi/lib
+  PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/fmod/fmoddesignerapi/api/lib
+)
+
+FIND_LIBRARY(FMOD_EVENT_LIBRARY_DEBUG 
+  NAMES fmod_eventL64
+  HINTS
+  $ENV{FMOD_DIR}
+  $ENV{FMODDIR}
+  PATH_SUFFIXES fmoddesignerapi/lib
+  PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/fmod/fmoddesignerapi/api/lib
+)
+
+FIND_LIBRARY(FMOD_EVENT_NET_LIBRARY
+  NAMES fmod_event_net64
+  HINTS
+  $ENV{FMOD_DIR}
+  $ENV{FMODDIR}
+  PATH_SUFFIXES fmoddesignerapi/lib
+  PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/fmod/fmoddesignerapi/api/lib
+)
+
+FIND_LIBRARY(FMOD_EVENT_NET_LIBRARY_DEBUG 
+  NAMES fmod_event_netL64
+  HINTS
+  $ENV{FMOD_DIR}
+  $ENV{FMODDIR}
+  PATH_SUFFIXES fmoddesignerapi/lib
+  PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/fmod/fmoddesignerapi/api/lib
+)
+
+
+SET(FMOD_FOUND "NO")
+IF(FMOD_LIBRARY AND FMOD_INCLUDE_DIR AND FMOD_EVENT_LIBRARY AND FMOD_EVENT_INCLUDE_DIR AND FMOD_EVENT_NET_LIBRARY)
+  SET(FMOD_FOUND "YES")
+ENDIF(FMOD_LIBRARY AND FMOD_INCLUDE_DIR AND FMOD_EVENT_LIBRARY AND FMOD_EVENT_INCLUDE_DIR AND FMOD_EVENT_NET_LIBRARY)
+
+IF (FMOD_FOUND)
+    MESSAGE(STATUS "  FMOD found!")
+ELSE (FMOD_FOUND)
+    MESSAGE(ERROR ": FMOD not (entirely) found!")
+ENDIF (FMOD_FOUND)
