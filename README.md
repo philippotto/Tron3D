@@ -18,4 +18,4 @@ Set up BULLET_PHYSICS:
 - no setting of any evironment variable or PATH variable necessary
 
 Set up correct Working Directory:
-- in MSVC goto DEBUG->properties->ConfigurationProperties->Debugging and set WorkingDirectory to ".." (withough the quotes)
+- in MSVC goto DEBUG->properties->ConfigurationProperties->Debugging and set WorkingDirectory to ".." (without the quotes)
