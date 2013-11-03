@@ -20,12 +20,10 @@ public:
 	virtual ~MainWindow();
 
 private:
-    QGLWidget *m_glWidget;
-
 	osg::Camera * createCamera(int x, int y, int w, int h);
 
 	osg::ref_ptr<osg::Camera> m_camera;
 	osg::ref_ptr<osg::Node> m_scene;
-	ViewerWidget * m_viewerWidget;
+	ViewerWidget *m_viewerWidget;
 	cFMODManager *m_fmodManager;
 };

@@ -11,8 +11,7 @@
 
 
 MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
-:   QMainWindow(parent, flags),
-    m_glWidget(NULL)
+:   QMainWindow(parent, flags)
 {
     // configure window
     setWindowTitle("Troen");
@@ -23,8 +22,8 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
     this->resize(displaySize.width()/3*2, displaySize.height()/3*2);
 	
     // subclass the QGLWidget class for specific purposes
-    m_glWidget = new QGLWidget;
-    setCentralWidget(m_glWidget);
+    //m_glWidget = new QGLWidget;
+    //setCentralWidget(m_glWidget);
 
 	// FMOD TEST
 	/*
@@ -38,20 +37,17 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 	m_fmodManager->PlayFMODSound(soundIndex2);
 	*/
 
-	//m_camera = createCamera(50, 50, 640, 480);
-	//m_scene = osgDB::readNodeFile("cow.osg");
+	m_camera = createCamera(50, 50, 640, 480);
+	m_scene = osgDB::readNodeFile("data/models/cycle/HQ_Movie cycle.obj");
 
-	//// create and open MainWindow (subclass of QWidget)
-	//m_viewerWidget = new ViewerWidget(m_camera, m_scene);
-	//m_viewerWidget->setGeometry(100, 100, 800, 600);
-	//m_viewerWidget->show();
+	m_viewerWidget = new ViewerWidget(m_camera, m_scene);
 
-	//setCentralWidget(m_viewerWidget);
+	setCentralWidget(m_viewerWidget);
 }
 
 MainWindow::~MainWindow()
 {
-	//delete m_viewerWidget;
+	delete m_viewerWidget;
 }
 
 //OSG with Qt
@@ -67,7 +63,7 @@ osg::Camera* MainWindow::createCamera(int x, int y, int w, int h) {
 	traits->doubleBuffer = true;
 
 	osg::ref_ptr<osg::Camera> camera = new osg::Camera;
-	camera->setGraphicsContext(new osgQt::GraphicsWindowQt(traits.get(),this));
+	camera->setGraphicsContext(new osgQt::GraphicsWindowQt(traits.get()));
 	camera->setClearColor(osg::Vec4(0.2, 0.2, 0.6, 1.0));
 	camera->setViewport(new osg::Viewport( 0, 0, traits->width, traits->height));
 	camera->setProjectionMatrixAsPerspective( 30.0f, static_cast<double>(traits->width) /
