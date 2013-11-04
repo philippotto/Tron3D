@@ -161,53 +161,7 @@ endforeach(package)
 find_package(OpenGL REQUIRED)
 
 # OpenSceneGraph
-set(OSG_PACKAGES
-    OpenThreads
-    osg
-    osgAnimation
-    osgDB
-    osgFX
-    osgGA
-    osgParticle
-    osgShadow
-    osgText
-    osgUtil
-    osgViewer
-    osgQt
-)
-foreach(package ${OSG_PACKAGES})
-    find_package(${package} REQUIRED)
-endforeach(package)
-
-set(OSG_INCLUDE_DIRECTORIES
-    ${OPENTHREADS_INCLUDE_DIR}
-    ${OSG_INCLUDE_DIR}
-    ${OSGANIMATION_INCLUDE_DIR}
-    ${OSGDB_INCLUDE_DIR}
-    ${OSGFX_INCLUDE_DIR}
-    ${OSGGA_INCLUDE_DIR}
-    ${OSGPARTICLE_INCLUDE_DIR}
-    ${OSGSHADOW_INCLUDE_DIR}
-    ${OSGTEXT_INCLUDE_DIR}
-    ${OSGUTIL_INCLUDE_DIR}
-    ${OSGVIEWER_INCLUDE_DIR}
-    ${OSGQT_INCLUDE_DIR}
-)
-
-set(OSG_LIBRARIES
-    ${OPENTHREADS_LIBRARY}
-    ${OSG_LIBRARY}
-    ${OSGANIMATION_LIBRARY}
-    ${OSGDB_LIBRARY}
-    ${OSGFX_LIBRARY}
-    ${OSGGA_LIBRARY}
-    ${OSGPARTICLE_LIBRARY}
-    ${OSGSHADOW_LIBRARY}
-    ${OSGTEXT_LIBRARY}
-    ${OSGUTIL_LIBRARY}
-    ${OSGVIEWER_LIBRARY}
-    ${OSGQT_LIBRARY}
-)
+find_package(OpenSceneGraph REQUIRED)
 
 # Bullet
 set(BULLET_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/BULLET_PHYSICS")
@@ -225,7 +179,6 @@ set(FMOD_LIBRARIES
     ${FMOD_LIBRARY}
     ${FMOD_EVENT_LIBRARY}
 )
-
 
 # SOURCES
 
@@ -257,14 +210,14 @@ qt5_use_modules(${target} Core OpenGL Gui Widgets)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}
-    ${OSG_INCLUDE_DIRECTORIES}
+    ${OPENSCENEGRAPH_INCLUDE_DIRS}
     ${BULLET_INCLUDE_DIRS}
     ${FMOD_INCLUDE_DIRECTORIES}
 )
 
 target_link_libraries( ${target}
-   ${OPENGL_LIBRARIES}
-   ${OSG_LIBRARIES}
-   ${FMOD_LIBRARIES}
-   ${BULLET_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    ${OPENSCENEGRAPH_LIBRARIES}
+    ${FMOD_LIBRARIES}
+    ${BULLET_LIBRARIES}
 )

@@ -23,6 +23,8 @@ ViewerWidget::ViewerWidget(osg::Camera* camera, osg::Node* scene) {
 	if (gw)
 	{
 		QVBoxLayout* layout = new QVBoxLayout;
+		// setting all margins to 0 make widget disappear...why?
+		layout->setContentsMargins(1,1,1,1);
 		layout->addWidget(gw->getGLWidget());
 		setLayout(layout);
 	}

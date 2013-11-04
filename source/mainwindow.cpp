@@ -20,10 +20,6 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
     QDesktopWidget desktopWidget;
     QRect displaySize = desktopWidget.screenGeometry();
     this->resize(displaySize.width()/3*2, displaySize.height()/3*2);
-	
-    // subclass the QGLWidget class for specific purposes
-    //m_glWidget = new QGLWidget;
-    //setCentralWidget(m_glWidget);
 
 	// FMOD TEST
 	/*
@@ -37,11 +33,10 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 	m_fmodManager->PlayFMODSound(soundIndex2);
 	*/
 
-	m_camera = createCamera(50, 50, 640, 480);
-	m_scene = osgDB::readNodeFile("data/models/cycle/HQ_Movie cycle.obj");
+	m_camera = createCamera(50, 50, displaySize.width() / 3 * 2, displaySize.height() / 3 * 2);
+	//m_scene = osgDB::readNodeFile("data/models/cycle/HQ_Movie cycle.obj");
 
 	m_viewerWidget = new ViewerWidget(m_camera, m_scene);
-
 	setCentralWidget(m_viewerWidget);
 }
 
@@ -64,7 +59,7 @@ osg::Camera* MainWindow::createCamera(int x, int y, int w, int h) {
 
 	osg::ref_ptr<osg::Camera> camera = new osg::Camera;
 	camera->setGraphicsContext(new osgQt::GraphicsWindowQt(traits.get()));
-	camera->setClearColor(osg::Vec4(0.2, 0.2, 0.6, 1.0));
+	camera->setClearColor(osg::Vec4(0.8, 0.8, 0.8, 1.0));
 	camera->setViewport(new osg::Viewport( 0, 0, traits->width, traits->height));
 	camera->setProjectionMatrixAsPerspective( 30.0f, static_cast<double>(traits->width) /
 		static_cast<double>(traits->height), 1.0f, 10000.0f);
