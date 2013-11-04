@@ -12,7 +12,7 @@
 
 #pragma once
 //#include "fmod.h"
-#pragma comment(lib, "fmodex64_vc.lib")
+//#pragma comment(lib, "fmodex64_vc.lib")
 
 //#include "vec3.h"
 #include <QVector3D>
@@ -23,8 +23,6 @@ using std::vector;
 #include "fmod.hpp"
 #include "fmod_errors.h"
 
-
-//#pragma comment(lib, "fmodex64_vc.lib")
 
 #define MAX_CHANNELS 50
 

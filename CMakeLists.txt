@@ -170,16 +170,6 @@ find_package(BULLET REQUIRED)
 # FMOD
 find_package(FMOD REQUIRED)
 
-set(FMOD_INCLUDE_DIRECTORIES
-    ${FMOD_INCLUDE_DIR}
-    ${FMOD_EVENT_INCLUDE_DIR}
-)
-
-set(FMOD_LIBRARIES
-    ${FMOD_LIBRARY}
-    ${FMOD_EVENT_LIBRARY}
-)
-
 # SOURCES
 
 #possibly: add subdirectories here
@@ -190,7 +180,6 @@ set(headers
     source/MainWindow.h
     source/ViewerWidget.h
     source/Fmod_manager.h
-
 )
 
 set(sources
@@ -212,12 +201,12 @@ include_directories(
     ${CMAKE_SOURCE_DIR}
     ${OPENSCENEGRAPH_INCLUDE_DIRS}
     ${BULLET_INCLUDE_DIRS}
-    ${FMOD_INCLUDE_DIRECTORIES}
+    ${FMOD_INCLUDE_DIRS}
 )
 
 target_link_libraries( ${target}
     ${OPENGL_LIBRARIES}
     ${OPENSCENEGRAPH_LIBRARIES}
-    ${FMOD_LIBRARIES}
     ${BULLET_LIBRARIES}
+    ${FMOD_LIBRARIES}
 )

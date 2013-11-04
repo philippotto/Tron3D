@@ -1,9 +1,28 @@
-# - Find FMOD includes and library
+# - Try to find FMOD EX
+#
+#  This module defines the following variables
+#
+#  FMOD_FOUND - Was FMOD found
+#  FMOD_INCLUDE_DIRS - the FMOD include directories
+#  FMOD_LIBRARIES - Link to this, by default it includes
+#                     all FMOD components
+#
+#  This module accepts the following variables
+#
+#  FMOD_DIR - Can be set to FMOD install path or Windows build path
+#
+
+# Copyright (c) 2013, Johannes Deselaers <deselaers (dot) johannes (at) gmail (dot) com>
+#
+# Feel free to share and edit
 
 
-# Try the user's environment request before anything else.
+if(!FMOD_DIR)
+  set(FMOD_DIR $ENV{FMOD_DIR})
+endif(!FMOD_DIR)
+
+
 # Find FMOD Ex first 
-
 FIND_PATH(FMOD_INCLUDE_DIR fmod.h
   HINTS
   $ENV{FMOD_DIR}
@@ -33,9 +52,8 @@ FIND_LIBRARY(FMOD_LIBRARY_DEBUG
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/fmod/api/lib
 )
 
+
 # Find FMOD Event next 
-
-
 FIND_PATH(FMOD_EVENT_INCLUDE_DIR fmod_event.h
   HINTS
   $ENV{FMOD_DIR}
@@ -85,14 +103,40 @@ FIND_LIBRARY(FMOD_EVENT_NET_LIBRARY_DEBUG
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/fmod/fmoddesignerapi/api/lib
 )
 
-
-SET(FMOD_FOUND "NO")
-IF(FMOD_LIBRARY AND FMOD_INCLUDE_DIR AND FMOD_EVENT_LIBRARY AND FMOD_EVENT_INCLUDE_DIR AND FMOD_EVENT_NET_LIBRARY)
-  SET(FMOD_FOUND "YES")
-ENDIF(FMOD_LIBRARY AND FMOD_INCLUDE_DIR AND FMOD_EVENT_LIBRARY AND FMOD_EVENT_INCLUDE_DIR AND FMOD_EVENT_NET_LIBRARY)
+# handle the QUIETLY and REQUIRED arguments and set FMOD_FOUND to TRUE if
+# all listed variables are TRUE
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(FMOD DEFAULT_MSG
+    FMOD_LIBRARY
+    FMOD_INCLUDE_DIR
+    FMOD_EVENT_LIBRARY
+    FMOD_EVENT_INCLUDE_DIR
+    FMOD_EVENT_NET_LIBRARY
+)
 
 IF (FMOD_FOUND)
     MESSAGE(STATUS "  FMOD found!")
 ELSE (FMOD_FOUND)
     MESSAGE(ERROR ": FMOD not (entirely) found!")
 ENDIF (FMOD_FOUND)
+
+set(FMOD_INCLUDE_DIRS
+    ${FMOD_INCLUDE_DIR}
+    ${FMOD_EVENT_INCLUDE_DIR}
+)
+
+
+macro(_FMOD_APPEND_LIBRARIES _list _release)
+   set(_debug ${_release}_DEBUG)
+   if(${_debug})
+      set(${_list} ${${_list}} optimized ${${_release}} debug ${${_debug}})
+   else()
+      set(${_list} ${${_list}} ${${_release}})
+   endif()
+endmacro()
+
+if(FMOD_FOUND)
+   _FMOD_APPEND_LIBRARIES(FMOD_LIBRARIES FMOD_LIBRARY)
+   _FMOD_APPEND_LIBRARIES(FMOD_LIBRARIES FMOD_EVENT_LIBRARY)
+   _FMOD_APPEND_LIBRARIES(FMOD_LIBRARIES FMOD_EVENT_NET_LIBRARY)
+endif()

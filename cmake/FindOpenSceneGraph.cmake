@@ -9,7 +9,7 @@
 #
 #  This module accepts the following variables
 #
-#  OSG_DIR - Can be set to bullet install path or Windows build path
+#  OSG_DIR - Can be set to OpenSceneGraph install path or Windows build path
 #
 
 # Copyright (c) 2013, Johannes Deselaers <deselaers (dot) johannes (at) gmail (dot) com>
