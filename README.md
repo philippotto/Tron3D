@@ -19,3 +19,27 @@ Set up BULLET_PHYSICS:
 
 Set up correct Working Directory:
 - in MSVC goto DEBUG->properties->ConfigurationProperties->Debugging and set WorkingDirectory to ".." (without the quotes)
+
+___________________
+
+STYLE GUIDE
+
+- use forward declarations & (reference) pointers to reduce compile time
+
+- member variables start with m_
+
+- includes in specifies order:
+	(classname.h), qt, osg, bullet, fmod, ownHeaders
+- do not "inherit" includes, always include all necessary headers
+
+- use reference counting whereever possible (osg::ref_pr<>)
+
+- use "#pragma once" include guard
+
+- use namespaces for modules
+
+
+
+Naming
+- file names are all lowercase
+- classes start with capital letter

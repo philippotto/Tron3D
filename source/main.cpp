@@ -75,7 +75,7 @@ void testBullet() {
 int main(int argc, char* argv[])
 {
 
-	testBullet();
+	//testBullet();
 	
 	int result = -1;
 

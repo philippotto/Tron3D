@@ -5,7 +5,7 @@
 #include <osg/ref_ptr>
 
 #include "forwardDeclarations.h"
-#include "Fmod_manager.h"
+#include "fmod_manager.h"
 
 
 class MainWindow : public QMainWindow
@@ -24,6 +24,6 @@ private:
 
 	osg::ref_ptr<osg::Camera> m_camera;
 	osg::ref_ptr<osg::Node> m_scene;
-	ViewerWidget *m_viewerWidget;
+	Viewer *m_viewer;
 	cFMODManager *m_fmodManager;
 };

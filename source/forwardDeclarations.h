@@ -20,4 +20,4 @@ namespace osg
 }
 
 // forward declarations for own classes
-class ViewerWidget;
+class Viewer;
