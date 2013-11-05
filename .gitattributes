@@ -1,1 +1,6 @@
-text eol=crlf
+*.txt text eol=crlf
+*.md text eol=crlf
+*.cpp text eol=crlf
+*.h text eol=crlf
+*.vert text eol=crlf
+*.frag text eol=crlf

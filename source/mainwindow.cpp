@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 	*/
 
 	m_camera = createCamera(50, 50, displaySize.width() / 3 * 2, displaySize.height() / 3 * 2);
-	//m_scene = osgDB::readNodeFile("data/models/cycle/HQ_Movie cycle.obj");
+	m_scene = osgDB::readNodeFile("data/models/cycle/HQ_Movie cycle.obj");
 
 	m_viewerWidget = new ViewerWidget(m_camera, m_scene);
 	setCentralWidget(m_viewerWidget);
