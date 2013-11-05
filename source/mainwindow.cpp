@@ -4,6 +4,8 @@
 #include <QDesktopWidget>
 
 #include <osg/ref_ptr>
+#include <osgDB/ReadFile>
+#include <osgQt/GraphicsWindowQt>
 
 #include "viewer.h"
 
@@ -38,5 +40,5 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 
 MainWindow::~MainWindow()
 {
-	delete m_viewer;
+	delete m_viewerWidget;
 }
