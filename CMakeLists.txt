@@ -180,6 +180,7 @@ set(headers
     source/mainwindow.h
     source/viewer.h
     source/fmod_manager.h
+	source/physicsworld.h
 )
 
 set(sources
@@ -187,6 +188,7 @@ set(sources
     source/mainwindow.cpp
     source/viewer.cpp
     source/fmod_manager.cpp
+	source/physicsworld.cpp
 )
 
 # TARGET

@@ -19,5 +19,10 @@ namespace osg
 	class Node;
 }
 
+// Bullet
+class btDiscreteDynamicsWorld;
+
+
 // forward declarations for own classes
 class Viewer;
+class PhysicsWorld;
