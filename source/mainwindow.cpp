@@ -40,5 +40,5 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 
 MainWindow::~MainWindow()
 {
-	delete m_viewerWidget;
+	delete m_viewer;
 }
