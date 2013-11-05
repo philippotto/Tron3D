@@ -14,7 +14,7 @@ Viewer::Viewer() {
 	m_viewer = new osgViewer::Viewer;
 
 	m_camera = createCamera(50, 50, 600, 480);
-	//m_scene = osgDB::readNodeFile("data/models/cow.osg");
+	m_scene = osgDB::readNodeFile("data/models/cow.osg");
 
 	m_viewer->setCamera(m_camera);
 	m_viewer->setSceneData(m_scene);

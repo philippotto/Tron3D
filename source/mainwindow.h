@@ -4,7 +4,7 @@
 
 #include <osg/ref_ptr>
 
-#include "forwardDeclarations.h"
+#include "forwarddeclarations.h"
 #include "fmod_manager.h"
 
 
