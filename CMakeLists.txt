@@ -176,17 +176,17 @@ find_package(FMOD REQUIRED)
 add_subdirectory(source)
 
 set(headers
-	source/forwardDeclarations.h
-    source/MainWindow.h
-    source/ViewerWidget.h
-    source/Fmod_manager.h
+	source/forwarddeclarations.h
+    source/mainwindow.h
+    source/viewer.h
+    source/fmod_manager.h
 )
 
 set(sources
     source/main.cpp
-    source/MainWindow.cpp
-    source/ViewerWidget.cpp
-    source/Fmod_manager.cpp
+    source/mainwindow.cpp
+    source/viewer.cpp
+    source/fmod_manager.cpp
 )
 
 # TARGET

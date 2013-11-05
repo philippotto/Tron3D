@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+#include "mainwindow.h"
 
 #include <QtOpenGL>
 #include <QDesktopWidget>
@@ -7,7 +7,7 @@
 #include <osgDB/ReadFile>
 #include <osgQt/GraphicsWindowQt>
 
-#include "ViewerWidget.h"
+#include "viewer.h"
 
 
 MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 	// FMOD TEST
 	/*
 	m_fmodManager = cFMODManager::GetInstance();
-	m_fmodManager->InitFMOD(MAX_CHANNELS, BG_MUSIC_BASE);
+	m_fmodManager->InitFMOD(MAX_CHANNELS, FMOD_INIT_NORMAL);
 	uint soundIndex0 = m_fmodManager->LoadSound("sound.mp3", false, false, 1.0f);
 	uint soundIndex1 = m_fmodManager->LoadSound("sound.mp3", false, false, 1.0f);
 	uint soundIndex2 = m_fmodManager->LoadSound("sound.mp3", false, false, 1.0f);
@@ -34,15 +34,15 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 	*/
 
 	m_camera = createCamera(50, 50, displaySize.width() / 3 * 2, displaySize.height() / 3 * 2);
-	//m_scene = osgDB::readNodeFile("data/models/cycle/HQ_Movie cycle.obj");
+	m_scene = osgDB::readNodeFile("data/models/cow.osg");
 
-	m_viewerWidget = new ViewerWidget(m_camera, m_scene);
-	setCentralWidget(m_viewerWidget);
+	m_viewer = new Viewer(m_camera, m_scene);
+	setCentralWidget(m_viewer);
 }
 
 MainWindow::~MainWindow()
 {
-	delete m_viewerWidget;
+	delete m_viewer;
 }
 
 //OSG with Qt

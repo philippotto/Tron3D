@@ -1,4 +1,4 @@
-#include "FMOD_manager.h"
+#include "fmod_manager.h"
 
 
 cFMODManager* cFMODManager::m_pInstance = NULL;
