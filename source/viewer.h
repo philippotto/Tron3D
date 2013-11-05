@@ -6,12 +6,14 @@
 #include <QWidget>
 
 #include <osg/ref_ptr>
+#include <osg/Geode>
 
 
 class Viewer : public QWidget
 {
 	public:
 		Viewer();
+		
 
 	protected:
 		virtual void paintEvent(QPaintEvent* event);
@@ -22,4 +24,5 @@ class Viewer : public QWidget
 		osg::ref_ptr<osg::Node> m_scene;
 
 		QTimer m_timer;
+		osg::Geode* createAxis();
 };
