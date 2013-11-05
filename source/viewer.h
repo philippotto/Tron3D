@@ -11,11 +11,15 @@
 class Viewer : public QWidget
 {
 	public:
-		Viewer(osg::Camera* camera, osg::Node* scene);
+		Viewer();
 
 	protected:
 		virtual void paintEvent(QPaintEvent* event);
+		osg::Camera * createCamera(int x, int y, int w, int h);
 
 		osg::ref_ptr<osgViewer::Viewer> m_viewer;
+		osg::ref_ptr<osg::Camera> m_camera;
+		osg::ref_ptr<osg::Node> m_scene;
+
 		QTimer m_timer;
 };

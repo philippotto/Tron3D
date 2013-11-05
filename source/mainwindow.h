@@ -20,10 +20,6 @@ public:
 	virtual ~MainWindow();
 
 private:
-	osg::Camera * createCamera(int x, int y, int w, int h);
-
-	osg::ref_ptr<osg::Camera> m_camera;
-	osg::ref_ptr<osg::Node> m_scene;
 	Viewer *m_viewer;
 	cFMODManager *m_fmodManager;
 };
