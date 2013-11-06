@@ -38,6 +38,11 @@ MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags)
 
 }
 
+void MainWindow::run()
+{
+	m_viewer->run();
+}
+
 MainWindow::~MainWindow()
 {
 	delete m_viewer;

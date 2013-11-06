@@ -176,6 +176,9 @@ find_package(FMOD REQUIRED)
 add_subdirectory(source)
 
 set(headers
+	source/keyboardeventhandler.h
+	source/updatebikepositioncallback.h
+	source/bikeinputstate.h
 	source/forwarddeclarations.h
     source/mainwindow.h
     source/viewer.h
@@ -183,6 +186,8 @@ set(headers
 )
 
 set(sources
+	source/keyboardeventhandler.cpp
+	source/updatebikepositioncallback.cpp
     source/main.cpp
     source/mainwindow.cpp
     source/viewer.cpp

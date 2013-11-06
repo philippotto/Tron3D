@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 // This file contains forward declarations of classes,
 // so that header files need less includes
 
@@ -21,3 +23,5 @@ namespace osg
 
 // forward declarations for own classes
 class Viewer;
+class KeyboardEventHandler;
+class BikeInputState;

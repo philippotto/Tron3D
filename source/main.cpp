@@ -90,6 +90,8 @@ int main(int argc, char* argv[])
 
 	result = application->exec();
 
+	mainWindow->run();
+
 	// Clean Up
 	delete mainWindow;
 	delete application;

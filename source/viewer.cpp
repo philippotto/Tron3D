@@ -1,5 +1,7 @@
 #include "viewer.h"
 
+#include <memory>
+
 #include <QVBoxLayout>
 
 #include <osgDB/ReadFile>
@@ -9,12 +11,21 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/Viewer>
 #include <osgQt/GraphicsWindowQt>
+#include <osg/ShapeDrawable>
+#include <osg/Vec3>
+
+#include "keyboardeventhandler.h"
+#include "bikeinputstate.h"
+#include "updatebikepositioncallback.h"
 
 Viewer::Viewer() {
 	m_viewer = new osgViewer::Viewer;
 
 	m_camera = createCamera(50, 50, 600, 480);
 	m_scene = osgDB::readNodeFile("data/models/cow.osg");
+	//osg::Box* box = new osg::Box(osg::Vec3(0.0, 0.0, 0.0), 100.0);
+	//osg::ref_ptr<osg::Geode> m_scene = new osg::Geode;
+	//m_scene->addDrawable(new osg::ShapeDrawable(box));
 
 	m_viewer->setCamera(m_camera);
 	m_viewer->setSceneData(m_scene);
@@ -30,10 +41,18 @@ Viewer::Viewer() {
 	{
 		QVBoxLayout* layout = new QVBoxLayout;
 		// setting all margins to 0 make widget disappear...why?
-		layout->setContentsMargins(1,1,1,1);
+		layout->setContentsMargins(1, 1, 1, 1);
 		layout->addWidget(gw->getGLWidget());
 		setLayout(layout);
 	}
+
+	// add keyboard event handling
+	BikeInputState* bikeInputState = new BikeInputState();
+
+	m_scene->setUpdateCallback(new UpdateBikePositionCallback(bikeInputState));
+
+	osg::ref_ptr<KeyboardEventHandler> keyboardHandler = new KeyboardEventHandler(bikeInputState);
+	m_viewer->addEventHandler(keyboardHandler);
 
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
 	m_timer.start(40);
@@ -42,6 +61,11 @@ Viewer::Viewer() {
 void Viewer::paintEvent(QPaintEvent* event)
 {
 	m_viewer->frame();
+}
+
+void Viewer::run()
+{
+	m_viewer->run();
 }
 
 //OSG with Qt
