@@ -4,7 +4,6 @@
 // so that header files need less includes
 
 // Qt forward declarations
-class QGLWidget;
 
 // OSG forward declarations
 
@@ -17,6 +16,13 @@ namespace osg
 {
 	class Camera;
 	class Node;
+	class Group;
+	class GraphicsContext;
+}
+
+namespace osgGA
+{
+	class CameraManipulator;
 }
 
 // Bullet
@@ -24,5 +30,10 @@ class btDiscreteDynamicsWorld;
 
 
 // forward declarations for own classes
-class Viewer;
-class PhysicsWorld;
+namespace troen
+{
+	class OSGWidget;
+	class TroenGame;
+	class SampleOSGViewer;
+	class PhysicsWorld;
+}

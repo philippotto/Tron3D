@@ -2,24 +2,24 @@
 
 #include <QMainWindow>
 
-#include <osg/ref_ptr>
-
 #include "forwarddeclarations.h"
-#include "fmod_manager.h"
 
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+namespace troen{
 
-public:
-	MainWindow(
-		QWidget * parent = NULL
-    ,   Qt::WindowFlags flags = NULL);
+	class MainWindow : public QMainWindow
+	{
+		Q_OBJECT
 
-	virtual ~MainWindow();
+	public:
+		MainWindow (QWidget * parent = NULL);
+		virtual ~MainWindow();
 
-private:
-	Viewer *m_viewer;
-	cFMODManager *m_fmodManager;
-};
+	private:
+		OSGWidget*	m_osgWidget;
+		TroenGame*	m_troenGame;
+		QThread*	m_gameThread;
+	};
+
+
+}

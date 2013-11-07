@@ -181,6 +181,9 @@ set(headers
     source/viewer.h
     source/fmod_manager.h
 	source/physicsworld.h
+	source/troengame.h
+	source/sampleosgviewer.h
+	source/osgwidget.h
 )
 
 set(sources
@@ -189,6 +192,9 @@ set(sources
     source/viewer.cpp
     source/fmod_manager.cpp
 	source/physicsworld.cpp
+	source/troengame.cpp
+	source/sampleosgviewer.cpp
+	source/osgwidget.cpp
 )
 
 # TARGET

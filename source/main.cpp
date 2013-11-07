@@ -7,19 +7,15 @@
 
 int main(int argc, char* argv[])
 {
-
-	//PhysicsWorld *world = new PhysicsWorld();
-	//world->testBullet();
 	
 	int result = -1;
 
-
-	// setup application base settings
+	// setup application settings
 	QApplication::setApplicationName("Troen");
 	QApplication * application = new QApplication(argc, argv);
 
 	// create and open MainWindow (subclass of QMainWindow)
-	MainWindow * mainWindow = new MainWindow();
+	troen::MainWindow * mainWindow = new troen::MainWindow();
 	mainWindow->show();
 
 	result = application->exec();
