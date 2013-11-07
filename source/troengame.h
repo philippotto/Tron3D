@@ -17,6 +17,9 @@ namespace troen
 		TroenGame(osg::GraphicsContext* context, QThread* thread = NULL);
 		virtual ~TroenGame();
 
+	public slots:
+		void startGameLoop();
+
 	private:
 		bool initialize();
 		bool initializeViewer();

@@ -60,3 +60,10 @@ bool TroenGame::composeSceneGraph()
 	return true;
 }
 
+void TroenGame::startGameLoop()
+{
+	while (true)
+	{
+		m_sampleOSGViewer->frame();
+	}
+}
