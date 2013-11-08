@@ -7,7 +7,6 @@
 #include <osgDB/ReadFile>
 #include <osgQt/GraphicsWindowQt>
 
-#include "osgwidget.h"
 #include "troengame.h"
 
 using namespace troen;
@@ -20,22 +19,18 @@ MainWindow::MainWindow(QWidget * parent)
 
 	// create widgets
 	m_stackedWidget = new QStackedWidget(this);
-	m_osgWidget = new OSGWidget(m_stackedWidget);
 	m_pushButton = new QPushButton(QString("start GameLoop"), m_stackedWidget);
 
 	// order widgets
-	m_stackedWidget->addWidget(m_osgWidget);
 	int index = m_stackedWidget->addWidget(m_pushButton);
 	m_stackedWidget->setCurrentIndex(index);
 	setCentralWidget(this->m_stackedWidget);
 
+	// create GameThread and Game
 	m_gameThread = new QThread(this);
+	m_troenGame = new TroenGame(m_gameThread);
 
-	m_troenGame = new TroenGame(m_osgWidget->graphicsContext(), m_gameThread);
-
-	connect(m_pushButton, SIGNAL(clicked()), this, SLOT(showGame()) );
 	connect(m_pushButton, SIGNAL(clicked()), m_troenGame, SLOT(startGameLoop()) );
-
 }
 
 MainWindow::~MainWindow()
@@ -44,11 +39,5 @@ MainWindow::~MainWindow()
 	// need to figure out how threads are correctly shut down
 	m_gameThread->terminate();
 	delete m_gameThread;
-	delete m_osgWidget;
 	delete m_stackedWidget;
-}
-
-void MainWindow::showGame()
-{
-	m_stackedWidget->setCurrentWidget(m_osgWidget);
 }

@@ -178,23 +178,19 @@ add_subdirectory(source)
 set(headers
 	source/forwarddeclarations.h
     source/mainwindow.h
-    source/viewer.h
-    source/fmod_manager.h
-	source/physicsworld.h
+    source/sound/fmod_manager.h
+	source/physics/physicsworld.h
 	source/troengame.h
 	source/sampleosgviewer.h
-	source/osgwidget.h
 )
 
 set(sources
     source/main.cpp
     source/mainwindow.cpp
-    source/viewer.cpp
-    source/fmod_manager.cpp
-	source/physicsworld.cpp
+    source/sound/fmod_manager.cpp
+	source/physics/physicsworld.cpp
 	source/troengame.cpp
 	source/sampleosgviewer.cpp
-	source/osgwidget.cpp
 )
 
 # TARGET

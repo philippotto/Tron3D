@@ -18,18 +18,11 @@ namespace troen{
 		MainWindow (QWidget * parent = NULL);
 		virtual ~MainWindow();
 
-
-	private slots:
-		void showGame();
-
 	private:
 		QStackedWidget* m_stackedWidget;
-		OSGWidget*	m_osgWidget;
 		QPushButton* m_pushButton;
 
-
 		TroenGame*	m_troenGame;
-
 		QThread*	m_gameThread;
 	};
 

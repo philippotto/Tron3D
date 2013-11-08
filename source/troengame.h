@@ -14,7 +14,7 @@ namespace troen
 		Q_OBJECT
 
 	public:
-		TroenGame(osg::GraphicsContext* context, QThread* thread = NULL);
+		TroenGame(QThread* thread = NULL);
 		virtual ~TroenGame();
 
 	public slots:
@@ -28,6 +28,9 @@ namespace troen
 
 		osg::ref_ptr<osg::GraphicsContext>	m_graphicsContext;
 		osg::ref_ptr<SampleOSGViewer>       m_sampleOSGViewer;
+		//osg::ref_ptr<osgViewer::CompositeViewer> m_compositeViewer;
+
+		osg::ref_ptr<osgViewer::View>		m_gameView;
 		osg::ref_ptr<osg::Group>            m_rootNode;
 		osg::ref_ptr<osg::Node>				m_childNode;
 

@@ -1,6 +1,5 @@
 #include "troengame.h"
 
-#include <osgQt/GraphicsWindowQt>
 #include <osgDB/ReadFile>
 #include <osgGA/TrackballManipulator>
 #include <osgViewer/ViewerEventHandlers>
@@ -9,8 +8,8 @@
 
 using namespace troen;
 
-TroenGame::TroenGame(osg::GraphicsContext * context, QThread* thread /*= NULL*/) :
-m_graphicsContext(context), m_gameThread(thread)
+TroenGame::TroenGame(QThread* thread /*= NULL*/) :
+		m_gameThread(thread)
 {
 	if (m_gameThread == NULL) {
 		m_gameThread = new QThread(this);
@@ -31,6 +30,10 @@ bool TroenGame::initialize()
 	m_rootNode = new osg::Group;
 
 	// order of initialization is important (models before viewer)
+
+	// TODO
+	// initialize physics, sound, level and ... here
+
 	initializeModels();
 
 	initializeViewer();
@@ -42,9 +45,17 @@ bool TroenGame::initialize()
 
 bool TroenGame::initializeViewer()
 {
-	m_sampleOSGViewer = new SampleOSGViewer(m_graphicsContext);
-	m_sampleOSGViewer->setCameraManipulator(new osgGA::TrackballManipulator);
-	m_sampleOSGViewer->setSceneData(m_rootNode.get());
+	m_sampleOSGViewer = new SampleOSGViewer();
+	// TODO
+	// view setup here at the moment, should be moved to own initialize call
+	m_gameView = new osgViewer::View;
+	m_gameView->setCameraManipulator(new osgGA::TrackballManipulator);
+	m_gameView->setSceneData(m_rootNode);
+	m_gameView->setUpViewOnSingleScreen(0);
+	m_sampleOSGViewer->addView(m_gameView);
+
+	// TODO
+	// add event handlers to the viewer here
 	return true;
 }
 
@@ -65,5 +76,6 @@ void TroenGame::startGameLoop()
 	while (true)
 	{
 		m_sampleOSGViewer->frame();
+		std::cout << "insideGameLoop" << std::endl;
 	}
 }

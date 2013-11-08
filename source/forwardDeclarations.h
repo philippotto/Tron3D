@@ -10,6 +10,13 @@
 namespace osgViewer
 {
 	class Viewer;
+	class CompositeViewer;
+	class View;
+}
+
+namespace osgQt
+{
+	class GraphicsWindowQt;
 }
 
 namespace osg

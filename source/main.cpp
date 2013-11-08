@@ -3,7 +3,7 @@
 #include <QApplication>
 
 #include <iostream>
-#include "physicsworld.h"
+#include "physics/physicsworld.h"
 
 int main(int argc, char* argv[])
 {
