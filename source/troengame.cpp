@@ -61,7 +61,7 @@ bool TroenGame::initializeViewer()
 
 bool TroenGame::initializeModels()
 {
-	m_childNode = osgDB::readNodeFile("data/models/cow.osgt");
+	m_childNode = osgDB::readNodeFile("data/models/cessna.osgt");
 	return true;
 }
 
@@ -73,6 +73,10 @@ bool TroenGame::composeSceneGraph()
 
 void TroenGame::startGameLoop()
 {
+	// TODO
+	// Use proper way to shut down game loop
+	// sometimes just terminating the thread throws exception when current call to frame() is not done yet
+
 	while (true)
 	{
 		m_sampleOSGViewer->frame();
