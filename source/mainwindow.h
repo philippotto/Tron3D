@@ -17,8 +17,6 @@ public:
 		QWidget * parent = NULL
     ,   Qt::WindowFlags flags = NULL);
 
-	void run();
-
 	virtual ~MainWindow();
 
 private:

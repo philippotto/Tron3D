@@ -188,6 +188,7 @@ set(headers
 set(sources
 	source/keyboardeventhandler.cpp
 	source/updatebikepositioncallback.cpp
+	source/bikeinputstate.cpp
     source/main.cpp
     source/mainwindow.cpp
     source/viewer.cpp

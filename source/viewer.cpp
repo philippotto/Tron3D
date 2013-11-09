@@ -13,6 +13,7 @@
 #include <osgQt/GraphicsWindowQt>
 #include <osg/ShapeDrawable>
 #include <osg/Vec3>
+#include <osg/PositionAttitudeTransform>
 
 #include "keyboardeventhandler.h"
 #include "bikeinputstate.h"
@@ -22,13 +23,14 @@ Viewer::Viewer() {
 	m_viewer = new osgViewer::Viewer;
 
 	m_camera = createCamera(50, 50, 600, 480);
-	m_scene = osgDB::readNodeFile("data/models/cow.osg");
-	//osg::Box* box = new osg::Box(osg::Vec3(0.0, 0.0, 0.0), 100.0);
-	//osg::ref_ptr<osg::Geode> m_scene = new osg::Geode;
-	//m_scene->addDrawable(new osg::ShapeDrawable(box));
+	//m_scene = osgDB::readNodeFile("data/models/cow.osg");
+
+	osg::Box* box = new osg::Box(osg::Vec3(0.0, 0.0, 0.0), 100.0);
+	osg::ref_ptr<osg::Geode> geode = new osg::Geode;	osg::PositionAttitudeTransform* boxTransform = new osg::PositionAttitudeTransform();	boxTransform->addChild(geode);
+	geode->addDrawable(new osg::ShapeDrawable(box));
 
 	m_viewer->setCamera(m_camera);
-	m_viewer->setSceneData(m_scene);
+	m_viewer->setSceneData(boxTransform);
 	m_viewer->addEventHandler(new osgViewer::StatsHandler);
 	m_viewer->setCameraManipulator(new osgGA::TrackballManipulator);
 
@@ -49,7 +51,7 @@ Viewer::Viewer() {
 	// add keyboard event handling
 	BikeInputState* bikeInputState = new BikeInputState();
 
-	m_scene->setUpdateCallback(new UpdateBikePositionCallback(bikeInputState));
+	boxTransform->setUpdateCallback(new UpdateBikePositionCallback(bikeInputState));
 
 	osg::ref_ptr<KeyboardEventHandler> keyboardHandler = new KeyboardEventHandler(bikeInputState);
 	m_viewer->addEventHandler(keyboardHandler);
@@ -61,11 +63,6 @@ Viewer::Viewer() {
 void Viewer::paintEvent(QPaintEvent* event)
 {
 	m_viewer->frame();
-}
-
-void Viewer::run()
-{
-	m_viewer->run();
 }
 
 //OSG with Qt

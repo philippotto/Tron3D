@@ -12,7 +12,6 @@ class Viewer : public QWidget
 {
 	public:
 		Viewer();
-		void run();
 
 	protected:
 		virtual void paintEvent(QPaintEvent* event);

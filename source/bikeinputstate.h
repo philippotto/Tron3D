@@ -1,12 +1,12 @@
 #pragma once
 
 #include <osg/ref_ptr>
-#include <osg/Vec2>
+#include <osg/Vec2d>
 
 class BikeInputState
 {
 public:
-	BikeInputState::BikeInputState() :
-		direction(osg::Vec2d({ 0, 1 })) {}
-	osg::Vec2d direction;
+	BikeInputState();
+	void resetState();
+	osg::Vec2d m_direction;
 };
