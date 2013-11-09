@@ -53,7 +53,7 @@ bool TroenGame::initializeModels()
 {
 	m_childNode = new osg::PositionAttitudeTransform();
 	// dw: Could we use the cow, cessna is not working for me :/
-	m_childNode->addChild(osgDB::readNodeFile("data/models/cow.osg"));
+	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
 	return true;
 }
 

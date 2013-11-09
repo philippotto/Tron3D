@@ -6,7 +6,7 @@
 
 #include "bikeinputstate.h"
 
-#define MOVE_VALUE 1.0
+#define MOVE_VALUE 2.0
 #define ROTATION_VALUE 3.0
 
 KeyboardEventHandler::KeyboardEventHandler(BikeInputState* bikeInputState)
