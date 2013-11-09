@@ -79,19 +79,16 @@ bool TroenGame::initializeViewer()
 
 void TroenGame::startGameLoop()
 {
-	// TODO
-	// proper shutdown
+	// simplest version
+	//while (!m_sampleOSGViewer->done())
+	//{
+	//	m_sampleOSGViewer->frame();
+	//	std::cout << "insideGameLoop" << std::endl;
+	//}
 
-	// game loop idea from here
+	// game loop from here
 	// http://entropyinteractive.com/2011/02/game-engine-design-the-game-loop/
 
-	/*while (!m_sampleOSGViewer->done())
-	{
-		m_sampleOSGViewer->frame();
-		std::cout << "insideGameLoop" << std::endl;
-	}*/
-
-	/**/
 	m_gameIsRunning = true;
 
 	initialize();
@@ -108,7 +105,10 @@ void TroenGame::startGameLoop()
 		// convert the time to seconds
 		chrono::time_point<chrono::high_resolution_clock> currTime =
 			chrono::high_resolution_clock::now();
-		if ((currTime - nextTime) > maxTimeDiff) nextTime = currTime;
+		// have we rendered a frame recently?
+		if ((currTime - nextTime) > maxTimeDiff)
+			nextTime = currTime;
+		// do we have extra time?
 		if (currTime >= nextTime)
 		{
 			// assign the time for the next update
@@ -137,5 +137,7 @@ void TroenGame::startGameLoop()
 			}
 		}
 	}
-	/**/
+
+	// TODO
+	// shutdown();
 }
