@@ -2,7 +2,7 @@
 
 #include <osgGA/GUIEventHandler>
 
-#include "forwarddeclarations.h"
+#include "../forwarddeclarations.h"
 
 class KeyboardEventHandler : public osgGA::GUIEventHandler
 {
@@ -13,7 +13,7 @@ public:
 	virtual void accept(osgGA::GUIEventHandlerVisitor& visitor)   { visitor.visit(*this); };
 
 protected:
-	BikeInputState* m_bikeInputState;
+	osg::ref_ptr<BikeInputState> m_bikeInputState;
 
 private:
 	bool m_keyPressed;

@@ -2,7 +2,7 @@
 
 #include <osg/PositionAttitudeTransform>
 
-#include "BikeInputState.h"
+#include "input/bikeinputstate.h"
 
 UpdateBikePositionCallback::UpdateBikePositionCallback(BikeInputState* bikeInputState)
 {

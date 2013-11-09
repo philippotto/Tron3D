@@ -1,9 +1,9 @@
 #pragma once
 
-#include <osg/ref_ptr>
+#include <osg/Referenced>
 #include <osg/Vec2d>
 
-class BikeInputState
+class BikeInputState : public osg::Referenced
 {
 public:
 	BikeInputState();
