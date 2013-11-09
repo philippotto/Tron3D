@@ -1,8 +1,11 @@
 #pragma once
 
+#include <QWidget>
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QPushButton>
+
+#include <memory>
 
 
 #include "forwarddeclarations.h"

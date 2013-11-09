@@ -22,20 +22,23 @@ namespace troen
 
 	private:
 		bool initialize();
+		bool initializeViews();
 		bool initializeViewer();
 		bool initializeModels();
 		bool composeSceneGraph();
 
 		osg::ref_ptr<osg::GraphicsContext>	m_graphicsContext;
 		osg::ref_ptr<SampleOSGViewer>       m_sampleOSGViewer;
-		//osg::ref_ptr<osgViewer::CompositeViewer> m_compositeViewer;
 
 		osg::ref_ptr<osgViewer::View>		m_gameView;
+		// TODO
+		// implement some kind of menu to start the game from
+		//osg::ref_ptr<osgViewer::View>		m_menuView;
 		osg::ref_ptr<osg::Group>            m_rootNode;
 		osg::ref_ptr<osg::Node>				m_childNode;
 
 		QThread*	m_gameThread;
-
+		bool		m_gameIsRunning;
 	};
 
 

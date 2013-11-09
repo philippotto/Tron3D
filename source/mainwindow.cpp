@@ -4,8 +4,6 @@
 
 
 #include <osg/ref_ptr>
-#include <osgDB/ReadFile>
-#include <osgQt/GraphicsWindowQt>
 
 #include "troengame.h"
 
@@ -15,7 +13,6 @@ MainWindow::MainWindow(QWidget * parent)
 {
     // configure window
     this->setWindowTitle("Troen");
-	//this->setWindowState(Qt::WindowMaximized);
 
 	// create widgets
 	m_stackedWidget = new QStackedWidget(this);
@@ -35,9 +32,5 @@ MainWindow::MainWindow(QWidget * parent)
 
 MainWindow::~MainWindow()
 {
-	delete m_troenGame;
-	// need to figure out how threads are correctly shut down
 	m_gameThread->terminate();
-	delete m_gameThread;
-	delete m_stackedWidget;
 }

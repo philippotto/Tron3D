@@ -17,6 +17,9 @@
 //#include "fmod.h"
 //#pragma comment(lib, "fmodex64_vc.lib")
 
+// NOTE
+// jd: i changed the include here, i think that messes up the playback
+// TODO look for alternatives or adjust file further or write own wrapper
 //#include "vec3.h"
 #include <QVector3D>
 
