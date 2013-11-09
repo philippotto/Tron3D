@@ -13,6 +13,6 @@ public:
 
 protected:
 	osg::Vec3d m_bikePosition;
-	double m_rotation;
+	float m_bikeRotation;
 	osg::ref_ptr<BikeInputState> m_bikeInputState;
 };

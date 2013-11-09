@@ -6,10 +6,12 @@
 
 #include "bikeinputstate.h"
 
+#define MOVE_VALUE 1.0
+#define ROTATION_VALUE 3.0
+
 KeyboardEventHandler::KeyboardEventHandler(BikeInputState* bikeInputState)
 {
 	m_bikeInputState = bikeInputState;
-	m_keyPressed = false;
 }
 
 bool KeyboardEventHandler::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActionAdapter& actionAdapter)
@@ -22,22 +24,22 @@ bool KeyboardEventHandler::handle(const osgGA::GUIEventAdapter& eventAdapter, os
 		{
 		case 'w':
 			std::cout << " w key pressed" << std::endl;
-			m_bikeInputState->m_direction = osg::Vec2d({ 0.0, 5.0 });
+			m_bikeInputState->m_direction = osg::Vec2d({ 0.0, MOVE_VALUE });
 			return false;
 			break;
 		case 'a':
 			std::cout << " a key pressed" << std::endl;
-			m_bikeInputState->m_direction = osg::Vec2d({ -5.0, 0.0 });
+			m_bikeInputState->m_rotation = ROTATION_VALUE;
 			return false;
 			break;
 		case 's':
 			std::cout << " s key pressed" << std::endl;
-			m_bikeInputState->m_direction = osg::Vec2d({ 0.0, -5.0 });
+			m_bikeInputState->m_direction = osg::Vec2d({ 0.0, -MOVE_VALUE });
 			return false;
 			break;
 		case 'd':
 			std::cout << " d key pressed" << std::endl;
-			m_bikeInputState->m_direction = osg::Vec2d({ 5.0, 0.0 });
+			m_bikeInputState->m_rotation = -ROTATION_VALUE;
 			return false;
 			break;
 		default:
@@ -55,7 +57,7 @@ bool KeyboardEventHandler::handle(const osgGA::GUIEventAdapter& eventAdapter, os
 			break;
 		case 'a':
 			std::cout << " a key released" << std::endl;
-			m_bikeInputState->m_direction = osg::Vec2d({ 0.0, 0.0 });
+			m_bikeInputState->m_rotation = 0.0;
 			return false;
 			break;
 		case 's':
@@ -65,7 +67,7 @@ bool KeyboardEventHandler::handle(const osgGA::GUIEventAdapter& eventAdapter, os
 			break;
 		case 'd':
 			std::cout << " d key released" << std::endl;
-			m_bikeInputState->m_direction = osg::Vec2d({ 0.0, 0.0 });
+			m_bikeInputState->m_rotation = 0.0;
 			return false;
 			break;
 		default:

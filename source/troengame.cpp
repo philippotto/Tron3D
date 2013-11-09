@@ -52,7 +52,8 @@ bool TroenGame::initialize()
 bool TroenGame::initializeModels()
 {
 	m_childNode = new osg::PositionAttitudeTransform();
-	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
+	// dw: Could we use the cow, cessna is not working for me :/
+	m_childNode->addChild(osgDB::readNodeFile("data/models/cow.osg"));
 	return true;
 }
 
@@ -112,6 +113,9 @@ void TroenGame::startGameLoop()
 	m_gameIsRunning = true;
 
 	initialize();
+
+	// uncomment this if you have problems with the chrono timer
+	// while (true){ m_sampleOSGViewer->frame(); }
 
 	// convert the time to seconds
 	chrono::time_point<chrono::high_resolution_clock> nextTime =

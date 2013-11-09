@@ -14,7 +14,4 @@ public:
 
 protected:
 	osg::ref_ptr<BikeInputState> m_bikeInputState;
-
-private:
-	bool m_keyPressed;
 };

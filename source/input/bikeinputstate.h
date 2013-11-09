@@ -9,4 +9,5 @@ public:
 	BikeInputState();
 	void resetState();
 	osg::Vec2d m_direction;
+	float m_rotation;
 };
