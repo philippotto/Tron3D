@@ -1,25 +1,33 @@
 #pragma once
 
+#include <QWidget>
 #include <QMainWindow>
+#include <QStackedWidget>
+#include <QPushButton>
 
-#include <osg/ref_ptr>
+#include <memory>
+
 
 #include "forwarddeclarations.h"
-#include "fmod_manager.h"
 
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+namespace troen{
 
-public:
-	MainWindow(
-		QWidget * parent = NULL
-    ,   Qt::WindowFlags flags = NULL);
+	class MainWindow : public QMainWindow
+	{
+		Q_OBJECT
 
-	virtual ~MainWindow();
+	public:
+		MainWindow (QWidget * parent = NULL);
+		virtual ~MainWindow();
 
-private:
-	Viewer *m_viewer;
-	cFMODManager *m_fmodManager;
-};
+	private:
+		QStackedWidget* m_stackedWidget;
+		QPushButton* m_pushButton;
+
+		TroenGame*	m_troenGame;
+		QThread*	m_gameThread;
+	};
+
+
+}

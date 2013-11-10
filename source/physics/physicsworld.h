@@ -1,6 +1,11 @@
 #pragma once
 
-#include "forwarddeclarations.h"
+// TODO
+// jd: why do i need the " ../" , really shouldn't be necessary
+#include "../forwarddeclarations.h"
+
+// TODO
+// add namespace
 
 class PhysicsWorld
 {
