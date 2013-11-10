@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 project(troen)
 
+#################################################
 # PROJECT DESCRIPTION
+#################################################
+
 set(META_PROJECT_NAME        "Troen")
 set(META_VERSION_MAJOR       "0")
 set(META_VERSION_MINOR       "1")
@@ -10,14 +13,18 @@ set(META_VERSION             "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META
 set(META_AUTHOR_ORGANIZATION "GameProgramming")
 set(META_AUTHOR_DOMAIN       "https://github.com/philippotto/GP2013")
 
-
+#################################################
 # OPTIONS
+#################################################
+
 option(OPTION_LIMIT_CONFIGS  "Generate limited configs (Release; Debug)" ON)
 option(OPTION_LOCAL_INSTALL  "Install to a local directory instead of the system" OFF)
 option(OPTION_ERRORS_AS_EXCEPTION "Throw exceptions" OFF)
 
-
+#################################################
 # CMAKE CONFIGURATION
+#################################################
+
 set(TROEN_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Include cmake modules from ./cmake
@@ -48,8 +55,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Include custom cmake functions
 include(cmake/Custom.cmake)
 
-
+#################################################
 # PLATFORM AND ARCHITECTURE
+#################################################
 
 # Architecture (32/64 bit)
 set(X64 OFF)
@@ -81,7 +89,10 @@ else()
 endif()
 
 
+#################################################
 # INSTALL
+#################################################
+
 
 # if(X64)
 #     # http://public.kitware.com/Bug/view.php?id=9094
@@ -132,7 +143,9 @@ endif()
 # install(DIRECTORY ${GLOW_SOURCE_DIR}/include/ DESTINATION ${INSTALL_INCLUDE})
 
 
+#################################################
 # DEPENDENCIES
+#################################################
 
 # Qt5 - taken from cg2sandbox
 set(CMAKE_AUTOMOC ON)
@@ -170,32 +183,55 @@ find_package(BULLET REQUIRED)
 # FMOD
 find_package(FMOD REQUIRED)
 
+#################################################
 # SOURCES
+#################################################
 
 #possibly: add subdirectories here
-add_subdirectory(source)
-
-set(headers
-	source/forwarddeclarations.h
-    source/mainwindow.h
-    source/viewer.h
-    source/fmod_manager.h
-	source/physicsworld.h
-)
+#add_subdirectory(source)
 
 set(sources
+	source/updatebikepositioncallback.h
+	source/updatebikepositioncallback.cpp
     source/main.cpp
+    source/forwarddeclarations.h
+    source/mainwindow.h
     source/mainwindow.cpp
-    source/viewer.cpp
-    source/fmod_manager.cpp
-	source/physicsworld.cpp
+    source/troengame.h
+    source/troengame.cpp
+    source/sampleosgviewer.h
+    source/sampleosgviewer.cpp
+
+	source/input/keyboardeventhandler.h
+	source/input/keyboardeventhandler.cpp
+	source/input/bikeinputstate.h
+	source/input/bikeinputstate.cpp
+
+    source/sound/fmod_manager.h
+    source/sound/fmod_manager.cpp
+
+    source/physics/physicsworld.h
+	source/physics/physicsworld.cpp
+	source/physics/bike.h
+	source/physics/bike.cpp
+
+	source/util/chronotimer.h
+	source/util/chronotimer.cpp
+
+
 )
 
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" 
+    "\\\\.h$|\\\\.hpp$|\\\\.cpp$|\\\\.c$|\\\\.ui$|\\\\.qrc$" "Source Files" ${sources})
+
+#################################################
 # TARGET
+#################################################
+
 # Set target name
 set(target troen)
 
-add_executable(${target} ${headers} ${sources})
+add_executable(${target} ${sources})
 
 qt5_use_modules(${target} Core OpenGL Gui Widgets)
 
