@@ -1,13 +1,17 @@
 #pragma once
 
 #include <osg/Referenced>
-#include <osg/Vec2d>
 
-class BikeInputState : public osg::Referenced
+namespace troen
 {
-public:
-	BikeInputState();
-	void resetState();
-	osg::Vec2d m_direction;
-	float m_rotation;
-};
+namespace input
+{
+	class BikeInputState : public osg::Referenced
+	{
+	public:
+		BikeInputState();
+		float m_acceleration;
+		float m_angle;
+	};
+}
+}

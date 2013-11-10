@@ -212,6 +212,8 @@ set(sources
 
     source/physics/physicsworld.h
 	source/physics/physicsworld.cpp
+	source/physics/bike.h
+	source/physics/bike.cpp
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp

@@ -9,6 +9,7 @@
 #include "sampleosgviewer.h"
 #include "input/bikeinputstate.h"
 #include "input/keyboardeventhandler.h"
+#include "physics/bike.h"
 #include "updatebikepositioncallback.h"
 #include "util\chronotimer.h"
 
@@ -55,7 +56,6 @@ bool TroenGame::initialize()
 bool TroenGame::initializeModels()
 {
 	m_childNode = new osg::PositionAttitudeTransform();
-	// dw: Could we use the cow, cessna is not working for me :/
 	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
 	return true;
 }
@@ -68,11 +68,14 @@ bool TroenGame::composeSceneGraph()
 
 bool TroenGame::initializeInput()
 {
-	osg::ref_ptr<BikeInputState> bikeInputState = new BikeInputState();
+	// TODO
+	// dw: clean this up, move it to the appropriate place
+	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
+	osg::ref_ptr<physics::Bike> bike = new physics::Bike(bikeInputState);
 
-	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bikeInputState));
+	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike));
 
-	osg::ref_ptr<KeyboardEventHandler> keyboardHandler = new KeyboardEventHandler(bikeInputState);
+	osg::ref_ptr<input::KeyboardEventHandler> keyboardHandler = new input::KeyboardEventHandler(bikeInputState);
 	m_gameView->addEventHandler(keyboardHandler);
 	return true;
 }

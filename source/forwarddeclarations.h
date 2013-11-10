@@ -50,9 +50,15 @@ namespace troen
 	{
 		class ChronoTimer;
 	}
-}
 
-// TODO 
-// create suitable namespace
-class KeyboardEventHandler;
-class BikeInputState;
+	namespace physics
+	{
+		class Bike;
+	}
+
+	namespace input
+	{
+		class KeyboardEventHandler;
+		class BikeInputState;
+	}
+}

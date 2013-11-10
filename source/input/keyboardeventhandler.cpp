@@ -2,11 +2,11 @@
 
 #include <iostream>
 
-#include <osg/Vec2>
-
 #include "bikeinputstate.h"
 
-#define MOVE_VALUE 2.0
+using namespace troen::input;
+
+#define MOVE_VALUE 0.5
 #define ROTATION_VALUE 3.0
 
 KeyboardEventHandler::KeyboardEventHandler(BikeInputState* bikeInputState)
@@ -24,22 +24,22 @@ bool KeyboardEventHandler::handle(const osgGA::GUIEventAdapter& eventAdapter, os
 		{
 		case 'w':
 			std::cout << " w key pressed" << std::endl;
-			m_bikeInputState->m_direction = osg::Vec2d({ 0.0, MOVE_VALUE });
+			m_bikeInputState->m_acceleration = MOVE_VALUE;
 			return false;
 			break;
 		case 'a':
 			std::cout << " a key pressed" << std::endl;
-			m_bikeInputState->m_rotation = ROTATION_VALUE;
+			m_bikeInputState->m_angle = ROTATION_VALUE;
 			return false;
 			break;
 		case 's':
 			std::cout << " s key pressed" << std::endl;
-			m_bikeInputState->m_direction = osg::Vec2d({ 0.0, -MOVE_VALUE });
+			m_bikeInputState->m_acceleration = -MOVE_VALUE;
 			return false;
 			break;
 		case 'd':
 			std::cout << " d key pressed" << std::endl;
-			m_bikeInputState->m_rotation = -ROTATION_VALUE;
+			m_bikeInputState->m_angle = -ROTATION_VALUE;
 			return false;
 			break;
 		default:
@@ -52,22 +52,22 @@ bool KeyboardEventHandler::handle(const osgGA::GUIEventAdapter& eventAdapter, os
 		{
 		case 'w':
 			std::cout << " w key released" << std::endl;
-			m_bikeInputState->m_direction = osg::Vec2d({ 0.0, 0.0 });
+			m_bikeInputState->m_acceleration = 0.0;
 			return false;
 			break;
 		case 'a':
 			std::cout << " a key released" << std::endl;
-			m_bikeInputState->m_rotation = 0.0;
+			m_bikeInputState->m_angle = 0.0;
 			return false;
 			break;
 		case 's':
 			std::cout << " s key released" << std::endl;
-			m_bikeInputState->m_direction = osg::Vec2d({ 0.0, 0.0 });
+			m_bikeInputState->m_acceleration = 0.0;
 			return false;
 			break;
 		case 'd':
 			std::cout << " d key released" << std::endl;
-			m_bikeInputState->m_rotation = 0.0;
+			m_bikeInputState->m_angle = 0.0;
 			return false;
 			break;
 		default:
