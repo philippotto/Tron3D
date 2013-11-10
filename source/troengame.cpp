@@ -10,6 +10,7 @@
 #include "input/bikeinputstate.h"
 #include "input/keyboardeventhandler.h"
 #include "updatebikepositioncallback.h"
+#include "util\chronotimer.h"
 
 using namespace troen;
 using namespace std;
@@ -45,6 +46,8 @@ bool TroenGame::initialize()
 	initializeViewer();
 
 	initializeInput();
+
+	initializeTimer();
 
 	return true;
 }
@@ -95,68 +98,91 @@ bool TroenGame::initializeViewer()
 	return true;
 }
 
+bool TroenGame::initializeTimer()
+{
+	m_timer = make_shared<util::ChronoTimer>(false, true);
+	return true;
+}
+
 void TroenGame::startGameLoop()
 {
-	// TODO
-	// proper shutdown
+	// simplest version, use this if the below gameloop does not work
+	// or you still have timer issues
+	//while (!m_sampleOSGViewer->done())
+	//{
+	//	m_sampleOSGViewer->frame();
+	//}
 
-	// game loop idea from here
+	// game loop from here
 	// http://entropyinteractive.com/2011/02/game-engine-design-the-game-loop/
 
-	/*while (!m_sampleOSGViewer->done())
-	{
-		m_sampleOSGViewer->frame();
-		std::cout << "insideGameLoop" << std::endl;
-	}*/
-
-	/**/
-	m_gameIsRunning = true;
-
+	// INITIALIZATION
 	initialize();
+	m_timer->start();
 
-	// uncomment this if you have problems with the chrono timer
-	// while (true){ m_sampleOSGViewer->frame(); }
+	// GAME LOOP VARIABLES
+	long double nextTime = m_timer->elapsed();
+	const long double minMillisecondsBetweenFrames = 10;
+	const long double maxMillisecondsBetweenFrames = 50;
+	int skippedFrames = 0;
+	int maxSkippedFrames = 4;
 
-	// convert the time to seconds
-	chrono::time_point<chrono::high_resolution_clock> nextTime =
-		chrono::high_resolution_clock::now();
-	chrono::milliseconds maxTimeDiff =
-		chrono::milliseconds(200);
-	int skippedFrames = 1;
-	int maxSkippedFrames = 5;
-	while (m_gameIsRunning)
+	// GAME LOOP
+	while (!m_sampleOSGViewer->done())
 	{
-		// convert the time to seconds
-		chrono::time_point<chrono::high_resolution_clock> currTime =
-			chrono::high_resolution_clock::now();
-		if ((currTime - nextTime) > maxTimeDiff) nextTime = currTime;
+		long double currTime = m_timer->elapsed();
+
+		// are we significantly behind? if yes, "resync", force rendering
+		if ((currTime - nextTime) > maxMillisecondsBetweenFrames)
+			nextTime = currTime;
+		// is it time to render the next frame?
 		if (currTime >= nextTime)
 		{
+			//std::cout << "difference: " << currTime - nextTime << std::endl;
 			// assign the time for the next update
-			nextTime += chrono::milliseconds(10);
-			// physics update here
+			nextTime += minMillisecondsBetweenFrames;
+
+			// LOOP REALLY STARTS HERE:
 			//update();
-			if ((currTime < nextTime) || (skippedFrames > maxSkippedFrames))
+
+			// do we have extra time (to draw the frame) or have we rendered a frame recently?
+			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
+				//std::cout << "drawing" << std::endl;
 				m_sampleOSGViewer->frame();
-				skippedFrames = 1;
+				skippedFrames = 0;
 			}
 			else
 			{
 				skippedFrames++;
 			}
 		}
-		else
+		else // WAIT
 		{
 			// calculate the time to sleep
-			chrono::duration<chrono::high_resolution_clock::rep,chrono::high_resolution_clock::period> sleepTime = nextTime - currTime;
+			long double sleepTime = (nextTime - currTime);
 			// sanity check
-			if (sleepTime > chrono::duration<chrono::high_resolution_clock::rep, chrono::high_resolution_clock::period>(0))
+			if (sleepTime > 0)
 			{
-				// sleep until the next update
-				m_gameThread->msleep(sleepTime.count());
+				// sleep until nextTime
+				//std::cout << "sleep for: " << sleepTime << std::endl;
+				m_gameThread->msleep(sleepTime);
 			}
 		}
 	}
-	/**/
+
+	// SHUTDOWN
+	shutdown();
+}
+
+bool TroenGame::shutdown()
+{
+	m_timer.reset();
+	m_sampleOSGViewer = NULL;
+	m_gameView = NULL;
+
+	m_childNode = NULL;
+	m_rootNode = NULL;
+
+	return true;
 }
