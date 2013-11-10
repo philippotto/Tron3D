@@ -100,7 +100,6 @@ void TroenGame::startGameLoop()
 
 	// INITIALIZATION
 	initialize();
-	m_gameIsRunning = true;
 	m_timer->start();
 
 	// GAME LOOP VARIABLES
@@ -111,7 +110,7 @@ void TroenGame::startGameLoop()
 	int maxSkippedFrames = 4;
 
 	// GAME LOOP
-	while (m_gameIsRunning)
+	while (!m_sampleOSGViewer->done())
 	{
 		long double currTime = m_timer->elapsed();
 
@@ -153,6 +152,19 @@ void TroenGame::startGameLoop()
 			}
 		}
 	}
-	// TODO
-	// shutdown();
+
+	// SHUTDOWN
+	shutdown();
+}
+
+bool TroenGame::shutdown()
+{
+	m_timer.reset();
+	m_sampleOSGViewer = NULL;
+	m_gameView = NULL;
+
+	m_childNode = NULL;
+	m_rootNode = NULL;
+
+	return true;
 }

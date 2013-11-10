@@ -29,18 +29,18 @@ namespace troen
 		bool composeSceneGraph();
 		bool initializeTimer();
 
-		osg::ref_ptr<osg::GraphicsContext>	m_graphicsContext;
-		osg::ref_ptr<SampleOSGViewer>       m_sampleOSGViewer;
+		bool shutdown();
 
+		osg::ref_ptr<SampleOSGViewer>       m_sampleOSGViewer;
 		osg::ref_ptr<osgViewer::View>		m_gameView;
 		// TODO
 		// implement some kind of menu to start the game from
 		//osg::ref_ptr<osgViewer::View>		m_menuView;
+
 		osg::ref_ptr<osg::Group>            m_rootNode;
 		osg::ref_ptr<osg::Node>				m_childNode;
 
 		QThread*	m_gameThread;
-		bool		m_gameIsRunning;
 
 		std::shared_ptr<util::ChronoTimer>	m_timer;
 	};
