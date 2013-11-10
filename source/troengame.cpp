@@ -88,11 +88,11 @@ bool TroenGame::initializeTimer()
 
 void TroenGame::startGameLoop()
 {
-	// simplest version
+	// simplest version, use this if the below gameloop does not work
+	// or you still have timer issues
 	//while (!m_sampleOSGViewer->done())
 	//{
 	//	m_sampleOSGViewer->frame();
-	//	std::cout << "insideGameLoop" << std::endl;
 	//}
 
 	// game loop from here
@@ -120,7 +120,7 @@ void TroenGame::startGameLoop()
 		// is it time to render the next frame?
 		if (currTime >= nextTime)
 		{
-			std::cout << "difference: " << currTime - nextTime << std::endl;
+			//std::cout << "difference: " << currTime - nextTime << std::endl;
 			// assign the time for the next update
 			nextTime += minMillisecondsBetweenFrames;
 
@@ -147,7 +147,7 @@ void TroenGame::startGameLoop()
 			if (sleepTime > 0)
 			{
 				// sleep until nextTime
-				std::cout << "sleep for: " << sleepTime << std::endl;
+				//std::cout << "sleep for: " << sleepTime << std::endl;
 				m_gameThread->msleep(sleepTime);
 			}
 		}
