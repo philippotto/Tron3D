@@ -43,4 +43,9 @@ namespace troen
 	class TroenGame;
 	class SampleOSGViewer;
 	class PhysicsWorld;
+
+	namespace util
+	{
+		class ChronoTimer;
+	}
 }

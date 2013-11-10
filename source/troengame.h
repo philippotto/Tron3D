@@ -3,6 +3,7 @@
 #include <QThread>
 
 #include <osg/ref_ptr>
+#include <memory>
 
 #include "forwarddeclarations.h"
 
@@ -26,6 +27,7 @@ namespace troen
 		bool initializeViewer();
 		bool initializeModels();
 		bool composeSceneGraph();
+		bool initializeTimer();
 
 		osg::ref_ptr<osg::GraphicsContext>	m_graphicsContext;
 		osg::ref_ptr<SampleOSGViewer>       m_sampleOSGViewer;
@@ -39,6 +41,8 @@ namespace troen
 
 		QThread*	m_gameThread;
 		bool		m_gameIsRunning;
+
+		std::shared_ptr<util::ChronoTimer>	m_timer;
 	};
 
 

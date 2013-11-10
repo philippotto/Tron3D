@@ -7,6 +7,7 @@
 #include <chrono>
 
 #include "sampleosgviewer.h"
+#include "util\chronotimer.h"
 
 using namespace troen;
 using namespace std;
@@ -40,6 +41,8 @@ bool TroenGame::initialize()
 
 	initializeViews();
 	initializeViewer();
+
+	initializeTimer();
 
 	return true;
 }
@@ -77,6 +80,12 @@ bool TroenGame::initializeViewer()
 	return true;
 }
 
+bool TroenGame::initializeTimer()
+{
+	m_timer = make_shared<util::ChronoTimer>(false, true);
+	return true;
+}
+
 void TroenGame::startGameLoop()
 {
 	// simplest version
@@ -89,55 +98,61 @@ void TroenGame::startGameLoop()
 	// game loop from here
 	// http://entropyinteractive.com/2011/02/game-engine-design-the-game-loop/
 
-	m_gameIsRunning = true;
-
+	// INITIALIZATION
 	initialize();
+	m_gameIsRunning = true;
+	m_timer->start();
 
-	// convert the time to seconds
-	chrono::time_point<chrono::high_resolution_clock> nextTime =
-		chrono::high_resolution_clock::now();
-	chrono::milliseconds maxTimeDiff =
-		chrono::milliseconds(200);
-	int skippedFrames = 1;
-	int maxSkippedFrames = 5;
+	// GAME LOOP VARIABLES
+	long double nextTime = m_timer->elapsed();
+	const long double minMillisecondsBetweenFrames = 10;
+	const long double maxMillisecondsBetweenFrames = 50;
+	int skippedFrames = 0;
+	int maxSkippedFrames = 4;
+
+	// GAME LOOP
 	while (m_gameIsRunning)
 	{
-		// convert the time to seconds
-		chrono::time_point<chrono::high_resolution_clock> currTime =
-			chrono::high_resolution_clock::now();
-		// have we rendered a frame recently?
-		if ((currTime - nextTime) > maxTimeDiff)
+		long double currTime = m_timer->elapsed();
+
+		// are we significantly behind? if yes, "resync", force rendering
+		if ((currTime - nextTime) > maxMillisecondsBetweenFrames)
 			nextTime = currTime;
-		// do we have extra time?
+		// is it time to render the next frame?
 		if (currTime >= nextTime)
 		{
+			std::cout << "difference: " << currTime - nextTime << std::endl;
 			// assign the time for the next update
-			nextTime += chrono::milliseconds(10);
-			// physics update here
+			nextTime += minMillisecondsBetweenFrames;
+
+			// LOOP REALLY STARTS HERE:
 			//update();
-			if ((currTime < nextTime) || (skippedFrames > maxSkippedFrames))
+
+			// do we have extra time (to draw the frame) or have we rendered a frame recently?
+			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
+				//std::cout << "drawing" << std::endl;
 				m_sampleOSGViewer->frame();
-				skippedFrames = 1;
+				skippedFrames = 0;
 			}
 			else
 			{
 				skippedFrames++;
 			}
 		}
-		else
+		else // WAIT
 		{
 			// calculate the time to sleep
-			chrono::duration<chrono::high_resolution_clock::rep,chrono::high_resolution_clock::period> sleepTime = nextTime - currTime;
+			long double sleepTime = (nextTime - currTime);
 			// sanity check
-			if (sleepTime > chrono::duration<chrono::high_resolution_clock::rep, chrono::high_resolution_clock::period>(0))
+			if (sleepTime > 0)
 			{
-				// sleep until the next update
-				m_gameThread->msleep(sleepTime.count());
+				// sleep until nextTime
+				std::cout << "sleep for: " << sleepTime << std::endl;
+				m_gameThread->msleep(sleepTime);
 			}
 		}
 	}
-
 	// TODO
 	// shutdown();
 }

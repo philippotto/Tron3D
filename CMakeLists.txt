@@ -206,6 +206,10 @@ set(sources
     source/physics/physicsworld.h
 	source/physics/physicsworld.cpp
 
+	source/util/chronotimer.h
+	source/util/chronotimer.cpp
+
+
 )
 
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" 
