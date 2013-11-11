@@ -5,6 +5,7 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/MatrixTransform>
+#include <osgViewer/Viewer>
 
 #include <chrono>
 
@@ -158,7 +159,7 @@ bool TroenGame::initializeInput()
 	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
 	osg::ref_ptr<physics::Bike> bike = new physics::Bike(bikeInputState);
 
-	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike));
+	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike,m_gameView));
 
 	osg::ref_ptr<input::KeyboardEventHandler> keyboardHandler = new input::KeyboardEventHandler(bikeInputState);
 	m_gameView->addEventHandler(keyboardHandler);
@@ -171,10 +172,15 @@ bool TroenGame::initializeViews()
 	osg::ref_ptr<osgGA::NodeTrackerManipulator> manip
 		= new osgGA::NodeTrackerManipulator;
 	manip->setTrackNode(m_childNode->getChild(0));
-	manip->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
+	manip->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
 
-	manip->setRotationMode(
-		osgGA::NodeTrackerManipulator::RotationMode::TRACKBALL);
+	/*manip->setRotationMode(
+		osgGA::NodeTrackerManipulator::RotationMode::TRACKBALL);*/
+
+	osg::Matrixd cameraOffset;
+	cameraOffset.makeTranslate(0,-100, -20);
+
+	manip->setHomePosition(m_childNode->getPosition(), m_childNode->getPosition() * cameraOffset, osg::Vec3d(0, -1, 0));
 	m_gameView->setCameraManipulator(manip.get());
 	//m_gameView->setCameraManipulator(new osgGA::TrackballManipulator);
 	m_gameView->setSceneData(m_rootNode);
