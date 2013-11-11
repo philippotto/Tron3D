@@ -1,6 +1,9 @@
 #include <osg/Vec3>
 
 #include <osg/Node>
+#include <osg/DisplaySettings>
+#include <osgViewer/Viewer>
+#include <osgGA/NodeTrackerManipulator>
 
 // #include <memory>
 #include "forwarddeclarations.h"

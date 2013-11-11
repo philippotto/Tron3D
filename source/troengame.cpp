@@ -2,8 +2,10 @@
 
 #include <osgDB/ReadFile>
 #include <osgGA/TrackballManipulator>
+#include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/MatrixTransform>
+#include <osgViewer/Viewer>
 
 #include "sampleosgviewer.h"
 
@@ -181,7 +183,20 @@ bool TroenGame::initializeInput()
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
-	m_gameView->setCameraManipulator(new osgGA::TrackballManipulator);
+	osg::ref_ptr<osgGA::NodeTrackerManipulator> manip
+		= new osgGA::NodeTrackerManipulator;
+	manip->setTrackNode(m_childNode->getChild(0));
+	manip->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
+
+	/*manip->setRotationMode(
+		osgGA::NodeTrackerManipulator::RotationMode::TRACKBALL);*/
+
+	osg::Matrixd cameraOffset;
+	cameraOffset.makeTranslate(0,-100, -20);
+
+	manip->setHomePosition(m_childNode->getPosition(), m_childNode->getPosition() * cameraOffset, osg::Vec3d(0, -1, 0));
+	m_gameView->setCameraManipulator(manip.get());
+	//m_gameView->setCameraManipulator(new osgGA::TrackballManipulator);
 	m_gameView->setSceneData(m_rootNode);
 	m_gameView->setUpViewInWindow(100, 100, 800, 640, 0);
 	// TODO
