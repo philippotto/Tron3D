@@ -1,16 +1,15 @@
-#include "physicsworld.h"
+#include "GameLogic.h"
 
-#include "BulletDynamics/btBulletDynamicsCommon.h"
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
 
 #include <iostream>
 
-using namespace troen::physics;
+using namespace troen;
 
-PhysicsWorld::PhysicsWorld(){};
+GameLogic::GameLogic(){};
 
-PhysicsWorld::~PhysicsWorld(){
+GameLogic::~GameLogic(){
 
 
 	m_world->removeRigidBody(m_fallingRigidBody);
@@ -36,7 +35,7 @@ PhysicsWorld::~PhysicsWorld(){
 };
 
 
-void PhysicsWorld::initialize() {
+void GameLogic::initialize() {
 
 
 	initializeWorld();
@@ -47,7 +46,7 @@ void PhysicsWorld::initialize() {
 }
 
 
-void PhysicsWorld::initializeWorld() {
+void GameLogic::initializeWorld() {
 	// can be used to used to filter manually potential collision partners
 	m_broadphase = new btDbvtBroadphase();
 
@@ -64,7 +63,7 @@ void PhysicsWorld::initializeWorld() {
 }
 
 
-void PhysicsWorld::createLevel() {
+void GameLogic::createLevel() {
 	// for now, we create just the ground (and some basic objects for testing); later, other gimmicks could be placed here
 
 	// shapes
@@ -102,7 +101,7 @@ void PhysicsWorld::createLevel() {
 
 
 
-void PhysicsWorld::stepSimulation() {
+void GameLogic::stepSimulation() {
 
 	// TODO: remove the loop and call this method in every (n-th ?) frame (and provide the elapsed time as a parameter)
 
@@ -134,7 +133,7 @@ void PhysicsWorld::stepSimulation() {
 
 
 // respectively: updateFence ?
-void PhysicsWorld::addFence() {
+void GameLogic::addFence() {
 	/*
 	we want to have a concave shape (which will be updated every frame), so we got the following options:
 	- btBvhTriangleMeshShape with btTriangleMesh or btTriangleIndexVertexArray as input (no difference in performance)
@@ -212,7 +211,7 @@ void PhysicsWorld::addFence() {
 
 }
 
-void PhysicsWorld::checkForCollisions() {
+void GameLogic::checkForCollisions() {
 	btDispatcher *dispatcher = m_world->getDispatcher();
 	int numManifolds = dispatcher->getNumManifolds();
 	
@@ -254,12 +253,12 @@ void PhysicsWorld::checkForCollisions() {
 
 
 
-void PhysicsWorld::addBike() {
+void GameLogic::addBike() {
 
 }
 
 
-void PhysicsWorld::addItemBox() {
+void GameLogic::addItemBox() {
 
 }
 

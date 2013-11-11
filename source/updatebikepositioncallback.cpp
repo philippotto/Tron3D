@@ -2,9 +2,9 @@
 
 #include <osg/PositionAttitudeTransform>
 
-#include "physics/bike.h"
+#include "model/bikemodel.h"
 
-UpdateBikePositionCallback::UpdateBikePositionCallback(Bike* bike)
+UpdateBikePositionCallback::UpdateBikePositionCallback(BikeModel* bike)
 {
 	m_bike = bike;
 

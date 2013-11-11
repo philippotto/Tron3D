@@ -1,19 +1,18 @@
 #pragma once
 
+#include "abstractmodel.h"
 #include <osg/Referenced>
-
 #include "../forwarddeclarations.h"
 
 using namespace troen::input;
 
 namespace troen
 {
-namespace physics
-{
-	class Bike : public osg::Referenced
+
+	class BikeModel : public AbstractModel, public osg::Referenced
 	{
 	public:
-		Bike(BikeInputState* bikeInputState);
+		BikeModel(BikeInputState* bikeInputState);
 		void resetState();
 		void updateState();
 		void rotate(float angle);
@@ -21,10 +20,11 @@ namespace physics
 		float getRotation();
 		float getVelocity();
 
+		std::vector<btRigidBody> BikeModel::getRigidBodies();
+
 	private:
 		BikeInputState* m_bikeInputState;
 		float m_velocity;
 		float m_rotation;
 	};
-}
 }

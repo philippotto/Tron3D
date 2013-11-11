@@ -1,19 +1,14 @@
 #pragma once
 
-
+#include "abstractmodel.h"
 #include "../forwarddeclarations.h"
-
-using namespace troen::input;
 
 namespace troen
 {
-namespace physics
-{
-	class Fence
+	class LevelModel : public AbstractModel
 	{
 	public:
-		Fence();
+		LevelModel();
 
 	};
-}
 }

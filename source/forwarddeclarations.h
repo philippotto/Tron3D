@@ -56,18 +56,17 @@ namespace troen
 	class OSGWidget;
 	class TroenGame;
 	class SampleOSGViewer;
-	class PhysicsWorld;
+	class GameLogic;
 
 	namespace util
 	{
 		class ChronoTimer;
 	}
 
-	namespace physics
-	{
-		class Bike;
-		class Fence;
-	}
+	
+	class BikeModel;
+	class FenceModel;
+
 
 	namespace input
 	{

@@ -11,8 +11,8 @@
 #include "input/bikeinputstate.h"
 #include "input/keyboardeventhandler.h"
 
-#include "physics/physicsworld.h"
-#include "physics/bike.h"
+#include "gamelogic.h"
+#include "model/bikemodel.h"
 #include "updatebikepositioncallback.h"
 #include "util/chronotimer.h"
 
@@ -157,7 +157,7 @@ bool TroenGame::initializeInput()
 	// TODO
 	// dw: clean this up, move it to the appropriate place
 	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
-	osg::ref_ptr<physics::Bike> bike = new physics::Bike(bikeInputState);
+	osg::ref_ptr<BikeModel> bike = new BikeModel(bikeInputState);
 
 	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike));
 
@@ -196,8 +196,8 @@ bool TroenGame::initializeTimer()
 
 bool TroenGame::initializePhysics()
 {
-	physics::PhysicsWorld *world;
-	world = new physics::PhysicsWorld();
+	GameLogic *world;
+	world = new GameLogic();
 	world->initialize();
 	delete world;
 

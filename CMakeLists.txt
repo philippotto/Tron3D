@@ -210,12 +210,17 @@ set(sources
     source/sound/fmod_manager.h
     source/sound/fmod_manager.cpp
 
-    source/physics/physicsworld.h
-	source/physics/physicsworld.cpp
-	source/physics/bike.h
-	source/physics/bike.cpp
-    source/physics/fence.h
-    source/physics/fence.cpp
+    source/gamelogic.h
+	source/gamelogic.cpp
+	
+    source/model/bikemodel.h
+	source/model/bikemodel.cpp
+    source/model/levelmodel.h
+    source/model/levelmodel.cpp
+    source/model/fencemodel.h
+    source/model/fencemodel.cpp
+    source/model/abstractmodel.h
+    source/model/abstractmodel.cpp
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
