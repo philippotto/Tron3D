@@ -132,7 +132,7 @@ void PhysicsWorld::stepSimulation() {
 }
 
 
-
+// respectively: updateFence ?
 void PhysicsWorld::addFence() {
 	/*
 	we want to have a concave shape (which will be updated every frame), so we got the following options:
@@ -144,13 +144,48 @@ void PhysicsWorld::addFence() {
 	first approach will be: btBvhTriangleMeshShape with btTriangleMesh
 	*/
 
+
+	
 	btTriangleMesh fenceMesh;
-	fenceMesh.addTriangle(btVector3(-1, 0, -1), btVector3(-1, 0, 1), btVector3( 1, 0, -1), false);
-	fenceMesh.addTriangle(btVector3( 1, 0, -1), btVector3(-1, 0, 1), btVector3( 1, 0,  1), false);
-	fenceMesh.addTriangle(btVector3(-1, 0, -1), btVector3(0, 1, 0), btVector3(-1, 0, 1), false);
-	fenceMesh.addTriangle(btVector3(-1, 0, -1), btVector3(0, 1, 0), btVector3( 1, 0,-1), false);
-	fenceMesh.addTriangle(btVector3( 1, 0, -1), btVector3(0, 1, 0), btVector3( 1, 0, 1), false);
-	fenceMesh.addTriangle(btVector3( 1, 0,  1), btVector3(0, 1, 0), btVector3(-1, 0, 1), false);
+	/*
+	the mesh will look this (I should study art)
+	1 4                5 ...
+
+	0		             2 3 ...
+	*/
+	
+	int fenceHeight = 1;
+	int fenceStep = 1;
+
+	// TODO change initial value of X
+	int currentX = 0;
+
+	// mind the manipulation of i within the loop
+	for (int i = 0; i < 10; ++i)
+	{
+
+		currentX += fenceStep;
+
+		fenceMesh.addTriangle(
+			btVector3(currentX, 0, 0),
+			btVector3(currentX, fenceHeight, 0),
+			btVector3(currentX + fenceStep, 0, 0),
+			false
+		);
+
+		i++;
+
+		currentX += fenceStep;
+
+		fenceMesh.addTriangle(
+			btVector3(currentX, 0, 0),
+			btVector3(currentX - fenceStep, fenceHeight, 0),
+			btVector3(currentX, fenceHeight, 0),
+			false
+		);
+	}
+
+
 	btBvhTriangleMeshShape *fenceShape = new btBvhTriangleMeshShape(&fenceMesh, false);
 
 
@@ -162,7 +197,7 @@ void PhysicsWorld::addFence() {
 
 
 	// we set localInertia to a zero vector
-	// maybe, the mass has to be 0 instead of one ?
+	// maybe, the mass has to be 0 instead of 1 ?
 	btRigidBody* fenceBody = new btRigidBody(1, motionState, fenceShape, btVector3(0, 0, 0));
 	
 
