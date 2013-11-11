@@ -3,6 +3,7 @@
 #include <osgDB/ReadFile>
 #include <osgGA/TrackballManipulator>
 #include <osgViewer/ViewerEventHandlers>
+#include <osgGA/NodeTrackerManipulator>
 
 #include <chrono>
 
@@ -96,12 +97,21 @@ bool TroenGame::initializeInput()
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
-	m_gameView->setCameraManipulator(new osgGA::TrackballManipulator);
+	osg::ref_ptr<osgGA::NodeTrackerManipulator> manip
+		= new osgGA::NodeTrackerManipulator;
+	manip->setTrackNode(m_childNode->getChild(0));
+	manip->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
+	
+	manip->setRotationMode(
+		osgGA::NodeTrackerManipulator::RotationMode::TRACKBALL);
+	m_gameView->setCameraManipulator(manip.get());
+	//m_gameView->setCameraManipulator(new osgGA::TrackballManipulator);
 	m_gameView->setSceneData(m_rootNode);
 	m_gameView->setUpViewInWindow(100, 100, 800, 640, 0);
 	// TODO
 	// add camera to gameview
 	// (possibly multiple ones for multiple rendering passes)
+
 	return true;
 }
 
