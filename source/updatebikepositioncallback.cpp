@@ -2,12 +2,12 @@
 
 #include <osg/PositionAttitudeTransform>
 
-#include "physics/bike.h"
+#include "model/bikemodel.h"
 
-UpdateBikePositionCallback::UpdateBikePositionCallback(Bike* bike, osgViewer::View *view)
+
+UpdateBikePositionCallback::UpdateBikePositionCallback(BikeModel* bike)
 {
 	m_bike = bike;
-	m_view = view;
 
 	// TODO: move to an appropriate place
 	m_bikePosition = osg::Vec3d( 0.0, 0.0, 10.0 );

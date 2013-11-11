@@ -3,7 +3,7 @@
 #include <QApplication>
 
 #include <iostream>
-#include "physics/physicsworld.h"
+#include "gamelogic.h"
 
 int main(int argc, char* argv[])
 {

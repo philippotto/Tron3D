@@ -1,53 +1,61 @@
-#include "bike.h"
+#include "bikemodel.h"
 
 #include <math.h>
 
 #include "../input/bikeinputstate.h"
 
-using namespace troen::physics;
+using namespace troen;
 
 #define VMAX 10.0
 #define FRICTION 0.1
 
-Bike::Bike(BikeInputState* bikeInputState)
+BikeModel::BikeModel(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
 	m_bikeInputState = bikeInputState;
 	resetState();
 }
 
-void Bike::resetState()
+void BikeModel::resetState()
 {
 	m_velocity = 0.0;
 	m_rotation = 0.0;
 }
 
-void Bike::updateState()
+void BikeModel::updateState()
 {
 	// call this exactly once per frame
-	rotate(m_bikeInputState->m_angle);
-	accelerate(m_bikeInputState->m_acceleration);
+	rotate(m_bikeInputState->getAngle());
+	accelerate(m_bikeInputState->getAcceleration());
 }
 
 // TODO
 // this is where physics/bullet should kick in and adjust these values
 
-void Bike::rotate(float angle)
+void BikeModel::rotate(float angle)
 {
 	// reset rotation if it's more than 360°
 	m_rotation = fmod(m_rotation + angle, 360.f);
 }
 
-void Bike::accelerate(float velocity)
+void BikeModel::accelerate(float velocity)
 {
 	m_velocity = fmax(fmin(m_velocity + velocity - FRICTION, VMAX), 0.f);
 }
 
-float Bike::getRotation()
+float BikeModel::getRotation()
 {
 	return m_rotation;
 }
 
-float Bike::getVelocity()
+float BikeModel::getVelocity()
 {
 	return m_velocity;
+}
+
+
+std::vector<btRigidBody> BikeModel::getRigidBodies(){
+	std::vector<btRigidBody> a;
+
+
+	return a;
 }

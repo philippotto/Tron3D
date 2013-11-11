@@ -1,30 +1,28 @@
 #include "troengame.h"
 
 #include <osgDB/ReadFile>
-#include <osg/ImageStream>
-#include <osg/Material>
 #include <osgGA/TrackballManipulator>
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
-#include <osg/MatrixTransform>
-#include <osgViewer/Viewer>
-#include <osg/Texture2D>
-#include <osg/TexMat>
-
-
-#include <chrono>
 
 #include "sampleosgviewer.h"
-#include "input/bikeinputstate.h"
-#include "input/keyboardeventhandler.h"
 
-#include "physics/physicsworld.h"
-#include "physics/bike.h"
-#include "updatebikepositioncallback.h"
+#include "input/bikeinputstate.h"
+#include "input/keyboard.h"
+#include "input/gamepad.h"
+
 #include "util/chronotimer.h"
+#include "gamelogic.h"
+#include "model/bikemodel.h"
+
+#include "updatebikepositioncallback.h"
+
+#include "controller/levelcontroller.h"
 
 using namespace troen;
 using namespace std;
+
+#define USE_GAMEPAD true
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
 	m_gameThread(thread)
@@ -48,7 +46,7 @@ bool TroenGame::initialize()
 
 	// careful about the order of initialization
 	// TODO
-	// initialize sound, level and ... here
+	// initialize sound ... here
 
 	std::cout << "initializing game ..." << std::endl;
 
@@ -67,8 +65,8 @@ bool TroenGame::initialize()
 	std::cout << "timer ..." << std::endl;
 	initializeTimer();
 	
-	std::cout << "physics ..." << std::endl;
-	initializePhysics();
+	std::cout << "GameLogic ..." << std::endl;
+	initializeGameLogic();
 
 	std::cout << "successfully initialized !" << std::endl;
 
@@ -81,152 +79,25 @@ bool TroenGame::initializeModels()
 	
 	
 	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
-	// m_childNode->setPosition(osg::Vec3(0, 0, 500));
+	// currently, initial position is set in updateBikePositoinCallback.cpp
 
 	return true;
 }
 
 
-bool TroenGame::initializeLevel() {
+bool TroenGame::initializeLevel()
+{
 
-	const int  levelSize = 1000;
-
-	osg::ref_ptr<osg::Group> levelGroup = new osg::Group();
-
-	osg::ref_ptr<osg::Geode> levelGeode = new osg::Geode();
-
-	// ground
-	osg::ref_ptr<osg::Box> ground
-		= new osg::Box(osg::Vec3(0, 0, 0), levelSize, levelSize, 1);
+	m_levelController = std::make_shared<LevelController>();
 	
-	osg::ref_ptr<osg::ShapeDrawable> groundDrawable
-		= new osg::ShapeDrawable(ground);
-
-	// vertex array
-	osg::Vec3Array *vertexArray = new osg::Vec3Array();
-
-	vertexArray->push_back(osg::Vec3(-levelSize/2, -levelSize/2, 0));
-	vertexArray->push_back(osg::Vec3(levelSize/2, -levelSize/2, 0));
-	vertexArray->push_back(osg::Vec3(levelSize/2, levelSize/2, 0));
-	vertexArray->push_back(osg::Vec3(-levelSize/2, levelSize/2, 0));
-
-	// face array
-	osg::DrawElementsUInt *faceArray = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-
-	faceArray->push_back(0); // face 1
-	faceArray->push_back(1);
-	faceArray->push_back(2);
-	faceArray->push_back(2); // face 2
-	faceArray->push_back(3);
-	faceArray->push_back(0);
-
-	// normal array
-	osg::Vec3Array *normalArray = new osg::Vec3Array();
-	normalArray->push_back(osg::Vec3(0, 0, 1));
-
-
-
-	// texture coordinates
-	osg::Vec2Array *texCoords = new osg::Vec2Array();
-	texCoords->push_back(osg::Vec2(0.0, 0.0));
-	texCoords->push_back(osg::Vec2(6.0, 0.0));
-	texCoords->push_back(osg::Vec2(6.0, 6.0));
-	texCoords->push_back(osg::Vec2(0.0,6.0));
-
-	osg::Geometry *geometry = new osg::Geometry();
-	geometry->setVertexArray(vertexArray);
-	geometry->setNormalArray(normalArray);
-	geometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-	geometry->setTexCoordArray(0, texCoords);
-	geometry->addPrimitiveSet(faceArray);
-
-	osg::Geode *plane = new osg::Geode();
-	plane->addDrawable(geometry);
-
-	// create a simple material
-	osg::Material *material = new osg::Material();
-	material->setEmission(osg::Material::FRONT, osg::Vec4(0.8, 0.8, 0.8, 1.0));
-
-
-	// create a texture
-	// load image for texture
-	osg::Image *image = osgDB::readImageFile("data/models/Images/grid.tga");
-	if (!image) {
-		std::cout << "Couldn't load texture." << std::endl;
-		return NULL;
-	}
-	osg::Texture2D *texture = new osg::Texture2D;
-	texture->setDataVariance(osg::Object::DYNAMIC);
-	texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
-	texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
-	texture->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
-	texture->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
-	texture->setImage(image);
-
-	// assign the material and texture to the sphere
-	osg::StateSet *groundStateSet = plane->getOrCreateStateSet();
-	groundStateSet->ref();
-	groundStateSet->setAttribute(material);
-	groundStateSet->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
-
-
-
-
-	// wall right
-	osg::ref_ptr<osg::Box> wallRight
-		= new osg::Box(osg::Vec3(levelSize/2, 0, 50), 1, levelSize, 100);
-	
-	osg::ref_ptr<osg::ShapeDrawable> wallDrawableRight
-		= new osg::ShapeDrawable(wallRight);
-
-	// wall left
-	osg::ref_ptr<osg::Box> wallLeft
-		= new osg::Box(osg::Vec3(-levelSize / 2, 0, 50), 1, levelSize, 100);
-	
-	osg::ref_ptr<osg::ShapeDrawable> wallDrawableLeft
-		= new osg::ShapeDrawable(wallLeft);
-	
-	
-	// wall back
-	osg::ref_ptr<osg::Box> wallBack
-		= new osg::Box(osg::Vec3(0, -levelSize / 2, 50), levelSize, 1, 100);
-	
-	osg::ref_ptr<osg::ShapeDrawable> wallDrawableBack
-		= new osg::ShapeDrawable(wallBack);
-
-	// wall front
-	osg::ref_ptr<osg::Box> wallFront
-		= new osg::Box(osg::Vec3(0, levelSize/2, 50), levelSize, 1, 100);
-	
-	osg::ref_ptr<osg::ShapeDrawable> wallDrawableFront
-		= new osg::ShapeDrawable(wallFront);
-
-
-
-
-	
-	levelGeode->addDrawable(wallDrawableLeft);
-	levelGeode->addDrawable(wallDrawableRight);
-	levelGeode->addDrawable(wallDrawableFront);
-	levelGeode->addDrawable(wallDrawableBack);
-	levelGroup->addChild(plane);
-	levelGroup->addChild(levelGeode);
-
-
-	// fence
-	// osg::Box *fence = new osg::Box(osg::Vec3(0, 0, 0), 10, 10, 0.1);
-	// osg::ShapeDrawable* fenceDrawable = new osg::ShapeDrawable(fence);
-	// levelGroup->addDrawable(fenceDrawable);
-	
-	// Add the goede to the scene:
-	m_rootNode->addChild(levelGroup);
-
 	return true;
 }
 
 bool TroenGame::composeSceneGraph()
 {
+	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_childNode);
+
 	return true;
 }
 
@@ -235,12 +106,21 @@ bool TroenGame::initializeInput()
 	// TODO
 	// dw: clean this up, move it to the appropriate place
 	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
-	osg::ref_ptr<physics::Bike> bike = new physics::Bike(bikeInputState);
+	osg::ref_ptr<BikeModel> bike = new BikeModel(bikeInputState);
 
-	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike,m_gameView));
+	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike));
 
-	osg::ref_ptr<input::KeyboardEventHandler> keyboardHandler = new input::KeyboardEventHandler(bikeInputState);
-	m_gameView->addEventHandler(keyboardHandler);
+	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
+	std::shared_ptr<input::Gamepad> gamepadHandler = make_shared<input::Gamepad>(bikeInputState);
+
+	if (USE_GAMEPAD)
+	{
+		bikeInputState->setPollingDevice(gamepadHandler);
+	} else
+	{
+		m_gameView->addEventHandler(keyboardHandler);
+	}
+
 	return true;
 }
 
@@ -251,6 +131,9 @@ bool TroenGame::initializeViews()
 		= new osgGA::NodeTrackerManipulator;
 	manip->setTrackNode(m_childNode->getChild(0));
 	manip->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
+
+	/*manip->setRotationMode(
+		osgGA::NodeTrackerManipulator::RotationMode::TRACKBALL);*/
 
 	osg::Matrixd cameraOffset;
 	cameraOffset.makeTranslate(0,-100, -20);
@@ -282,12 +165,10 @@ bool TroenGame::initializeTimer()
 }
 
 
-bool TroenGame::initializePhysics()
+bool TroenGame::initializeGameLogic()
 {
-	physics::PhysicsWorld *world;
-	world = new physics::PhysicsWorld();
-	world->initialize();
-	delete world;
+	m_gameLogic = std::make_shared<GameLogic>();
+	m_gameLogic->initialize();
 
 	return true;
 }

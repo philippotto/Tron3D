@@ -1,4 +1,4 @@
-#include "keyboardeventhandler.h"
+#include "keyboard.h"
 
 #include <iostream>
 
@@ -6,15 +6,12 @@
 
 using namespace troen::input;
 
-#define MOVE_VALUE 0.5
-#define ROTATION_VALUE 3.0
-
-KeyboardEventHandler::KeyboardEventHandler(BikeInputState* bikeInputState)
+Keyboard::Keyboard(osg::ref_ptr<BikeInputState> bikeInputState)
 {
 	m_bikeInputState = bikeInputState;
 }
 
-bool KeyboardEventHandler::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActionAdapter& actionAdapter)
+bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActionAdapter& actionAdapter)
 {
 	switch (eventAdapter.getEventType())
 	{
@@ -24,22 +21,22 @@ bool KeyboardEventHandler::handle(const osgGA::GUIEventAdapter& eventAdapter, os
 		{
 		case 'w':
 			std::cout << " w key pressed" << std::endl;
-			m_bikeInputState->m_acceleration = MOVE_VALUE;
+			m_bikeInputState->setAcceleration(1.0);
 			return false;
 			break;
 		case 'a':
 			std::cout << " a key pressed" << std::endl;
-			m_bikeInputState->m_angle = ROTATION_VALUE;
+			m_bikeInputState->setAngle(1.0);
 			return false;
 			break;
 		case 's':
 			std::cout << " s key pressed" << std::endl;
-			m_bikeInputState->m_acceleration = -MOVE_VALUE;
+			m_bikeInputState->setAcceleration(-1.0);
 			return false;
 			break;
 		case 'd':
 			std::cout << " d key pressed" << std::endl;
-			m_bikeInputState->m_angle = -ROTATION_VALUE;
+			m_bikeInputState->setAngle(-1.0);
 			return false;
 			break;
 		default:
@@ -52,22 +49,22 @@ bool KeyboardEventHandler::handle(const osgGA::GUIEventAdapter& eventAdapter, os
 		{
 		case 'w':
 			std::cout << " w key released" << std::endl;
-			m_bikeInputState->m_acceleration = 0.0;
+			m_bikeInputState->setAcceleration(0.0);
 			return false;
 			break;
 		case 'a':
 			std::cout << " a key released" << std::endl;
-			m_bikeInputState->m_angle = 0.0;
+			m_bikeInputState->setAngle(0.0);
 			return false;
 			break;
 		case 's':
 			std::cout << " s key released" << std::endl;
-			m_bikeInputState->m_acceleration = 0.0;
+			m_bikeInputState->setAcceleration(0.0);
 			return false;
 			break;
 		case 'd':
 			std::cout << " d key released" << std::endl;
-			m_bikeInputState->m_angle = 0.0;
+			m_bikeInputState->setAngle(0.0);
 			return false;
 			break;
 		default:
