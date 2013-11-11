@@ -1,16 +1,14 @@
 #pragma once
 
-
+#include "abstractview.h"
 #include "../forwarddeclarations.h"
-
-using namespace troen::input;
 
 namespace troen
 {
-	class FenceModel
+	class LevelView : public AbstractView
 	{
 	public:
-		FenceModel();
+		LevelView();
 
 	};
 }
