@@ -27,6 +27,7 @@ namespace osg
 	class Node;
 	class Group;
 	class GraphicsContext;
+	class ShapeDrawable;
 }
 
 namespace osgGA
@@ -65,6 +66,7 @@ namespace troen
 	namespace physics
 	{
 		class Bike;
+		class Fence;
 	}
 
 	namespace input

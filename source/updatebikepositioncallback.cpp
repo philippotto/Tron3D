@@ -7,7 +7,9 @@
 UpdateBikePositionCallback::UpdateBikePositionCallback(Bike* bike)
 {
 	m_bike = bike;
-	m_bikePosition = osg::Vec3d( 0.0, 0.0, 0.0 );
+
+	// TODO: move to an appropriate place
+	m_bikePosition = osg::Vec3d( 0.0, 0.0, 10.0 );
 }
 
 void UpdateBikePositionCallback::operator()(osg::Node* node, osg::NodeVisitor* nodeVisitor)
