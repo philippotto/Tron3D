@@ -8,7 +8,8 @@
 
 #include "sampleosgviewer.h"
 #include "input/bikeinputstate.h"
-#include "input/keyboardeventhandler.h"
+#include "input/keyboard.h"
+#include "input/gamepad.h"
 #include "physics/bike.h"
 #include "updatebikepositioncallback.h"
 #include "util\chronotimer.h"
@@ -75,7 +76,8 @@ bool TroenGame::initializeInput()
 
 	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike));
 
-	osg::ref_ptr<input::KeyboardEventHandler> keyboardHandler = new input::KeyboardEventHandler(bikeInputState);
+	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
+	std::shared_ptr<input::Gamepad> gamecontrollerHandler = make_shared<input::Gamepad>(bikeInputState);
 	m_gameView->addEventHandler(keyboardHandler);
 	return true;
 }

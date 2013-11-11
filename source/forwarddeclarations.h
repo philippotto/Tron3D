@@ -37,7 +37,6 @@ namespace osgGA
 // Bullet
 class btDiscreteDynamicsWorld;
 
-
 // forward declarations for own classes
 namespace troen
 {
@@ -58,7 +57,8 @@ namespace troen
 
 	namespace input
 	{
-		class KeyboardEventHandler;
+		class Keyboard;
+		class Gamepad;
 		class BikeInputState;
 	}
 }

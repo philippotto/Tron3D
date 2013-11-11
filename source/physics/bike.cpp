@@ -24,8 +24,8 @@ void Bike::resetState()
 void Bike::updateState()
 {
 	// call this exactly once per frame
-	rotate(m_bikeInputState->m_angle);
-	accelerate(m_bikeInputState->m_acceleration);
+	rotate(m_bikeInputState->getAngle());
+	accelerate(m_bikeInputState->getAcceleration());
 }
 
 // TODO
