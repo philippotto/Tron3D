@@ -12,5 +12,6 @@ namespace troen
 	public:
 		FenceController();
 
+
 	};
 }
