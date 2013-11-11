@@ -9,7 +9,7 @@ using namespace troen;
 #define VMAX 10.0
 #define FRICTION 0.1
 
-BikeModel::BikeModel(BikeInputState* bikeInputState)
+BikeModel::BikeModel(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
 	m_bikeInputState = bikeInputState;
 	resetState();

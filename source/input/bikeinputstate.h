@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <osg/Referenced>
 
 #include "../forwarddeclarations.h"

@@ -10,5 +10,7 @@ namespace troen
 	public:
 		LevelModel();
 
+	protected:
+		std::vector<btRigidBody> getRigidBodies();
 	};
 }

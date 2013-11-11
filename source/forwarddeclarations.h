@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 // This file contains forward declarations of classes,
 // so that header files need less includes
 
@@ -53,9 +51,26 @@ namespace osgGA
 namespace troen
 {
 	class OSGWidget;
+	
+
 	class TroenGame;
 	class SampleOSGViewer;
 	class GameLogic;
+
+	class BikeModel;
+	class LevelModel;
+	class FenceModel;
+	class AbstractModel;
+
+	class BikeController;
+	class LevelController;
+	class FenceController;
+	class AbstractController;
+
+	class BikeView;
+	class LevelView;
+	class FenceView;
+	class AbstractView;	
 
 	namespace util
 	{
