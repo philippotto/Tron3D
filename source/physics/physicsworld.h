@@ -26,7 +26,8 @@ namespace troen
 				void addBike();
 				void addItemBox();
 				void checkForCollisions();
-
+			
+			private:
 				// member variables
 				btDiscreteDynamicsWorld *m_world;
 
