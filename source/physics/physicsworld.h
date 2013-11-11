@@ -4,19 +4,43 @@
 // jd: why do i need the " ../" , really shouldn't be necessary
 #include "../forwarddeclarations.h"
 
-// TODO
-// add namespace
 
-class PhysicsWorld
+namespace troen
 {
-	
+	namespace physics
+	{
+		class PhysicsWorld
+		{
+			public:
+				PhysicsWorld();
 
-public:
-	PhysicsWorld();
+				virtual ~PhysicsWorld();
 
-	virtual ~PhysicsWorld();
+				void initialize();
+				void initializeWorld();
 
-	void testBullet();
-	void checkForCollisions();
-	btDiscreteDynamicsWorld *m_world;
-};
+				void createLevel();
+
+				void stepSimulation();
+				void addFence();
+				void addBike();
+				void addItemBox();
+				void checkForCollisions();
+
+				// member variables
+				btDiscreteDynamicsWorld *m_world;
+
+				btSequentialImpulseConstraintSolver *m_solver;
+				btDefaultCollisionConfiguration *m_collisionConfiguration;
+				btCollisionDispatcher *m_dispatcher;
+				btBroadphaseInterface *m_broadphase;
+
+				btRigidBody *m_fallingRigidBody;
+				btRigidBody *m_groundRigidBody;
+
+				btCollisionShape *m_fallingShape;
+				btCollisionShape *m_groundShape;
+
+		};
+	}
+}

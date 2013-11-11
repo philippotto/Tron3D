@@ -35,7 +35,18 @@ namespace osgGA
 }
 
 // Bullet
-class btDiscreteDynamicsWorld;
+// namespace doesn't work? may the library was designed without it?
+
+// namespace bt
+// {
+	class btDiscreteDynamicsWorld;
+	class btSequentialImpulseConstraintSolver;
+	class btDefaultCollisionConfiguration;
+	class btCollisionDispatcher;
+	class btBroadphaseInterface;
+	class btRigidBody;
+	class btCollisionShape;
+// }
 
 
 // forward declarations for own classes
