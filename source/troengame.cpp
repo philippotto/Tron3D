@@ -42,17 +42,26 @@ bool TroenGame::initialize()
 	// TODO
 	// initialize sound, level and ... here
 
+	std::cout << "initializing game ..." << std::endl;
+
+	std::cout << "models and scenegraph ..." << std::endl;
 	initializeModels();
 	composeSceneGraph();
 
+	std::cout << "views & viewer ..." << std::endl;
 	initializeViews();
 	initializeViewer();
 
+	std::cout << "input ..." << std::endl;
 	initializeInput();
 
+	std::cout << "timer ..." << std::endl;
 	initializeTimer();
 	
+	std::cout << "physics ..." << std::endl;
 	initializePhysics();
+
+	std::cout << "successfully initialized !" << std::endl;
 
 	return true;
 }
@@ -89,7 +98,7 @@ bool TroenGame::initializeViews()
 	m_gameView = new osgViewer::View;
 	m_gameView->setCameraManipulator(new osgGA::TrackballManipulator);
 	m_gameView->setSceneData(m_rootNode);
-	m_gameView->setUpViewOnSingleScreen(0);
+	m_gameView->setUpViewInWindow(100, 100, 800, 640, 0);
 	// TODO
 	// add camera to gameview
 	// (possibly multiple ones for multiple rendering passes)
@@ -161,6 +170,14 @@ void TroenGame::startGameLoop()
 			nextTime += minMillisecondsBetweenFrames;
 
 			// LOOP REALLY STARTS HERE:
+			/* FROM GameProg Info session:
+			checkForUserInput()
+			runAI()
+			moveEnemies()
+			// (network / multiplayer)
+			resolveCollisisons() (Physics)
+			// (moveEnemies)
+			/**/
 			//update();
 
 			// do we have extra time (to draw the frame) or have we rendered a frame recently?
