@@ -31,6 +31,7 @@ namespace troen
 		bool initializeInput();
 		bool composeSceneGraph();
 		bool initializeTimer();
+		bool initializePhysics();
 
 		bool shutdown();
 

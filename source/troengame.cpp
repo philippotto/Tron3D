@@ -9,6 +9,8 @@
 #include "sampleosgviewer.h"
 #include "input/bikeinputstate.h"
 #include "input/keyboardeventhandler.h"
+
+#include "physics/physicsworld.h"
 #include "physics/bike.h"
 #include "updatebikepositioncallback.h"
 #include "util/chronotimer.h"
@@ -38,7 +40,7 @@ bool TroenGame::initialize()
 
 	// careful about the order of initialization
 	// TODO
-	// initialize physics, sound, level and ... here
+	// initialize sound, level and ... here
 
 	initializeModels();
 	composeSceneGraph();
@@ -49,6 +51,8 @@ bool TroenGame::initialize()
 	initializeInput();
 
 	initializeTimer();
+	
+	initializePhysics();
 
 	return true;
 }
@@ -104,6 +108,17 @@ bool TroenGame::initializeViewer()
 bool TroenGame::initializeTimer()
 {
 	m_timer = make_shared<util::ChronoTimer>(false, true);
+	return true;
+}
+
+
+bool TroenGame::initializePhysics()
+{
+	physics::PhysicsWorld *world;
+	world = new physics::PhysicsWorld();
+	world->initialize();
+	delete world;
+
 	return true;
 }
 
