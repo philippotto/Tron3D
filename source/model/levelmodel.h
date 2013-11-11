@@ -2,6 +2,7 @@
 
 #include "abstractmodel.h"
 #include "../forwarddeclarations.h"
+#include <memory>
 
 namespace troen
 {
@@ -9,8 +10,12 @@ namespace troen
 	{
 	public:
 		LevelModel();
-
+		std::shared_ptr<std::vector<btRigidBody>> getRigidBodies();
+	
+	private:
+		std::shared_ptr<std::vector<btRigidBody>> m_rigidBodies;
+	
 	protected:
-		std::vector<btRigidBody> getRigidBodies();
+		
 	};
 }

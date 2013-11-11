@@ -11,21 +11,6 @@ GameLogic::GameLogic(){};
 
 GameLogic::~GameLogic(){
 
-
-	m_world->removeRigidBody(m_fallingRigidBody);
-	delete m_fallingRigidBody->getMotionState();
-	delete m_fallingRigidBody;
-
-	m_world->removeRigidBody(m_groundRigidBody);
-	delete m_groundRigidBody->getMotionState();
-	delete m_groundRigidBody;
-
-
-	delete m_fallingShape;
-	delete m_groundShape;
-
-
-	// clean the world
 	delete m_world;
 	delete m_solver;
 	delete m_collisionConfiguration;
@@ -62,41 +47,16 @@ void GameLogic::initializeWorld() {
 	m_world->setGravity(btVector3(0, -0, 0));
 }
 
+void GameLogic::addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies) {
+	
+	for (auto body : *(bodies.get()))
+		m_world->addRigidBody(&body);
+
+}
+
 
 void GameLogic::createLevel() {
-	// for now, we create just the ground (and some basic objects for testing); later, other gimmicks could be placed here
-
-	// shapes
-	m_groundShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
-	// radius: 1 meter
-	m_fallingShape = new btBoxShape(btVector3(1, 0.5, 2));
-
-	// rigids
-	btDefaultMotionState *groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
-	btRigidBody::btRigidBodyConstructionInfo
-		groundRigidBodyCI(0, groundMotionState, m_groundShape, btVector3(0, 0, 0));
-
-	// the same btRigidBodyConstructionInfo can be used to instantiate 1000 rigidBodies
-	m_groundRigidBody = new btRigidBody(groundRigidBodyCI);
-
-
-
-	// set this to our logic representation
-	// m_groundRigidBody.setUserPointer(...);
-
-	m_world->addRigidBody(m_groundRigidBody);
-
-
-	btDefaultMotionState *fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 50, 0)));
-	btScalar mass = 1;
-	btVector3 fallInertia(0, 0, 0);
-	m_fallingShape->calculateLocalInertia(mass, fallInertia);
-
-	btRigidBody::btRigidBodyConstructionInfo m_fallingRigidBodyCI(mass, fallMotionState, m_fallingShape, fallInertia);
-	m_fallingRigidBody = new btRigidBody(m_fallingRigidBodyCI);
-	m_fallingRigidBody->setLinearVelocity(btVector3(1, 0, 1));
 	
-	m_world->addRigidBody(m_fallingRigidBody);
 }
 
 
@@ -105,29 +65,24 @@ void GameLogic::stepSimulation() {
 
 	// TODO: remove the loop and call this method in every (n-th ?) frame (and provide the elapsed time as a parameter)
 
-
 	float elapsedTime = 1 / 60.f;
 
-	for (int i = 0; i < 300; i++)
-	{
-
-		// TODO: mind the following constraint:
-		// timeStep < maxSubSteps * fixedTimeStep
-		// where the parameters are given as follows: stepSimulation(timeStep, maxSubSteps, fixedTimeStep)
+	
+	// TODO: mind the following constraint:
+	// timeStep < maxSubSteps * fixedTimeStep
+	// where the parameters are given as follows: stepSimulation(timeStep, maxSubSteps, fixedTimeStep)
 		
-		m_world->stepSimulation(elapsedTime, 10);
-		
-		// holds position (center of object) and orientation
-		btTransform trans;
-		m_fallingRigidBody->getMotionState()->getWorldTransform(trans);
-		std::cout << "box Y: " << trans.getOrigin().getY()
-				  << " X: " << trans.getOrigin().getX()
-				  << " Z: " << trans.getOrigin().getZ()
-				  << std::endl;
+	m_world->stepSimulation(elapsedTime, 10);
 
-		checkForCollisions();
+	//// holds position (center of object) and orientation
+	//btTransform trans;
+	//m_fallingRigidBody->getMotionState()->getWorldTransform(trans);
+	//std::cout << "box Y: " << trans.getOrigin().getY()
+	//			<< " X: " << trans.getOrigin().getX()
+	//			<< " Z: " << trans.getOrigin().getZ()
+	//			<< std::endl;
 
-	}
+	checkForCollisions();
 
 }
 

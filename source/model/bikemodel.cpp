@@ -53,9 +53,11 @@ float BikeModel::getVelocity()
 }
 
 
-std::vector<btRigidBody> BikeModel::getRigidBodies(){
-	std::vector<btRigidBody> a;
+std::shared_ptr<std::vector<btRigidBody>> BikeModel::getRigidBodies(){
 
+	// TODO
 
+	std::shared_ptr<std::vector<btRigidBody>> a;
+	
 	return a;
 }

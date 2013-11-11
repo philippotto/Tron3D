@@ -1,7 +1,8 @@
 #pragma once
 
 #include "forwarddeclarations.h"
-
+#include <memory>
+#include <vector>
 
 namespace troen
 {
@@ -23,7 +24,13 @@ namespace troen
 			void addBike();
 			void addItemBox();
 			void checkForCollisions();
+
+			void addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies);
 		
+			// TODO remove
+			btRigidBody *m_fallingRigidBody;
+			
+
 		private:
 			// member variables
 			btDiscreteDynamicsWorld *m_world;
@@ -33,11 +40,8 @@ namespace troen
 			btCollisionDispatcher *m_dispatcher;
 			btBroadphaseInterface *m_broadphase;
 
-			btRigidBody *m_fallingRigidBody;
-			btRigidBody *m_groundRigidBody;
 
-			btCollisionShape *m_fallingShape;
-			btCollisionShape *m_groundShape;
+			
 
 	};
 	

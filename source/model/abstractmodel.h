@@ -4,6 +4,7 @@
 #include "../forwarddeclarations.h"
 
 #include <btBulletDynamicsCommon.h>
+#include <memory>
 
 namespace troen
 {
@@ -12,9 +13,8 @@ namespace troen
 		public:
 			AbstractModel();
 		
+					virtual std::shared_ptr<std::vector<btRigidBody>> getRigidBodies() = 0;
 		protected:
-			virtual std::vector<btRigidBody> getRigidBodies() = 0;
-
 		
 
 	};

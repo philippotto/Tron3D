@@ -17,6 +17,11 @@
 
 #include "controller/levelcontroller.h"
 
+
+// TODO remove?
+#include <btBulletDynamicsCommon.h>
+#include "LinearMath/btHashMap.h"
+
 using namespace troen;
 using namespace std;
 
@@ -143,6 +148,9 @@ bool TroenGame::initializeGameLogic()
 {
 	m_gameLogic = std::make_shared<GameLogic>();
 	m_gameLogic->initialize();
+	m_gameLogic->addRigidBodies(m_levelController->getRigidBodies());
+
+	//m_gameLogic->m_fallingRigidBody = &(m_levelController->getRigidBodies().get())->back();
 
 	return true;
 }
@@ -195,6 +203,8 @@ void TroenGame::startGameLoop()
 			// (moveEnemies)
 			/**/
 			//update();
+			m_gameLogic->stepSimulation();
+
 
 			// do we have extra time (to draw the frame) or have we rendered a frame recently?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))

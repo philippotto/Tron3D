@@ -18,7 +18,7 @@ namespace troen
 		float getRotation();
 		float getVelocity();
 
-		std::vector<btRigidBody> BikeModel::getRigidBodies();
+		std::shared_ptr<std::vector<btRigidBody>> BikeModel::getRigidBodies();
 
 	private:
 		input::BikeInputState* m_bikeInputState;

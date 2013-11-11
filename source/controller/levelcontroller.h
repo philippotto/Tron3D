@@ -18,6 +18,7 @@ namespace troen
 
 		osg::ref_ptr<osg::Group> getViewNode();
 		// std::shared_ptr<LevelView> getModel();
+		std::shared_ptr<std::vector<btRigidBody>> getRigidBodies();
 
 	private:
 		std::shared_ptr<LevelView> m_view;

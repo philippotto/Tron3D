@@ -17,7 +17,12 @@ LevelController::LevelController()
 	m_model = std::make_shared<LevelModel>();
 }
 
+std::shared_ptr<std::vector<btRigidBody>> LevelController::getRigidBodies()
+{
+	return m_model->getRigidBodies();
+}
 
-osg::ref_ptr<osg::Group> LevelController::getViewNode() {
+osg::ref_ptr<osg::Group> LevelController::getViewNode()
+{
 	return m_view->getNode();
 }
