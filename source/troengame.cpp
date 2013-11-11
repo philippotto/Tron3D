@@ -111,15 +111,21 @@ bool TroenGame::initializeInput()
 	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike));
 
 	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
-	std::shared_ptr<input::Gamepad> gamepadHandler = make_shared<input::Gamepad>(bikeInputState);
+	std::shared_ptr<input::Gamepad> gamepad = make_shared<input::Gamepad>(bikeInputState);
 
 	if (USE_GAMEPAD)
 	{
-		bikeInputState->setPollingDevice(gamepadHandler);
-	} else
-	{
-		m_gameView->addEventHandler(keyboardHandler);
+		if (gamepad->checkConnection())
+		{
+			std::cout << "Gamepad connected on port " << gamepad->getPort() << std::endl;
+			bikeInputState->setPollingDevice(gamepad);
+		} else
+		{
+			std::cout << "USE_GAMEPAD true but no gamepad connected!" << std::endl;
+		}
 	}
+
+	m_gameView->addEventHandler(keyboardHandler);
 
 	return true;
 }
