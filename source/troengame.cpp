@@ -11,7 +11,7 @@
 #include "input/keyboardeventhandler.h"
 #include "physics/bike.h"
 #include "updatebikepositioncallback.h"
-#include "util\chronotimer.h"
+#include "util/chronotimer.h"
 
 using namespace troen;
 using namespace std;

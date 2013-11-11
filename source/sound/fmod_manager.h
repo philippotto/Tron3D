@@ -25,6 +25,7 @@
 
 //Access
 #include <vector>
+#include <string>
 using std::vector;
 #include "fmod.hpp"
 #include "fmod_errors.h"
