@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 project(troen)
 
 #################################################
@@ -32,8 +32,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Find the WinSDK libs
 if (WIN32)
-    set(CMAKE_PREFIX_PATH "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
-    cmake_policy(SET CMP0020 NEW)
+	set(CMAKE_PREFIX_PATH "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
+	cmake_policy(SET CMP0020 NEW)
 endif (WIN32)
 
 # Set output directories
@@ -43,7 +43,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Set configuration types
 if(OPTION_LIMIT_CONFIGS)
-    set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Limited Configs" FORCE)
+	set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Limited Configs" FORCE)
 endif()
 
 # Project
@@ -62,30 +62,30 @@ include(cmake/Custom.cmake)
 # Architecture (32/64 bit)
 set(X64 OFF)
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(X64 ON)
+	set(X64 ON)
 endif()
 
 # Check for linux
 if(UNIX AND NOT APPLE)
-    set(LINUX 1)
+	set(LINUX 1)
 endif()
 
 # Setup platform specifics (compile flags, etc., ...)
 if(MSVC)
-    message(STATUS "Configuring for platform Windows/MSVC.")
-    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PlatformWindowsMSVC.cmake)
+	message(STATUS "Configuring for platform Windows/MSVC.")
+	include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PlatformWindowsMSVC.cmake)
 elseif(WIN32 AND CMAKE_COMPILER_IS_GNUCXX)
-    message(STATUS "Configuring for platform Windows/GCC.")
-    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PlatformWindowsGCC.cmake)
+	message(STATUS "Configuring for platform Windows/GCC.")
+	include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PlatformWindowsGCC.cmake)
 elseif(LINUX AND CMAKE_COMPILER_IS_GNUCXX)
-    message(STATUS "Configuring for platform Linux/GCC.")
-    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PlatformLinuxGCC.cmake)
+	message(STATUS "Configuring for platform Linux/GCC.")
+	include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PlatformLinuxGCC.cmake)
 elseif(APPLE)
-    message(STATUS "Configuring for platform MacOS.")
-    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PlatformMacOS.cmake)
+	message(STATUS "Configuring for platform MacOS.")
+	include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PlatformMacOS.cmake)
 else()
-    # Unsupported system/compiler
-    message(WARNING "Unsupported platform/compiler combination")
+	# Unsupported system/compiler
+	message(WARNING "Unsupported platform/compiler combination")
 endif()
 
 
@@ -157,17 +157,17 @@ set_property(GLOBAL PROPERTY AUTOMOC_FOLDER CMakeAutomocTargets)
 # good resource: http://www.kdab.com/using-cmake-with-qt-5/
 # http://qt-project.org/forums/viewthread/30006/
 if (MSVC)
-    cmake_policy(SET CMP0020 NEW)
+	cmake_policy(SET CMP0020 NEW)
 endif()
 
 set(QT_PACKAGES
-    Qt5Core
-    Qt5Gui
-    Qt5Widgets
-    Qt5OpenGL
+	Qt5Core
+	Qt5Gui
+	Qt5Widgets
+	Qt5OpenGL
 )
 foreach(package ${QT_PACKAGES})
-    find_package(${package} 5.1 REQUIRED)
+	find_package(${package} 5.1 REQUIRED)
 endforeach(package)
 
 # OpenGL
@@ -193,14 +193,14 @@ find_package(FMOD REQUIRED)
 set(sources
 	source/updatebikepositioncallback.h
 	source/updatebikepositioncallback.cpp
-    source/main.cpp
-    source/forwarddeclarations.h
-    source/mainwindow.h
-    source/mainwindow.cpp
-    source/troengame.h
-    source/troengame.cpp
-    source/sampleosgviewer.h
-    source/sampleosgviewer.cpp
+	source/main.cpp
+	source/forwarddeclarations.h
+	source/mainwindow.h
+	source/mainwindow.cpp
+	source/troengame.h
+	source/troengame.cpp
+	source/sampleosgviewer.h
+	source/sampleosgviewer.cpp
 
 	source/input/keyboard.h
 	source/input/keyboard.cpp
@@ -209,13 +209,38 @@ set(sources
 	source/input/bikeinputstate.h
 	source/input/bikeinputstate.cpp
 
-    source/sound/fmod_manager.h
-    source/sound/fmod_manager.cpp
+	source/sound/fmod_manager.h
+	source/sound/fmod_manager.cpp
 
-    source/physics/physicsworld.h
-	source/physics/physicsworld.cpp
-	source/physics/bike.h
-	source/physics/bike.cpp
+	source/gamelogic.h
+	source/gamelogic.cpp
+	
+	source/model/bikemodel.h
+	source/model/bikemodel.cpp
+	source/model/levelmodel.h
+	source/model/levelmodel.cpp
+	source/model/fencemodel.h
+	source/model/fencemodel.cpp
+	source/model/abstractmodel.h
+	source/model/abstractmodel.cpp
+
+	source/controller/bikecontroller.h
+	source/controller/bikecontroller.cpp
+	source/controller/levelcontroller.h
+	source/controller/levelcontroller.cpp
+	source/controller/fencecontroller.h
+	source/controller/fencecontroller.cpp
+	source/controller/abstractcontroller.h
+	source/controller/abstractcontroller.cpp
+
+	source/view/bikeview.h
+	source/view/bikeview.cpp
+	source/view/levelview.h
+	source/view/levelview.cpp
+	source/view/fenceview.h
+	source/view/fenceview.cpp
+	source/view/abstractview.h
+	source/view/abstractview.cpp
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
@@ -224,7 +249,7 @@ set(sources
 )
 
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" 
-    "\\\\.h$|\\\\.hpp$|\\\\.cpp$|\\\\.c$|\\\\.ui$|\\\\.qrc$" "Source Files" ${sources})
+	"\\\\.h$|\\\\.hpp$|\\\\.cpp$|\\\\.c$|\\\\.ui$|\\\\.qrc$" "Source Files" ${sources})
 
 #################################################
 # TARGET
@@ -238,10 +263,10 @@ add_executable(${target} ${sources})
 qt5_use_modules(${target} Core OpenGL Gui Widgets)
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}
-    ${OPENSCENEGRAPH_INCLUDE_DIRS}
-    ${BULLET_INCLUDE_DIRS}
-    ${FMOD_INCLUDE_DIRS}
+	${CMAKE_SOURCE_DIR}
+	${OPENSCENEGRAPH_INCLUDE_DIRS}
+	${BULLET_INCLUDE_DIRS}
+	${FMOD_INCLUDE_DIRS}
 )
 
 target_link_libraries( ${target}

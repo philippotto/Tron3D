@@ -2,12 +2,14 @@
 
 #include <osg/PositionAttitudeTransform>
 
-#include "physics/bike.h"
+#include "model/bikemodel.h"
 
-UpdateBikePositionCallback::UpdateBikePositionCallback(Bike* bike)
+UpdateBikePositionCallback::UpdateBikePositionCallback(BikeModel* bike)
 {
 	m_bike = bike;
-	m_bikePosition = osg::Vec3d({ 0.0, 0.0, 0.0 });
+
+	// TODO: move to an appropriate place
+	m_bikePosition = osg::Vec3d( 0.0, 0.0, 10.0 );
 }
 
 void UpdateBikePositionCallback::operator()(osg::Node* node, osg::NodeVisitor* nodeVisitor)
@@ -31,7 +33,7 @@ void UpdateBikePositionCallback::operator()(osg::Node* node, osg::NodeVisitor* n
 
 		// apply the rotation quad to the direction vector
 		// this will probably be done somewhere else as bullet needs to calculate the position
-		m_bikePosition += rotationQuat * osg::Vec3d({ 0.0, m_bike->getVelocity(), 0.0 });
+		m_bikePosition += rotationQuat * osg::Vec3d( 0.0, m_bike->getVelocity(), 0.0 );
 		positionTransform->setPosition(m_bikePosition);
 
 	}

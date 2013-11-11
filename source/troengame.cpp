@@ -3,19 +3,24 @@
 #include <osgDB/ReadFile>
 #include <osgGA/TrackballManipulator>
 #include <osgViewer/ViewerEventHandlers>
-
-#include <chrono>
+#include <osg/MatrixTransform>
 
 #include "sampleosgviewer.h"
+
 #include "input/bikeinputstate.h"
 #include "input/keyboard.h"
 #include "input/gamepad.h"
-#include "physics/bike.h"
+
+#include "gamelogic.h"
+#include "model/bikemodel.h"
+
 #include "updatebikepositioncallback.h"
-#include "util\chronotimer.h"
+#include "util/chronotimer.h"
 
 using namespace troen;
 using namespace std;
+
+#define USE_GAMEPAD true
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
 	m_gameThread(thread)
@@ -39,17 +44,29 @@ bool TroenGame::initialize()
 
 	// careful about the order of initialization
 	// TODO
-	// initialize physics, sound, level and ... here
+	// initialize sound ... here
 
+	std::cout << "initializing game ..." << std::endl;
+
+	std::cout << "models and scenegraph ..." << std::endl;
 	initializeModels();
+	initializeLevel();
 	composeSceneGraph();
 
+	std::cout << "views & viewer ..." << std::endl;
 	initializeViews();
 	initializeViewer();
 
+	std::cout << "input ..." << std::endl;
 	initializeInput();
 
+	std::cout << "timer ..." << std::endl;
 	initializeTimer();
+	
+	std::cout << "physics ..." << std::endl;
+	initializePhysics();
+
+	std::cout << "successfully initialized !" << std::endl;
 
 	return true;
 }
@@ -57,7 +74,78 @@ bool TroenGame::initialize()
 bool TroenGame::initializeModels()
 {
 	m_childNode = new osg::PositionAttitudeTransform();
+	
+	
 	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
+	// currently, initial position is set in updateBikePositoinCallback.cpp
+
+	return true;
+}
+
+
+bool TroenGame::initializeLevel() {
+
+
+	osg::ref_ptr<osg::Group> levelGroup = new osg::Group();
+
+	osg::ref_ptr<osg::Geode> levelGeode = new osg::Geode();
+
+	// ground
+	osg::ref_ptr<osg::Box> ground
+		= new osg::Box(osg::Vec3(0, 0, 0), 1000, 1000, 1);
+	
+	osg::ref_ptr<osg::ShapeDrawable> groundDrawable
+		= new osg::ShapeDrawable(ground);
+
+
+	// wall right
+	osg::ref_ptr<osg::Box> wallRight
+		= new osg::Box(osg::Vec3(500, 0, 50), 1, 1000, 100);
+	
+	osg::ref_ptr<osg::ShapeDrawable> wallDrawableRight
+		= new osg::ShapeDrawable(wallRight);
+
+	// wall left
+	osg::ref_ptr<osg::Box> wallLeft
+		= new osg::Box(osg::Vec3(-500, 0, 50), 1, 1000, 100);
+	
+	osg::ref_ptr<osg::ShapeDrawable> wallDrawableLeft
+		= new osg::ShapeDrawable(wallLeft);
+	
+	
+	// wall back
+	osg::ref_ptr<osg::Box> wallBack
+		= new osg::Box(osg::Vec3(0, -500, 50), 1000, 1, 100);
+	
+	osg::ref_ptr<osg::ShapeDrawable> wallDrawableBack
+		= new osg::ShapeDrawable(wallBack);
+
+	// wall front
+	osg::ref_ptr<osg::Box> wallFront
+		= new osg::Box(osg::Vec3(0, 500, 50), 1000, 1, 100);
+	
+	osg::ref_ptr<osg::ShapeDrawable> wallDrawableFront
+		= new osg::ShapeDrawable(wallFront);
+
+
+	// fence
+	osg::Box *fence = new osg::Box(osg::Vec3(0, 0, 100), 1, 10, 10);
+	osg::ShapeDrawable* fenceDrawable = new osg::ShapeDrawable(fence);
+	levelGeode->addDrawable(fenceDrawable);
+
+
+	levelGeode->addDrawable(groundDrawable);
+	levelGeode->addDrawable(wallDrawableLeft);
+	levelGeode->addDrawable(wallDrawableRight);
+	levelGeode->addDrawable(wallDrawableFront);
+	levelGeode->addDrawable(wallDrawableBack);
+
+	levelGroup->addChild(levelGeode);
+
+	
+	// Add the goede to the scene
+	m_rootNode->addChild(levelGroup);
+
 	return true;
 }
 
@@ -72,13 +160,21 @@ bool TroenGame::initializeInput()
 	// TODO
 	// dw: clean this up, move it to the appropriate place
 	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
-	osg::ref_ptr<physics::Bike> bike = new physics::Bike(bikeInputState);
+	osg::ref_ptr<BikeModel> bike = new BikeModel(bikeInputState);
 
 	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike));
 
 	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
-	std::shared_ptr<input::Gamepad> gamecontrollerHandler = make_shared<input::Gamepad>(bikeInputState);
-	m_gameView->addEventHandler(keyboardHandler);
+	std::shared_ptr<input::Gamepad> gamepadHandler = make_shared<input::Gamepad>(bikeInputState);
+
+	if (USE_GAMEPAD)
+	{
+		bikeInputState->setPollingDevice(gamepadHandler);
+	} else
+	{
+		m_gameView->addEventHandler(keyboardHandler);
+	}
+
 	return true;
 }
 
@@ -87,7 +183,7 @@ bool TroenGame::initializeViews()
 	m_gameView = new osgViewer::View;
 	m_gameView->setCameraManipulator(new osgGA::TrackballManipulator);
 	m_gameView->setSceneData(m_rootNode);
-	m_gameView->setUpViewOnSingleScreen(0);
+	m_gameView->setUpViewInWindow(100, 100, 800, 640, 0);
 	// TODO
 	// add camera to gameview
 	// (possibly multiple ones for multiple rendering passes)
@@ -106,6 +202,17 @@ bool TroenGame::initializeViewer()
 bool TroenGame::initializeTimer()
 {
 	m_timer = make_shared<util::ChronoTimer>(false, true);
+	return true;
+}
+
+
+bool TroenGame::initializePhysics()
+{
+	GameLogic *world;
+	world = new GameLogic();
+	world->initialize();
+	delete world;
+
 	return true;
 }
 
@@ -148,6 +255,14 @@ void TroenGame::startGameLoop()
 			nextTime += minMillisecondsBetweenFrames;
 
 			// LOOP REALLY STARTS HERE:
+			/* FROM GameProg Info session:
+			checkForUserInput()
+			runAI()
+			moveEnemies()
+			// (network / multiplayer)
+			resolveCollisisons() (Physics)
+			// (moveEnemies)
+			/**/
 			//update();
 
 			// do we have extra time (to draw the frame) or have we rendered a frame recently?

@@ -79,7 +79,7 @@ bool Gamepad::refresh()
 		m_rightTrigger = (float) m_state.Gamepad.bRightTrigger / 255;
 
 		m_bikeInputState->setAcceleration(m_rightTrigger - m_leftTrigger);
-		m_bikeInputState->setAngle(m_leftStickX);
+		m_bikeInputState->setAngle(-m_leftStickX);
 
 		return true;
 	}

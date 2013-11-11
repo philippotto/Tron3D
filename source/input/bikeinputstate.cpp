@@ -7,11 +7,17 @@ using namespace troen::input;
 #define MOVE_VALUE 2.0
 #define ROTATION_VALUE 3.0
 
-BikeInputState::BikeInputState(bool pollingEnabled, std::shared_ptr<Gamepad> pollingDevice)
+BikeInputState::BikeInputState()
 {
-	m_pollingEnabled = pollingEnabled;
+	m_pollingEnabled = false;
 	m_acceleration = 0.0;
 	m_angle = 0.0;
+}
+
+void BikeInputState::setPollingDevice(std::shared_ptr<Gamepad> pollingDevice)
+{
+	m_pollingEnabled = true;
+	m_pollingDevice = pollingDevice;
 }
 
 float BikeInputState::getAngle()

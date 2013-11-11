@@ -4,6 +4,7 @@
 
 #include <osg/ref_ptr>
 #include <osg/PositionAttitudeTransform>
+#include <osg/ShapeDrawable>
 
 #include <memory>
 
@@ -25,12 +26,14 @@ namespace troen
 
 	private:
 		bool initialize();
+		bool initializeLevel();
 		bool initializeViews();
 		bool initializeViewer();
 		bool initializeModels();
 		bool initializeInput();
 		bool composeSceneGraph();
 		bool initializeTimer();
+		bool initializePhysics();
 
 		bool shutdown();
 

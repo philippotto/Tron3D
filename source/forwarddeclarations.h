@@ -27,6 +27,7 @@ namespace osg
 	class Node;
 	class Group;
 	class GraphicsContext;
+	class ShapeDrawable;
 }
 
 namespace osgGA
@@ -35,7 +36,18 @@ namespace osgGA
 }
 
 // Bullet
-class btDiscreteDynamicsWorld;
+// namespace doesn't work? may the library was designed without it?
+
+// namespace bt
+// {
+	class btDiscreteDynamicsWorld;
+	class btSequentialImpulseConstraintSolver;
+	class btDefaultCollisionConfiguration;
+	class btCollisionDispatcher;
+	class btBroadphaseInterface;
+	class btRigidBody;
+	class btCollisionShape;
+// }
 
 // forward declarations for own classes
 namespace troen
@@ -43,17 +55,17 @@ namespace troen
 	class OSGWidget;
 	class TroenGame;
 	class SampleOSGViewer;
-	class PhysicsWorld;
+	class GameLogic;
 
 	namespace util
 	{
 		class ChronoTimer;
 	}
 
-	namespace physics
-	{
-		class Bike;
-	}
+	
+	class BikeModel;
+	class FenceModel;
+
 
 	namespace input
 	{

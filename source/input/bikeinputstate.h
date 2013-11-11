@@ -11,12 +11,12 @@ namespace input
 	class BikeInputState : public osg::Referenced
 	{
 	public:
-		BikeInputState() : m_pollingEnabled(false), m_pollingDevice(NULL) {}
-		BikeInputState(bool pollingEnabled, std::shared_ptr<input::Gamepad> pollingDevice);
+		BikeInputState();
 		float getAngle();
 		float getAcceleration();
 		void setAngle(float angle);
 		void setAcceleration(float acceleration);
+		void setPollingDevice(std::shared_ptr<Gamepad> pollingDevice);
 
 	private:
 		bool m_pollingEnabled;
