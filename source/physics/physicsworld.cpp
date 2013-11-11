@@ -42,7 +42,7 @@ void PhysicsWorld::initialize() {
 	initializeWorld();
 	createLevel();
 	addFence();
-	stepSimulation();
+	// stepSimulation();
 
 }
 
