@@ -41,7 +41,7 @@ bool TroenGame::initialize()
 
 	// careful about the order of initialization
 	// TODO
-	// initialize sound, level and ... here
+	// initialize sound ... here
 
 	std::cout << "initializing game ..." << std::endl;
 
@@ -74,7 +74,7 @@ bool TroenGame::initializeModels()
 	
 	
 	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
-	// m_childNode->setPosition(osg::Vec3(0, 0, 500));
+	// currently, initial position is set in updateBikePositoinCallback.cpp
 
 	return true;
 }
@@ -125,20 +125,22 @@ bool TroenGame::initializeLevel() {
 		= new osg::ShapeDrawable(wallFront);
 
 
+	// fence
+	osg::Box *fence = new osg::Box(osg::Vec3(0, 0, 100), 1, 10, 10);
+	osg::ShapeDrawable* fenceDrawable = new osg::ShapeDrawable(fence);
+	levelGeode->addDrawable(fenceDrawable);
+
+
 	levelGeode->addDrawable(groundDrawable);
 	levelGeode->addDrawable(wallDrawableLeft);
 	levelGeode->addDrawable(wallDrawableRight);
 	levelGeode->addDrawable(wallDrawableFront);
 	levelGeode->addDrawable(wallDrawableBack);
+
 	levelGroup->addChild(levelGeode);
 
-
-	// fence
-	// osg::Box *fence = new osg::Box(osg::Vec3(0, 0, 0), 10, 10, 0.1);
-	// osg::ShapeDrawable* fenceDrawable = new osg::ShapeDrawable(fence);
-	// levelGroup->addDrawable(fenceDrawable);
 	
-	// Add the goede to the scene:
+	// Add the goede to the scene
 	m_rootNode->addChild(levelGroup);
 
 	return true;

@@ -68,7 +68,7 @@ void PhysicsWorld::createLevel() {
 	// for now, we create just the ground (and some basic objects for testing); later, other gimmicks could be placed here
 
 	// shapes
-	m_groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
+	m_groundShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
 	// radius: 1 meter
 	m_fallingShape = new btBoxShape(btVector3(1, 0.5, 2));
 
@@ -79,6 +79,7 @@ void PhysicsWorld::createLevel() {
 
 	// the same btRigidBodyConstructionInfo can be used to instantiate 1000 rigidBodies
 	m_groundRigidBody = new btRigidBody(groundRigidBodyCI);
+
 
 
 	// set this to our logic representation
