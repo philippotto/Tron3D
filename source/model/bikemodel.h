@@ -1,8 +1,10 @@
 #pragma once
-
-#include "abstractmodel.h"
+// OSG
 #include <osg/Referenced>
+#include <osg/ref_ptr>
+// troen
 #include "../forwarddeclarations.h"
+#include "abstractmodel.h"
 
 namespace troen
 {
@@ -10,7 +12,7 @@ namespace troen
 	class BikeModel : public AbstractModel, public osg::Referenced
 	{
 	public:
-		BikeModel(input::BikeInputState* bikeInputState);
+		BikeModel(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		void resetState();
 		void updateState();
 		void rotate(float angle);
@@ -21,7 +23,7 @@ namespace troen
 		std::shared_ptr<std::vector<btRigidBody>> BikeModel::getRigidBodies();
 
 	private:
-		input::BikeInputState* m_bikeInputState;
+		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 		float m_velocity;
 		float m_rotation;
 	};

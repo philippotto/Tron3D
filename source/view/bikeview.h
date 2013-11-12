@@ -1,8 +1,10 @@
 #pragma once
-
-#include "abstractview.h"
+// OSG
 #include <osg/Referenced>
+// troen
 #include "../forwarddeclarations.h"
+#include "abstractview.h"
+
 
 namespace troen
 {

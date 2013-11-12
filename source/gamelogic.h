@@ -1,12 +1,12 @@
 #pragma once
-
-#include "forwarddeclarations.h"
+// STD
 #include <memory>
 #include <vector>
+// troen
+#include "forwarddeclarations.h"
 
 namespace troen
 {
-
 	class GameLogic
 	{
 		public:

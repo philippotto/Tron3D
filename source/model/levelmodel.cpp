@@ -1,13 +1,9 @@
 #include "levelmodel.h"
-
-#include <math.h>
-
+//bullet
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
 
-
 using namespace troen;
-
 
 LevelModel::LevelModel()
 {

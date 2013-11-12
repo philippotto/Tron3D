@@ -1,11 +1,8 @@
 #include "bikeview.h"
-
-#include <math.h>
-
+// troen
 #include "../input/bikeinputstate.h"
 
 using namespace troen;
-
 
 BikeView::BikeView()
 {

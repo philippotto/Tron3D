@@ -1,10 +1,11 @@
 #pragma once
-
+// STD
 #include <vector>
-#include "../forwarddeclarations.h"
-
-#include <btBulletDynamicsCommon.h>
 #include <memory>
+// bullet
+#include <btBulletDynamicsCommon.h>
+// troen
+#include "../forwarddeclarations.h"
 
 namespace troen
 {
@@ -15,7 +16,6 @@ namespace troen
 		
 					virtual std::shared_ptr<std::vector<btRigidBody>> getRigidBodies() = 0;
 		protected:
-		
 
 	};
 }

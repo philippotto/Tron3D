@@ -1,6 +1,5 @@
 #include "fmod_manager.h"
 
-
 cFMODManager* cFMODManager::m_pInstance = NULL;
 
 cFMODManager* cFMODManager::GetInstance(void)

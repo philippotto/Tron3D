@@ -1,7 +1,7 @@
 #include "bikemodel.h"
-
+// STD
 #include <math.h>
-
+// troen
 #include "../input/bikeinputstate.h"
 
 using namespace troen;
@@ -9,7 +9,7 @@ using namespace troen;
 #define VMAX 10.0
 #define FRICTION 0.1
 
-BikeModel::BikeModel(input::BikeInputState* bikeInputState)
+BikeModel::BikeModel(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
 	m_bikeInputState = bikeInputState;
 	resetState();
@@ -24,8 +24,8 @@ void BikeModel::resetState()
 void BikeModel::updateState()
 {
 	// call this exactly once per frame
-	rotate(m_bikeInputState->m_angle);
-	accelerate(m_bikeInputState->m_acceleration);
+	rotate(m_bikeInputState->getAngle());
+	accelerate(m_bikeInputState->getAcceleration());
 }
 
 // TODO

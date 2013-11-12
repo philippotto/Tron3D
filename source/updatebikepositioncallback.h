@@ -1,20 +1,24 @@
-#include <osg/Vec3>
-
-#include <osg/Node>
-
+// STD
 // #include <memory>
+//OSG
+#include <osg/Vec3>
+#include <osg/Node>
+#include <osg/DisplaySettings>
+#include <osgViewer/Viewer>
+#include <osgGA/NodeTrackerManipulator>
+// troen
 #include "forwarddeclarations.h"
 
-using namespace troen;
-
-class UpdateBikePositionCallback : public osg::NodeCallback
+namespace troen
 {
+	class UpdateBikePositionCallback : public osg::NodeCallback
+	{
+	public:
+		UpdateBikePositionCallback(BikeModel* bike);
+		virtual void operator()(osg::Node* node, osg::NodeVisitor* nodeVisitor);
 
-public:
-	UpdateBikePositionCallback(BikeModel* bike);
-	virtual void operator()(osg::Node* node, osg::NodeVisitor* nodeVisitor);
-
-protected:
-	osg::Vec3d m_bikePosition;
-	osg::ref_ptr<BikeModel> m_bike;
-};
+	protected:
+		osg::Vec3d m_bikePosition;
+		osg::ref_ptr<BikeModel> m_bike;
+	};
+}

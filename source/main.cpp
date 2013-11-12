@@ -1,9 +1,9 @@
-#include "MainWindow.h"
-
-#include <QApplication>
-
+// STD
 #include <iostream>
-#include "gamelogic.h"
+// Qt
+#include <QApplication>
+//troen
+#include "MainWindow.h"
 
 int main(int argc, char* argv[])
 {

@@ -202,8 +202,10 @@ set(sources
 	source/sampleosgviewer.h
 	source/sampleosgviewer.cpp
 
-	source/input/keyboardeventhandler.h
-	source/input/keyboardeventhandler.cpp
+	source/input/keyboard.h
+	source/input/keyboard.cpp
+	source/input/gamepad.h
+	source/input/gamepad.cpp
 	source/input/bikeinputstate.h
 	source/input/bikeinputstate.cpp
 
@@ -268,8 +270,9 @@ include_directories(
 )
 
 target_link_libraries( ${target}
-	${OPENGL_LIBRARIES}
-	${OPENSCENEGRAPH_LIBRARIES}
-	${BULLET_LIBRARIES}
-	${FMOD_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    ${OPENSCENEGRAPH_LIBRARIES}
+    ${BULLET_LIBRARIES}
+    ${FMOD_LIBRARIES}
+	${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
 )

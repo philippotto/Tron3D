@@ -1,8 +1,11 @@
 #include "updatebikepositioncallback.h"
-
+// OSG
 #include <osg/PositionAttitudeTransform>
-
+// troen
 #include "model/bikemodel.h"
+
+using namespace troen;
+
 
 UpdateBikePositionCallback::UpdateBikePositionCallback(BikeModel* bike)
 {
@@ -35,7 +38,6 @@ void UpdateBikePositionCallback::operator()(osg::Node* node, osg::NodeVisitor* n
 		// this will probably be done somewhere else as bullet needs to calculate the position
 		m_bikePosition += rotationQuat * osg::Vec3d( 0.0, m_bike->getVelocity(), 0.0 );
 		positionTransform->setPosition(m_bikePosition);
-
 	}
 	traverse(node, nodeVisitor);
 }
