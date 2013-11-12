@@ -1,12 +1,10 @@
 #pragma once
 
-// This file contains forward declarations of classes,
-// so that header files need less includes
+// This file contains forward declarations of classes
 
 // Qt forward declarations
 
 // OSG forward declarations
-
 namespace osgViewer
 {
 	class Viewer;
@@ -34,25 +32,18 @@ namespace osgGA
 }
 
 // Bullet
-// namespace doesn't work? may the library was designed without it?
+class btDiscreteDynamicsWorld;
+class btSequentialImpulseConstraintSolver;
+class btDefaultCollisionConfiguration;
+class btCollisionDispatcher;
+class btBroadphaseInterface;
+class btRigidBody;
+class btCollisionShape;
 
-// namespace bt
-// {
-	class btDiscreteDynamicsWorld;
-	class btSequentialImpulseConstraintSolver;
-	class btDefaultCollisionConfiguration;
-	class btCollisionDispatcher;
-	class btBroadphaseInterface;
-	class btRigidBody;
-	class btCollisionShape;
-// }
 
-// forward declarations for own classes
+// own classes
 namespace troen
 {
-	class OSGWidget;
-	
-
 	class TroenGame;
 	class SampleOSGViewer;
 	class GameLogic;
@@ -76,12 +67,6 @@ namespace troen
 	{
 		class ChronoTimer;
 	}
-
-	
-	class BikeModel;
-	class FenceModel;
-
-
 	namespace input
 	{
 		class Keyboard;

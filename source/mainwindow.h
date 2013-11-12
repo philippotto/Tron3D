@@ -1,18 +1,17 @@
 #pragma once
-
+// STD
+#include <memory>
+//Qt
 #include <QWidget>
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QPushButton>
-
-#include <memory>
-
-
+// troen
 #include "forwarddeclarations.h"
 
 
-namespace troen{
-
+namespace troen
+{
 	class MainWindow : public QMainWindow
 	{
 		Q_OBJECT
@@ -28,6 +27,4 @@ namespace troen{
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;
 	};
-
-
 }

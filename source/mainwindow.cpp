@@ -1,10 +1,9 @@
 #include "mainwindow.h"
-
+// Qt
 #include <QThread>
-
-
+// OSG
 #include <osg/ref_ptr>
-
+// troen
 #include "troengame.h"
 
 using namespace troen;

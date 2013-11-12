@@ -1,26 +1,24 @@
 #include "troengame.h"
-
+// OSG
 #include <osgDB/ReadFile>
 #include <osgGA/TrackballManipulator>
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
-
+// troen
 #include "sampleosgviewer.h"
+#include "gamelogic.h"
+#include "updatebikepositioncallback.h"
 
 #include "input/bikeinputstate.h"
 #include "input/keyboard.h"
 #include "input/gamepad.h"
 
 #include "util/chronotimer.h"
-#include "gamelogic.h"
+
 #include "model/bikemodel.h"
-
-#include "updatebikepositioncallback.h"
-
 #include "controller/levelcontroller.h"
 
 using namespace troen;
-using namespace std;
 
 #define USE_GAMEPAD true
 
@@ -33,7 +31,6 @@ TroenGame::TroenGame(QThread* thread /*= NULL*/) :
 	moveToThread(m_gameThread);
 	m_gameThread->start(QThread::HighestPriority);
 
-	//initialize();
 }
 
 TroenGame::~TroenGame()
@@ -48,48 +45,41 @@ bool TroenGame::initialize()
 	// TODO
 	// initialize sound ... here
 
-	std::cout << "initializing game ..." << std::endl;
+	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 
-	std::cout << "models and scenegraph ..." << std::endl;
+	std::cout << "[TroenGame::initialize] models and scenegraph ..." << std::endl;
 	initializeModels();
 	initializeLevel();
 	composeSceneGraph();
 
-	std::cout << "views & viewer ..." << std::endl;
+	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
 	initializeViews();
 	initializeViewer();
 
-	std::cout << "input ..." << std::endl;
+	std::cout << "[TroenGame::initialize] input ..." << std::endl;
 	initializeInput();
 
-	std::cout << "timer ..." << std::endl;
+	std::cout << "[TroenGame::initialize] timer ..." << std::endl;
 	initializeTimer();
 	
-	std::cout << "GameLogic ..." << std::endl;
+	std::cout << "[TroenGame::initialize] GameLogic ..." << std::endl;
 	initializeGameLogic();
 
-	std::cout << "successfully initialized !" << std::endl;
-
+	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
 	return true;
 }
 
 bool TroenGame::initializeModels()
 {
 	m_childNode = new osg::PositionAttitudeTransform();
-	
-	
 	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
 	// currently, initial position is set in updateBikePositoinCallback.cpp
-
 	return true;
 }
 
-
 bool TroenGame::initializeLevel()
 {
-
-	m_levelController = std::make_shared<LevelController>();
-	
+	m_levelController = std::make_shared<LevelController>();	
 	return true;
 }
 
@@ -97,7 +87,6 @@ bool TroenGame::composeSceneGraph()
 {
 	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_childNode);
-
 	return true;
 }
 
@@ -111,17 +100,17 @@ bool TroenGame::initializeInput()
 	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike));
 
 	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
-	std::shared_ptr<input::Gamepad> gamepad = make_shared<input::Gamepad>(bikeInputState);
+	std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
 
 	if (USE_GAMEPAD)
 	{
 		if (gamepad->checkConnection())
 		{
-			std::cout << "Gamepad connected on port " << gamepad->getPort() << std::endl;
+			std::cout << "[TroenGame::initializeInput] Gamepad connected on port " << gamepad->getPort() << std::endl;
 			bikeInputState->setPollingDevice(gamepad);
 		} else
 		{
-			std::cout << "USE_GAMEPAD true but no gamepad connected!" << std::endl;
+			std::cout << "[TroenGame::initializeInput] USE_GAMEPAD true but no gamepad connected!" << std::endl;
 		}
 	}
 
@@ -159,17 +148,14 @@ bool TroenGame::initializeViewer()
 {
 	m_sampleOSGViewer = new SampleOSGViewer();
 	m_sampleOSGViewer->addView(m_gameView);
-	// TODO
-	// add event handlers to the viewer here
 	return true;
 }
 
 bool TroenGame::initializeTimer()
 {
-	m_timer = make_shared<util::ChronoTimer>(false, true);
+	m_timer = std::make_shared<util::ChronoTimer>(false, true);
 	return true;
 }
-
 
 bool TroenGame::initializeGameLogic()
 {
@@ -181,14 +167,7 @@ bool TroenGame::initializeGameLogic()
 
 void TroenGame::startGameLoop()
 {
-	// simplest version, use this if the below gameloop does not work
-	// or you still have timer issues
-	//while (!m_sampleOSGViewer->done())
-	//{
-	//	m_sampleOSGViewer->frame();
-	//}
-
-	// game loop from here
+	// game loop from here:
 	// http://entropyinteractive.com/2011/02/game-engine-design-the-game-loop/
 
 	// INITIALIZATION
@@ -206,7 +185,6 @@ void TroenGame::startGameLoop()
 	while (!m_sampleOSGViewer->done())
 	{
 		long double currTime = m_timer->elapsed();
-
 		// are we significantly behind? if yes, "resync", force rendering
 		if ((currTime - nextTime) > maxMillisecondsBetweenFrames)
 			nextTime = currTime;
@@ -228,7 +206,7 @@ void TroenGame::startGameLoop()
 			/**/
 			//update();
 
-			// do we have extra time (to draw the frame) or have we rendered a frame recently?
+			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
 				//std::cout << "drawing" << std::endl;
@@ -261,11 +239,12 @@ void TroenGame::startGameLoop()
 bool TroenGame::shutdown()
 {
 	m_timer.reset();
+	m_gameLogic.reset();
 	m_sampleOSGViewer = NULL;
 	m_gameView = NULL;
-
 	m_childNode = NULL;
 	m_rootNode = NULL;
 
+	std::cout << "[TroenGame::shutdown] shutdown complete " << std::endl;
 	return true;
 }

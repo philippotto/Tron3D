@@ -1,11 +1,11 @@
 #pragma once
-#define _AMD64_
-
+// OSG
 #include <osg/ref_ptr>
-
-#include <xinput.h>
-
+// troen
 #include "../forwarddeclarations.h"
+//other
+#define _AMD64_
+#include <xinput.h>
 
 namespace troen
 {

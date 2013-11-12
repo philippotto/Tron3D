@@ -1,8 +1,10 @@
 #include "updatebikepositioncallback.h"
-
+// OSG
 #include <osg/PositionAttitudeTransform>
-
+// troen
 #include "model/bikemodel.h"
+
+using namespace troen;
 
 
 UpdateBikePositionCallback::UpdateBikePositionCallback(BikeModel* bike)

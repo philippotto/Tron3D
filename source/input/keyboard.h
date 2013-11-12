@@ -1,7 +1,7 @@
 #pragma once
-
+// OSG
 #include <osgGA/GUIEventHandler>
-
+// troen
 #include "../forwarddeclarations.h"
 
 namespace troen

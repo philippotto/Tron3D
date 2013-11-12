@@ -1,9 +1,9 @@
 #include "GameLogic.h"
-
+// STD
+#include <iostream>
+// bullet
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
-
-#include <iostream>
 
 using namespace troen;
 
@@ -154,11 +154,11 @@ void GameLogic::addFence() {
 	0		             2 3 ...
 	*/
 	
-	int fenceHeight = 1;
-	int fenceStep = 1;
+	btScalar fenceHeight = 1;
+	btScalar fenceStep = 1;
 
 	// TODO change initial value of X
-	int currentX = 0;
+	btScalar currentX = 0;
 
 	// mind the manipulation of i within the loop
 	for (int i = 0; i < 10; ++i)
@@ -216,7 +216,7 @@ void GameLogic::checkForCollisions() {
 	int numManifolds = dispatcher->getNumManifolds();
 	
 
-	std::cout << "numManifolds " << numManifolds << std::endl;
+	std::cout << "[GameLogic::checkForCollisions] numManifolds " << numManifolds << std::endl;
 	for (int i = 0; i < numManifolds; i++)
 	{
 		btPersistentManifold* contactManifold =  dispatcher->getManifoldByIndexInternal(i);
@@ -226,7 +226,7 @@ void GameLogic::checkForCollisions() {
 		// btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
 
 		int numContacts = contactManifold->getNumContacts();
-		std::cout << "numContacts " << numContacts << std::endl;
+		std::cout << "[GameLogic::checkForCollisions] numContacts " << numContacts << std::endl;
 		for (int j=0; j < numContacts; j++)
 		{
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
@@ -245,7 +245,7 @@ void GameLogic::checkForCollisions() {
 				const btVector3& ptB = pt.getPositionWorldOnB();
 				const btVector3& normalOnB = pt.m_normalWorldOnB;*/
 				
-				std::cout << "collision detected" << std::endl;
+				std::cout << "[GameLogic::checkForCollisions] collision detected" << std::endl;
 			}
 		}
 	}

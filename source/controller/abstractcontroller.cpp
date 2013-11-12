@@ -1,10 +1,8 @@
 #include "abstractcontroller.h"
-
-#include <math.h>
+// STD
 #include <memory>
 
 using namespace troen;
-
 
 AbstractController::AbstractController()
 {

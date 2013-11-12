@@ -1,7 +1,7 @@
 #include "keyboard.h"
-
+// STD
 #include <iostream>
-
+// troen
 #include "bikeinputstate.h"
 
 using namespace troen::input;
@@ -20,22 +20,22 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 		switch (eventAdapter.getKey())
 		{
 		case 'w':
-			std::cout << " w key pressed" << std::endl;
+			std::cout << "[Keyboard::handle] w key pressed" << std::endl;
 			m_bikeInputState->setAcceleration(1.0);
 			return false;
 			break;
 		case 'a':
-			std::cout << " a key pressed" << std::endl;
+			std::cout << "[Keyboard::handle] a key pressed" << std::endl;
 			m_bikeInputState->setAngle(1.0);
 			return false;
 			break;
 		case 's':
-			std::cout << " s key pressed" << std::endl;
+			std::cout << "[Keyboard::handle] s key pressed" << std::endl;
 			m_bikeInputState->setAcceleration(-1.0);
 			return false;
 			break;
 		case 'd':
-			std::cout << " d key pressed" << std::endl;
+			std::cout << "[Keyboard::handle] d key pressed" << std::endl;
 			m_bikeInputState->setAngle(-1.0);
 			return false;
 			break;
@@ -48,22 +48,22 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 		switch (eventAdapter.getKey())
 		{
 		case 'w':
-			std::cout << " w key released" << std::endl;
+			std::cout << "[Keyboard::handle] w key released" << std::endl;
 			m_bikeInputState->setAcceleration(0.0);
 			return false;
 			break;
 		case 'a':
-			std::cout << " a key released" << std::endl;
+			std::cout << "[Keyboard::handle] a key released" << std::endl;
 			m_bikeInputState->setAngle(0.0);
 			return false;
 			break;
 		case 's':
-			std::cout << " s key released" << std::endl;
+			std::cout << "[Keyboard::handle] s key released" << std::endl;
 			m_bikeInputState->setAcceleration(0.0);
 			return false;
 			break;
 		case 'd':
-			std::cout << " d key released" << std::endl;
+			std::cout << "[Keyboard::handle] d key released" << std::endl;
 			m_bikeInputState->setAngle(0.0);
 			return false;
 			break;

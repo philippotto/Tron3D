@@ -1,9 +1,9 @@
 #pragma once
-
+// STD
 #include <memory>
-
+// OSG
 #include <osg/Referenced>
-
+// troen
 #include "../forwarddeclarations.h"
 
 namespace troen

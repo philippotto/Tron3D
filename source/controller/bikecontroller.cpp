@@ -1,12 +1,8 @@
 #include "bikecontroller.h"
-
-#include <math.h>
-
+//troen
 #include "../input/bikeinputstate.h"
 
-
 using namespace troen;
-
 
 BikeController::BikeController()
 {

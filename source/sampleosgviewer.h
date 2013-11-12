@@ -1,10 +1,9 @@
 #pragma once
-
+// OSG
 #include <osgViewer/CompositeViewer>
 
 namespace troen
 {
-
 	class SampleOSGViewer : public osgViewer::CompositeViewer
 	{
 	public:

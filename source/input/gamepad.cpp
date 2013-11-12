@@ -1,12 +1,12 @@
 #include "gamepad.h"
-
-#include <WinBase.h>
+// STD
 #include <iostream>
-
+// troen
 #include "bikeinputstate.h"
+// other
+#include <WinBase.h>
 
 using namespace troen::input;
-
 
 Gamepad::Gamepad(osg::ref_ptr<BikeInputState> bikeInputState)
 {

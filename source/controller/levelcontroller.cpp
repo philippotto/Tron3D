@@ -1,15 +1,12 @@
 #include "levelcontroller.h"
 
-#include <math.h>
-
+// OSG
 #include <osg/Group>
-
+// troen
 #include "../model/LevelModel.h"
 #include "../view/LevelView.h"
 
-
 using namespace troen;
-
 
 LevelController::LevelController()
 {

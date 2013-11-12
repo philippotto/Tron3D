@@ -1,16 +1,16 @@
 #include "levelview.h"
-
+// STD
 #include <math.h>
-#include <osgDB/ReadFile>
+// OSG
 #include <osg/ImageStream>
 #include <osg/Material>
 #include <osg/MatrixTransform>
 #include <osg/Texture2D>
 #include <osg/TexMat>
-
 #include <osg/Group>
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
+#include <osgDB/ReadFile>
 
 using namespace troen;
 
@@ -21,29 +21,22 @@ LevelView::LevelView()
 	initialize();
 }
 
-
-void LevelView::initialize() {
-	
-	
-	
+void LevelView::initialize()
+{
 	m_node = new osg::Group();
 
 	osg::ref_ptr<osg::Group> levelGroup = new osg::Group();
-
 	osg::ref_ptr<osg::Geode> levelGeode = new osg::Geode();
-
 
 	// wall right
 	osg::ref_ptr<osg::Box> wallRight
 		= new osg::Box(osg::Vec3(levelSize / 2, 0, 50), 1, levelSize, 100);
-
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableRight
 		= new osg::ShapeDrawable(wallRight);
 
 	// wall left
 	osg::ref_ptr<osg::Box> wallLeft
 		= new osg::Box(osg::Vec3(-levelSize / 2, 0, 50), 1, levelSize, 100);
-
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableLeft
 		= new osg::ShapeDrawable(wallLeft);
 
@@ -51,23 +44,19 @@ void LevelView::initialize() {
 	// wall back
 	osg::ref_ptr<osg::Box> wallBack
 		= new osg::Box(osg::Vec3(0, -levelSize / 2, 50), levelSize, 1, 100);
-
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableBack
 		= new osg::ShapeDrawable(wallBack);
 
 	// wall front
 	osg::ref_ptr<osg::Box> wallFront
 		= new osg::Box(osg::Vec3(0, levelSize / 2, 50), levelSize, 1, 100);
-
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableFront
 		= new osg::ShapeDrawable(wallFront);
-
 
 	// fence
 	osg::Box *fence = new osg::Box(osg::Vec3(0, 0, 100), 1, 10, 10);
 	osg::ShapeDrawable* fenceDrawable = new osg::ShapeDrawable(fence);
 	levelGeode->addDrawable(fenceDrawable);
-
 
 	levelGeode->addDrawable(wallDrawableLeft);
 	levelGeode->addDrawable(wallDrawableRight);
@@ -78,10 +67,10 @@ void LevelView::initialize() {
 	m_node->addChild(levelGeode);
 }
 
-osg::ref_ptr<osg::Group> LevelView::getNode() {
+osg::ref_ptr<osg::Group> LevelView::getNode()
+{
 	return m_node;
 }
-
 
 osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 {
@@ -106,8 +95,6 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	osg::Vec3Array *normalArray = new osg::Vec3Array();
 	normalArray->push_back(osg::Vec3(0, 0, 1));
 
-
-
 	// texture coordinates
 	osg::Vec2Array *texCoords = new osg::Vec2Array();
 	texCoords->push_back(osg::Vec2(0.0, 0.0));
@@ -129,12 +116,11 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	osg::Material *material = new osg::Material();
 	material->setEmission(osg::Material::FRONT, osg::Vec4(0.8, 0.8, 0.8, 1.0));
 
-
 	// create a texture
 	// load image for texture
 	osg::Image *image = osgDB::readImageFile("data/models/Images/grid.tga");
 	if (!image) {
-		std::cout << "Couldn't load texture." << std::endl;
+		std::cout << "[LevelView::constructGround] Couldn't load texture." << std::endl;
 		return NULL;
 	}
 	osg::Texture2D *texture = new osg::Texture2D;

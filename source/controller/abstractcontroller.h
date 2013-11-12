@@ -1,9 +1,9 @@
 #pragma once
-
+// STD
 #include <vector>
+// troen
 #include "../forwarddeclarations.h"
 
-#include <btBulletDynamicsCommon.h>
 
 namespace troen
 {
