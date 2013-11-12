@@ -1,7 +1,7 @@
 #pragma once
 // STD
 #include <memory>
-/troen
+//troen
 #include "../forwarddeclarations.h"
 #include "abstractmodel.h"
 
