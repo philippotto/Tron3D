@@ -58,9 +58,6 @@ void GameLogic::addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies)
 	for (size_t i = 0; i < bodies->size(); i++)
 		m_world->addRigidBody(&(bodies->at(i)));
 		
-
-	
-	
 }
 
 

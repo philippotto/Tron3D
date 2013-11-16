@@ -12,9 +12,11 @@ namespace troen
 	public:
 		LevelModel();
 		std::shared_ptr<std::vector<btRigidBody>> getRigidBodies();
-	
+		int getLevelSize();
 	private:
+		void addWalls();
 		std::shared_ptr<std::vector<btRigidBody>> m_rigidBodies;
+		
 	
 	protected:
 		

@@ -54,9 +54,6 @@ void BikeModel::updateState()
 	accelerate(m_bikeInputState->getAcceleration());
 }
 
-// TODO
-// this is where physics/bullet should kick in and adjust these values
-
 void BikeModel::rotate(float angle)
 {
 	// reset rotation if it's more than 360°
@@ -69,7 +66,7 @@ void BikeModel::accelerate(float velocity)
 
 	btRigidBody* bikeRigidBody = &(m_rigidBodies->at(0));
 
-	btScalar rotationScalar((m_rotation + 90) * 3.14 / 180);
+	btScalar rotationScalar((m_rotation - 90) * 3.14 / 180);
 
 	btVector3 currentVelocityVector = bikeRigidBody->getLinearVelocity();
 	

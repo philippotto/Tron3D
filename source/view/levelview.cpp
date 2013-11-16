@@ -14,6 +14,8 @@
 
 using namespace troen;
 
+
+// TODO levelSize (among others) should be fetched from LevelModel. So, should the view have a pointer to the model?
 const int  levelSize = 1000;
 
 LevelView::LevelView()
