@@ -48,10 +48,20 @@ void GameLogic::initializeWorld() {
 }
 
 void GameLogic::addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies) {
-	
-	for (auto body : *(bodies.get()))
-		m_world->addRigidBody(&body);
 
+	/*
+	why does this lead to a crash ?
+	for (btRigidBody body : *(bodies))
+		m_world->addRigidBody(&body);
+	
+	the old fashioned way works: 	*/
+
+	for (size_t i = 0; i < bodies->size(); i++)
+		m_world->addRigidBody(&(bodies->at(i)));
+		
+
+	
+	
 }
 
 

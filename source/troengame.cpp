@@ -213,8 +213,8 @@ void TroenGame::startGameLoop()
 			// (moveEnemies)
 			/**/
 			//update();
-			m_gameLogic->stepSimulation();
 
+			m_gameLogic->stepSimulation();
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))

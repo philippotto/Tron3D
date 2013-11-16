@@ -35,6 +35,7 @@ LevelModel::LevelModel()
 
 	m_rigidBodies->push_back(groundRigidBody);
 
+
 	// TODO: convert to shared_ptr
 	btDefaultMotionState *fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 50, 0)));
 	btScalar mass = 1;
@@ -42,11 +43,14 @@ LevelModel::LevelModel()
 	fallingShape->calculateLocalInertia(mass, fallInertia);
 
 	btRigidBody::btRigidBodyConstructionInfo m_fallingRigidBodyCI(mass, fallMotionState, fallingShape, fallInertia);
-	
+
 	btRigidBody fallingRigidBody(m_fallingRigidBodyCI);
+
+
 	fallingRigidBody.setLinearVelocity(btVector3(1, 0, 1));
 
 	m_rigidBodies->push_back(fallingRigidBody);
+	
 
 }
 

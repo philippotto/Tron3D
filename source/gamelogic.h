@@ -26,10 +26,7 @@ namespace troen
 			void checkForCollisions();
 
 			void addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies);
-		
-			// TODO remove
-			btRigidBody *m_fallingRigidBody;
-			
+					
 
 		private:
 			// member variables
