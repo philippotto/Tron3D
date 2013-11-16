@@ -14,7 +14,7 @@
 
 using namespace troen;
 
-const int  levelSize = 1000;
+const int  levelSize = 3000;
 
 LevelView::LevelView()
 {
@@ -98,9 +98,9 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	// texture coordinates
 	osg::Vec2Array *texCoords = new osg::Vec2Array();
 	texCoords->push_back(osg::Vec2(0.0, 0.0));
-	texCoords->push_back(osg::Vec2(6.0, 0.0));
-	texCoords->push_back(osg::Vec2(6.0, 6.0));
-	texCoords->push_back(osg::Vec2(0.0, 6.0));
+	texCoords->push_back(osg::Vec2(18.0, 0.0));
+	texCoords->push_back(osg::Vec2(18.0, 18.0));
+	texCoords->push_back(osg::Vec2(0.0, 18.0));
 
 	osg::Geometry *geometry = new osg::Geometry();
 	geometry->setVertexArray(vertexArray);
