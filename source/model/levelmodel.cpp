@@ -10,18 +10,12 @@ LevelModel::LevelModel()
 	m_rigidBodies = std::make_shared<std::vector<btRigidBody>>();
 
 	//
-
-	// for now, we create just the ground (and some basic objects for testing); later, other gimmicks could be placed here
-
 	// shapes
 	btStaticPlaneShape *groundShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
-	// radius: 1 meter
-	btBoxShape *fallingShape = new btBoxShape(btVector3(1, 0.5, 2));
 
 	// rigids
 	// TODO: convert to shared_ptr
 	btDefaultMotionState *groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
-
 
 	btRigidBody::btRigidBodyConstructionInfo
 		groundRigidBodyCI(btScalar(0), groundMotionState, groundShape, btVector3(0, 0, 0));
@@ -36,22 +30,32 @@ LevelModel::LevelModel()
 	m_rigidBodies->push_back(groundRigidBody);
 
 
-	// TODO: convert to shared_ptr
-	btDefaultMotionState *fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 50, 0)));
-	btScalar mass = 1;
-	btVector3 fallInertia(0, 0, 0);
-	fallingShape->calculateLocalInertia(mass, fallInertia);
+	// walls
 
-	btRigidBody::btRigidBodyConstructionInfo m_fallingRigidBodyCI(mass, fallMotionState, fallingShape, fallInertia);
-
-	btRigidBody fallingRigidBody(m_fallingRigidBodyCI);
-
-
-	fallingRigidBody.setLinearVelocity(btVector3(1, 0, 1));
-
-	m_rigidBodies->push_back(fallingRigidBody);
+	// TODO: get data from levelView ? or the other way round?
+	// in levelView: wallRight = new osg::Box(osg::Vec3(levelSize / 2, 0, 50), 1, levelSize, 100);
+	// center: levelSize/2, 0, 50
+	// width: 1
+	// length: levelSize
+	// height: 100
 	
 
+	btVector3 planeNormal(-1, 0, 0);
+	// planeConstant = 0 ? 
+
+	// TODO grab the value from origin
+	int levelSize = 1000;
+	
+	btStaticPlaneShape *wallShape = new btStaticPlaneShape(planeNormal, 0);
+	// TODO: convert to shared_ptr
+	btDefaultMotionState *wallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(levelSize / 2, 0, 0)));
+	btRigidBody::btRigidBodyConstructionInfo
+		wallRigidBodyCI(btScalar(0), wallMotionState, wallShape, btVector3(0, 0, 0));
+	btRigidBody wallRigidBody(wallRigidBodyCI);
+
+	
+	m_rigidBodies->push_back(wallRigidBody);
+	
 }
 
 std::shared_ptr<std::vector<btRigidBody>> LevelModel::getRigidBodies()

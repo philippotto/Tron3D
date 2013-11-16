@@ -36,7 +36,31 @@ void UpdateBikePositionCallback::operator()(osg::Node* node, osg::NodeVisitor* n
 
 		// apply the rotation quad to the direction vector
 		// this will probably be done somewhere else as bullet needs to calculate the position
+
+		// can be removed
 		m_bikePosition += rotationQuat * osg::Vec3d( 0.0, m_bike->getVelocity(), 0.0 );
+
+
+
+
+
+
+		//
+		btTransform trans;
+
+		btRigidBody* bikeRigidBody = &(m_bike->getRigidBodies()->at(0));
+
+		bikeRigidBody->getMotionState()->getWorldTransform(trans);
+		/*std::cout << "box Y: " << trans.getOrigin().getY()
+					<< " X: " << trans.getOrigin().getX()
+					<< " Z: " << trans.getOrigin().getZ()
+					<< std::endl;*/
+	
+		m_bikePosition = osg::Vec3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
+
+
+		//
+
 		positionTransform->setPosition(m_bikePosition);
 	}
 	traverse(node, nodeVisitor);

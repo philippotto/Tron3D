@@ -43,8 +43,7 @@ void GameLogic::initializeWorld() {
 
 	m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 
-	// TODO: adjust gravity
-	m_world->setGravity(btVector3(0, -0, 0));
+	m_world->setGravity(btVector3(0, 0, -10));
 }
 
 void GameLogic::addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies) {
@@ -71,14 +70,13 @@ void GameLogic::createLevel() {
 
 
 
-void GameLogic::stepSimulation() {
-
-	// TODO: remove the loop and call this method in every (n-th ?) frame (and provide the elapsed time as a parameter)
+void GameLogic::stepSimulation() {	
 
 	float elapsedTime = 1 / 60.f;
 
-	
-	// TODO: mind the following constraint:
+	// TODO:
+	// provide the elapsed time as a parameter
+	// mind the following constraint:
 	// timeStep < maxSubSteps * fixedTimeStep
 	// where the parameters are given as follows: stepSimulation(timeStep, maxSubSteps, fixedTimeStep)
 		
@@ -181,7 +179,6 @@ void GameLogic::checkForCollisions() {
 	int numManifolds = dispatcher->getNumManifolds();
 	
 
-	std::cout << "[GameLogic::checkForCollisions] numManifolds " << numManifolds << std::endl;
 	for (int i = 0; i < numManifolds; i++)
 	{
 		btPersistentManifold* contactManifold =  dispatcher->getManifoldByIndexInternal(i);
@@ -191,7 +188,7 @@ void GameLogic::checkForCollisions() {
 		// btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
 
 		int numContacts = contactManifold->getNumContacts();
-		std::cout << "[GameLogic::checkForCollisions] numContacts " << numContacts << std::endl;
+		
 		for (int j=0; j < numContacts; j++)
 		{
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
@@ -210,7 +207,7 @@ void GameLogic::checkForCollisions() {
 				const btVector3& ptB = pt.getPositionWorldOnB();
 				const btVector3& normalOnB = pt.m_normalWorldOnB;*/
 				
-				std::cout << "[GameLogic::checkForCollisions] collision detected" << std::endl;
+				// std::cout << "[GameLogic::checkForCollisions] collision detected" << std::endl;
 			}
 		}
 	}

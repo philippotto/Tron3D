@@ -100,9 +100,9 @@ bool TroenGame::initializeInput()
 	// TODO
 	// dw: clean this up, move it to the appropriate place
 	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
-	osg::ref_ptr<BikeModel> bike = new BikeModel(bikeInputState);
+	m_bike = new BikeModel(bikeInputState);
 
-	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(bike));
+	m_childNode->setUpdateCallback(new UpdateBikePositionCallback(m_bike));
 
 	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
 	std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
@@ -168,7 +168,8 @@ bool TroenGame::initializeGameLogic()
 	m_gameLogic->initialize();
 	m_gameLogic->addRigidBodies(m_levelController->getRigidBodies());
 
-	//m_gameLogic->m_fallingRigidBody = &(m_levelController->getRigidBodies().get())->back();
+	// TODO: should we encapsulate all models in m_levelController ?
+	m_gameLogic->addRigidBodies(m_bike->getRigidBodies());
 
 	return true;
 }

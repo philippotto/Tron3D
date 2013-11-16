@@ -26,5 +26,7 @@ namespace troen
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 		float m_velocity;
 		float m_rotation;
+		std::shared_ptr<std::vector<btRigidBody>> m_rigidBodies;
+
 	};
 }

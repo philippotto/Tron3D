@@ -20,5 +20,7 @@ namespace troen
 	protected:
 		osg::Vec3d m_bikePosition;
 		osg::ref_ptr<BikeModel> m_bike;
+		
+
 	};
 }

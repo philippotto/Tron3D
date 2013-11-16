@@ -49,5 +49,8 @@ namespace troen
 		QThread*							m_gameThread;
 		std::shared_ptr<util::ChronoTimer>	m_timer;
 		std::shared_ptr<GameLogic>			m_gameLogic;
+
+
+		osg::ref_ptr<BikeModel> m_bike;
 	};
 }
