@@ -5,6 +5,9 @@
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
 
+#include "util/gldebugdrawer.h"
+
+
 using namespace troen;
 
 GameLogic::GameLogic(){};
@@ -26,7 +29,12 @@ void GameLogic::initialize() {
 	initializeWorld();
 	createLevel();
 	addFence();
-	// stepSimulation();
+	
+#if defined DEBUG
+		m_debug = new GLDebugDrawer();
+		m_debug->setDebugMode(btIDebugDraw::DBG_DrawAabb);
+		m_world->setDebugDrawer(m_debug);
+#endif
 
 }
 
@@ -76,8 +84,18 @@ void GameLogic::stepSimulation() {
 	// mind the following constraint:
 	// timeStep < maxSubSteps * fixedTimeStep
 	// where the parameters are given as follows: stepSimulation(timeStep, maxSubSteps, fixedTimeStep)
-		
+	
+#if defined DEBUG
+	m_debug->BeginDraw();
+#endif
+	
 	m_world->stepSimulation(elapsedTime, 10);
+	
+#if defined DEBUG
+	m_world->debugDrawWorld();
+	m_debug->EndDraw();
+#endif
+
 
 	//// holds position (center of object) and orientation
 	//btTransform trans;

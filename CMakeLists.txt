@@ -245,6 +245,9 @@ set(sources
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
 
+	source/util/gldebugdrawer.h
+	source/util/gldebugdrawer.cpp
+
 
 )
 

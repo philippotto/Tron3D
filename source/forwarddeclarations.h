@@ -1,5 +1,9 @@
 #pragma once
 
+// comment out to disable debug mode
+#define DEBUG
+
+
 // This file contains forward declarations of classes
 
 // Qt forward declarations
@@ -39,6 +43,9 @@ class btCollisionDispatcher;
 class btBroadphaseInterface;
 class btRigidBody;
 class btCollisionShape;
+
+
+class GLDebugDrawer;
 
 
 // own classes
