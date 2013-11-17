@@ -103,5 +103,5 @@ std::shared_ptr<std::vector<btRigidBody>> LevelModel::getRigidBodies()
 
 
 int LevelModel::getLevelSize() {
-	return 1000;
+	return 3000;
 }

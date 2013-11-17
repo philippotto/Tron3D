@@ -11,7 +11,7 @@ using namespace troen;
 LevelController::LevelController()
 {
 	m_model = std::make_shared<LevelModel>();
-	m_view = std::make_shared<LevelView>();
+	m_view = std::make_shared<LevelView>(m_model);
 }
 
 std::shared_ptr<std::vector<btRigidBody>> LevelController::getRigidBodies()

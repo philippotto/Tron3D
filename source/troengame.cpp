@@ -83,6 +83,7 @@ bool TroenGame::initializeModels()
 {
 	m_childNode = new osg::PositionAttitudeTransform();
 	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
+	//m_childNode->addChild(osgDB::readNodeFile("data/models/cycle/HQ_Movie cycle.obj"));
 	// currently, initial position is set in updateBikePositoinCallback.cpp
 	return true;
 }
@@ -156,7 +157,8 @@ bool TroenGame::initializeViews()
 	
 	//m_gameView->setCameraManipulator(new osgGA::TrackballManipulator);
 	m_gameView->setSceneData(m_rootNode);
-	m_gameView->setUpViewInWindow(100, 100, 800, 640, 0);
+	m_gameView->setUpViewInWindow(100, 100, 1280, 720, 0);
+	//m_gameView->setUpViewOnSingleScreen(0);
 	// TODO
 	// add camera to gameview
 	// (possibly multiple ones for multiple rendering passes)

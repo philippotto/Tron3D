@@ -1,6 +1,7 @@
 #include "levelview.h"
 // STD
 #include <math.h>
+#include <memory>
 // OSG
 #include <osg/ImageStream>
 #include <osg/Material>
@@ -12,19 +13,23 @@
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
 
+
+#include "../model/levelmodel.h"
+
 using namespace troen;
 
 
-// TODO levelSize (among others) should be fetched from LevelModel. So, should the view have a pointer to the model?
-const int  levelSize = 1000;
-
-LevelView::LevelView()
+LevelView::LevelView(std::shared_ptr<LevelModel> model)
 {
+	m_model = model;
 	initialize();
 }
 
 void LevelView::initialize()
 {
+
+	int levelSize = m_model->getLevelSize();
+
 	m_node = new osg::Group();
 
 	osg::ref_ptr<osg::Group> levelGroup = new osg::Group();
@@ -76,6 +81,8 @@ osg::ref_ptr<osg::Group> LevelView::getNode()
 
 osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 {
+	int levelSize = m_model->getLevelSize();
+
 	osg::Vec3Array *vertexArray = new osg::Vec3Array();
 
 	vertexArray->push_back(osg::Vec3(-levelSize / 2, -levelSize / 2, 0));
@@ -100,9 +107,9 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	// texture coordinates
 	osg::Vec2Array *texCoords = new osg::Vec2Array();
 	texCoords->push_back(osg::Vec2(0.0, 0.0));
-	texCoords->push_back(osg::Vec2(6.0, 0.0));
-	texCoords->push_back(osg::Vec2(6.0, 6.0));
-	texCoords->push_back(osg::Vec2(0.0, 6.0));
+	texCoords->push_back(osg::Vec2(18.0, 0.0));
+	texCoords->push_back(osg::Vec2(18.0, 18.0));
+	texCoords->push_back(osg::Vec2(0.0, 18.0));
 
 	osg::Geometry *geometry = new osg::Geometry();
 	geometry->setVertexArray(vertexArray);

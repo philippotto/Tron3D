@@ -4,14 +4,17 @@
 #include <osg/Geode>
 // troen
 #include "../forwarddeclarations.h"
+#include <memory>
+
 #include "abstractview.h"
+
 
 namespace troen
 {
 	class LevelView : public AbstractView
 	{
 	public:
-		LevelView();
+		LevelView(std::shared_ptr<LevelModel> model);
 		
 		osg::ref_ptr<osg::Group> getNode();
 
@@ -20,6 +23,7 @@ namespace troen
 		osg::ref_ptr<osg::Geode> constructGround();
 		osg::ref_ptr<osg::Group> m_node;
 
+		std::shared_ptr<LevelModel> m_model;
 
 	};
 }
