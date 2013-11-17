@@ -98,6 +98,7 @@ bool TroenGame::composeSceneGraph()
 {
 	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_childNode);
+
 	return true;
 }
 
@@ -241,7 +242,7 @@ void TroenGame::startGameLoop()
 				//std::cout << "drawing" << std::endl;
 				m_sampleOSGViewer->frame();
 #if defined DEBUG				
-				if (true || notAdded) {
+				if (notAdded) {
 					m_rootNode->addChild(m_gameLogic->m_debug->getSceneGraph());
 					notAdded = false;
 				}
