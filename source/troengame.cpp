@@ -118,7 +118,7 @@ bool TroenGame::initializeInput()
 		}
 	}
 
-	//m_gameView->addEventHandler(keyboardHandler);
+	m_gameView->addEventHandler(keyboardHandler);
 
 	return true;
 }
