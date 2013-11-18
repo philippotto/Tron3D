@@ -16,7 +16,7 @@ PhysicsWorld::PhysicsWorld()
 
 #if defined DEBUG
 	m_debug = new util::GLDebugDrawer();
-	m_debug->setDebugMode(btIDebugDraw::DBG_DrawAabb);
+	m_debug->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 	m_world->setDebugDrawer(m_debug);
 #endif
 }
