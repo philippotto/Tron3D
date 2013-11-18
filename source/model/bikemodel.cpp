@@ -50,36 +50,44 @@ void BikeModel::resetState()
 void BikeModel::updateState()
 {
 	const btVector3 up = btVector3(0, 0, 1);
-	const btVector3 front = btVector3(1, 0, 0);
+	const btVector3 front = btVector3(0, -1, 0);
 
 	// call this exactly once per frame
 	float angle = m_bikeInputState->getAngle();
 	float velocity = m_bikeInputState->getAcceleration();
 
 	
-
 	btRigidBody* bikeRigidBody = &(m_rigidBodies->at(0));
-	btVector3 currentVelocityVector = bikeRigidBody->getLinearVelocity();
+	btVector3 currentVelocityVectorXY = bikeRigidBody->getLinearVelocity();
+	btScalar zComponent = currentVelocityVectorXY.getZ();
+	currentVelocityVectorXY = btVector3(currentVelocityVectorXY.getX(), currentVelocityVectorXY.getY(), 0);
 
 
-	const int accelerateFactor = 1;
+	// initiate rotation
+	const float maximumTurn = 10;
+	const float turningRad = 3.14 / 180 * angle * maximumTurn;
+	
+	
+	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
-	currentVelocityVector += currentVelocityVector.normalized() * velocity * accelerateFactor;
+	// accelerate	
+	const int maximumAcceleration = 5;
+	// const int dampFactor = 1;
+	
+	int speed = currentVelocityVectorXY.length() + velocity * maximumAcceleration;
+
+	// adapt velocity vector to real direction
+
+	float quat =  bikeRigidBody->getOrientation().getAngle();
+	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
+	
+	currentVelocityVectorXY = front.rotate(axis, quat) * speed;
+	
+
+	currentVelocityVectorXY.setZ(zComponent);
+	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
 	// if velocity > vmax...
-
-	//btScalar rotationScalar((m_rotation - 90) * 3.14 / 180);
-	float rotationDegree = 10;
-	btVector3 currentAngularVelocity = btVector3(0, 0, angle * rotationDegree / 180 * 3.14);
-	btScalar rotationScalar = angle * rotationDegree / 180 * 3.14;
-			
-	
-	currentVelocityVector = currentVelocityVector.rotate(up, rotationScalar);
-
-
-	bikeRigidBody->setLinearVelocity(currentVelocityVector);
-	bikeRigidBody->setAngularVelocity(currentAngularVelocity);
-
 
 }
 
