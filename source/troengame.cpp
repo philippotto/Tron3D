@@ -4,6 +4,8 @@
 #include <osgGA/TrackballManipulator>
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
+#include <osg/LineWidth>
+
 // troen
 #include "sampleosgviewer.h"
 #include "gamelogic.h"
@@ -22,6 +24,9 @@
 // TODO remove?
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
+
+#include "util/gldebugdrawer.h"
+
 
 using namespace troen;
 
@@ -78,6 +83,7 @@ bool TroenGame::initializeModels()
 {
 	m_childNode = new osg::PositionAttitudeTransform();
 	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
+	//m_childNode->addChild(osgDB::readNodeFile("data/models/cycle/HQ_Movie cycle.obj"));
 	// currently, initial position is set in updateBikePositoinCallback.cpp
 	return true;
 }
@@ -92,6 +98,7 @@ bool TroenGame::composeSceneGraph()
 {
 	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_childNode);
+
 	return true;
 }
 
@@ -140,9 +147,19 @@ bool TroenGame::initializeViews()
 
 	manip->setHomePosition(m_childNode->getPosition(), m_childNode->getPosition() * cameraOffset, osg::Vec3d(0, -1, 0));
 	m_gameView->setCameraManipulator(manip.get());
+	
+	
+	/* weird looking (no depth-test / backface culling?) but cool fovy
+	osg::Camera *camera = new osg::Camera;
+	camera->setProjectionMatrixAsPerspective(90.0, 1.0, 0.5, 1000);	
+	m_gameView->setCamera(camera);*/
+
+	
+	
 	//m_gameView->setCameraManipulator(new osgGA::TrackballManipulator);
 	m_gameView->setSceneData(m_rootNode);
-	m_gameView->setUpViewInWindow(100, 100, 800, 640, 0);
+	m_gameView->setUpViewInWindow(100, 100, 1280, 720, 0);
+	//m_gameView->setUpViewOnSingleScreen(0);
 	// TODO
 	// add camera to gameview
 	// (possibly multiple ones for multiple rendering passes)
@@ -190,6 +207,8 @@ void TroenGame::startGameLoop()
 	int skippedFrames = 0;
 	int maxSkippedFrames = 4;
 
+	bool notAdded = true;
+
 	// GAME LOOP
 	while (!m_sampleOSGViewer->done())
 	{
@@ -222,6 +241,12 @@ void TroenGame::startGameLoop()
 			{
 				//std::cout << "drawing" << std::endl;
 				m_sampleOSGViewer->frame();
+#if defined DEBUG				
+				if (notAdded) {
+					m_rootNode->addChild(m_gameLogic->m_debug->getSceneGraph());
+					notAdded = false;
+				}
+#endif				
 				skippedFrames = 0;
 			}
 			else
