@@ -4,9 +4,32 @@ using namespace troen;
 
 FenceModel::FenceModel()
 {
+	m_rigidBodies = std::make_shared<std::vector<btRigidBody>>();
+
+	for (size_t i = 0; i < 100; i++)
+		addFencePart(10 * i);
+	
 	
 }
 
+void FenceModel::addFencePart(int offset)
+{
+	btBoxShape *boxShape = new btBoxShape(btVector3(1, 10, 10));
+
+	// TODO: convert to shared_ptr
+	btDefaultMotionState *fenceMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, offset, 100)));
+
+	// set mass to zero so that we get a static rigidBody (is this enough?)
+	btScalar mass = 0;
+	btVector3 fenceInertia(0, 0, 0);
+	// boxShape->calculateLocalInertia(mass, fenceInertia);
+
+	btRigidBody::btRigidBodyConstructionInfo m_fenceRigidBodyCI(mass, fenceMotionState, boxShape, fenceInertia);
+	btRigidBody fenceRigidBody(m_fenceRigidBodyCI);
+
+
+	m_rigidBodies->push_back(fenceRigidBody);
+}
 
 // respectively: updateFence ?
 void FenceModel::addFence()

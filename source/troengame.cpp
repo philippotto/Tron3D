@@ -21,7 +21,7 @@
 
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
-
+#include "controller/fencecontroller.h"
 
 // TODO remove?
 #include <btBulletDynamicsCommon.h>
@@ -83,6 +83,7 @@ bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
 	m_bikeController = std::make_shared<BikeController>();
+	m_fenceController = std::make_shared<FenceController>();
 	return true;
 }
 
@@ -90,7 +91,7 @@ bool TroenGame::composeSceneGraph()
 {
 	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_bikeController->getViewNode());
-
+	// m_rootNode->addChild(m_fenceController->getViewNode());
 	return true;
 }
 
@@ -163,6 +164,7 @@ bool TroenGame::initializeGameLogic()
 
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies());
 	m_physicsWorld->addRigidBodies(m_bikeController->getRigidBodies());
+	m_physicsWorld->addRigidBodies(m_fenceController->getRigidBodies());
 	return true;
 }
 
