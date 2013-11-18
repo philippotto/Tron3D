@@ -13,7 +13,7 @@ namespace troen
 	class BikeModel : public AbstractModel
 	{
 	public:
-		BikeModel(osg::ref_ptr<osg::Group> node);
+		BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceController> fenceController);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		void resetState();
 		void updateState();

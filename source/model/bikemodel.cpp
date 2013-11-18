@@ -2,6 +2,7 @@
 // STD
 #include <iostream>
 #include <math.h>
+#include <memory>
 // troen
 #include "../input/bikeinputstate.h"
 #include "bikemotionstate.h"
@@ -11,7 +12,7 @@ using namespace troen;
 #define VMAX 10.0
 #define FRICTION 0.1
 
-BikeModel::BikeModel(osg::ref_ptr<osg::Group> node)
+BikeModel::BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceController> fenceController)
 {
 	resetState();
 
@@ -24,7 +25,8 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node)
 
 	BikeMotionState* bikeMotionState = new BikeMotionState(
 		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 100)),
-		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0))
+		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
+		fenceController
 	);
 
 	btScalar mass = 1;

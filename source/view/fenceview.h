@@ -11,6 +11,6 @@ namespace troen
 	{
 	public:
 		FenceView();
-
+		void updateFence();
 	};
 }
