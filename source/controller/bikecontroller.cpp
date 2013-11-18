@@ -26,7 +26,8 @@ void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipul
 	cameraOffset.makeTranslate(0, -100, -20);
 
 	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (getViewNode()->getChild(0));
-	manipulator->setTrackNode(pat);
+	// set the actual node as the track node, not the pat
+	manipulator->setTrackNode(pat->getChild(0));
 	manipulator->setHomePosition(pat->getPosition(), pat->getPosition() * cameraOffset, osg::Vec3d(0, -1, 0));
 }
 
