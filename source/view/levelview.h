@@ -15,13 +15,10 @@ namespace troen
 	{
 	public:
 		LevelView(std::shared_ptr<LevelModel> model);
-		
-		osg::ref_ptr<osg::Group> getNode();
 
 	private:
 		void initialize();
 		osg::ref_ptr<osg::Geode> constructGround();
-		osg::ref_ptr<osg::Group> m_node;
 
 		std::shared_ptr<LevelModel> m_model;
 

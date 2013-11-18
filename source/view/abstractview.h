@@ -1,8 +1,9 @@
 #pragma once
+// OSG
+#include <osg/ref_ptr>
+#include <osg/Group>
 // STD
 #include <vector>
-// bullet
-#include <btBulletDynamicsCommon.h>
 // troen
 #include "../forwarddeclarations.h"
 
@@ -12,11 +13,9 @@ namespace troen
 	{
 		public:
 			AbstractView();
+			virtual osg::ref_ptr<osg::Group> getNode();
 		
 		protected:
-			
-
-		
-
+			osg::ref_ptr<osg::Group> m_node;
 	};
 }

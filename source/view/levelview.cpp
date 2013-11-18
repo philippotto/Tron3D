@@ -74,11 +74,6 @@ void LevelView::initialize()
 	m_node->addChild(levelGeode);
 }
 
-osg::ref_ptr<osg::Group> LevelView::getNode()
-{
-	return m_node;
-}
-
 osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 {
 	int levelSize = m_model->getLevelSize();

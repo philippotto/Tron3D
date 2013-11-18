@@ -7,7 +7,7 @@
 using namespace troen;
 
 
-UpdateBikePositionCallback::UpdateBikePositionCallback(BikeModel* bike)
+UpdateBikePositionCallback::UpdateBikePositionCallback(std::shared_ptr<BikeModel> bike)
 {
 	m_bike = bike;
 

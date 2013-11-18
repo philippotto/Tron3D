@@ -96,12 +96,6 @@ void LevelModel::addWalls()
 	
 }
 
-std::shared_ptr<std::vector<btRigidBody>> LevelModel::getRigidBodies()
-{
-	return m_rigidBodies;
-}
-
-
 int LevelModel::getLevelSize() {
 	return 3000;
 }

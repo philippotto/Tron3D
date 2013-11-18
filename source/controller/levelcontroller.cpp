@@ -10,16 +10,6 @@ using namespace troen;
 
 LevelController::LevelController()
 {
-	m_model = std::make_shared<LevelModel>();
-	m_view = std::make_shared<LevelView>(m_model);
-}
-
-std::shared_ptr<std::vector<btRigidBody>> LevelController::getRigidBodies()
-{
-	return m_model->getRigidBodies();
-}
-
-osg::ref_ptr<osg::Group> LevelController::getViewNode()
-{
-	return m_view->getNode();
+	m_model = (std::shared_ptr<LevelModel>) std::make_shared<LevelModel>();
+	m_view = (std::shared_ptr<LevelView>) std::make_shared<LevelView>(std::static_pointer_cast<LevelModel>(m_model));
 }
