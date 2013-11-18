@@ -12,6 +12,7 @@ namespace troen
 	{
 	public:
 		FenceModel();
+		void addFence();
 
 	};
 }

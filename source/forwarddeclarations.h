@@ -53,12 +53,12 @@ namespace troen
 {
 	class TroenGame;
 	class SampleOSGViewer;
-	class GameLogic;
 
 	class BikeModel;
 	class LevelModel;
 	class FenceModel;
 	class AbstractModel;
+	class PhysicsWorld;
 
 	class BikeController;
 	class LevelController;

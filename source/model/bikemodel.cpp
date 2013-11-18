@@ -10,9 +10,8 @@ using namespace troen;
 #define VMAX 10.0
 #define FRICTION 0.1
 
-BikeModel::BikeModel(osg::ref_ptr<input::BikeInputState> bikeInputState)
+BikeModel::BikeModel()
 {
-	m_bikeInputState = bikeInputState;
 	resetState();
 
 
@@ -39,6 +38,11 @@ BikeModel::BikeModel(osg::ref_ptr<input::BikeInputState> bikeInputState)
 	bikeRigidBody.setActivationState(DISABLE_DEACTIVATION);
 
 	m_rigidBodies->push_back(bikeRigidBody);
+}
+
+void BikeModel::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
+{
+	m_bikeInputState = bikeInputState;
 }
 
 void BikeModel::resetState()
@@ -89,8 +93,10 @@ float BikeModel::getVelocity()
 	return m_velocity;
 }
 
-
-std::shared_ptr<std::vector<btRigidBody>> BikeModel::getRigidBodies()
+osg::Vec3d BikeModel::getPositionOSG()
 {
-	return m_rigidBodies;
+	btTransform trans;
+	(&(m_rigidBodies->at(0)))->getMotionState()->getWorldTransform(trans);
+
+	return osg::Vec3d(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
 }

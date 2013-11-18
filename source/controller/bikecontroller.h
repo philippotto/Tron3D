@@ -2,11 +2,10 @@
 // STD
 #include <memory>
 // OSG
-#include <osg/Referenced>
+#include <osg/ref_ptr>
+#include <osgGA/NodeTrackerManipulator>
 // troen
 #include "../forwarddeclarations.h"
-#include "../view/bikeview.h"
-#include "../model/bikemodel.h"
 #include "abstractcontroller.h"
 
 namespace troen
@@ -15,9 +14,7 @@ namespace troen
 	{
 	public:
 		BikeController();
-
-	private:
-		std::shared_ptr<BikeView> m_view;
-		std::shared_ptr<BikeModel> m_model;
+		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
+		void attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator);
 	};
 }
