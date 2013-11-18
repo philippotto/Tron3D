@@ -241,6 +241,8 @@ set(sources
 	source/view/fenceview.cpp
 	source/view/abstractview.h
 	source/view/abstractview.cpp
+	source/view/shaders.h
+	source/view/shaders.cpp
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp

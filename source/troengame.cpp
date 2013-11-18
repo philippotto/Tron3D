@@ -19,6 +19,8 @@
 
 #include "model/bikemodel.h"
 #include "controller/levelcontroller.h"
+#include "view/bikeview.h"
+#include "view/shaders.h"
 
 
 // TODO remove?
@@ -29,7 +31,7 @@
 
 
 using namespace troen;
-
+#define TROENGAME
 #define USE_GAMEPAD true
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
@@ -56,6 +58,7 @@ bool TroenGame::initialize()
 	// initialize sound ... here
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
+	initializeShaders();
 
 	std::cout << "[TroenGame::initialize] models and scenegraph ..." << std::endl;
 	initializeModels();
@@ -63,6 +66,7 @@ bool TroenGame::initialize()
 	composeSceneGraph();
 
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
+
 	initializeViews();
 	initializeViewer();
 
@@ -82,8 +86,10 @@ bool TroenGame::initialize()
 bool TroenGame::initializeModels()
 {
 	m_childNode = new osg::PositionAttitudeTransform();
-	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
-	//m_childNode->addChild(osgDB::readNodeFile("data/models/cycle/HQ_Movie cycle.obj"));
+	//m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
+
+	BikeView *bikeView = new BikeView();
+	m_childNode->addChild( bikeView->get_rootNode() );
 	// currently, initial position is set in updateBikePositoinCallback.cpp
 	return true;
 }
@@ -99,6 +105,12 @@ bool TroenGame::composeSceneGraph()
 	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_childNode);
 
+	return true;
+}
+
+bool TroenGame::initializeShaders()
+{
+	shaders::reloadShaders();
 	return true;
 }
 

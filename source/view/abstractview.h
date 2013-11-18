@@ -1,6 +1,13 @@
 #pragma once
 // STD
 #include <vector>
+//osg
+#include <osg/Shader>
+#include <osgDB/ReadFile>
+#include <osgDB/FileUtils>
+#include <osgDB/FileNameUtils>
+
+
 // bullet
 #include <btBulletDynamicsCommon.h>
 // troen
@@ -12,11 +19,5 @@ namespace troen
 	{
 		public:
 			AbstractView();
-		
-		protected:
-			
-
-		
-
 	};
 }

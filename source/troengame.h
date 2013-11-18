@@ -33,6 +33,7 @@ namespace troen
 		bool composeSceneGraph();
 		bool initializeTimer();
 		bool initializeGameLogic();
+		bool initializeShaders();
 
 		bool shutdown();
 		
