@@ -21,11 +21,12 @@ namespace troen
 		BikeView();
 
 		osg::ref_ptr<osg::MatrixTransform> get_rootNode();
+		void setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath);
 	
-	protected:
-		osg::ref_ptr<osg::Program> m_program;
-		osg::ref_ptr<osg::Shader> m_vShader;
-		osg::ref_ptr<osg::Shader> m_fShader;
+	//protected:
+	//	osg::ref_ptr<osg::Program> m_program;
+	//	osg::ref_ptr<osg::Shader> m_vShader;
+	//	osg::ref_ptr<osg::Shader> m_fShader;
 
 	private:
 		//osg::ref_ptr<osg::Group> rootNode;

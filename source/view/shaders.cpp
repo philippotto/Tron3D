@@ -12,7 +12,7 @@ void shaders::reloadShaders()
 		for (int i = 0; i < SHADER_NAME_COUNT; i++)
 			shaders::m_allShaderPrograms.push_back(NULL);
 
-	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "data/shaders/default.frag", "data/shaders/default.vert");
+	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "source/shaders/default.frag", "source/shaders/default.vert");
 }
 
 void shaders::reloadShader(
