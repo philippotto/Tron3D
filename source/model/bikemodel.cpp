@@ -20,7 +20,7 @@ BikeModel::BikeModel(osg::ref_ptr<input::BikeInputState> bikeInputState)
 
 	// radius: 1 meter
 	// TODO adjust to bounding box of bike
-	btBoxShape *boxShape = new btBoxShape(btVector3(1, 0.5, 2));
+	btBoxShape *boxShape = new btBoxShape(btVector3(13.5, 23, 10));
 
 	// TODO: convert to shared_ptr
 	btDefaultMotionState *bikeMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 100)));
