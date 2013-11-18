@@ -118,7 +118,7 @@ bool TroenGame::initializeInput()
 		}
 	}
 
-	m_gameView->addEventHandler(keyboardHandler);
+	//m_gameView->addEventHandler(keyboardHandler);
 
 	return true;
 }
@@ -200,13 +200,13 @@ void TroenGame::startGameLoop()
 
 			// LOOP REALLY STARTS HERE:
 			/* FROM GameProg Info session:
-			checkForUserInput()
 			runAI()
 			// (network / multiplayer)
-			updateModels()
-			stepSimulation() (Physics)
-			updateViews()
+			updateModels() and checkForUserInput()
+			stepSimulation() (Physics) + updateViews()
 			//render();*/
+
+			m_bikeController->updateModel();
 
 			m_physicsWorld->stepSimulation();
 

@@ -7,10 +7,8 @@
 
 using namespace troen;
 
-BikeView::BikeView(std::shared_ptr<BikeModel> model)
+BikeView::BikeView()
 {
-	m_model = model;
-
 	m_node = new osg::Group();
 
 	osg::PositionAttitudeTransform* pat = new osg::PositionAttitudeTransform();

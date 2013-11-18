@@ -16,5 +16,6 @@ namespace troen
 		BikeController();
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		void attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator);
+		void updateModel();
 	};
 }
