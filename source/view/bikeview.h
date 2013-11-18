@@ -14,10 +14,6 @@ namespace troen
 	class BikeView : public AbstractView //, public osg::Referenced
 	{
 	public:
-		BikeView(std::shared_ptr<BikeModel> model);
-
-	private:
-		std::shared_ptr<BikeModel> m_model;
-
+		BikeView();
 	};
 }

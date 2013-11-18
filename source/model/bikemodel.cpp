@@ -4,13 +4,14 @@
 #include <math.h>
 // troen
 #include "../input/bikeinputstate.h"
+#include "bikemotionstate.h"
 
 using namespace troen;
 
 #define VMAX 10.0
 #define FRICTION 0.1
 
-BikeModel::BikeModel()
+BikeModel::BikeModel(osg::ref_ptr<osg::Group> node)
 {
 	resetState();
 
@@ -21,8 +22,11 @@ BikeModel::BikeModel()
 	// TODO adjust to bounding box of bike
 	btBoxShape *boxShape = new btBoxShape(btVector3(13.5, 23, 10));
 
-	// TODO: convert to shared_ptr
-	btDefaultMotionState *bikeMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 100)));
+	BikeMotionState* bikeMotionState = new BikeMotionState(
+		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 100)),
+		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0))
+	);
+
 	btScalar mass = 1;
 	btVector3 bikeInertia(0, 0, 0);
 	boxShape->calculateLocalInertia(mass, bikeInertia);

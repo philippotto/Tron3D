@@ -222,6 +222,7 @@ set(sources
 	source/model/abstractmodel.cpp
 	source/model/physicsworld.h
 	source/model/physicsworld.cpp
+	source/model/bikemotionstate.h
 
 	source/controller/bikecontroller.h
 	source/controller/bikecontroller.cpp
