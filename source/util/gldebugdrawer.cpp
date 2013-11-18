@@ -30,6 +30,7 @@
 
 #include <stdio.h> //printf debugging
 
+using namespace troen::util;
 
 ////////////////////////////////////////////////////////////////////////////////
 GLDebugDrawer::GLDebugDrawer()

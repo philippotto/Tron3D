@@ -31,106 +31,109 @@
 #include <osg/Camera>
 #include <osgText/Text>
 
+namespace troen {
+	namespace util {
 
 
+		/** \class GLDebugDrawer GLDebugDrawer.h <osgbCollision/GLDebugDrawer.h>
+		\brief Debug utility to render Bullet collision shapes.
 
-
-	/** \class GLDebugDrawer GLDebugDrawer.h <osgbCollision/GLDebugDrawer.h>
-	\brief Debug utility to render Bullet collision shapes.
-
-	The class visualizes Bullet collision shapes. Use it as a debugging aid
-	to ensure that Bullet collision shapes and OSG geometry are synchronized.
-	*/
-	class GLDebugDrawer : public btIDebugDraw
-	{
-	public:
-		GLDebugDrawer();
-		virtual ~GLDebugDrawer();
-
-		osg::Node* getSceneGraph();
-
-		void setEnabled(bool enable);
-		bool getEnabled() const;
-
-		virtual void        drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
-		virtual void        drawSphere(const btVector3& p, btScalar radius, const btVector3& color);
-
-		virtual void        drawTriangle(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& color, btScalar alpha);
-		virtual void        drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color);
-		virtual void        reportErrorWarning(const char* warningString);
-		virtual void        draw3dText(const btVector3& location, const char* textString);
-
-		virtual void        setDebugMode(int debugMode);
-		virtual int                getDebugMode() const;
-
-		void EndDraw();
-		void BeginDraw();
-
-		void setTextSize(const float size);
-		float getTextSize() const;
-
-
-		//osg::Vec3 asOsgVec3(const btVector3& v);
-		//osg::Vec4 asOsgVec4(const btVector4& v);
-		//osg::Vec4 asOsgVec4(const btVector3& v, const double w);
-
-		// utils
-
-		osg::Vec3 GLDebugDrawer::asOsgVec3(const btVector3& v)
+		The class visualizes Bullet collision shapes. Use it as a debugging aid
+		to ensure that Bullet collision shapes and OSG geometry are synchronized.
+		*/
+		class GLDebugDrawer : public btIDebugDraw
 		{
-			return osg::Vec3(v.x(), v.y(), v.z());
-		}
+		public:
+			GLDebugDrawer();
+			virtual ~GLDebugDrawer();
 
-		osg::Vec4 asOsgVec4(const btVector3& v, const double w)
-		{
-			return osg::Vec4(v.x(), v.y(), v.z(), w);
-		}
+			osg::Node* getSceneGraph();
 
+			void setEnabled(bool enable);
+			bool getEnabled() const;
 
-		osg::Vec4 asOsgVec4(const btVector4& v)
-		{
-			return osg::Vec4(v.x(), v.y(), v.z(), v.w());
-		}
+			virtual void        drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
+			virtual void        drawSphere(const btVector3& p, btScalar radius, const btVector3& color);
 
-	private:
-		osgText::Text* initText();
+			virtual void        drawTriangle(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& color, btScalar alpha);
+			virtual void        drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color);
+			virtual void        reportErrorWarning(const char* warningString);
+			virtual void        draw3dText(const btVector3& location, const char* textString);
 
-		int _debugMode;
-		bool _enabled;
-		bool _active;
-		float _textSize;
+			virtual void        setDebugMode(int debugMode);
+			virtual int                getDebugMode() const;
 
-		osg::ref_ptr< osg::Group > _group;
+			void EndDraw();
+			void BeginDraw();
 
-		// Points, lines, triangles, and text
-		osg::ref_ptr< osg::Geode > _geode;
-		osg::ref_ptr< osg::Geometry > _ptGeom;
-		osg::ref_ptr< osg::Geometry > _lnGeom;
-		osg::ref_ptr< osg::Geometry > _triGeom;
-
-		typedef std::vector< osg::ref_ptr< osgText::Text > > TextVec;
-		TextVec _textVec;
-		unsigned int _textStrings;
-
-		osg::Vec3Array* _ptVerts;
-		osg::Vec4Array* _ptColors;
-
-		osg::Vec3Array* _lnVerts;
-		osg::Vec4Array* _lnColors;
-
-		osg::Vec3Array* _triVerts;
-		osg::Vec4Array* _triColors;
-
-		// HUD display
-		osg::ref_ptr< osg::Camera > _hudCam;
-
-		int _frame;
-		int _contacts;
-	};
+			void setTextSize(const float size);
+			float getTextSize() const;
 
 
-	// osgbCollision
+			//osg::Vec3 asOsgVec3(const btVector3& v);
+			//osg::Vec4 asOsgVec4(const btVector4& v);
+			//osg::Vec4 asOsgVec4(const btVector3& v, const double w);
+
+			// utils
+
+			osg::Vec3 GLDebugDrawer::asOsgVec3(const btVector3& v)
+			{
+				return osg::Vec3(v.x(), v.y(), v.z());
+			}
+
+			osg::Vec4 asOsgVec4(const btVector3& v, const double w)
+			{
+				return osg::Vec4(v.x(), v.y(), v.z(), w);
+			}
 
 
-// __OSGBCOLLISION_GL_DEBUG_DRAWER_H__
+			osg::Vec4 asOsgVec4(const btVector4& v)
+			{
+				return osg::Vec4(v.x(), v.y(), v.z(), v.w());
+			}
+
+		private:
+			osgText::Text* initText();
+
+			int _debugMode;
+			bool _enabled;
+			bool _active;
+			float _textSize;
+
+			osg::ref_ptr< osg::Group > _group;
+
+			// Points, lines, triangles, and text
+			osg::ref_ptr< osg::Geode > _geode;
+			osg::ref_ptr< osg::Geometry > _ptGeom;
+			osg::ref_ptr< osg::Geometry > _lnGeom;
+			osg::ref_ptr< osg::Geometry > _triGeom;
+
+			typedef std::vector< osg::ref_ptr< osgText::Text > > TextVec;
+			TextVec _textVec;
+			unsigned int _textStrings;
+
+			osg::Vec3Array* _ptVerts;
+			osg::Vec4Array* _ptColors;
+
+			osg::Vec3Array* _lnVerts;
+			osg::Vec4Array* _lnColors;
+
+			osg::Vec3Array* _triVerts;
+			osg::Vec4Array* _triColors;
+
+			// HUD display
+			osg::ref_ptr< osg::Camera > _hudCam;
+
+			int _frame;
+			int _contacts;
+		};
+
+
+		// osgbCollision
+
+
+		// __OSGBCOLLISION_GL_DEBUG_DRAWER_H__
 #endif
+
+	}
+}

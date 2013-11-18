@@ -49,33 +49,37 @@ void BikeModel::resetState()
 
 void BikeModel::updateState()
 {
+	const btVector3 up = btVector3(0, 0, 1);
+	const btVector3 front = btVector3(1, 0, 0);
+
 	// call this exactly once per frame
-	rotate(m_bikeInputState->getAngle());
-	accelerate(m_bikeInputState->getAcceleration());
-}
+	float angle = m_bikeInputState->getAngle();
+	float velocity = m_bikeInputState->getAcceleration();
 
-void BikeModel::rotate(float angle)
-{
-	// reset rotation if it's more than 360°
-	m_rotation = fmod(m_rotation + angle, 360.f);
-}
-
-void BikeModel::accelerate(float velocity)
-{
-	m_velocity = fmax(fmin(m_velocity + velocity - FRICTION, VMAX), 0.f);
+	
 
 	btRigidBody* bikeRigidBody = &(m_rigidBodies->at(0));
-
-	btScalar rotationScalar((m_rotation - 90) * 3.14 / 180);
-
 	btVector3 currentVelocityVector = bikeRigidBody->getLinearVelocity();
-	
-	const btVector3 velocityVector = btVector3(10 * m_velocity, 0, 0).rotate(btVector3(0, 0, 1), rotationScalar);
 
-	currentVelocityVector.setX(velocityVector.x());
-	currentVelocityVector.setY(velocityVector.y());
+
+	const int accelerateFactor = 1;
+
+	currentVelocityVector += currentVelocityVector.normalized() * velocity * accelerateFactor;
+
+	// if velocity > vmax...
+
+	//btScalar rotationScalar((m_rotation - 90) * 3.14 / 180);
+	float rotationDegree = 10;
+	btVector3 currentAngularVelocity = btVector3(0, 0, angle * rotationDegree / 180 * 3.14);
+	btScalar rotationScalar = angle * rotationDegree / 180 * 3.14;
+			
+	
+	currentVelocityVector = currentVelocityVector.rotate(up, rotationScalar);
+
 
 	bikeRigidBody->setLinearVelocity(currentVelocityVector);
+	bikeRigidBody->setAngularVelocity(currentAngularVelocity);
+
 
 }
 

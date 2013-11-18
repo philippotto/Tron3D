@@ -27,7 +27,7 @@ namespace troen
 
 			void addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies);
 
-			GLDebugDrawer* m_debug;
+			util::GLDebugDrawer* m_debug;
 
 		private:
 			// member variables
