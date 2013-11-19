@@ -31,7 +31,7 @@ namespace troen
 		bool initializeInput();
 		bool composeSceneGraph();
 		bool initializeTimer();
-		bool initializeGameLogic();
+		bool initializePhysicsWorld();
 
 		bool shutdown();
 		
@@ -44,7 +44,6 @@ namespace troen
 
 		std::shared_ptr<LevelController>	m_levelController;
 		std::shared_ptr<BikeController>		m_bikeController;
-		std::shared_ptr<FenceController>	m_fenceController;
 
 		QThread*							m_gameThread;
 		std::shared_ptr<util::ChronoTimer>	m_timer;

@@ -45,3 +45,11 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	group->addChild(m_fenceController->getViewNode());
 	return group;
 };
+
+std::shared_ptr<std::vector<btRigidBody>> BikeController::getRigidBodies()
+{
+	std::shared_ptr<std::vector<btRigidBody>> fenceBodies = m_fenceController->getRigidBodies();
+	std::shared_ptr<std::vector<btRigidBody>> bikeBodies = std::static_pointer_cast<BikeModel>(m_model)->getRigidBodies();
+	bikeBodies->insert(bikeBodies->end(), fenceBodies->begin(), fenceBodies->end());
+	return bikeBodies;
+};

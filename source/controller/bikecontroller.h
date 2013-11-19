@@ -18,6 +18,7 @@ namespace troen
 		void attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator);
 		void updateModel();
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
+		virtual std::shared_ptr<std::vector<btRigidBody>> getRigidBodies() override;
 
 	private:
 		std::shared_ptr<FenceController> m_fenceController;
