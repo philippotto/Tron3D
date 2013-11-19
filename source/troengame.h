@@ -23,6 +23,9 @@ namespace troen
 	public slots:
 		void startGameLoop();
 
+	signals:
+		void newFrame(double currentTime);
+
 	private:
 		bool initialize();
 		bool initializeViews();

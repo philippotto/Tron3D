@@ -206,6 +206,7 @@ void TroenGame::startGameLoop()
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
 				//std::cout << "drawing" << std::endl;
+				emit newFrame(currTime);
 				m_sampleOSGViewer->frame();
 #ifdef DEBUG				
 				if (notAdded) {
