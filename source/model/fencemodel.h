@@ -10,11 +10,10 @@ namespace troen
 	public:
 		FenceModel();
 		void addFence();
-		
+		void addFencePart(btVector3 a, btVector3 b);
 		float getFenceHeight();
 
 	private:
-		void addFencePart(btVector3 a, btVector3 b);
 		void addFenceMarker(btVector3 a);
 
 	};

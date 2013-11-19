@@ -19,6 +19,11 @@ FenceController::FenceController()
 
 void FenceController::update(btVector3 position)
 {
-	//std::static_pointer_cast<FenceModel>(m_model)->addFence(position);
-	std::static_pointer_cast<FenceView>(m_view)->updateFence();
+	if (m_lastPosition)
+		std::static_pointer_cast<FenceModel>(m_model)->addFencePart(m_lastPosition, position);
+	m_lastPosition = position;
+
+	// TODO add newly created rigid bodies to physicsWorld
+
+	//std::static_pointer_cast<FenceView>(m_view)->updateFence();
 }
