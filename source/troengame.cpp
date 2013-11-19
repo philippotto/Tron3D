@@ -16,21 +16,16 @@
 #include "input/gamepad.h"
 
 #include "util/chronotimer.h"
+#include "util/gldebugdrawer.h"
 
 #include "model/physicsworld.h"
 
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
 
-// TODO remove?
-#include <btBulletDynamicsCommon.h>
-#include "LinearMath/btHashMap.h"
-
-#include "util/gldebugdrawer.h"
-
-
 using namespace troen;
 
+// TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
@@ -53,7 +48,7 @@ bool TroenGame::initialize()
 
 	// careful about the order of initialization
 	// TODO
-	// initialize sound ... here
+	// initialize sound  here
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 
@@ -71,7 +66,7 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] timer ..." << std::endl;
 	initializeTimer();
 	
-	std::cout << "[TroenGame::initialize] GameLogic ..." << std::endl;
+	std::cout << "[TroenGame::initialize] physics ..." << std::endl;
 	initializePhysicsWorld();
 
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
@@ -213,7 +208,7 @@ void TroenGame::startGameLoop()
 			{
 				//std::cout << "drawing" << std::endl;
 				m_sampleOSGViewer->frame();
-#if defined DEBUG				
+#ifdef DEBUG				
 				if (notAdded) {
 					m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 					notAdded = false;
@@ -246,11 +241,22 @@ void TroenGame::startGameLoop()
 
 bool TroenGame::shutdown()
 {
-	m_timer.reset();
+	// clean up in reverse order from initialization
+
+	// physics
 	m_physicsWorld.reset();
+	//timer
+	m_timer.reset();
+	//input
+
+	//viewer & views
 	m_sampleOSGViewer = NULL;
 	m_gameView = NULL;
+
+	// models & scenegraph
 	m_rootNode = NULL;
+	m_bikeController.reset();
+	m_levelController.reset();
 
 	std::cout << "[TroenGame::shutdown] shutdown complete " << std::endl;
 	return true;
