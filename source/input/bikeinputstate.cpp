@@ -5,7 +5,7 @@
 using namespace troen::input;
 
 #define MOVE_VALUE 2.0
-#define ROTATION_VALUE 3.0
+#define ROTATION_VALUE 5.0
 
 BikeInputState::BikeInputState()
 {
