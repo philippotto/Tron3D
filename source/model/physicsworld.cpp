@@ -10,7 +10,7 @@
 
 using namespace troen;
 
-PhysicsWorld::PhysicsWorld()
+PhysicsWorld::PhysicsWorld() : m_lastSimulationTime(0)
 {
 	initializeWorld();
 
@@ -23,13 +23,11 @@ PhysicsWorld::PhysicsWorld()
 
 PhysicsWorld::~PhysicsWorld()
 {
-
 	delete m_world;
 	delete m_solver;
 	delete m_collisionConfiguration;
 	delete m_dispatcher;
 	delete m_broadphase;
-
 }
 
 void PhysicsWorld::initializeWorld()
@@ -63,13 +61,19 @@ void PhysicsWorld::addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodi
 		
 }
 
-void PhysicsWorld::stepSimulation()
+void PhysicsWorld::stepSimulation(long double currentTime)
 {	
+	float timeSinceLastSimulation = currentTime - m_lastSimulationTime;
+	m_lastSimulationTime = currentTime;
 
-	float elapsedTime = 1 / 60.f;
+	//float timeSinceLastSimulation = 1000 / 60.f;
+
+	// careful:
+	// including this debug-printout will significantly reduce
+	// framerate & flow of the game
+	//std::cout << "[PhysicsWorld::stepSimulation] timeSinceLastSimulation = " << timeSinceLastSimulation/1000 << std::endl;
 
 	// TODO:
-	// provide the elapsed time as a parameter
 	// mind the following constraint:
 	// timeStep < maxSubSteps * fixedTimeStep
 	// where the parameters are given as follows: stepSimulation(timeStep, maxSubSteps, fixedTimeStep)
@@ -78,7 +82,7 @@ void PhysicsWorld::stepSimulation()
 	m_debug->BeginDraw();
 #endif
 	
-	m_world->stepSimulation(elapsedTime, 10);
+	m_world->stepSimulation(timeSinceLastSimulation/1000.f, 7);
 	
 #if defined DEBUG
 	m_world->debugDrawWorld();

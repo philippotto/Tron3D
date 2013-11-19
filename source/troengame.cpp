@@ -132,7 +132,6 @@ bool TroenGame::initializeViews()
 	//m_gameView->setUpViewOnSingleScreen(0);
 
 	// TODO
-	// add camera to gameview
 	// (possibly multiple ones for multiple rendering passes)
 	return true;
 }
@@ -201,7 +200,7 @@ void TroenGame::startGameLoop()
 
 			m_bikeController->updateModel();
 
-			m_physicsWorld->stepSimulation();
+			m_physicsWorld->stepSimulation(currTime);
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))

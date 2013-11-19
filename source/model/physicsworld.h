@@ -15,7 +15,7 @@ namespace troen
 		virtual ~PhysicsWorld();
 
 		void initializeWorld();
-		void stepSimulation();
+		void stepSimulation(long double currentTime);
 		void checkForCollisions();
 
 		void addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies);
@@ -30,5 +30,7 @@ namespace troen
 		btDefaultCollisionConfiguration *m_collisionConfiguration;
 		btCollisionDispatcher *m_dispatcher;
 		btBroadphaseInterface *m_broadphase;
+
+		long double m_lastSimulationTime;
 	};
 }
