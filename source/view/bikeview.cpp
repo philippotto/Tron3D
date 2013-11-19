@@ -24,28 +24,59 @@ BikeView::BikeView()
 
 	rootNode = new osg::MatrixTransform(initialTransform);
 
-	//loadShaderSource(m_vShader, "data/shaders/default.vert");
-	//loadShaderSource(m_fShader, "data/shaders/default.frag");
-
-	//m_program->addShader(m_vShader);
-	//m_program->addShader(m_fShader);
-
 	
+	osg::ref_ptr<osg::Node> MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
+		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",
+		"data/models/cycle/MG_MovieCycle_BodyHeadLight_EMSS.tga",
+		"data/models/cycle/MG_MovieCycle_Body_NORM.tga");
 
-	osg::Node *body_MI_Node = osgDB::readNodeFile("data/models/cycle/MG_MovieCycle_Body_MI.obj");
+
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBody_MI.obj",
+		"data/models/cycle/MG_Player_Body_SPEC.tga",
+		"data/models/cycle/MG_Player_Body_EMSS.tga",
+		"data/models/cycle/MG_Player_Body_NORM.tga");
+
+	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart("data/models/cycle/MG_MovieCycle_Tire_MI.obj",
+		"",
+		"data/models/cycle/MG_MovieCycle_Tire_EMSS.tga",
+		"data/models/cycle/MG_MovieCycle_Tire_NORM.tga");
 	
-	osg::ref_ptr<osg::StateSet> body_MI_NodeState = body_MI_Node->getOrCreateStateSet();
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerHelmet_MI.obj",
+		"data/models/cycle/MG_Player_Helmet_SPEC.tga",
+		"data/models/cycle/MG_Player_Helmet_EMSS.tga",
+		"data/models/cycle/MG_Player_Helmet_NORM.tga");
 
-	body_MI_NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
-	osg::Uniform* specularMapU = new osg::Uniform("specularTexture", 1);
-	body_MI_NodeState->addUniform(specularMapU);
+
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerDisc_MI.obj",
+		"data/models/cycle/MG_Player_Disc_SPEC.tga",
+		"data/models/cycle/MG_Player_Disc_EMSS.tga",
+		"data/models/cycle/MG_Player_Disc_NORM.tga");
+
+	osg::ref_ptr<osg::Node> MovieCycle_Glass_MI = createCyclePart("data/models/cycle/MG_MovieCycle_Glass_MI.obj",
+		"data/models/cycle/Glass.tga",
+		"data/models/cycle/Glass.tga",
+		"");
+
+	osg::ref_ptr<osg::Node> MovieCycle_Engine = createCyclePart("data/models/cycle/MG_MovieCycle_Engine_MI.obj",
+		"",
+		"data/models/cycle/MG_MovieCycle_Engine_EMSS.tga",
+		"data/models/cycle/MG_MovieCycle_Engine_NORM.tga");
+
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Baton = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBaton_MI.obj",
+		"data/models/cycle/MG_Player_Baton_SPEC.tga",
+		"data/models/cycle/MG_Player_Baton_EMSS.tga",
+		"data/models/cycle/MG_Player_Baton_NORM.tga");
 	
-	setTexture(body_MI_NodeState, "data/models/cycle/MG_MovieCycle_Body_SPEC.tga");
+	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Body);
+	MovieCycle_Body->asGroup()->addChild(MovieCycle_Tire);
+	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Helmet);
+	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Disc);
+	MovieCycle_Body->asGroup()->addChild(MovieCycle_Glass_MI);
+	MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
+	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
+	rootNode->addChild(MovieCycle_Body);
 
 
-
-
-	rootNode->addChild(body_MI_Node);
 }
 
 
@@ -55,14 +86,51 @@ osg::ref_ptr<osg::MatrixTransform> BikeView::get_rootNode()
 }
 
 
-void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath)
+
+osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath,std::string specularTexturePath,std::string diffuseTexturePath, std::string normalTexturePath)
+{
+	enum BIKE_TEXTURES { DIFFUSE, SPECULAR, NORMAL };
+
+	std::cout << "[TroenGame::bikeView] Loading Model \"" << objFilePath << "\"" << std::endl;
+	osg::ref_ptr<osg::Node> Node = osgDB::readNodeFile(objFilePath);
+
+	osg::ref_ptr<osg::StateSet> NodeState = Node->getOrCreateStateSet();
+
+	if (specularTexturePath != "")
+	{
+		NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
+		osg::Uniform* specularMapU = new osg::Uniform("specularTexture", SPECULAR);
+		NodeState->addUniform(specularMapU);
+		setTexture(NodeState, specularTexturePath, SPECULAR);
+	}
+
+
+	if (diffuseTexturePath != "")
+	{
+		osg::Uniform* diffuseMapU = new osg::Uniform("diffuseTexture", DIFFUSE);
+		NodeState->addUniform(diffuseMapU);
+		setTexture(NodeState, diffuseTexturePath, DIFFUSE);
+	}
+
+	if (normalTexturePath != ""){
+		osg::Uniform* normalMapU = new osg::Uniform("normalTexture", NORMAL);
+		NodeState->addUniform(normalMapU);
+		setTexture(NodeState, normalTexturePath, NORMAL);
+
+	}
+
+
+	return Node;
+}
+
+void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit)
 {
 
 	osg::Image* image = osgDB::readImageFile(filePath);
 	if (!image)
 
 	{
-		std::cout << "[TroenGame::bikeView]  File \"" << "data/models/MG_MovieCycle_Body_SPEC.tga" << "\" not found." << std::endl;
+		std::cout << "[TroenGame::bikeView]  File \"" << filePath << "\" not found." << std::endl;
 	}
 
 	else
@@ -70,17 +138,12 @@ void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string file
 		osg::Texture2D* texture = new osg::Texture2D;
 		texture->setImage(image);
 
-		//osg::TexGen* texgen = new osg::TexGen;
-		//texgen->setMode(osg::TexGen::SPHERE_MAP);
-
-		osg::TexEnv* texenv = new osg::TexEnv;
+	/*	osg::TexEnv* texenv = new osg::TexEnv;
 		texenv->setMode(osg::TexEnv::BLEND);
-		texenv->setColor(osg::Vec4(0.3f, 0.3f, 0.3f, 0.3f));
+		texenv->setColor(osg::Vec4(0.3f, 0.3f, 0.3f, 0.3f));*/
 
-		//osg::StateSet* stateset = new osg::StateSet;
-		stateset->setTextureAttributeAndModes(1, texture, osg::StateAttribute::ON);
-		//stateset->setTextureAttributeAndModes(1, texgen, osg::StateAttribute::ON);
-		stateset->setTextureAttribute(1, texenv);
+		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
+		//stateset->setTextureAttribute(1, texenv);
 
 		//rootNode->setStateSet(stateset);
 	}
