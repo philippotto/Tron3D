@@ -23,7 +23,6 @@ BikeView::BikeView()
 	//initialTransform.scale()
 
 	rootNode = new osg::MatrixTransform(initialTransform);
-
 	
 	osg::ref_ptr<osg::Node> MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
 		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",
