@@ -3,9 +3,6 @@
 #include "../forwarddeclarations.h"
 #include "abstractmodel.h"
 
-
-using namespace troen;
-
 namespace troen
 {
 	class FenceModel : public AbstractModel
@@ -13,6 +10,12 @@ namespace troen
 	public:
 		FenceModel();
 		void addFence();
+		
+		float getFenceHeight();
+
+	private:
+		void addFencePart(btVector3 a, btVector3 b);
+		void addFenceMarker(btVector3 a);
 
 	};
 }

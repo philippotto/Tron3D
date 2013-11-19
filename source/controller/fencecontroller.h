@@ -1,11 +1,9 @@
 #pragma once
-// OSG
-#include <osg/Vec3>
+// bullet
+#include <btBulletDynamicsCommon.h>
 //troen
 #include "../forwarddeclarations.h"
 #include "abstractcontroller.h"
-
-using namespace troen;
 
 namespace troen
 {
@@ -13,9 +11,9 @@ namespace troen
 	{
 	public:
 		FenceController();
-		void update(osg::Vec3 position);
+		void update(btVector3 position);
 
 	private:
-		osg::Vec3 m_lastPosition;
+		btVector3 m_lastPosition;
 	};
 }

@@ -9,7 +9,7 @@
 
 using namespace troen;
 
-#define VMAX 10.0
+#define VMAX 1000
 #define FRICTION 0.1
 
 BikeModel::BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceController> fenceController)
@@ -29,7 +29,7 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceControl
 		fenceController
 	);
 
-	btScalar mass = 1;
+	btScalar mass = 1000;
 	btVector3 bikeInertia(0, 0, 0);
 	boxShape->calculateLocalInertia(mass, bikeInertia);
 
@@ -42,6 +42,8 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceControl
 
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody.setActivationState(DISABLE_DEACTIVATION);
+
+	bikeRigidBody.setAngularFactor(btVector3(0, 0, 1));
 
 	m_rigidBodies->push_back(bikeRigidBody);
 }
@@ -74,7 +76,7 @@ void BikeModel::updateState()
 
 
 	// initiate rotation
-	const float maximumTurn = 10;
+	const float maximumTurn = 20;
 	const float turningRad = 3.14 / 180 * angle * maximumTurn;
 	
 	
@@ -85,6 +87,9 @@ void BikeModel::updateState()
 	// const int dampFactor = 1;
 	
 	int speed = currentVelocityVectorXY.length() + velocity * maximumAcceleration;
+
+	if (speed > VMAX)
+		speed = VMAX;
 
 	// adapt velocity vector to real direction
 
@@ -97,7 +102,7 @@ void BikeModel::updateState()
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
-	// if velocity > vmax...
+	
 
 }
 

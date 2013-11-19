@@ -39,7 +39,7 @@ namespace troen
 			m_visibleObj->setPosition(osg::Vec3(pos.x(), pos.y(), pos.z()));
 
 			// update fence accordingly
-			m_fenceController->update(osg::Vec3(pos.x(), pos.y(), pos.z()));
+			m_fenceController->update(pos);
 		}
 
 	protected:

@@ -2,8 +2,8 @@
 // STD
 #include <memory>
 // troen
-#include "../model/fencemodel.h"
 #include "../view/fenceview.h"
+#include "../model/fencemodel.h"
 
 using namespace troen;
 
@@ -17,8 +17,8 @@ FenceController::FenceController()
 	std::static_pointer_cast<FenceView>(m_view)->updateFence();
 }
 
-void FenceController::update(osg::Vec3 position)
+void FenceController::update(btVector3 position)
 {
-	//std::static_pointer_cast<FenceModel>(m_model)->updateState(position);
+	//std::static_pointer_cast<FenceModel>(m_model)->addFence(position);
 	std::static_pointer_cast<FenceView>(m_view)->updateFence();
 }
