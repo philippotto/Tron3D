@@ -209,8 +209,8 @@ set(sources
 	source/input/bikeinputstate.h
 	source/input/bikeinputstate.cpp
 
-	source/sound/fmod_manager.h
-	source/sound/fmod_manager.cpp
+	source/sound/audiomanager.h
+	source/sound/audiomanager.cpp
 	
 	source/model/bikemodel.h
 	source/model/bikemodel.cpp

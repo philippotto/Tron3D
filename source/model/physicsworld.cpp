@@ -66,22 +66,19 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	float timeSinceLastSimulation = currentTime - m_lastSimulationTime;
 	m_lastSimulationTime = currentTime;
 
-	//float timeSinceLastSimulation = 1000 / 60.f;
-
 	// careful:
 	// including this debug-printout will significantly reduce
 	// framerate & flow of the game
 	//std::cout << "[PhysicsWorld::stepSimulation] timeSinceLastSimulation = " << timeSinceLastSimulation/1000 << std::endl;
-
-	// TODO:
-	// mind the following constraint:
-	// timeStep < maxSubSteps * fixedTimeStep
-	// where the parameters are given as follows: stepSimulation(timeStep, maxSubSteps, fixedTimeStep)
 	
 #if defined DEBUG
 	m_debug->BeginDraw();
 #endif
 	
+	// mind the following constraint:
+	// timeStep < maxSubSteps * fixedTimeStep
+	// where the parameters are given as follows:
+	// stepSimulation(timeStep, maxSubSteps, fixedTimeStep)
 	m_world->stepSimulation(timeSinceLastSimulation/1000.f, 7);
 	
 #if defined DEBUG
