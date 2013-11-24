@@ -37,9 +37,12 @@ namespace troen
 
 			btVector3 pos = worldTrans.getOrigin();
 			m_visibleObj->setPosition(osg::Vec3(pos.x(), pos.y(), pos.z()));
+			
+			// TODO: change 100 to length of bike
+			btVector3 fenceOffset = btVector3(0, -1, 0).rotate(rot.getAxis(), + rot.getAngle()) * 100;
 
 			// update fence accordingly
-			m_fenceController->update(pos);
+			m_fenceController->update(pos - fenceOffset);
 		}
 
 	protected:

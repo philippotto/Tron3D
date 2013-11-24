@@ -61,6 +61,10 @@ void PhysicsWorld::addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodi
 		
 }
 
+void PhysicsWorld::addRigidBody(btRigidBody *body) {
+	m_world->addRigidBody(body);
+}
+
 void PhysicsWorld::stepSimulation(long double currentTime)
 {	
 	float timeSinceLastSimulation = currentTime - m_lastSimulationTime;

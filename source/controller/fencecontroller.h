@@ -12,8 +12,10 @@ namespace troen
 	public:
 		FenceController();
 		void update(btVector3 position);
+		void attachWorld(std::shared_ptr<PhysicsWorld> world);
 
 	private:
 		btVector3 m_lastPosition;
+		std::shared_ptr<PhysicsWorld> m_world;
 	};
 }

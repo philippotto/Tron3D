@@ -22,6 +22,7 @@ namespace troen
 		float getRotation();
 		float getVelocity();
 		osg::Vec3d getPositionOSG();
+		btVector3 BikeModel::getPositionBt();
 
 	private:
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
