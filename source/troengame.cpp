@@ -23,6 +23,8 @@
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
 
+#include "controller/hudcontroller.h"
+
 using namespace troen;
 
 // TODO: pass as parameter to troengame
@@ -77,13 +79,17 @@ bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
 	m_bikeController = std::make_shared<BikeController>();
+	m_HUDController = std::make_shared<HUDController>();
 	return true;
 }
 
 bool TroenGame::composeSceneGraph()
 {
+	
 	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_bikeController->getViewNode());
+	m_rootNode->addChild(m_HUDController->getViewNode());
+	
 	return true;
 }
 
@@ -140,6 +146,9 @@ bool TroenGame::initializeViewer()
 {
 	m_sampleOSGViewer = new SampleOSGViewer();
 	m_sampleOSGViewer->addView(m_gameView);
+
+
+
 	return true;
 }
 
