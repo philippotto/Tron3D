@@ -20,21 +20,25 @@ FenceController::FenceController()
 
 void FenceController::update(btVector3 position)
 {
-	
+
 	const float fenceLength = 50;
 
-	if (m_lastPosition)
+	if (!m_lastPosition)
 	{
-		if ((position - m_lastPosition).length() > fenceLength)
-		{
-
-			std::shared_ptr<FenceModel> fenceModel = (std::static_pointer_cast<FenceModel>(m_model));
-
-			fenceModel->addFencePart(m_lastPosition, position);
-			m_world->addRigidBody(fenceModel->getLastPart());
-		}
+		m_lastPosition = position;
+		return;
 	}
-	m_lastPosition = position;
+
+	if ((position - m_lastPosition).length() > fenceLength)
+	{
+
+		std::shared_ptr<FenceModel> fenceModel = (std::static_pointer_cast<FenceModel>(m_model));
+
+		fenceModel->addFencePart(m_lastPosition, position);
+		m_world->addRigidBody(fenceModel->getLastPart());
+		m_lastPosition = position;
+	}
+
 	
 	// TODO
 	// std::static_pointer_cast<FenceView>(m_view)->updateFence();
