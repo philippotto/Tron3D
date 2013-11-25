@@ -16,12 +16,14 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 	
 	// TODO: convert to shared_ptr
 	btBoxShape *boxShape = new btBoxShape(btVector3(1, (b - a).length() / 2, getFenceHeight() / 2));
-		
-	btScalar angle = (b - a).angle(btVector3(0, +1, 0));
-	const btVector3 up = btVector3(0, 0, 1);
-
 	
-	btDefaultMotionState *fenceMotionState = new btDefaultMotionState(btTransform(btQuaternion(up, angle), (b + a)/2 + btVector3(0, 0, getFenceHeight() / 2) ));
+	const btVector3 up = btVector3(0, 0, 1);
+	const btVector3 forward = btVector3(0, 1, 0);
+
+	btScalar angle = (b - a).angle(forward);
+	btVector3 axis = (b - a).cross(-forward).normalized();
+	
+	btDefaultMotionState *fenceMotionState = new btDefaultMotionState(btTransform(btQuaternion(axis, angle), (b + a)/2 + btVector3(0, 0, getFenceHeight() / 2) ));
 
 	// set mass to zero so that we get a static rigidBody (is this enough?)
 	btScalar mass = 0;
