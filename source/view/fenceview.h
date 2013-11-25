@@ -1,4 +1,6 @@
 #pragma once
+// OSG
+#include <osg/Geometry>
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
@@ -9,6 +11,12 @@ namespace troen
 	{
 	public:
 		FenceView();
-		void updateFence();
+		void initializeFence();
+		void addFencePart(osg::Vec3 a, osg::Vec3 b);
+
+	private:
+		osg::Geometry* m_geometry;
+		std::vector<osg::Vec3> m_coordinates;
+		osg::DrawArrays* m_drawArrays;
 	};
 }

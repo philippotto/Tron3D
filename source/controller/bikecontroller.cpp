@@ -47,12 +47,6 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	return group;
 };
 
-std::shared_ptr<std::vector<btRigidBody>> BikeController::getRigidBodies()
-{
-	std::shared_ptr<std::vector<btRigidBody>> bikeBodies = std::static_pointer_cast<BikeModel>(m_model)->getRigidBodies();
-	return bikeBodies;
-};
-
 void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> world) {
 	
 	world->addRigidBodies(getRigidBodies());

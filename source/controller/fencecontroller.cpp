@@ -13,10 +13,6 @@ FenceController::FenceController()
 {
 	m_view = std::static_pointer_cast<FenceView>(std::make_shared<FenceView>());
 	m_model = std::static_pointer_cast<FenceModel>(std::make_shared<FenceModel>());
-
-	// TODO
-	// just for testing, remove this once the fence is drawn via the update method
-	std::static_pointer_cast<FenceView>(m_view)->updateFence();
 }
 
 void FenceController::update(btVector3 position)
@@ -38,12 +34,14 @@ void FenceController::update(btVector3 position)
 
 		fenceModel->addFencePart(m_lastPosition, position);
 		m_world->addRigidBody(fenceModel->getLastPart());
+
+		std::static_pointer_cast<FenceView>(m_view)->addFencePart(
+			osg::Vec3(m_lastPosition.x(), m_lastPosition.y(), m_lastPosition.z()),
+			osg::Vec3(position.x(), position.y(), position.z())
+		);
+
 		m_lastPosition = position;
 	}
-
-	
-	// TODO
-	// std::static_pointer_cast<FenceView>(m_view)->updateFence();
 }
 
 
