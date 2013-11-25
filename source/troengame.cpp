@@ -24,11 +24,13 @@
 #include "controller/levelcontroller.h"
 
 #include "controller/hudcontroller.h"
+#include "sound/audiomanager.h"
 
 using namespace troen;
 
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
+#define SOUND_VOLUME 1.f
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
 	m_gameThread(thread)
@@ -54,6 +56,9 @@ bool TroenGame::initialize()
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 
+	std::cout << "[TroenGame::initialize] initializing sound ..." << std::endl;
+	initializeSound();
+
 	std::cout << "[TroenGame::initialize] models and scenegraph ..." << std::endl;
 	initializeControllers();
 	composeSceneGraph();
@@ -72,6 +77,14 @@ bool TroenGame::initialize()
 	initializePhysicsWorld();
 
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
+	return true;
+}
+
+bool TroenGame::initializeSound()
+{
+	m_audioManager = std::shared_ptr<sound::AudioManager>(new sound::AudioManager);
+	m_audioManager->LoadSFX("data/sound/explosion.wav");
+	m_audioManager->LoadSong("data/sound/1.13. Derezzed.flac");
 	return true;
 }
 
@@ -177,6 +190,10 @@ void TroenGame::startGameLoop()
 	initialize();
 	m_timer->start();
 
+	m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
+	m_audioManager->SetMasterVolume(SOUND_VOLUME);
+	m_audioManager->SetSongsVolume(SOUND_VOLUME);
+
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();
 	const long double minMillisecondsBetweenFrames = 10;
@@ -211,6 +228,7 @@ void TroenGame::startGameLoop()
 			m_bikeController->updateModel();
 
 			m_physicsWorld->stepSimulation(currTime);
+			m_audioManager->Update(currTime/1000);
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
@@ -267,6 +285,11 @@ bool TroenGame::shutdown()
 	m_rootNode = NULL;
 	m_bikeController.reset();
 	m_levelController.reset();
+
+	// sound
+	m_audioManager->StopSFXs();
+	m_audioManager->StopSongs();
+	m_audioManager.reset();
 
 	std::cout << "[TroenGame::shutdown] shutdown complete " << std::endl;
 	return true;

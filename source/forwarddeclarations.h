@@ -84,4 +84,9 @@ namespace troen
 		class Gamepad;
 		class BikeInputState;
 	}
+
+	namespace sound
+	{
+		class AudioManager;
+	}
 }
