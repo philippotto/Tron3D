@@ -33,7 +33,7 @@ AudioManager::AudioManager() : currentSong(0), fade(FADE_NONE) {
 	modes[CATEGORY_SONG] = FMOD_DEFAULT | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL;
 	
 	// Seed random number generator for SFXs
-	srand(time(0));
+	srand((unsigned int) time(0));
 }
 
 AudioManager::~AudioManager() {

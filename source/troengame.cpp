@@ -29,6 +29,7 @@ using namespace troen;
 
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
+#define SOUND_VOLUME 1.f
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
 	m_gameThread(thread)
@@ -181,9 +182,8 @@ void TroenGame::startGameLoop()
 	m_timer->start();
 
 	m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
-	m_audioManager->SetMasterVolume(1.f);
-	m_audioManager->SetSongsVolume(1.f);
-
+	m_audioManager->SetMasterVolume(SOUND_VOLUME);
+	m_audioManager->SetSongsVolume(SOUND_VOLUME);
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();
