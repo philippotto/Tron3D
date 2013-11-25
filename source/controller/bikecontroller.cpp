@@ -13,6 +13,7 @@ using namespace troen;
 BikeController::BikeController()
 {
 	// use static casts to convert from Abstract class type
+
 	m_view = std::static_pointer_cast<BikeView>(std::make_shared<BikeView>());
 
 	m_fenceController = std::make_shared<FenceController>();
@@ -27,12 +28,18 @@ void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInput
 void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator)
 {
 	osg::Matrixd cameraOffset;
-	cameraOffset.makeTranslate(0, -100, -20);
+
+	int debugNormalizer = 1;
+#ifdef _DEBUG
+	debugNormalizer = -1;
+#endif
+
+	cameraOffset.makeTranslate(0, debugNormalizer * 100, -20);
 
 	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (getViewNode()->getChild(0));
 	// set the actual node as the track node, not the pat
 	manipulator->setTrackNode(pat->getChild(0));
-	manipulator->setHomePosition(pat->getPosition(), pat->getPosition() * cameraOffset, osg::Vec3d(0, -1, 0));
+	manipulator->setHomePosition(pat->getPosition(), pat->getPosition() * cameraOffset, osg::Vec3d(0, debugNormalizer * 1, 0));
 }
 
 void BikeController::updateModel()

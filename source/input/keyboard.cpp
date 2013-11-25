@@ -3,6 +3,7 @@
 #include <iostream>
 // troen
 #include "bikeinputstate.h"
+#include "../view/shaders.h"
 
 using namespace troen::input;
 
@@ -38,6 +39,10 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 			//std::cout << "[Keyboard::handle] d key pressed" << std::endl;
 			m_bikeInputState->setAngle(-1.0);
 			return false;
+			break;	
+		case 'r':
+			std::cout << "Reloading shaders" << std::endl;
+			shaders::reloadShaders();
 			break;
 		default:
 			return false;
