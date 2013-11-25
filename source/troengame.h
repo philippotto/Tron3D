@@ -23,17 +23,20 @@ namespace troen
 	public slots:
 		void startGameLoop();
 
+	signals:
+		void newFrame(double currentTime);
+
 	private:
 		bool initialize();
-		bool initializeLevel();
 		bool initializeViews();
 		bool initializeViewer();
-		bool initializeModels();
+		bool initializeControllers();
 		bool initializeInput();
 		bool composeSceneGraph();
 		bool initializeTimer();
-		bool initializeGameLogic();
 		bool initializeShaders();
+		bool initializePhysicsWorld();
+
 
 		bool shutdown();
 		
@@ -43,15 +46,12 @@ namespace troen
 		osg::ref_ptr<SampleOSGViewer>					m_sampleOSGViewer;
 		osg::ref_ptr<osgViewer::View>					m_gameView;
 		osg::ref_ptr<osg::Group>						m_rootNode;
-		osg::ref_ptr<osg::PositionAttitudeTransform>	m_childNode;
 
 		std::shared_ptr<LevelController>	m_levelController;
+		std::shared_ptr<BikeController>		m_bikeController;
 
 		QThread*							m_gameThread;
 		std::shared_ptr<util::ChronoTimer>	m_timer;
-		std::shared_ptr<GameLogic>			m_gameLogic;
-
-
-		osg::ref_ptr<BikeModel> m_bike;
+		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 	};
 }

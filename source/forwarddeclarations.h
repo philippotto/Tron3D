@@ -3,6 +3,9 @@
 // comment out to disable debug mode
 #define DEBUG
 
+// necessary for wireframe debugging ? but with this variable, compilation fails
+// #define BT_USE_DOUBLE_PRECISION
+
 
 // This file contains forward declarations of classes
 
@@ -45,20 +48,18 @@ class btRigidBody;
 class btCollisionShape;
 
 
-class GLDebugDrawer;
-
 
 // own classes
 namespace troen
 {
 	class TroenGame;
 	class SampleOSGViewer;
-	class GameLogic;
 
 	class BikeModel;
 	class LevelModel;
 	class FenceModel;
 	class AbstractModel;
+	class PhysicsWorld;
 
 	class BikeController;
 	class LevelController;
@@ -73,6 +74,7 @@ namespace troen
 	namespace util
 	{
 		class ChronoTimer;
+		class GLDebugDrawer;
 	}
 	namespace input
 	{

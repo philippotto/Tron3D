@@ -10,19 +10,29 @@
 // troen
 #include "shaders.h"
 #include "../input/bikeinputstate.h"
+#include <osgDB/ReadFile>
+#include <osg/PositionAttitudeTransform>
+
+#include "../model/bikemodel.h"
 
 using namespace troen;
 
 BikeView::BikeView()
 {
+
+	m_node = new osg::Group();
+	osg::PositionAttitudeTransform* pat = new osg::PositionAttitudeTransform();;
+	
+
+#ifndef _DEBUG
 	osg::Matrixd initialTransform;
 	osg::Quat rotationQuat(osg::DegreesToRadians(90.0f), osg::Vec3d(0.0, 0.0, 1.0));
 	initialTransform.makeRotate(rotationQuat);
 	initialTransform.translate(0.0, 0.0, -3.0);
 	initialTransform.makeScale(osg::Vec3f(5.0f, 5.0f, 5.0f));
 	//initialTransform.scale()
-
-	rootNode = new osg::MatrixTransform(initialTransform);
+	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
+	pat->addChild(matrixTransform);
 	
 	osg::ref_ptr<osg::Node> MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
 		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",
@@ -73,16 +83,16 @@ BikeView::BikeView()
 	MovieCycle_Body->asGroup()->addChild(MovieCycle_Glass_MI);
 	MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
 	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
-	rootNode->addChild(MovieCycle_Body);
+	matrixTransform->addChild(MovieCycle_Body);
 
-
+#endif
+#ifdef _DEBUG
+	
+	pat->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
+#endif
+	m_node->addChild(pat);
 }
 
-
-osg::ref_ptr<osg::MatrixTransform> BikeView::get_rootNode()
-{
-	return rootNode;
-}
 
 
 

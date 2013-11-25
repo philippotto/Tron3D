@@ -7,4 +7,7 @@ AbstractView::AbstractView()
 	
 }
 
-
+osg::ref_ptr<osg::Group> AbstractView::getNode()
+{
+	return m_node;
+}

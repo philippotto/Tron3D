@@ -1,4 +1,4 @@
-#version 140
+#version 130
 
 out vec2 texCoord;
 
@@ -12,7 +12,7 @@ out vec3 lightDirection;
 
 void main()
 {                              
-	lightDirection = vec4(0.0,-1.0,0.0,1.0);
+	lightDirection = vec3(0.0,-1.0,0.0);
 	vec4 lightPosition = vec4(1.0,10.0,0.0,0.0) ;
 	vec3 diffuseLight = vec3(1.0,1.0,1.0);
 	
@@ -33,7 +33,7 @@ void main()
 	vec3 diffuseReflection = attenuation 
 	   * vec3(diffuseLight) 
 	   * max(0.0, dot(normalDirection, lightDirection))
-	   * gl_FrontMaterial.diffuse;
+	   * gl_FrontMaterial.diffuse.xyz;
 	   // without material color!
 
 	diffuseColor = ambientLighting + diffuseReflection;

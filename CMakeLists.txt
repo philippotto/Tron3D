@@ -211,9 +211,6 @@ set(sources
 
 	source/sound/fmod_manager.h
 	source/sound/fmod_manager.cpp
-
-	source/gamelogic.h
-	source/gamelogic.cpp
 	
 	source/model/bikemodel.h
 	source/model/bikemodel.cpp
@@ -223,6 +220,9 @@ set(sources
 	source/model/fencemodel.cpp
 	source/model/abstractmodel.h
 	source/model/abstractmodel.cpp
+	source/model/physicsworld.h
+	source/model/physicsworld.cpp
+	source/model/bikemotionstate.h
 
 	source/controller/bikecontroller.h
 	source/controller/bikecontroller.cpp

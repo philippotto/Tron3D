@@ -7,7 +7,7 @@
 using namespace troen;
 
 
-UpdateBikePositionCallback::UpdateBikePositionCallback(BikeModel* bike)
+UpdateBikePositionCallback::UpdateBikePositionCallback(std::shared_ptr<BikeModel> bike)
 {
 	m_bike = bike;
 
@@ -22,20 +22,31 @@ void UpdateBikePositionCallback::operator()(osg::Node* node, osg::NodeVisitor* n
 
 	if (positionTransform)
 	{
-
 		m_bike->updateState();
-	
-		float bikeRotation = m_bike->getRotation();
 
-		osg::Quat rotationQuat(osg::DegreesToRadians(bikeRotation), osg::Vec3d(0.0, 0.0, 1.0));
-		positionTransform->setAttitude(rotationQuat);
-
-
-		btTransform trans;
+		
 		btRigidBody* bikeRigidBody = &(m_bike->getRigidBodies()->at(0));
-
+		
+		btTransform trans;
 		bikeRigidBody->getMotionState()->getWorldTransform(trans);
-	
+
+
+		
+		float quadAngle = trans.getRotation().getAngle();
+		btVector3 quadAxis = trans.getRotation().getAxis();
+
+		osg::Vec3 quadAxisOSG = osg::Vec3(
+			quadAxis.getX(),
+			quadAxis.getY(),
+			quadAxis.getZ()
+		);
+		
+		// osg::Vec3d(0.0, 0.0, 1.0)
+		osg::Quat rotationQuat(quadAngle, quadAxisOSG);
+		positionTransform->setAttitude(rotationQuat);
+			
+
+
 		m_bikePosition = osg::Vec3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
 
 		positionTransform->setPosition(m_bikePosition);

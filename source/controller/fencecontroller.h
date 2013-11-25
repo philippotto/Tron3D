@@ -1,10 +1,9 @@
 #pragma once
-
+// bullet
+#include <btBulletDynamicsCommon.h>
 //troen
 #include "../forwarddeclarations.h"
 #include "abstractcontroller.h"
-
-using namespace troen;
 
 namespace troen
 {
@@ -12,7 +11,9 @@ namespace troen
 	{
 	public:
 		FenceController();
+		void update(btVector3 position);
 
-
+	private:
+		btVector3 m_lastPosition;
 	};
 }

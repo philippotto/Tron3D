@@ -7,6 +7,9 @@
 #include <osg/PositionAttitudeTransform>
 #include <osg/MatrixTransform>
 
+
+// STD
+#include <memory>
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
@@ -19,8 +22,7 @@ namespace troen
 	{
 	public:
 		BikeView();
-
-		osg::ref_ptr<osg::MatrixTransform> get_rootNode();
+		//osg::ref_ptr<osg::MatrixTransform> get_rootNode();
 		void setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit);
 		osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::string specularTexturePath, std::string diffuseTexturePath, std::string normalTexturePath);
 	
@@ -29,10 +31,9 @@ namespace troen
 	//	osg::ref_ptr<osg::Shader> m_vShader;
 	//	osg::ref_ptr<osg::Shader> m_fShader;
 
-	private:
+	//private:
 		//osg::ref_ptr<osg::Group> rootNode;
-		osg::ref_ptr<osg::MatrixTransform> rootNode;
-
+		//osg::ref_ptr<osg::MatrixTransform> rootNode;
 
 	};
 }

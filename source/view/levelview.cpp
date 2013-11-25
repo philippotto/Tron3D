@@ -60,11 +60,6 @@ void LevelView::initialize()
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableFront
 		= new osg::ShapeDrawable(wallFront);
 
-	// fence
-	osg::Box *fence = new osg::Box(osg::Vec3(0, 0, 100), 1, 10, 10);
-	osg::ShapeDrawable* fenceDrawable = new osg::ShapeDrawable(fence);
-	levelGeode->addDrawable(fenceDrawable);
-
 	levelGeode->addDrawable(wallDrawableLeft);
 	levelGeode->addDrawable(wallDrawableRight);
 	levelGeode->addDrawable(wallDrawableFront);
@@ -72,11 +67,6 @@ void LevelView::initialize()
 
 	m_node->addChild(constructGround());
 	m_node->addChild(levelGeode);
-}
-
-osg::ref_ptr<osg::Group> LevelView::getNode()
-{
-	return m_node;
 }
 
 osg::ref_ptr<osg::Geode>  LevelView::constructGround()
