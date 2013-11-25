@@ -19,7 +19,7 @@ void FenceController::update(btVector3 position)
 {
 	
 	// this determines how accurate the fence will be
-	const float fenceLength = 50;
+	const float fenceLength = 25;
 
 	if (!m_lastPosition)
 	{

@@ -1,6 +1,5 @@
 #include "bikeview.h"
 
-
 //osg
 #include <osg/Texture2D>
 #include <osg/TexEnv>

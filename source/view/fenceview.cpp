@@ -3,6 +3,8 @@
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
 #include <osg/Vec4>
+// troen
+#include "shaders.h"
 
 using namespace troen;
 
@@ -10,6 +12,7 @@ FenceView::FenceView()
 {
 	m_node = new osg::Group();
 	initializeFence();
+	initializeShader();
 }
 
 void FenceView::initializeFence()
@@ -26,6 +29,17 @@ void FenceView::initializeFence()
 
 	geode->addDrawable(m_geometry);
 	m_node->addChild(geode);
+}
+
+void FenceView::initializeShader()
+{
+	osg::ref_ptr<osg::StateSet> NodeState = m_node->getOrCreateStateSet();
+
+	// TODO (dw) set to actual player color
+	osg::Uniform* fenceColorUniform = new osg::Uniform("fenceColor", osg::Vec3(0.0, 0.7, 0.8));
+	NodeState->addUniform(fenceColorUniform);
+
+	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::FENCE], osg::StateAttribute::ON);
 }
 
 void FenceView::addFencePart(osg::Vec3 a, osg::Vec3 b)
