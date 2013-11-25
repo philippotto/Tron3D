@@ -7,10 +7,12 @@
 #include "../model/bikemodel.h"
 #include "../controller/fencecontroller.h"
 #include "../model/physicsworld.h"
+#include "../sound/audiomanager.h"
 
 using namespace troen;
 
-BikeController::BikeController()
+BikeController::BikeController(const std::shared_ptr<sound::AudioManager>& audioManager)
+ : m_audioManager(audioManager)
 {
 	m_view = std::static_pointer_cast<BikeView>(std::make_shared<BikeView>());
 	m_fenceController = std::make_shared<FenceController>();
@@ -51,9 +53,13 @@ std::vector<std::shared_ptr<btRigidBody>> BikeController::getRigidBodies()
 	return bikeBodies;
 };
 
-void BikeController::attachWorld(std::shared_ptr<PhysicsWorld>& world) {
-	
+void BikeController::attachWorld(std::shared_ptr<PhysicsWorld>& world)
+{	
 	world->addRigidBodies(getRigidBodies());
-
 	m_fenceController->attachWorld(world);
+}
+
+const std::shared_ptr<sound::AudioManager> BikeController::getAudioManager()
+{
+	return m_audioManager;
 }

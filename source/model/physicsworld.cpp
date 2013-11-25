@@ -8,6 +8,8 @@
 //troen
 #include "../util/gldebugdrawer.h"
 #include "../controller/abstractcontroller.h"
+#include "../controller/bikecontroller.h"
+#include "../sound/audiomanager.h"
 
 using namespace troen;
 
@@ -174,6 +176,7 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
 	if (pObj0 && pObj0->getType() == AbstractController::BIKECONTROLLER)
 	{
 		std::cout << "BikeCollision, bike as first object" << std::endl;
+		((BikeController*)(pObj0) )->getAudioManager()->PlaySFX("data/sound/explosion.wav",1,1,1,1);
 	}
 	else if (pObj1 && pObj1->getType() == AbstractController::BIKECONTROLLER)
 	{

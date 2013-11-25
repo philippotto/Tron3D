@@ -30,7 +30,7 @@ using namespace troen;
 
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
-#define SOUND_VOLUME 0.f
+#define SOUND_VOLUME 1.f
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
 	m_gameThread(thread)
@@ -91,7 +91,7 @@ bool TroenGame::initializeSound()
 bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
-	m_bikeController = std::make_shared<BikeController>();
+	m_bikeController = std::make_shared<BikeController>(m_audioManager);
 	m_HUDController = std::make_shared<HUDController>();
 	return true;
 }
@@ -190,7 +190,7 @@ void TroenGame::startGameLoop()
 	initialize();
 	m_timer->start();
 
-	m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
+	//m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
 	m_audioManager->SetMasterVolume(SOUND_VOLUME);
 	m_audioManager->SetSongsVolume(SOUND_VOLUME);
 
