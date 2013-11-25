@@ -16,6 +16,17 @@
 #include "input/gamepad.h"
 
 #include "util/chronotimer.h"
+
+#include "model/bikemodel.h"
+#include "controller/levelcontroller.h"
+#include "view/bikeview.h"
+#include "view/shaders.h"
+
+
+// TODO remove?
+#include <btBulletDynamicsCommon.h>
+#include "LinearMath/btHashMap.h"
+
 #include "util/gldebugdrawer.h"
 
 #include "model/physicsworld.h"
@@ -27,6 +38,9 @@
 #include "sound/audiomanager.h"
 
 using namespace troen;
+
+#define TROENGAME
+
 
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
@@ -55,6 +69,7 @@ bool TroenGame::initialize()
 	// initialize sound  here
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
+	initializeShaders();
 
 	std::cout << "[TroenGame::initialize] initializing sound ..." << std::endl;
 	initializeSound();
@@ -64,6 +79,7 @@ bool TroenGame::initialize()
 	composeSceneGraph();
 
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
+
 	initializeViews();
 	initializeViewer();
 
@@ -90,6 +106,7 @@ bool TroenGame::initializeSound()
 
 bool TroenGame::initializeControllers()
 {
+
 	m_levelController = std::make_shared<LevelController>();
 	m_bikeController = std::make_shared<BikeController>(m_audioManager);
 	m_HUDController = std::make_shared<HUDController>();
@@ -103,6 +120,12 @@ bool TroenGame::composeSceneGraph()
 	m_rootNode->addChild(m_bikeController->getViewNode());
 	m_rootNode->addChild(m_HUDController->getViewNode());
 	
+	return true;
+}
+
+bool TroenGame::initializeShaders()
+{
+	shaders::reloadShaders();
 	return true;
 }
 
