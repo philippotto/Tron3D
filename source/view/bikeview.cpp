@@ -30,10 +30,13 @@ BikeView::BikeView()
 
 #ifndef _DEBUG
 	osg::Matrixd initialTransform;
-	osg::Quat rotationQuat(osg::DegreesToRadians(90.0f), osg::Vec3d(0.0, 0.0, 1.0));
-	initialTransform.translate(0.0, 0.0, -3.0);
+	osg::Quat rotationQuat(osg::DegreesToRadians(180.f), osg::Vec3d(0.0, 0.0, 1.0));
 	initialTransform.makeRotate(rotationQuat);
-	initialTransform.makeScale(osg::Vec3f(5.0f, 5.0f, 5.0f));
+	initialTransform *= initialTransform.scale(osg::Vec3f(5.0f, 5.0f, 5.0f));
+	initialTransform *= initialTransform.translate(0.0, 0.0, -3.0);
+	
+	// initialTransform *= initialTransform.rotate(rotationQuat);
+	
 	//initialTransform.scale()
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
 	pat->addChild(matrixTransform);

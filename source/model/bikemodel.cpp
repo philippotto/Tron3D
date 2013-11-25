@@ -22,11 +22,12 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceControl
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
 
-	btVector3 bikeDimensions = btVector3(
-		bb.xMax() - bb.xMin(),
-		bb.yMax() - bb.yMin(),
-		bb.zMax() - bb.zMin()
-	) / 5;
+#ifdef _DEBUG
+	btVector3 bikeDimensions = btVector3( bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin()) / 5;
+#endif
+#ifndef _DEBUG
+	btVector3 bikeDimensions = btVector3( 12.5, 25, 12.5 );
+#endif
 
 	m_rigidBodies = std::make_shared<std::vector<btRigidBody>>();
 
