@@ -47,9 +47,8 @@ void PhysicsWorld::initializeWorld()
 	m_world->setGravity(btVector3(0, 0, -10));
 }
 
-void PhysicsWorld::addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies)
+void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies)
 {
-
 	/*
 	why does this lead to a crash ?
 	for (btRigidBody body : *(bodies))
@@ -57,8 +56,8 @@ void PhysicsWorld::addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodi
 	
 	the old fashioned way works: 	*/
 
-	for (size_t i = 0; i < bodies->size(); i++)
-		m_world->addRigidBody(&(bodies->at(i)));
+	for (size_t i = 0; i < bodies.size(); i++)
+		m_world->addRigidBody(bodies[i].get());
 		
 }
 
@@ -157,19 +156,29 @@ void PhysicsWorld::checkForCollisionEvents() {
 	// compare against the pairs we found
 	// in this iteration
 	m_pairsLastUpdate = pairsThisUpdate;
-	
 }
 
 void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
 	// find the two colliding objects
-	std::shared_ptr<AbstractController> pObj0 = findGameObject(pBody0);
-	std::shared_ptr<AbstractController> pObj1 = findGameObject(pBody1);
+	// std::shared_ptr<AbstractController> pObj0 = findGameObject(pBody0);
+	// std::shared_ptr<AbstractController> pObj1 = findGameObject(pBody1);
 	
+	AbstractController * pObj0 = static_cast<AbstractController *>(pBody0->getUserPointer());
+	AbstractController * pObj1 = static_cast<AbstractController *>(pBody1->getUserPointer());;
+
 	//std::cout << "[PhysicsWorld::collisionEvent] collision detected" << std::endl;
 	
 	// exit if we didn't find anything
-	if (!pObj0 || !pObj1) return;
+	if (!pObj0 && !pObj1) return;
 	
+	if (pObj0 && pObj0->getType() == AbstractController::BIKECONTROLLER)
+	{
+		std::cout << "BikeCollision, bike as first object" << std::endl;
+	}
+	else if (pObj1 && pObj1->getType() == AbstractController::BIKECONTROLLER)
+	{
+		std::cout << "BikeCollision, bike as second object" << std::endl;
+	}
 	// handel colision events object specific
 	// set their colors to white
 	// pObj0->SetColor(btVector3(1.0, 1.0, 1.0));

@@ -19,13 +19,12 @@ namespace troen
 	{
 	public:
 		PhysicsWorld();
-
 		virtual ~PhysicsWorld();
 
 		void initializeWorld();
 		void stepSimulation(long double currentTime);
 
-		void addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies);
+		void addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies);
 		void addRigidBody(btRigidBody *body);
 
 		// collision event functions

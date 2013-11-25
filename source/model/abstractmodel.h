@@ -14,8 +14,8 @@ namespace troen
 		public:
 			AbstractModel();
 		
-			virtual std::shared_ptr<std::vector<btRigidBody>> getRigidBodies();
+			virtual std::vector<std::shared_ptr<btRigidBody>> getRigidBodies();
 		protected:
-			std::shared_ptr<std::vector<btRigidBody>> m_rigidBodies;
+			std::vector<std::shared_ptr<btRigidBody>> m_rigidBodies;
 	};
 }

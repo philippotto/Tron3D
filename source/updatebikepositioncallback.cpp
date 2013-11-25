@@ -25,7 +25,7 @@ void UpdateBikePositionCallback::operator()(osg::Node* node, osg::NodeVisitor* n
 		m_bike->updateState();
 
 		
-		btRigidBody* bikeRigidBody = &(m_bike->getRigidBodies()->at(0));
+		btRigidBody* bikeRigidBody = m_bike->getRigidBodies().at(0).get();
 		
 		btTransform trans;
 		bikeRigidBody->getMotionState()->getWorldTransform(trans);

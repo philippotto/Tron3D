@@ -15,7 +15,9 @@ using namespace troen;
 #define VMAX 1000
 #define FRICTION 0.1
 
-BikeModel::BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceController> fenceController)
+BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
+	std::shared_ptr<FenceController> fenceController,
+	BikeController* bikeController)
 {
 	resetState();
 
@@ -28,7 +30,7 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceControl
 		bb.zMax() - bb.zMin()
 	) / 5;
 
-	m_rigidBodies = std::make_shared<std::vector<btRigidBody>>();
+	m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();
 
 	btBoxShape *boxShape = new btBoxShape(bikeDimensions / 2);
 
@@ -45,19 +47,17 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceControl
 
 	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(mass, bikeMotionState, boxShape, bikeInertia);
 
-	btRigidBody bikeRigidBody(m_bikeRigidBodyCI);
+	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
-	bikeRigidBody.setCcdMotionThreshold(1 / bikeDimensions.y());
-
-
-	bikeRigidBody.setLinearVelocity(btVector3(1, 0, 1));
-
+	bikeRigidBody->setCcdMotionThreshold(1 / bikeDimensions.y());
+	bikeRigidBody->setLinearVelocity(btVector3(1, 0, 1));
 	// this seems to be necessary so that we can move the object via setVelocity()
-	bikeRigidBody.setActivationState(DISABLE_DEACTIVATION);
+	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
+	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
+	// for collision event handling
+	bikeRigidBody->setUserPointer(bikeController);
 
-	bikeRigidBody.setAngularFactor(btVector3(0, 0, 1));
-
-	m_rigidBodies->push_back(bikeRigidBody);
+	m_rigidBodies.push_back(bikeRigidBody);
 }
 
 void BikeModel::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
@@ -81,7 +81,7 @@ void BikeModel::updateState()
 	float velocity = m_bikeInputState->getAcceleration();
 
 	
-	btRigidBody* bikeRigidBody = &(m_rigidBodies->at(0));
+	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
 	btVector3 currentVelocityVectorXY = bikeRigidBody->getLinearVelocity();
 	btScalar zComponent = currentVelocityVectorXY.getZ();
 	currentVelocityVectorXY = btVector3(currentVelocityVectorXY.getX(), currentVelocityVectorXY.getY(), 0);
@@ -129,7 +129,7 @@ float BikeModel::getVelocity()
 osg::Vec3d BikeModel::getPositionOSG()
 {
 	btTransform trans;
-	(&(m_rigidBodies->at(0)))->getMotionState()->getWorldTransform(trans);
+	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
 
 	return osg::Vec3d(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
 }
@@ -137,7 +137,7 @@ osg::Vec3d BikeModel::getPositionOSG()
 btVector3 BikeModel::getPositionBt()
 {
 	btTransform trans;
-	(&(m_rigidBodies->at(0)))->getMotionState()->getWorldTransform(trans);
+	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
 
 	return trans.getOrigin();
 }

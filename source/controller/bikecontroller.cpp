@@ -12,19 +12,17 @@ using namespace troen;
 
 BikeController::BikeController()
 {
-	// use static casts to convert from Abstract class type
 	m_view = std::static_pointer_cast<BikeView>(std::make_shared<BikeView>());
-
 	m_fenceController = std::make_shared<FenceController>();
-	m_model = std::static_pointer_cast<BikeModel>(std::make_shared<BikeModel>(getViewNode(), m_fenceController));
+	m_model = std::static_pointer_cast<BikeModel>(std::make_shared<BikeModel>(getViewNode(), m_fenceController, this));
 }
 
-void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
+void BikeController::setInputState(osg::ref_ptr<input::BikeInputState>& bikeInputState)
 {
 	std::static_pointer_cast<BikeModel>(m_model)->setInputState(bikeInputState);
 }
 
-void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator)
+void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator>& manipulator)
 {
 	osg::Matrixd cameraOffset;
 	cameraOffset.makeTranslate(0, -100, -20);
@@ -47,13 +45,13 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	return group;
 };
 
-std::shared_ptr<std::vector<btRigidBody>> BikeController::getRigidBodies()
+std::vector<std::shared_ptr<btRigidBody>> BikeController::getRigidBodies()
 {
-	std::shared_ptr<std::vector<btRigidBody>> bikeBodies = std::static_pointer_cast<BikeModel>(m_model)->getRigidBodies();
+	std::vector<std::shared_ptr<btRigidBody>> bikeBodies = std::static_pointer_cast<BikeModel>(m_model)->getRigidBodies();
 	return bikeBodies;
 };
 
-void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> world) {
+void BikeController::attachWorld(std::shared_ptr<PhysicsWorld>& world) {
 	
 	world->addRigidBodies(getRigidBodies());
 
