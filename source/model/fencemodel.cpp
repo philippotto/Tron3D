@@ -1,59 +1,50 @@
 #include "fencemodel.h"
 
+// STD
+#include <iostream>
+
 using namespace troen;
 
 FenceModel::FenceModel()
 {
-	m_rigidBodies = std::make_shared<std::vector<btRigidBody>>();
-
-	std::vector<btVector3> fencePoints;
-	fencePoints.push_back(btVector3(0, 0, 0));
-	fencePoints.push_back(btVector3(0, 10, 0));
-	fencePoints.push_back(btVector3(0, 20, 0));
-	fencePoints.push_back(btVector3(10, 20, 0));
-
-	fencePoints.push_back(btVector3(20, 20, 0));
-	fencePoints.push_back(btVector3(50, 20, 0));
-	fencePoints.push_back(btVector3(50, 100, 0));
-	fencePoints.push_back(btVector3(500, 1000, 0));
-
-	for (size_t i = 0; i < fencePoints.size() - 1; i++){
-	
-		addFencePart(fencePoints.at(i), fencePoints.at(i + 1));
-		//addFenceMarker(fencePoints.at(i));
-	}
-	
-	
+	// TODO: remove m_rigidBodies completely (in favor of m_rigidBodyRefs)
+	// m_rigidBodies = std::make_shared<std::vector<btRigidBody>>();	
 }
 
 void FenceModel::addFencePart(btVector3 a, btVector3 b)
 {
+	btVector3 fenceVector = b - a;
 	
 	// TODO: convert to shared_ptr
-	btBoxShape *boxShape = new btBoxShape(btVector3(1, (b - a).length() / 2, getFenceHeight() / 2));
-
+	btBoxShape *boxShape = new btBoxShape(btVector3(1, fenceVector.length() / 2, getFenceHeight() / 2));
 	
-	btScalar angle = (b - a).angle(btVector3(0, -1, 0));
 	const btVector3 up = btVector3(0, 0, 1);
+	const btVector3 forward = btVector3(0, 1, 0);
+	const btScalar angle = fenceVector.angle(forward);
 
-	btDefaultMotionState *fenceMotionState = new btDefaultMotionState(btTransform(btQuaternion(up, angle), (b + a)/2 + btVector3(0, 0, getFenceHeight() / 2) ));
+	btQuaternion rotationQuat;
+	if (angle > 0) {
+		btVector3 axis = fenceVector.cross(-forward).normalized();
+		rotationQuat = btQuaternion(axis, angle);
+	}
+	btDefaultMotionState *fenceMotionState = new btDefaultMotionState(btTransform(rotationQuat, (a + b) / 2 + btVector3(0, 0, getFenceHeight() / 2)));
 
-	// set mass to zero so that we get a static rigidBody (is this enough?)
-	btScalar mass = 0;
-	btVector3 fenceInertia(0, 0, 0);
-	// boxShape->calculateLocalInertia(mass, fenceInertia);www
-
+	const btScalar mass = 0;
+	const btVector3 fenceInertia(0, 0, 0);
+	
 	btRigidBody::btRigidBodyConstructionInfo m_fenceRigidBodyCI(mass, fenceMotionState, boxShape, fenceInertia);
-	btRigidBody fenceRigidBody(m_fenceRigidBodyCI);
 
+	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
 
-	m_rigidBodies->push_back(fenceRigidBody);
+	m_rigidBodyRefs.push_back(fenceRigidBody);
 }
 
+btRigidBody* FenceModel::getLastPart() {
+	return m_rigidBodyRefs.back().get();
+}
 
 void FenceModel::addFenceMarker(btVector3 a)
 {
-
 	// TODO: convert to shared_ptr
 	btBoxShape *boxShape = new btBoxShape(btVector3(0.5, 0.5, getFenceHeight() / 2));
 	
@@ -65,13 +56,14 @@ void FenceModel::addFenceMarker(btVector3 a)
 	// boxShape->calculateLocalInertia(mass, fenceInertia);www
 
 	btRigidBody::btRigidBodyConstructionInfo m_fenceRigidBodyCI(mass, fenceMotionState, boxShape, fenceInertia);
-	btRigidBody fenceRigidBody(m_fenceRigidBodyCI);
 
+	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
 
-	m_rigidBodies->push_back(fenceRigidBody);
+	m_rigidBodyRefs.push_back(fenceRigidBody);
 }
 
-float FenceModel::getFenceHeight() {
+float FenceModel::getFenceHeight()
+{
 	return 20;
 }
 

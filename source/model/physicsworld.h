@@ -26,6 +26,7 @@ namespace troen
 		void stepSimulation(long double currentTime);
 
 		void addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies);
+		void addRigidBody(btRigidBody *body);
 
 		// collision event functions
 		void checkForCollisionEvents();
