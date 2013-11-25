@@ -209,8 +209,8 @@ set(sources
 	source/input/bikeinputstate.h
 	source/input/bikeinputstate.cpp
 
-	source/sound/fmod_manager.h
-	source/sound/fmod_manager.cpp
+	source/sound/audiomanager.h
+	source/sound/audiomanager.cpp
 	
 	source/model/bikemodel.h
 	source/model/bikemodel.cpp
@@ -232,6 +232,8 @@ set(sources
 	source/controller/fencecontroller.cpp
 	source/controller/abstractcontroller.h
 	source/controller/abstractcontroller.cpp
+	source/controller/hudcontroller.h
+	source/controller/hudcontroller.cpp
 
 	source/view/bikeview.h
 	source/view/bikeview.cpp
@@ -243,6 +245,8 @@ set(sources
 	source/view/abstractview.cpp
 	source/view/shaders.h
 	source/view/shaders.cpp
+	source/view/hudview.h
+	source/view/hudview.cpp
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp

@@ -1,4 +1,7 @@
 #include "bikemodel.h"
+
+// OSG
+#include <osg/BoundingBox>
 // STD
 #include <iostream>
 #include <math.h>
@@ -16,17 +19,24 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceControl
 {
 	resetState();
 
+	osg::BoundingBox bb;
+	bb.expandBy(node->getBound());
+
+	btVector3 bikeDimensions = btVector3(
+		bb.xMax() - bb.xMin(),
+		bb.yMax() - bb.yMin(),
+		bb.zMax() - bb.zMin()
+	) / 5;
 
 	m_rigidBodies = std::make_shared<std::vector<btRigidBody>>();
 
-	// radius: 1 meter
-	// TODO adjust to bounding box of bike
-	btBoxShape *boxShape = new btBoxShape(btVector3(13.5, 23, 10));
+	btBoxShape *boxShape = new btBoxShape(bikeDimensions / 2);
 
 	BikeMotionState* bikeMotionState = new BikeMotionState(
 		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 100)),
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
-		fenceController
+		fenceController,
+		bikeDimensions
 	);
 
 	btScalar mass = 1000;
@@ -36,6 +46,8 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node, std::shared_ptr<FenceControl
 	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(mass, bikeMotionState, boxShape, bikeInertia);
 
 	btRigidBody bikeRigidBody(m_bikeRigidBodyCI);
+
+	bikeRigidBody.setCcdMotionThreshold(1 / bikeDimensions.y());
 
 
 	bikeRigidBody.setLinearVelocity(btVector3(1, 0, 1));
@@ -102,8 +114,6 @@ void BikeModel::updateState()
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
-	
-
 }
 
 float BikeModel::getRotation()
@@ -122,4 +132,12 @@ osg::Vec3d BikeModel::getPositionOSG()
 	(&(m_rigidBodies->at(0)))->getMotionState()->getWorldTransform(trans);
 
 	return osg::Vec3d(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
+}
+
+btVector3 BikeModel::getPositionBt()
+{
+	btTransform trans;
+	(&(m_rigidBodies->at(0)))->getMotionState()->getWorldTransform(trans);
+
+	return trans.getOrigin();
 }

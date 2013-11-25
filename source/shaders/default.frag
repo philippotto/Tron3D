@@ -1,4 +1,8 @@
 #version 130
+
+uniform vec4 specularMaterialColor;
+uniform float shininess;
+
 uniform sampler2D specularTexture;
 uniform sampler2D diffuseTexture;
 uniform sampler2D normalTexture;
@@ -15,7 +19,7 @@ in float attenuation;
 
 void main()
 {
-	float shininess = 10.0;
+	//float shininess = 10.0;
 
 	vec3 specularReflection;
 	
@@ -31,11 +35,11 @@ void main()
 	{
 		  specularReflection = attenuation 
                   * vec3(1.1) 
-                  * vec3(gl_FrontMaterial.specular)
+                  * specularMaterialColor.xyz
 				  * texture(specularTexture,texCoord).rgb
                   * pow(max(0.0, dot(reflect(-lightDirection, 
                   normal), viewDirection)), 
-                  gl_FrontMaterial.shininess * 0.8);
+                  shininess * 0.8);
 	}
 	
 	//vec3 diffuse = max(dot(normal, 

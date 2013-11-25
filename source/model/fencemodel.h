@@ -13,8 +13,15 @@ namespace troen
 		void addFencePart(btVector3 a, btVector3 b);
 		float getFenceHeight();
 
-	private:
+		btRigidBody* FenceModel::getLastPart();
+
+
 		void addFenceMarker(btVector3 a);
+	private:
+		
+
+
+		std::vector<std::shared_ptr<btRigidBody>> m_rigidBodyRefs;
 
 	};
 }

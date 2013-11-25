@@ -65,11 +65,13 @@ namespace troen
 	class LevelController;
 	class FenceController;
 	class AbstractController;
+	class HUDController;
 
 	class BikeView;
 	class LevelView;
 	class FenceView;
 	class AbstractView;	
+	class HUDView;
 
 	namespace util
 	{
@@ -81,5 +83,10 @@ namespace troen
 		class Keyboard;
 		class Gamepad;
 		class BikeInputState;
+	}
+
+	namespace sound
+	{
+		class AudioManager;
 	}
 }

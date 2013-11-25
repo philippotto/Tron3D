@@ -1,5 +1,8 @@
 #version 130
 
+uniform vec4 diffuseMaterialColor;
+uniform vec4 ambientMaterialColor;
+
 out vec2 texCoord;
 
 out vec3 diffuseColor; 
@@ -27,13 +30,13 @@ void main()
 	   attenuation = 1.0 ;/// distance; // linear attenuation 
 	   lightDirection = normalize(vertexToLightSource);
 
-	vec3 ambientLighting = vec3(gl_LightModel.ambient); 
+	vec3 ambientLighting = gl_LightModel.ambient.xyz ; 
 	   // without material color!
 
 	vec3 diffuseReflection = attenuation 
-	   * vec3(diffuseLight) 
+	   * diffuseLight.xyz
 	   * max(0.0, dot(normalDirection, lightDirection))
-	   * gl_FrontMaterial.diffuse.xyz;
+	   * diffuseMaterialColor.xyz;
 	   // without material color!
 
 	diffuseColor = ambientLighting + diffuseReflection;

@@ -5,6 +5,10 @@
 #include <osg/Texture2D>
 #include <osg/TexEnv>
 #include <osg/TexGen>
+#include <osg/TexMat>
+#include <osg/Material>
+#include <osg/Geode>
+#include <osgDB/WriteFile>
 #include <stdio.h>
 
 // troen
@@ -27,8 +31,8 @@ BikeView::BikeView()
 #ifndef _DEBUG
 	osg::Matrixd initialTransform;
 	osg::Quat rotationQuat(osg::DegreesToRadians(90.0f), osg::Vec3d(0.0, 0.0, 1.0));
-	initialTransform.makeRotate(rotationQuat);
 	initialTransform.translate(0.0, 0.0, -3.0);
+	initialTransform.makeRotate(rotationQuat);
 	initialTransform.makeScale(osg::Vec3f(5.0f, 5.0f, 5.0f));
 	//initialTransform.scale()
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
@@ -101,9 +105,40 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath,std::s
 	enum BIKE_TEXTURES { DIFFUSE, SPECULAR, NORMAL };
 
 	std::cout << "[TroenGame::bikeView] Loading Model \"" << objFilePath << "\"" << std::endl;
-	osg::ref_ptr<osg::Node> Node = osgDB::readNodeFile(objFilePath);
+	osg::Node* Node = osgDB::readNodeFile(objFilePath);
 
+	//osgDB::writeNodeFile(*Node, std::string("file.osg")); //to look at the scenegraph
 	osg::ref_ptr<osg::StateSet> NodeState = Node->getOrCreateStateSet();
+
+	osg::ref_ptr<osg::Geode> singleGeode = dynamic_cast<osg::Geode*>(Node->asGroup()->getChild(0));
+	osg::ref_ptr<osg::StateSet> childState = singleGeode->getDrawable(0)->getStateSet();
+	osg::StateAttribute* stateAttributeMaterial = childState->getAttribute(osg::StateAttribute::MATERIAL);
+	if (stateAttributeMaterial != NULL)
+	{
+
+		
+		osg::Material *objMaterial = dynamic_cast<osg::Material*>(stateAttributeMaterial);
+		
+		osg::Vec4 diffuse = objMaterial->getDiffuse(osg::Material::FRONT_AND_BACK);
+		osg::Uniform* diffuseMaterialColorU = new osg::Uniform("diffuseMaterialColor",diffuse );
+		NodeState->addUniform(diffuseMaterialColorU);
+
+		osg::Vec4 ambient = objMaterial->getAmbient(osg::Material::FRONT_AND_BACK);
+		osg::Uniform* ambientMaterialColorU = new osg::Uniform("ambientMaterialColor", ambient);
+		NodeState->addUniform(ambientMaterialColorU);
+
+		osg::Vec4 specular = objMaterial->getSpecular(osg::Material::FRONT_AND_BACK);
+		osg::Uniform* specularMaterialColorU = new osg::Uniform("specularMaterialColor", specular);
+		NodeState->addUniform(specularMaterialColorU);
+
+		float shininess = objMaterial->getShininess(osg::Material::FRONT_AND_BACK);
+		osg::Uniform* shininessU = new osg::Uniform("shininess", shininess);
+		NodeState->addUniform(shininessU);
+
+
+	}
+
+
 
 	if (specularTexturePath != "")
 	{

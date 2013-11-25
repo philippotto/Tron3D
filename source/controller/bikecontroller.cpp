@@ -6,16 +6,17 @@
 #include "../view/bikeview.h"
 #include "../model/bikemodel.h"
 #include "../controller/fencecontroller.h"
+#include "../model/physicsworld.h"
 
 using namespace troen;
 
 BikeController::BikeController()
 {
-	m_fenceController = std::make_shared<FenceController>();
-
 	// use static casts to convert from Abstract class type
 
 	m_view = std::static_pointer_cast<BikeView>(std::make_shared<BikeView>());
+
+	m_fenceController = std::make_shared<FenceController>();
 	m_model = std::static_pointer_cast<BikeModel>(std::make_shared<BikeModel>(getViewNode(), m_fenceController));
 }
 
@@ -49,8 +50,13 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 
 std::shared_ptr<std::vector<btRigidBody>> BikeController::getRigidBodies()
 {
-	std::shared_ptr<std::vector<btRigidBody>> fenceBodies = m_fenceController->getRigidBodies();
 	std::shared_ptr<std::vector<btRigidBody>> bikeBodies = std::static_pointer_cast<BikeModel>(m_model)->getRigidBodies();
-	bikeBodies->insert(bikeBodies->end(), fenceBodies->begin(), fenceBodies->end());
 	return bikeBodies;
 };
+
+void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> world) {
+	
+	world->addRigidBodies(getRigidBodies());
+
+	m_fenceController->attachWorld(world);
+}

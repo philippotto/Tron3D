@@ -19,6 +19,7 @@ namespace troen
 		void checkForCollisions();
 
 		void addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies);
+		void addRigidBody(btRigidBody *body);
 
 		util::GLDebugDrawer* m_debug;
 

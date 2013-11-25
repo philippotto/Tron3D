@@ -1,9 +1,11 @@
 #include "fencecontroller.h"
 // STD
 #include <memory>
+#include <iostream>
 // troen
 #include "../view/fenceview.h"
 #include "../model/fencemodel.h"
+#include "../model/physicsworld.h"
 
 using namespace troen;
 
@@ -19,11 +21,32 @@ FenceController::FenceController()
 
 void FenceController::update(btVector3 position)
 {
-	if (m_lastPosition)
-		std::static_pointer_cast<FenceModel>(m_model)->addFencePart(m_lastPosition, position);
-	m_lastPosition = position;
+	
+	// this determines how accurate the fence will be
+	const float fenceLength = 50;
 
-	// TODO add newly created rigid bodies to physicsWorld
+	if (!m_lastPosition)
+	{
+		m_lastPosition = position;
+		return;
+	}
 
-	//std::static_pointer_cast<FenceView>(m_view)->updateFence();
+	if ((position - m_lastPosition).length() > fenceLength)
+	{
+
+		std::shared_ptr<FenceModel> fenceModel = (std::static_pointer_cast<FenceModel>(m_model));
+
+		fenceModel->addFencePart(m_lastPosition, position);
+		m_world->addRigidBody(fenceModel->getLastPart());
+		m_lastPosition = position;
+	}
+
+	
+	// TODO
+	// std::static_pointer_cast<FenceView>(m_view)->updateFence();
+}
+
+
+void FenceController::attachWorld(std::shared_ptr<PhysicsWorld> world) {
+	m_world = world;
 }
