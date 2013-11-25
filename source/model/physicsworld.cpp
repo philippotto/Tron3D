@@ -43,7 +43,7 @@ void PhysicsWorld::initializeWorld()
 
 	m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 
-	m_world->setGravity(btVector3(0, 0, -10));
+	m_world->setGravity(btVector3(0, 0, -100));
 }
 
 void PhysicsWorld::addRigidBodies(std::shared_ptr<std::vector<btRigidBody>> bodies)
