@@ -31,6 +31,7 @@ namespace troen
 
 
 		enum Shadernames  { DEFAULT,
+							GRID,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
 

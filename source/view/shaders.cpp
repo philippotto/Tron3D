@@ -13,6 +13,7 @@ void shaders::reloadShaders()
 			shaders::m_allShaderPrograms.push_back(NULL);
 
 	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "source/shaders/default.frag", "source/shaders/default.vert");
+	reloadShader(shaders::m_allShaderPrograms[GRID], "source/shaders/grid.frag", "source/shaders/grid.vert");
 }
 
 void shaders::reloadShader(

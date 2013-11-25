@@ -86,11 +86,16 @@ bool TroenGame::initialize()
 bool TroenGame::initializeModels()
 {
 	m_childNode = new osg::PositionAttitudeTransform();
-	//m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
+	//
 
+#ifdef _DEBUG
+	m_childNode->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
+#endif
+#ifndef _DEBUG
 	BikeView *bikeView = new BikeView();
 	m_childNode->addChild( bikeView->get_rootNode() );
 	// currently, initial position is set in updateBikePositoinCallback.cpp
+#endif
 	return true;
 }
 
