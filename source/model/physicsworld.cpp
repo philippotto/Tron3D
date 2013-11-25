@@ -87,6 +87,7 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 #endif
 	
 	m_world->stepSimulation(timeSinceLastSimulation/1000.f, 7);
+	//m_world->stepSimulation(1 / 60.f, 10);
 	
 #if defined DEBUG
 	m_world->debugDrawWorld();

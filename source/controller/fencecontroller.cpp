@@ -1,6 +1,7 @@
 #include "fencecontroller.h"
 // STD
 #include <memory>
+#include <iostream>
 // troen
 #include "../view/fenceview.h"
 #include "../model/fencemodel.h"
@@ -20,7 +21,8 @@ FenceController::FenceController()
 
 void FenceController::update(btVector3 position)
 {
-
+	
+	// this determines how accurate the fence will be
 	const float fenceLength = 50;
 
 	if (!m_lastPosition)

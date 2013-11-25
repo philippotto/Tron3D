@@ -12,10 +12,10 @@ using namespace troen;
 
 BikeController::BikeController()
 {
-	m_fenceController = std::make_shared<FenceController>();
-
 	// use static casts to convert from Abstract class type
 	m_view = std::static_pointer_cast<BikeView>(std::make_shared<BikeView>());
+
+	m_fenceController = std::make_shared<FenceController>();
 	m_model = std::static_pointer_cast<BikeModel>(std::make_shared<BikeModel>(getViewNode(), m_fenceController));
 }
 
