@@ -191,8 +191,6 @@ find_package(FMOD REQUIRED)
 #add_subdirectory(source)
 
 set(sources
-	source/updatebikepositioncallback.h
-	source/updatebikepositioncallback.cpp
 	source/main.cpp
 	source/forwarddeclarations.h
 	source/mainwindow.h

@@ -1,6 +1,5 @@
 #include "PhysicsWorld.h"
 // STD
-#include <iostream>
 #include <array>
 // bullet
 #include <btBulletDynamicsCommon.h>
@@ -12,13 +11,16 @@
 #include "../controller/bikecontroller.h"
 #include "../sound/audiomanager.h"
 
+// comment out to disable debug mode
+//#define DEBUG_DRAW
+
 using namespace troen;
 
 PhysicsWorld::PhysicsWorld() : m_lastSimulationTime(0)
 {
 	initializeWorld();
 
-#if defined DEBUG
+#if defined DEBUG_DRAW
 	m_debug = new util::GLDebugDrawer();
 	m_debug->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 	m_world->setDebugDrawer(m_debug);
@@ -70,7 +72,7 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	// framerate & flow of the game
 	//std::cout << "[PhysicsWorld::stepSimulation] timeSinceLastSimulation = " << timeSinceLastSimulation/1000 << std::endl;
 	
-#if defined DEBUG
+#if defined DEBUG_DRAW
 	m_debug->BeginDraw();
 #endif
 	
@@ -81,7 +83,7 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	m_world->stepSimulation(timeSinceLastSimulation/1000.f, 7);
 	//m_world->stepSimulation(1 / 60.f, 10);
 	
-#if defined DEBUG
+#if defined DEBUG_DRAW
 	m_world->debugDrawWorld();
 	m_debug->EndDraw();
 #endif

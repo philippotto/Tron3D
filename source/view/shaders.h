@@ -1,16 +1,9 @@
 #pragma once
-
-
-
-
 // OSG
 #include <osg/ref_ptr>
 #include <osg/Geode>
 // troen
 #include "../forwarddeclarations.h"
-#include <memory>
-
-#include "abstractview.h"
 
 
 namespace troen
@@ -32,6 +25,7 @@ namespace troen
 
 		enum Shadernames  { DEFAULT,
 							GRID,
+							FENCE,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
 

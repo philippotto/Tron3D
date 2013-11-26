@@ -1,11 +1,11 @@
 #pragma once
 
-// comment out to disable debug mode
-#define DEBUG
-
 // necessary for wireframe debugging ? but with this variable, compilation fails
 // #define BT_USE_DOUBLE_PRECISION
 
+// STD includes we need everywhere
+#include <memory>
+#include <iostream>
 
 // This file contains forward declarations of classes
 

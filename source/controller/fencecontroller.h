@@ -12,7 +12,7 @@ namespace troen
 	public:
 		FenceController();
 		void update(btVector3 position);
-		void attachWorld(std::shared_ptr<PhysicsWorld> world);
+		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 
 		virtual const COLLISIONTYPE getCollisionType() { return FENCETYPE; };
 

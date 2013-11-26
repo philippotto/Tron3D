@@ -1,6 +1,4 @@
 #pragma once
-// STD
-#include <memory>
 //Qt
 #include <QWidget>
 #include <QMainWindow>

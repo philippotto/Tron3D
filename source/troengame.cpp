@@ -1,6 +1,4 @@
 #include "troengame.h"
-// STD
-#include <iostream>
 // OSG
 #include <osgGA/TrackballManipulator>
 #include <osgGA/NodeTrackerManipulator>
@@ -33,7 +31,7 @@ using namespace troen;
 
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
-#define SOUND_VOLUME 1.f
+#define SOUND_VOLUME 0.f
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
 	m_gameThread(thread)

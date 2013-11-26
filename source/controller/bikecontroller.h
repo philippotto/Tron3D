@@ -1,6 +1,4 @@
 #pragma once
-// STD
-#include <memory>
 // OSG
 #include <osg/ref_ptr>
 #include <osgGA/NodeTrackerManipulator>
@@ -24,7 +22,6 @@ namespace troen
 
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
-		virtual std::vector<std::shared_ptr<btRigidBody>> getRigidBodies() override;
 		const std::shared_ptr<sound::AudioManager> getAudioManager();
 
 	private:

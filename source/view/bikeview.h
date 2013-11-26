@@ -6,10 +6,6 @@
 #include <osg/Program>
 #include <osg/PositionAttitudeTransform>
 #include <osg/MatrixTransform>
-
-
-// STD
-#include <memory>
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"

@@ -1,6 +1,5 @@
 #pragma once
 // STD
-#include <memory>
 #include <vector>
 #include <set>
 #include <iterator>

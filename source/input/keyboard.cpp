@@ -1,6 +1,4 @@
 #include "keyboard.h"
-// STD
-#include <iostream>
 // troen
 #include "bikeinputstate.h"
 #include "../view/shaders.h"

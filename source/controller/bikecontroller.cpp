@@ -54,18 +54,10 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	return group;
 };
 
-std::vector<std::shared_ptr<btRigidBody>> BikeController::getRigidBodies()
-{
-	std::vector<std::shared_ptr<btRigidBody>> bikeBodies = std::static_pointer_cast<BikeModel>(m_model)->getRigidBodies();
-	return bikeBodies;
-};
-
-void BikeController::attachWorld(std::shared_ptr<PhysicsWorld>& world)
-{	
+void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
 	world->addRigidBodies(getRigidBodies());
 	m_fenceController->attachWorld(world);
 }
-
 
 const std::shared_ptr<sound::AudioManager> BikeController::getAudioManager()
 {
