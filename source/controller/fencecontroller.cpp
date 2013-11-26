@@ -8,7 +8,7 @@ using namespace troen;
 
 FenceController::FenceController()
 {
-	m_model = std::static_pointer_cast<FenceModel>(std::make_shared<FenceModel>());
+	m_model = std::static_pointer_cast<FenceModel>(std::make_shared<FenceModel>(this));
 	m_view = std::static_pointer_cast<FenceView>(std::make_shared<FenceView>(std::static_pointer_cast<FenceModel>(m_model)));
 }
 
@@ -42,6 +42,6 @@ void FenceController::update(btVector3 position)
 }
 
 
-void FenceController::attachWorld(std::shared_ptr<PhysicsWorld> world) {
+void FenceController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
 	m_world = world;
 }

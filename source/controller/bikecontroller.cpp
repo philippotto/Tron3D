@@ -7,25 +7,25 @@
 #include "../model/bikemodel.h"
 #include "../controller/fencecontroller.h"
 #include "../model/physicsworld.h"
+#include "../sound/audiomanager.h"
 
 using namespace troen;
 
-BikeController::BikeController()
+BikeController::BikeController(const std::shared_ptr<sound::AudioManager>& audioManager)
+ : m_audioManager(audioManager)
 {
-	// use static casts to convert from Abstract class type
 
 	m_view = std::static_pointer_cast<BikeView>(std::make_shared<BikeView>());
-
 	m_fenceController = std::make_shared<FenceController>();
-	m_model = std::static_pointer_cast<BikeModel>(std::make_shared<BikeModel>(getViewNode(), m_fenceController));
+	m_model = std::static_pointer_cast<BikeModel>(std::make_shared<BikeModel>(getViewNode(), m_fenceController, this));
 }
 
-void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
+void BikeController::setInputState(osg::ref_ptr<input::BikeInputState>& bikeInputState)
 {
 	std::static_pointer_cast<BikeModel>(m_model)->setInputState(bikeInputState);
 }
 
-void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator)
+void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator>& manipulator)
 {
 	osg::Matrixd cameraOffset;
 
@@ -54,9 +54,12 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	return group;
 };
 
-void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> world) {
-	
+void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
 	world->addRigidBodies(getRigidBodies());
-
 	m_fenceController->attachWorld(world);
+}
+
+const std::shared_ptr<sound::AudioManager> BikeController::getAudioManager()
+{
+	return m_audioManager;
 }

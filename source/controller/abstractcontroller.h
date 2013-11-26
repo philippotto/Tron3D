@@ -14,8 +14,19 @@ namespace troen
 		public:
 			AbstractController();
 
+			typedef enum e_COLLISIONTYPE
+			{
+				ABSTRACTTYPE,
+				BIKETYPE,
+				LEVELTYPE,
+				LEVELWALLTYPE,
+				LEVELFLOORTYPE,
+				FENCETYPE
+			} COLLISIONTYPE;
+
 			virtual osg::ref_ptr<osg::Group> getViewNode();
-			virtual std::shared_ptr<std::vector<btRigidBody>> getRigidBodies();
+			virtual std::vector<std::shared_ptr<btRigidBody>> getRigidBodies();
+			virtual const COLLISIONTYPE getCollisionType() { return ABSTRACTTYPE; };
 
 		protected:
 			std::shared_ptr<AbstractView> m_view;

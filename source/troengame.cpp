@@ -106,7 +106,7 @@ bool TroenGame::initializeControllers()
 {
 
 	m_levelController = std::make_shared<LevelController>();
-	m_bikeController = std::make_shared<BikeController>();
+	m_bikeController = std::make_shared<BikeController>(m_audioManager);
 	m_HUDController = std::make_shared<HUDController>();
 	return true;
 }
@@ -211,7 +211,7 @@ void TroenGame::startGameLoop()
 	initialize();
 	m_timer->start();
 
-	m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
+	//m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
 	m_audioManager->SetMasterVolume(SOUND_VOLUME);
 	m_audioManager->SetSongsVolume(SOUND_VOLUME);
 

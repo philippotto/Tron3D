@@ -14,6 +14,7 @@
 
 
 #include "../model/levelmodel.h"
+#include "shaders.h"
 
 using namespace troen;
 
@@ -111,13 +112,13 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	plane->addDrawable(geometry);
 
 	// create a simple material
-	osg::Material *material = new osg::Material();
-	material->setEmission(osg::Material::FRONT, osg::Vec4(0.8, 0.8, 0.8, 1.0));
+	// osg::Material *material = new osg::Material();
+	// material->setEmission(osg::Material::FRONT, osg::Vec4(0.8, 0.8, 0.8, 1.0));
 
 	// create a texture
 	// load image for texture
-	osg::Image *image = osgDB::readImageFile("data/models/Images/grid.tga");
-	if (!image) {
+	//osg::Image *image = osgDB::readImageFile("data/models/Images/grid.tga");
+	/*if (!image) {
 		std::cout << "[LevelView::constructGround] Couldn't load texture." << std::endl;
 		return NULL;
 	}
@@ -130,10 +131,17 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	texture->setImage(image);
 
 	// assign the material and texture to the sphere
+	*/
 	osg::StateSet *groundStateSet = plane->getOrCreateStateSet();
 	groundStateSet->ref();
-	groundStateSet->setAttribute(material);
-	groundStateSet->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
+	//groundStateSet->setAttribute(material);
+	//groundStateSet->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
+	
+	
+	groundStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
+	osg::Uniform* levelSizeUniform = new osg::Uniform("levelSize", levelSize);
+	groundStateSet->addUniform(levelSizeUniform);
+	//setTexture(groundStateSet, specularTexturePath, SPECULAR);
 
 	return  plane;
 }

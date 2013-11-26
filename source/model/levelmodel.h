@@ -8,7 +8,7 @@ namespace troen
 	class LevelModel : public AbstractModel
 	{
 	public:
-		LevelModel();
+		LevelModel(const LevelController* levelController);
 		int getLevelSize();
 
 	private:
