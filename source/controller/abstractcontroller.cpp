@@ -1,6 +1,4 @@
 #include "abstractcontroller.h"
-// STD
-#include <memory>
 // troen
 #include "../view/levelview.h"
 #include "../model/levelmodel.h"

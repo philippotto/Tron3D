@@ -1,6 +1,4 @@
 #pragma once
-// STD
-#include <memory>
 // OSG
 #include <osg/Referenced>
 // troen

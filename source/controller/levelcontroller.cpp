@@ -1,5 +1,4 @@
 #include "levelcontroller.h"
-
 // OSG
 #include <osg/Group>
 // troen

@@ -10,7 +10,7 @@ namespace troen
 	class FenceView : public AbstractView
 	{
 	public:
-		FenceView();
+		FenceView(std::shared_ptr<FenceModel> &model);
 		void addFencePart(osg::Vec3 a, osg::Vec3 b);
 
 	private:
@@ -19,5 +19,7 @@ namespace troen
 		osg::Geometry* m_geometry;
 		std::vector<osg::Vec3> m_coordinates;
 		osg::DrawArrays* m_drawArrays;
+		std::shared_ptr<FenceModel> m_model;
+		float m_fenceHeight;
 	};
 }

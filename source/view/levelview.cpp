@@ -1,7 +1,6 @@
 #include "levelview.h"
 // STD
 #include <math.h>
-#include <memory>
 // OSG
 #include <osg/ImageStream>
 #include <osg/Material>

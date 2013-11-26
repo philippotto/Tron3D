@@ -1,6 +1,4 @@
 #include "gamepad.h"
-// STD
-#include <iostream>
 // troen
 #include "bikeinputstate.h"
 // other

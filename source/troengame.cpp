@@ -1,6 +1,4 @@
 #include "troengame.h"
-// STD
-#include <iostream>
 // OSG
 #include <osgGA/TrackballManipulator>
 #include <osgGA/NodeTrackerManipulator>

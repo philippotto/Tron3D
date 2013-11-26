@@ -5,11 +5,13 @@
 #include <osg/Vec4>
 // troen
 #include "shaders.h"
+#include "../model/fencemodel.h"
 
 using namespace troen;
 
-FenceView::FenceView()
+FenceView::FenceView(std::shared_ptr<FenceModel> &model)
 {
+	m_model = model;
 	m_node = new osg::Group();
 	initializeFence();
 	initializeShader();
@@ -17,6 +19,8 @@ FenceView::FenceView()
 
 void FenceView::initializeFence()
 {
+	m_fenceHeight = m_model->getFenceHeight();
+
 	osg::Geode* geode = new osg::Geode();
 
 	m_geometry = new osg::Geometry();
@@ -36,8 +40,13 @@ void FenceView::initializeShader()
 	osg::ref_ptr<osg::StateSet> NodeState = m_node->getOrCreateStateSet();
 
 	// TODO (dw) set to actual player color
-	osg::Uniform* fenceColorUniform = new osg::Uniform("fenceColor", osg::Vec3(0.0, 0.7, 0.8));
-	NodeState->addUniform(fenceColorUniform);
+	osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", osg::Vec3(0.0, 1.0, 1.0));
+	NodeState->addUniform(fenceColorU);
+
+	osg::Uniform* fenceHeightU = new osg::Uniform("fenceHeight", m_fenceHeight);
+	NodeState->addUniform(fenceHeightU);
+
+	NodeState->setMode(GL_BLEND, osg::StateAttribute::ON);
 
 	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::FENCE], osg::StateAttribute::ON);
 }
@@ -45,7 +54,7 @@ void FenceView::initializeShader()
 void FenceView::addFencePart(osg::Vec3 a, osg::Vec3 b)
 {
 	m_coordinates.push_back(b);
-	m_coordinates.push_back(osg::Vec3(b.x(), b.y(), b.z() + 20.0));
+	m_coordinates.push_back(osg::Vec3(b.x(), b.y(), b.z() + m_fenceHeight));
 
 	int numCoords = m_coordinates.size();
 

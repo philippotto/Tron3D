@@ -1,6 +1,4 @@
 #include "hudcontroller.h"
-// std
-#include <memory>
 // troen
 #include "../view/hudview.h"
 //#include "../model/hudmodel.h"

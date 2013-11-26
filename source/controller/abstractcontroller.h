@@ -3,7 +3,6 @@
 #include <osg/ref_ptr>
 // STD
 #include <vector>
-#include <memory>
 // troen
 #include "../forwarddeclarations.h"
 

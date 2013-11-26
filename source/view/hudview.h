@@ -1,8 +1,6 @@
 #pragma once
 // OSG
 #include <osg/Referenced>
-// STD
-#include <memory>
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"

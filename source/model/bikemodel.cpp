@@ -1,11 +1,8 @@
 #include "bikemodel.h"
-
 // OSG
 #include <osg/BoundingBox>
 // STD
-#include <iostream>
 #include <math.h>
-#include <memory>
 // troen
 #include "../input/bikeinputstate.h"
 #include "bikemotionstate.h"

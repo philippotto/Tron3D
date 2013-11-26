@@ -1,4 +1,7 @@
 #include "shaders.h"
+// OSG
+#include <osgDB/FileUtils>
+#include <osgDB/FileNameUtils>
 
 using namespace troen;
 using namespace shaders;

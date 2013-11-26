@@ -1,8 +1,5 @@
 #include "fencemodel.h"
 
-// STD
-#include <iostream>
-
 using namespace troen;
 
 FenceModel::FenceModel()
