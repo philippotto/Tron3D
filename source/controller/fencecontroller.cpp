@@ -12,7 +12,7 @@ using namespace troen;
 FenceController::FenceController()
 {
 	m_view = std::static_pointer_cast<FenceView>(std::make_shared<FenceView>());
-	m_model = std::static_pointer_cast<FenceModel>(std::make_shared<FenceModel>());
+	m_model = std::static_pointer_cast<FenceModel>(std::make_shared<FenceModel>(this));
 
 	// TODO
 	// just for testing, remove this once the fence is drawn via the update method

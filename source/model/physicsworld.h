@@ -8,7 +8,7 @@
 // troen
 #include "../forwarddeclarations.h"
 
-// convenient typedefs for collision events
+// typedefs for collision events
 typedef std::vector<std::shared_ptr<troen::AbstractController>> ControllerVector;
 typedef std::pair<const btRigidBody*, const btRigidBody*> CollisionPair;
 typedef std::set<CollisionPair> CollisionPairSet;
@@ -31,7 +31,6 @@ namespace troen
 		void checkForCollisionEvents();
 		virtual void collisionEvent(btRigidBody* pBody0, btRigidBody * pBody1);
 		virtual void separationEvent(btRigidBody * pBody0, btRigidBody * pBody1);
-		std::shared_ptr<AbstractController> findGameObject(btRigidBody* pBody);
 
 		// debugview
 		util::GLDebugDrawer* m_debug;

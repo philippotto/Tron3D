@@ -67,7 +67,7 @@ void BikeController::attachWorld(std::shared_ptr<PhysicsWorld>& world)
 }
 
 
-sconst std::shared_ptr<sound::AudioManager> BikeController::getAudioManager()
+const std::shared_ptr<sound::AudioManager> BikeController::getAudioManager()
 {
 	return m_audioManager;
 }

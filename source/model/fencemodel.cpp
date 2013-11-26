@@ -5,10 +5,10 @@
 
 using namespace troen;
 
-FenceModel::FenceModel()
+FenceModel::FenceModel(FenceController* fenceController)
 {
-	// TODO: remove m_rigidBodies completely (in favor of m_rigidBodyRefs)
-	// m_rigidBodies = std::make_shared<std::vector<btRigidBody>>();	
+	m_fenceController = fenceController;
+	 m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();	
 }
 
 void FenceModel::addFencePart(btVector3 a, btVector3 b)
@@ -24,6 +24,8 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 
 	btQuaternion rotationQuat;
 	if (angle > 0) {
+		// TODO
+		// johannes: ich bekomme hier ab und zu einen error, wenn normalized auf einem leeren vector aufgerufen wird
 		btVector3 axis = fenceVector.cross(-forward).normalized();
 		rotationQuat = btQuaternion(axis, angle);
 	}
@@ -35,17 +37,18 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 	btRigidBody::btRigidBodyConstructionInfo m_fenceRigidBodyCI(mass, fenceMotionState, boxShape, fenceInertia);
 
 	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
+	fenceRigidBody->setUserPointer(m_fenceController);
 
-	m_rigidBodyRefs.push_back(fenceRigidBody);
+	m_rigidBodies.push_back(fenceRigidBody);
 }
 
 btRigidBody* FenceModel::getLastPart() {
-	return m_rigidBodyRefs.back().get();
+	return m_rigidBodies.back().get();
 }
 
 void FenceModel::addFenceMarker(btVector3 a)
 {
-	// TODO: convert to shared_ptr
+	// TODO: memory management of shape & motionstate
 	btBoxShape *boxShape = new btBoxShape(btVector3(0.5, 0.5, getFenceHeight() / 2));
 	
 	btDefaultMotionState *fenceMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), a + btVector3(0, 0, getFenceHeight() / 4)));
@@ -58,8 +61,9 @@ void FenceModel::addFenceMarker(btVector3 a)
 	btRigidBody::btRigidBodyConstructionInfo m_fenceRigidBodyCI(mass, fenceMotionState, boxShape, fenceInertia);
 
 	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
+	fenceRigidBody->setUserPointer(m_fenceController);
 
-	m_rigidBodyRefs.push_back(fenceRigidBody);
+	m_rigidBodies.push_back(fenceRigidBody);
 }
 
 float FenceModel::getFenceHeight()
@@ -80,8 +84,6 @@ void FenceModel::addFence()
 	first approach will be: btBvhTriangleMeshShape with btTriangleMesh
 	*/
 
-
-
 	btTriangleMesh fenceMesh;
 	/*
 	the mesh will look this (I should study art)
@@ -99,7 +101,6 @@ void FenceModel::addFence()
 	// mind the manipulation of i within the loop
 	for (int i = 0; i < 10; ++i)
 	{
-
 		currentX += fenceStep;
 
 		fenceMesh.addTriangle(
@@ -107,7 +108,7 @@ void FenceModel::addFence()
 			btVector3(currentX, fenceHeight, 0),
 			btVector3(currentX + fenceStep, 0, 0),
 			false
-			);
+		);
 
 		i++;
 
@@ -121,21 +122,16 @@ void FenceModel::addFence()
 			);
 	}
 
-
 	btBvhTriangleMeshShape *fenceShape = new btBvhTriangleMeshShape(&fenceMesh, false);
-
 
 	btTransform trans;
 	trans.setIdentity();
 	trans.setOrigin(btVector3(0, 7, 0));
 	btDefaultMotionState* motionState = new btDefaultMotionState(trans);
 
-
-
 	// we set localInertia to a zero vector
 	// maybe, the mass has to be 0 instead of 1 ?
 	btRigidBody* fenceBody = new btRigidBody(1, motionState, fenceShape, btVector3(0, 0, 0));
-
 
 	// do we have to adjust these parameters ?
 	fenceBody->setContactProcessingThreshold(BT_LARGE_FLOAT);

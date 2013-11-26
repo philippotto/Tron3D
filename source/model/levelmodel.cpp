@@ -76,5 +76,5 @@ void LevelModel::addWalls()
 }
 
 int LevelModel::getLevelSize() {
-	return 3000;
+	return 6000;
 }

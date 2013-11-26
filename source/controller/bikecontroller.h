@@ -20,7 +20,7 @@ namespace troen
 
 		void updateModel();
 
-		const CONTROLLERTYPE getType() { return BIKECONTROLLER; };
+		const COLLISIONTYPE getCollisionType() { return BIKETYPE; };
 
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
