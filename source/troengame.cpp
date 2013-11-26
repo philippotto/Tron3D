@@ -16,31 +16,20 @@
 #include "input/gamepad.h"
 
 #include "util/chronotimer.h"
+#include "util/gldebugdrawer.h"
 
+#include "sound/audiomanager.h"
+
+#include "model/physicsworld.h"
 #include "model/bikemodel.h"
 #include "controller/levelcontroller.h"
+#include "controller/bikecontroller.h"
+#include "controller/levelcontroller.h"
+#include "controller/hudcontroller.h"
 #include "view/bikeview.h"
 #include "view/shaders.h"
 
-
-// TODO remove?
-#include <btBulletDynamicsCommon.h>
-#include "LinearMath/btHashMap.h"
-
-#include "util/gldebugdrawer.h"
-
-#include "model/physicsworld.h"
-
-#include "controller/bikecontroller.h"
-#include "controller/levelcontroller.h"
-
-#include "controller/hudcontroller.h"
-#include "sound/audiomanager.h"
-
 using namespace troen;
-
-#define TROENGAME
-
 
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
@@ -224,7 +213,9 @@ void TroenGame::startGameLoop()
 	int skippedFrames = 0;
 	int maxSkippedFrames = 4;
 
-	bool notAdded = true;
+#ifdef DEBUG				
+	m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
+#endif	
 
 	// GAME LOOP
 	while (!m_sampleOSGViewer->done())
@@ -258,13 +249,7 @@ void TroenGame::startGameLoop()
 			{
 				//std::cout << "drawing" << std::endl;
 				emit newFrame(currTime);
-				m_sampleOSGViewer->frame();
-#ifdef DEBUG				
-				if (notAdded) {
-					m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
-					notAdded = false;
-				}
-#endif				
+				m_sampleOSGViewer->frame();			
 				skippedFrames = 0;
 			}
 			else
