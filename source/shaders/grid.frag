@@ -1,44 +1,26 @@
-#version 140
-uniform sampler2D specularTexture;
-uniform sampler2D diffuseTexture;
-uniform sampler2D normalTexture;
+#version 130
 
-in vec2 texCoord;
-
-in vec3 normalDirection;
-in vec3 viewDirection;
-in vec3 diffuseColor;
-
-in vec3 lightDirection;
-
-in float attenuation;
+in vec2 uv;
 
 void main()
 {
-	float shininess = 10.0;
+	// Apply a procedural texture here.
 
-	vec3 specularReflection;
+	//float i = ... ; 
+	int inverseFrequency = 100;
 	
-	vec3 normal =  normalDirection *  normalize(texture2D(normalTexture, texCoord).rgb * 2.0 - 1.0);
+	// float xBlack = abs(sign(mod(floor(5000 * uv.x), inverseFrequency)));
+	// float yBlack = abs(sign(mod(floor(5000 * uv.y), inverseFrequency)));
 
-	   // light source on the wrong side?
-	if (dot(normal, lightDirection) < 0.0) 
-	{
-	  // no specular reflection
-	   specularReflection = vec3(0.0, 0.0, 0.0); 
-	}
-	else // light source on the right side
-	{
-		  specularReflection = attenuation 
-                  * vec3(1.1) 
-                  * vec3(gl_FrontMaterial.specular)
-				  * texture(specularTexture,texCoord).rgb
-                  * pow(max(0.0, dot(reflect(-lightDirection, 
-                  normal), viewDirection)), 
-                  gl_FrontMaterial.shininess * 0.8);
-	}
+	float modifier = 2;
+	float smoothingFactorX = abs(mod((5000 / modifier * uv.x), inverseFrequency / modifier) - 5);
+	float smoothingFactorY = abs(mod((5000 / modifier * uv.y), inverseFrequency / modifier) - 5);
 	
-	//vec3 diffuse = max(dot(normal, 
-	
-	gl_FragColor = vec4(diffuseColor  * texture2D(diffuseTexture,texCoord).rgb + specularReflection, texture2D(diffuseTexture,texCoord).a);
+	gl_FragColor = mix(
+		vec4(22, 115, 131, 1) / 255.f,
+		vec4(0, 0, 0, 1) / 255.f,
+		pow(min(smoothingFactorX, smoothingFactorY), 0.5)
+	);
+
+
 }
