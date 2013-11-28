@@ -172,12 +172,12 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 		switch (collisionBodyControllers[otherIndex]->getCollisionType())
 		{
 		case AbstractController::FENCETYPE:
-			static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getAudioManager()->PlaySFX("data/sound/explosion.wav",.5f,1.f,.5f,1.f);
-			break;
 		case AbstractController::LEVELTYPE:
 		case AbstractController::LEVELFLOORTYPE:
 		case AbstractController::LEVELWALLTYPE:
 		case AbstractController::BIKETYPE:
+			static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getAudioManager()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);
+			break;
 		default:
 			break;
 		}

@@ -31,7 +31,7 @@ using namespace troen;
 
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
-#define SOUND_VOLUME 0.f
+#define SOUND_VOLUME 1.f
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
 	m_gameThread(thread)
@@ -200,7 +200,7 @@ void TroenGame::startGameLoop()
 	initialize();
 	m_timer->start();
 
-	//m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
+	m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
 	m_audioManager->SetMasterVolume(SOUND_VOLUME);
 	m_audioManager->SetSongsVolume(SOUND_VOLUME);
 
@@ -211,7 +211,9 @@ void TroenGame::startGameLoop()
 	int skippedFrames = 0;
 	int maxSkippedFrames = 4;
 
-#ifdef DEBUG				
+// comment out to disable debug mode
+//#define DEBUG_DRAW
+#ifdef DEBUG_DRAW				
 	m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 #endif	
 
