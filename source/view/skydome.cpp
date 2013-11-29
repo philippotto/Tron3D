@@ -16,7 +16,10 @@ using namespace troen;
 SkyDome::SkyDome() :
         osg::MatrixTransform()
 {
-    osg::ref_ptr<osg::Drawable> drawable = new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0.0f,0.0f,0.0f), 50000));
+	int sphereSize = 50000;
+	osg::Vec3 sphereOffset = osg::Vec3(0.0f, 0.0f, -5000.0f);
+	osg::ref_ptr<osg::Drawable> drawable = new osg::ShapeDrawable(new osg::Sphere(sphereOffset, sphereSize));
+
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
     geode->setCullingActive(false);
     geode->setCullCallback(new SkyboxTexMatCallback);
