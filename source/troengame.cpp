@@ -4,7 +4,7 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
-
+#include <osgViewer/ViewerEventHandlers>
 // troen
 #include "sampleosgviewer.h"
 #include "updatebikepositioncallback.h"
@@ -104,7 +104,7 @@ bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
 	m_bikeController = std::make_shared<BikeController>(m_audioManager);
-	m_HUDController = std::make_shared<HUDController>();
+	//m_HUDController = std::make_shared<HUDController>();
 	return true;
 }
 
@@ -113,7 +113,7 @@ bool TroenGame::composeSceneGraph()
 	m_rootNode->addChild(m_skyDome.get());
 	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_bikeController->getViewNode());
-	m_rootNode->addChild(m_HUDController->getViewNode());
+	//m_rootNode->addChild(m_HUDController->getViewNode());
 	
 	return true;
 }
@@ -160,16 +160,18 @@ bool TroenGame::initializeViews()
 	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator
 		= new osgGA::NodeTrackerManipulator;
 	manipulator->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-
 	m_bikeController->attachTrackingCamera(manipulator);
-
 	m_gameView->setCameraManipulator(manipulator.get());
+
+	m_statsHandler = new osgViewer::StatsHandler;
+	m_statsHandler->setKeyEventTogglesOnScreenStats(osgGA::GUIEventAdapter::KEY_T);
+	m_statsHandler->setKeyEventPrintsOutStats(osgGA::GUIEventAdapter::KEY_P);
+	m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
+	m_gameView->addEventHandler(m_statsHandler);
+
 	m_gameView->setSceneData(m_rootNode);
 	m_gameView->setUpViewInWindow(100, 100, 1280, 720, 0);
 	//m_gameView->setUpViewOnSingleScreen(0);
-
-	// TODO
-	// (possibly multiple ones for multiple rendering passes)
 	return true;
 }
 
@@ -251,8 +253,6 @@ void TroenGame::startGameLoop()
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
-				//std::cout << "drawing" << std::endl;
-				emit newFrame(currTime);
 				m_sampleOSGViewer->frame();			
 				skippedFrames = 0;
 			}
@@ -292,11 +292,13 @@ bool TroenGame::shutdown()
 	//viewer & views
 	m_sampleOSGViewer = NULL;
 	m_gameView = NULL;
+	m_statsHandler = NULL;
 
 	// models & scenegraph
 	m_rootNode = NULL;
 	m_bikeController.reset();
 	m_levelController.reset();
+	m_HUDController.reset();
 
 	// sound
 	m_audioManager->StopSFXs();

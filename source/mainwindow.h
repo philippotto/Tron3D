@@ -19,9 +19,6 @@ namespace troen
 		MainWindow (QWidget * parent = NULL);
 		virtual ~MainWindow();
 
-	public slots:
-		void fpsChanged(double time);
-
 	private:
 		QStatusBar*		m_statusBar;
 		QStackedWidget* m_stackedWidget;

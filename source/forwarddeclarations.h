@@ -17,6 +17,7 @@ namespace osgViewer
 	class Viewer;
 	class CompositeViewer;
 	class View;
+	class StatsHandler;
 }
 
 namespace osgQt
