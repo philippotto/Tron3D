@@ -8,7 +8,6 @@ namespace osg {
 }
 
 namespace troen {
-namespace view {
 
 	/**
 		* @brief Representation of Skybox
@@ -41,5 +40,4 @@ namespace view {
 		virtual ~SkyboxTexMatCallback() {}
 	};
 
-}
 }

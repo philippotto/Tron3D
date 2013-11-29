@@ -11,7 +11,7 @@
 #include <osgDB/ReadFile>
 #include <osgUtil/CullVisitor>
 
-using namespace troen::view;
+using namespace troen;
 
 SkyDome::SkyDome() :
         osg::MatrixTransform()
@@ -59,7 +59,7 @@ SkyDome::~SkyDome() {
 }
 
 osg::TextureCubeMap* SkyDome::readCubeMap() {
-	#define SKYBOX_FILENAME(face) "data/textures/skybox/" #face ".png"
+	#define SKYBOX_FILENAME(face) "data/textures/skybox/" #face ".bmp"
 
     osg::ref_ptr<osg::TextureCubeMap> cubemap = new osg::TextureCubeMap();
 

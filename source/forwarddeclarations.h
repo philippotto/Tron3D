@@ -72,6 +72,7 @@ namespace troen
 	class FenceView;
 	class AbstractView;	
 	class HUDView;
+	class SkyDome;
 
 	namespace util
 	{

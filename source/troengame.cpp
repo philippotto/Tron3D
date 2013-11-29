@@ -26,6 +26,7 @@
 #include "controller/hudcontroller.h"
 #include "view/bikeview.h"
 #include "view/shaders.h"
+#include "view/skydome.h"
 
 using namespace troen;
 
@@ -62,6 +63,7 @@ bool TroenGame::initialize()
 	initializeSound();
 
 	std::cout << "[TroenGame::initialize] models and scenegraph ..." << std::endl;
+	initializeSkyDome();
 	initializeControllers();
 	composeSceneGraph();
 
@@ -91,9 +93,15 @@ bool TroenGame::initializeSound()
 	return true;
 }
 
+bool TroenGame::initializeSkyDome()
+{
+	m_skyDome = new SkyDome;
+	return true;
+}
+
+
 bool TroenGame::initializeControllers()
 {
-
 	m_levelController = std::make_shared<LevelController>();
 	m_bikeController = std::make_shared<BikeController>(m_audioManager);
 	m_HUDController = std::make_shared<HUDController>();
@@ -102,7 +110,7 @@ bool TroenGame::initializeControllers()
 
 bool TroenGame::composeSceneGraph()
 {
-	
+	m_rootNode->addChild(m_skyDome.get());
 	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_bikeController->getViewNode());
 	m_rootNode->addChild(m_HUDController->getViewNode());
@@ -169,9 +177,6 @@ bool TroenGame::initializeViewer()
 {
 	m_sampleOSGViewer = new SampleOSGViewer();
 	m_sampleOSGViewer->addView(m_gameView);
-
-
-
 	return true;
 }
 
@@ -184,7 +189,6 @@ bool TroenGame::initializeTimer()
 bool TroenGame::initializePhysicsWorld()
 {
 	m_physicsWorld = std::make_shared<PhysicsWorld>();
-	
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies());
 	// m_physicsWorld->addRigidBodies(m_bikeController->getRigidBodies());
 	m_bikeController->attachWorld(m_physicsWorld);
