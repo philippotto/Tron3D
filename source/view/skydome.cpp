@@ -62,6 +62,7 @@ osg::TextureCubeMap* SkyDome::readCubeMap() {
 	#define SKYBOX_FILENAME(face) "data/textures/skybox/" #face ".bmp"
 
     osg::ref_ptr<osg::TextureCubeMap> cubemap = new osg::TextureCubeMap();
+	cubemap->setResizeNonPowerOfTwoHint(false);
 
 	osg::ref_ptr<osg::Image> imagePosX = osgDB::readImageFile(SKYBOX_FILENAME(px));
 	osg::ref_ptr<osg::Image> imageNegX = osgDB::readImageFile(SKYBOX_FILENAME(nx));
