@@ -32,6 +32,7 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 	btRigidBody::btRigidBodyConstructionInfo m_fenceRigidBodyCI(mass, fenceMotionState, boxShape, fenceInertia);
 
 	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
+	fenceRigidBody->setUserPointer(m_fenceController);
 
 	m_rigidBodies.push_back(fenceRigidBody);
 }
@@ -55,6 +56,7 @@ void FenceModel::addFenceMarker(btVector3 a)
 	btRigidBody::btRigidBodyConstructionInfo m_fenceRigidBodyCI(mass, fenceMotionState, boxShape, fenceInertia);
 
 	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
+	fenceRigidBody->setUserPointer(m_fenceController);
 
 	m_rigidBodies.push_back(fenceRigidBody);
 }
