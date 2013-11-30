@@ -28,11 +28,9 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	btVector3 bikeDimensions = btVector3( 12.5, 25, 12.5 );
 #endif
 
-	m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();
+	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(bikeDimensions / 2);
 
-	btBoxShape *boxShape = new btBoxShape(bikeDimensions / 2);
-
-	BikeMotionState* bikeMotionState = new BikeMotionState(
+	std::shared_ptr<BikeMotionState> bikeMotionState = std::make_shared<BikeMotionState>(
 		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 100)),
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
 		fenceController,
@@ -41,9 +39,9 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 
 	btScalar mass = 1000;
 	btVector3 bikeInertia(0, 0, 0);
-	boxShape->calculateLocalInertia(mass, bikeInertia);
+	bikeShape->calculateLocalInertia(mass, bikeInertia);
 
-	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(mass, bikeMotionState, boxShape, bikeInertia);
+	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(mass, bikeMotionState.get(), bikeShape.get(), bikeInertia);
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
@@ -55,6 +53,8 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	// for collision event handling
 	bikeRigidBody->setUserPointer(bikeController);
 
+	m_collisionShapes.push_back(bikeShape);
+	m_motionStates.push_back(bikeMotionState);
 	m_rigidBodies.push_back(bikeRigidBody);
 }
 

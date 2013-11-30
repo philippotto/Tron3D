@@ -9,13 +9,15 @@ LevelModel::LevelModel(const LevelController* levelController)
 {
 	m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();
 
-	btStaticPlaneShape *groundShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0);
-	btDefaultMotionState *groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
+	std::shared_ptr<btStaticPlaneShape> groundShape = std::make_shared<btStaticPlaneShape>(btVector3(0, 0, 1), btScalar(0)); 
+	std::shared_ptr<btDefaultMotionState> groundMotionState = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
-		groundRigidBodyCI(btScalar(0), groundMotionState, groundShape, btVector3(0, 0, 0));
+		groundRigidBodyCI(btScalar(0), groundMotionState.get(), groundShape.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> groundRigidBody = std::make_shared<btRigidBody>(groundRigidBodyCI);
 
-	m_rigidBodies.push_back(groundRigidBody);
+	m_collisionShapes.push_back(groundShape);
+	m_motionStates.push_back(groundMotionState);
+	m_rigidBodies.push_back(groundRigidBody); 
 
 	addWalls();
 
@@ -43,31 +45,41 @@ void LevelModel::addWalls()
 	// TODO grab the value from origin
 	btScalar levelSize = btScalar(getLevelSize());
 	 
-	btStaticPlaneShape *wallShape1 = new btStaticPlaneShape(planeNormal, 0);
-	btDefaultMotionState *wallMotionState1 = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(levelSize / 2, 0, 0)));
+	std::shared_ptr<btStaticPlaneShape> wallShape1 = std::make_shared<btStaticPlaneShape>(planeNormal, btScalar(0));
+	std::shared_ptr<btDefaultMotionState> wallMotionState1 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(levelSize / 2, 0, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
-		wallRigidBodyCI1(btScalar(0), wallMotionState1, wallShape1, btVector3(0, 0, 0));
+		wallRigidBodyCI1(btScalar(0), wallMotionState1.get(), wallShape1.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> wallRigidBody1 = std::make_shared<btRigidBody>(wallRigidBodyCI1);
 
-	btStaticPlaneShape *wallShape2 = new btStaticPlaneShape(-planeNormal, 0);
-	btDefaultMotionState *wallMotionState2 = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(- levelSize / 2, 0, 0)));
+	std::shared_ptr<btStaticPlaneShape> wallShape2 = std::make_shared<btStaticPlaneShape>(-planeNormal, btScalar(0));
+	std::shared_ptr<btDefaultMotionState> wallMotionState2 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-levelSize / 2, 0, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
-		wallRigidBodyCI2(btScalar(0), wallMotionState2, wallShape2, btVector3(0, 0, 0));
+		wallRigidBodyCI2(btScalar(0), wallMotionState2.get(), wallShape2.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> wallRigidBody2 = std::make_shared<btRigidBody>(wallRigidBodyCI2);
 
 	planeNormal.setX(0); planeNormal.setY(-1);
 
-	btStaticPlaneShape *wallShape3 = new btStaticPlaneShape(planeNormal, 0);
-	btDefaultMotionState *wallMotionState3 = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, levelSize / 2, 0)));
+	std::shared_ptr<btStaticPlaneShape> wallShape3 = std::make_shared<btStaticPlaneShape>(planeNormal, btScalar(0));
+	std::shared_ptr<btDefaultMotionState> wallMotionState3 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, levelSize / 2, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
-		wallRigidBodyCI3(btScalar(0), wallMotionState3, wallShape3, btVector3(0, 0, 0));
+		wallRigidBodyCI3(btScalar(0), wallMotionState3.get(), wallShape3.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> wallRigidBody3 = std::make_shared<btRigidBody>(wallRigidBodyCI3);
 
-	btStaticPlaneShape *wallShape4 = new btStaticPlaneShape(-planeNormal, 0);
-	btDefaultMotionState *wallMotionState4 = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, - levelSize / 2, 0)));
+	std::shared_ptr<btStaticPlaneShape> wallShape4 = std::make_shared<btStaticPlaneShape>(-planeNormal, btScalar(0));
+	std::shared_ptr<btDefaultMotionState> wallMotionState4 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -levelSize / 2, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
-		wallRigidBodyCI4(btScalar(0), wallMotionState4, wallShape4, btVector3(0, 0, 0));
+		wallRigidBodyCI4(btScalar(0), wallMotionState4.get(), wallShape4.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> wallRigidBody4 = std::make_shared<btRigidBody>(wallRigidBodyCI4);
+
+	m_collisionShapes.push_back(wallShape1);
+	m_collisionShapes.push_back(wallShape2);
+	m_collisionShapes.push_back(wallShape3);
+	m_collisionShapes.push_back(wallShape4);
+
+	m_motionStates.push_back(wallMotionState1);
+	m_motionStates.push_back(wallMotionState2);
+	m_motionStates.push_back(wallMotionState3);
+	m_motionStates.push_back(wallMotionState4); 
 
 	m_rigidBodies.push_back(wallRigidBody1);
 	m_rigidBodies.push_back(wallRigidBody2);
