@@ -7,7 +7,7 @@ AbstractModel::AbstractModel()
 	
 }
 
-std::shared_ptr<std::vector<btRigidBody>> AbstractModel::getRigidBodies()
+std::vector<std::shared_ptr<btRigidBody>> AbstractModel::getRigidBodies()
 {
 	return m_rigidBodies;
 }

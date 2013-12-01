@@ -1,11 +1,11 @@
 #pragma once
 
-// comment out to disable debug mode
-#define DEBUG
-
 // necessary for wireframe debugging ? but with this variable, compilation fails
 // #define BT_USE_DOUBLE_PRECISION
 
+// STD includes we need everywhere
+#include <memory>
+#include <iostream>
 
 // This file contains forward declarations of classes
 
@@ -65,11 +65,13 @@ namespace troen
 	class LevelController;
 	class FenceController;
 	class AbstractController;
+	class HUDController;
 
 	class BikeView;
 	class LevelView;
 	class FenceView;
 	class AbstractView;	
+	class HUDView;
 
 	namespace util
 	{
@@ -81,5 +83,10 @@ namespace troen
 		class Keyboard;
 		class Gamepad;
 		class BikeInputState;
+	}
+
+	namespace sound
+	{
+		class AudioManager;
 	}
 }

@@ -1,6 +1,4 @@
 #pragma once
-// STD
-#include <memory>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -13,5 +11,6 @@ namespace troen
 	{
 	public:
 		LevelController();
+		const COLLISIONTYPE getCollisionType() { return LEVELTYPE; };
 	};
 }

@@ -4,8 +4,6 @@
 #include <osg/Geode>
 // troen
 #include "../forwarddeclarations.h"
-#include <memory>
-
 #include "abstractview.h"
 
 

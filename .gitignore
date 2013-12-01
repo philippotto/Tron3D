@@ -32,3 +32,5 @@ CMakeCache.txt
 /3rdParty
 /data
 fmod.log
+
+*.orig

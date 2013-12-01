@@ -1,6 +1,4 @@
 #include "abstractcontroller.h"
-// STD
-#include <memory>
 // troen
 #include "../view/levelview.h"
 #include "../model/levelmodel.h"
@@ -17,7 +15,7 @@ osg::ref_ptr<osg::Group> AbstractController::getViewNode()
 	return m_view->getNode();
 }
 
-std::shared_ptr<std::vector<btRigidBody>> AbstractController::getRigidBodies()
+std::vector<std::shared_ptr<btRigidBody>> AbstractController::getRigidBodies()
 {
 	return m_model->getRigidBodies();
 }

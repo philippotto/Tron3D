@@ -13,6 +13,7 @@ namespace troen
 	{
 		public:
 			AbstractView();
+
 			virtual osg::ref_ptr<osg::Group> getNode();
 		
 		protected:
