@@ -16,9 +16,9 @@ namespace troen
 	private:
 		void initializeFence();
 		void initializeShader();
-		osg::Geometry* m_geometry;
-		osg::Vec3Array* m_coordinates;
-		osg::DrawArrays* m_drawArrays;
+		osg::ref_ptr<osg::Geometry> m_geometry;
+		osg::ref_ptr<osg::Vec3Array> m_coordinates;
+		osg::ref_ptr<osg::DrawArrays> m_drawArrays;
 		std::shared_ptr<FenceModel> m_model;
 		float m_fenceHeight;
 	};

@@ -54,13 +54,12 @@ void FenceView::initializeShader()
 	NodeState->addUniform(fenceHeightU);
 
 	NodeState->setMode(GL_BLEND, osg::StateAttribute::ON);
-
 	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::FENCE], osg::StateAttribute::ON);
 }
 
 void FenceView::addFencePart(osg::Vec3 a, osg::Vec3 b)
 {
-	if (!m_coordinates->size())
+	if (m_coordinates->size()==0)
 	{
 		m_coordinates->push_back(a);
 		m_coordinates->push_back(osg::Vec3(a.x(), a.y(), a.z() + m_fenceHeight));

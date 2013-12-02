@@ -54,7 +54,8 @@ bool TroenGame::initialize()
 
 	// careful about the order of initialization
 	// TODO
-	// initialize sound  here
+
+	osg::DisplaySettings::instance()->setNumMultiSamples(8);
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 	initializeShaders();
