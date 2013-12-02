@@ -10,8 +10,8 @@ LevelModel::LevelModel(const LevelController* levelController)
 	m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();
 
 	btScalar levelSize = btScalar(getLevelSize());
-	std::shared_ptr<btBoxShape> groundShape = std::make_shared<btBoxShape>(btVector3(levelSize/2, levelSize/2, 1));
-	std::shared_ptr<btDefaultMotionState> groundMotionState = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, -1)));
+	std::shared_ptr<btBoxShape> groundShape = std::make_shared<btBoxShape>(btVector3(levelSize/2, levelSize/2, 10));
+	std::shared_ptr<btDefaultMotionState> groundMotionState = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, -10)));
 	btRigidBody::btRigidBodyConstructionInfo
 		groundRigidBodyCI(btScalar(0), groundMotionState.get(), groundShape.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> groundRigidBody = std::make_shared<btRigidBody>(groundRigidBodyCI);
