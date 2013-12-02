@@ -26,20 +26,6 @@ void main(void)
     //gl_FragColor = sceneColor;
 
     // funny effect rings effect
-    const int rings = 20;
-    int test = int(voronoiInfo.w*rings);
 
-    float value = voronoiInfo.w*rings - test;
-    vec4 ringColor = vec4(1,voronoiInfo.x, value,1);
-
-    if (voronoiInfo.w > 0.01)
-    {   
-        gl_FragColor = ringColor;
-    }else
-    {
-        gl_FragColor = mix(sceneColor, ringColor, voronoiInfo.w / 0.01);
-    }
-
-    //gl_FragColor = vec4(vec3(voronoiInfo.w), 1.0); // uncomment to show only distance field
-    
+   gl_FragColor = voronoiInfo; // uncomment to show only distance field
 }

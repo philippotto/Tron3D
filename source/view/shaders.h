@@ -23,10 +23,13 @@ namespace troen
 		void reloadShaders();
 
 
-		enum Shadernames  { DEFAULT,
+		enum Shadernames  {
+							DEFAULT,
 							GRID,
 							FENCE,
 							GBUFFER,
+							HBLUR,
+							VBLUR,
 							POST_PROCESSING,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};

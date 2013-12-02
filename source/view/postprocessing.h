@@ -28,7 +28,7 @@ namespace troen
 		enum TEXTURE_CONTENT { COLOR, NORMALDEPTH, ID, PING, PONG, TEXTURE_CONTENT_SIZE };
 
 		osg::ref_ptr<osg::Group> getSceneNode() { return m_modelNode; };
-
+		osg::ref_ptr<osg::Camera> pingPongPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, int type, int step);
 		void setupTextures(const unsigned int & width, const unsigned int &height);
 		bool handleGuiEvents(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter&, osg::Object*, osg::NodeVisitor*);
 

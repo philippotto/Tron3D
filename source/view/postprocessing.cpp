@@ -45,9 +45,13 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Vie
 
 	// 2. JFA prepare pass: render id buffer as seeds into PONG texture
 	// convenient for alternating ping pong textures
-	//TEXTURE_CONTENT  pingPong[] = { PING, PONG };
-	//// start writing into PONG buffer (pass == 1 )
-	//m_allCameras.push_back(distanceTransformPass(pass, ID, pingPong[pass], PRE_JFA, -1.0));
+	TEXTURE_CONTENT  pingPong[] = { PING, PONG };
+	// start writing into PONG buffer (pass == 1 )
+	m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::HBLUR, -1.0));
+	m_root->addChild(m_allCameras[pass]);
+	pass++;
+
+	//m_allCameras.push_back(pingPongPass(pass, PING, PONG, shaders::VBLUR, -1.0));
 	//m_root->addChild(m_allCameras[pass]);
 	//pass++;
 
@@ -210,43 +214,43 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 
 
 // create skeleton creation camera 
-//osg::ref_ptr<osg::Camera> PostProcessing::distanceTransformPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, SHADER_PROGRAM_TYPES type, int step)
-//{
-//	osg::ref_ptr<osg::Camera> camera(new osg::Camera());
-//
-//	// output textures	
-//	camera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0), m_fboTextures[outputTexture]);
-//
-//	// Configure fboCamera to draw fullscreen textured quad
-//	camera->setClearColor(osg::Vec4(0, 0, 0, 1));
-//	camera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
-//
-//	camera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
-//	camera->setRenderOrder(osg::Camera::PRE_RENDER, order);
-//
-//	// geometry
-//	osg::Geode* geode(new osg::Geode());
-//	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
-//	geode->getOrCreateStateSet()->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
-//	geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-//	camera->addChild(geode);
-//
-//	// attach shader program
-//	osg::ref_ptr<osg::StateSet>	state = camera->getOrCreateStateSet();
-//	state->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-//
-//
-//	state->setAttributeAndModes(shaders::m_allShaderPrograms[type], osg::StateAttribute::ON);
-//
-//	// add sampler textures	
-//	state->addUniform(new osg::Uniform("inputLayer", inputTexture));
-//	if (step != -1) state->addUniform(new osg::Uniform("currentStep", step));
-//
-//	state->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
-//	state->setTextureAttributeAndModes(0, m_fboTextures[outputTexture], osg::StateAttribute::ON);
-//
-//	return camera.release();
-//}
+osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, int type, int step)
+{
+	osg::ref_ptr<osg::Camera> camera(new osg::Camera());
+
+	// output textures	
+	camera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0), m_fboTextures[outputTexture]);
+
+	// Configure fboCamera to draw fullscreen textured quad
+	camera->setClearColor(osg::Vec4(0, 0, 0, 1));
+	camera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
+
+	camera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
+	camera->setRenderOrder(osg::Camera::PRE_RENDER, order);
+
+	// geometry
+	osg::Geode* geode(new osg::Geode());
+	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
+	geode->getOrCreateStateSet()->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
+	geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+	camera->addChild(geode);
+
+	// attach shader program
+	osg::ref_ptr<osg::StateSet>	state = camera->getOrCreateStateSet();
+	state->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
+
+
+	state->setAttributeAndModes(shaders::m_allShaderPrograms[type], osg::StateAttribute::ON);
+
+	// add sampler textures	
+	state->addUniform(new osg::Uniform("inputLayer", inputTexture));
+	if (step != -1) state->addUniform(new osg::Uniform("currentStep", step));
+
+	state->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
+	state->setTextureAttributeAndModes(0, m_fboTextures[outputTexture], osg::StateAttribute::ON);
+
+	return camera.release();
+}
 
 
 // create post processing pass to put it all together
