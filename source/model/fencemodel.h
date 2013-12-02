@@ -14,6 +14,7 @@ namespace troen
 		float getFenceHeight();
 
 		btRigidBody* FenceModel::getLastPart();
+		void removeAllFences();
 
 		void addFenceMarker(btVector3 a);
 	private:

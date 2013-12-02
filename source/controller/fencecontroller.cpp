@@ -45,3 +45,10 @@ void FenceController::update(btVector3 position)
 void FenceController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
 	m_world = world;
 }
+
+void FenceController::removeAllFences()
+{
+	m_world->removeRigidBodies(m_model->getRigidBodies());
+	std::static_pointer_cast<FenceModel>(m_model)->removeAllFences();
+	std::static_pointer_cast<FenceView>(m_view)->removeAllFences();
+}

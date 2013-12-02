@@ -63,3 +63,8 @@ const std::shared_ptr<sound::AudioManager> BikeController::getAudioManager()
 {
 	return m_audioManager;
 }
+
+void BikeController::removeAllFences()
+{
+	m_fenceController->removeAllFences();
+}

@@ -34,6 +34,8 @@ using namespace troen;
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
 #define SOUND_VOLUME 1.f
+// comment out to disable debug mode
+#define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
 	m_gameThread(thread)
@@ -49,12 +51,14 @@ TroenGame::~TroenGame()
 {
 }
 
-void TroenGame::switchSoundVolume()
+void TroenGame::switchSoundVolumeEvent()
 {
-	if (m_audioManager->GetMasterVolume() != 0)
-		m_audioManager->SetMasterVolume(0);
-	else
-		m_audioManager->SetMasterVolume(SOUND_VOLUME);
+	m_audioManager->SetMasterVolume(1 - m_audioManager->GetMasterVolume());
+}
+
+void TroenGame::removeAllFencesEvent()
+{
+	m_bikeController->removeAllFences();
 }
 
 
@@ -229,8 +233,6 @@ void TroenGame::startGameLoop()
 	int skippedFrames = 0;
 	int maxSkippedFrames = 4;
 
-// comment out to disable debug mode
-//#define DEBUG_DRAW
 #ifdef DEBUG_DRAW				
 	m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 #endif	

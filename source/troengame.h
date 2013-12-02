@@ -17,7 +17,8 @@ namespace troen
 	public:
 		TroenGame(QThread* thread = NULL);
 		virtual ~TroenGame();
-		void switchSoundVolume();
+		void switchSoundVolumeEvent();
+		void removeAllFencesEvent();
 
 	public slots:
 		void startGameLoop();

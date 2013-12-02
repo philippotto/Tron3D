@@ -72,3 +72,10 @@ float FenceModel::getFenceHeight()
 {
 	return 15;
 }
+
+void FenceModel::removeAllFences()
+{
+	m_rigidBodies.clear();
+	m_motionStates.clear();
+	m_collisionShapes.clear();
+}

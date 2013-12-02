@@ -57,7 +57,7 @@ void FenceView::initializeShader()
 	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::FENCE], osg::StateAttribute::ON);
 }
 
-void FenceView::addFencePart(osg::Vec3 a, osg::Vec3 b)
+void FenceView::addFencePart(osg::Vec3 a, osg::Vec3 b)// a lastPosition // b currentposition
 {
 	if (m_coordinates->size()==0)
 	{
@@ -72,4 +72,10 @@ void FenceView::addFencePart(osg::Vec3 a, osg::Vec3 b)
 	// m_geometry->dirtyBound();
 	m_drawArrays->setCount(m_coordinates->size());
 	
+}
+
+void FenceView::removeAllFences()
+{
+	m_coordinates = new osg::Vec3Array;
+	m_drawArrays->setCount(m_coordinates->size());
 }

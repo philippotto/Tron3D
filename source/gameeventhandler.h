@@ -19,10 +19,14 @@ namespace troen
 			case osgGA::GUIEventAdapter::KEYDOWN:
 				switch (ea.getKey()) {
 				case osgGA::GUIEventAdapter::KEY_M:
-					m_troenGame->switchSoundVolume();
+					m_troenGame->switchSoundVolumeEvent();
 					return true;
+					break;
+				case osgGA::GUIEventAdapter::KEY_C:
+					m_troenGame->removeAllFencesEvent();
+					return true;
+					break;
 				}
-				break;
 			//case osgGA::GUIEventAdapter::KEYUP:
 			//	switch (ea.getKey()) {
 			//	case osgGA::GUIEventAdapter::KEY_H: // toogle Hud Visibility

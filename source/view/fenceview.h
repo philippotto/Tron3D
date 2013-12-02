@@ -12,6 +12,7 @@ namespace troen
 	public:
 		FenceView(std::shared_ptr<FenceModel> &model);
 		void addFencePart(osg::Vec3 a, osg::Vec3 b);
+		void removeAllFences();
 
 	private:
 		void initializeFence();
