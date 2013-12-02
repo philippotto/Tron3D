@@ -247,6 +247,8 @@ set(sources
 	source/view/hudview.cpp
 	source/view/skydome.h
 	source/view/skydome.cpp
+	source/view/postprocessing.cpp
+	source/view/postprocessing.h
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp

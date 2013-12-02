@@ -44,7 +44,8 @@ namespace troen
 		osg::ref_ptr<osg::Group>			m_rootNode;
 		osg::ref_ptr<SkyDome>               m_skyDome;
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
-
+		std::shared_ptr<PostProcessing>		m_postProcessing;
+		osg::ref_ptr<osg::Group>			m_sceneNode;
 
 		std::shared_ptr<LevelController>	m_levelController;
 		std::shared_ptr<BikeController>		m_bikeController;
@@ -54,5 +55,6 @@ namespace troen
 		std::shared_ptr<util::ChronoTimer>	m_timer;
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
+		
 	};
 }

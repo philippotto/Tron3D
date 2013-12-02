@@ -68,12 +68,14 @@ namespace troen
 	class AbstractController;
 	class HUDController;
 
+
 	class BikeView;
 	class LevelView;
 	class FenceView;
 	class AbstractView;	
 	class HUDView;
 	class SkyDome;
+	class PostProcessing;
 
 	namespace util
 	{

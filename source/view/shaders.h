@@ -26,6 +26,8 @@ namespace troen
 		enum Shadernames  { DEFAULT,
 							GRID,
 							FENCE,
+							GBUFFER,
+							POST_PROCESSING,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
 

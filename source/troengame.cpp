@@ -27,6 +27,7 @@
 #include "view/bikeview.h"
 #include "view/shaders.h"
 #include "view/skydome.h"
+#include "view/postprocessing.h"
 
 using namespace troen;
 
@@ -65,12 +66,14 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] models and scenegraph ..." << std::endl;
 	initializeSkyDome();
 	initializeControllers();
-	composeSceneGraph();
+	
 
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
 
 	initializeViews();
 	initializeViewer();
+
+	composeSceneGraph();
 
 	std::cout << "[TroenGame::initialize] input ..." << std::endl;
 	initializeInput();
@@ -110,9 +113,18 @@ bool TroenGame::initializeControllers()
 
 bool TroenGame::composeSceneGraph()
 {
-	m_rootNode->addChild(m_skyDome.get());
-	m_rootNode->addChild(m_levelController->getViewNode());
-	m_rootNode->addChild(m_bikeController->getViewNode());
+	// add jump flooding renderer
+	m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, dynamic_cast<osgViewer::Viewer*>(m_sampleOSGViewer.get()));
+
+	// everything that is added to model node is flooded using provided ids
+	m_sceneNode =  m_postProcessing->getSceneNode();
+
+	m_sceneNode->addChild(m_skyDome.get());
+	m_sceneNode->addChild(m_levelController->getViewNode());
+	m_sceneNode->addChild(m_bikeController->getViewNode());
+	
+	m_rootNode->addChild(m_sceneNode);
+
 	//m_rootNode->addChild(m_HUDController->getViewNode());
 	
 	return true;
