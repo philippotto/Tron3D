@@ -17,12 +17,17 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 	const btVector3 up = btVector3(0, 0, 1);
 	const btVector3 forward = btVector3(0, 1, 0);
 	const btScalar angle = fenceVector.angle(forward);
+	const btScalar inverseAngle = fenceVector.angle(-1 * forward);
 
 	btQuaternion rotationQuat;
-	if (angle > 0) {
+	if (angle != 0 && inverseAngle != 0) {
 		btVector3 axis = fenceVector.cross(-forward).normalized();
 		rotationQuat = btQuaternion(axis, angle);
 	}
+	else {
+		rotationQuat = btQuaternion(0, 0, 0, 1);
+	}
+
 	std::shared_ptr<btDefaultMotionState> fenceMotionState = std::make_shared<btDefaultMotionState>(btTransform(rotationQuat, (a + b) / 2 + btVector3(0, 0, getFenceHeight() / 2)));
 
 	const btScalar mass = 0;
