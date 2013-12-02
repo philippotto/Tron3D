@@ -28,6 +28,9 @@ void FenceView::initializeFence()
 	m_geometry = new osg::Geometry();
 	m_geometry->setVertexArray(m_coordinates);
 
+	// seems to be important so that we won't crash after 683 fence parts
+	m_geometry->setUseDisplayList(false);
+	
 	// use the shared normal array.
 	// polyGeom->setNormalArray(shared_normals.get(), osg::Array::BIND_OVERALL);
 
@@ -60,6 +63,8 @@ void FenceView::addFencePart(osg::Vec3 a, osg::Vec3 b)
 	m_coordinates->push_back(b);
 	m_coordinates->push_back(osg::Vec3(b.x(), b.y(), b.z() + m_fenceHeight));
 	
-	m_geometry->dirtyDisplayList();
+	// TODO remove if no disadvantages seem necessary?
+	// m_geometry->dirtyBound();
 	m_drawArrays->setCount(m_coordinates->size());
+	
 }
