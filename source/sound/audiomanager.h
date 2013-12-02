@@ -22,6 +22,7 @@ namespace sound
 		void StopSFXs();
 		void StopSongs();
 		void SetMasterVolume(float volume);
+		float GetMasterVolume();
 		void SetSFXsVolume(float volume);
 		void SetSongsVolume(float volume);
 

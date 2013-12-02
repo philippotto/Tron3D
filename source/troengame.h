@@ -17,6 +17,7 @@ namespace troen
 	public:
 		TroenGame(QThread* thread = NULL);
 		virtual ~TroenGame();
+		void switchSoundVolume();
 
 	public slots:
 		void startGameLoop();
@@ -41,6 +42,7 @@ namespace troen
 		//osg::ref_ptr<osgViewer::View>		m_menuView;
 		osg::ref_ptr<SampleOSGViewer>		m_sampleOSGViewer;
 		osg::ref_ptr<osgViewer::View>		m_gameView;
+		osg::ref_ptr<GameEventHandler>		m_gameEventHandler;
 		osg::ref_ptr<osg::Group>			m_rootNode;
 		osg::ref_ptr<SkyDome>               m_skyDome;
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
@@ -54,5 +56,7 @@ namespace troen
 		std::shared_ptr<util::ChronoTimer>	m_timer;
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
+
+		int m_soundVolume;
 	};
 }

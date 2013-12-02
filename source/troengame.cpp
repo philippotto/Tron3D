@@ -8,6 +8,7 @@
 // troen
 #include "sampleosgviewer.h"
 #include "updatebikepositioncallback.h"
+#include "gameeventhandler.h"
 
 #include "input/bikeinputstate.h"
 #include "input/keyboard.h"
@@ -48,14 +49,21 @@ TroenGame::~TroenGame()
 {
 }
 
+void TroenGame::switchSoundVolume()
+{
+	if (m_audioManager->GetMasterVolume() != 0)
+		m_audioManager->SetMasterVolume(0);
+	else
+		m_audioManager->SetMasterVolume(SOUND_VOLUME);
+}
+
+
 bool TroenGame::initialize()
 {
 	m_rootNode = new osg::Group;
 
 	// careful about the order of initialization
-	// TODO
-
-	osg::DisplaySettings::instance()->setNumMultiSamples(8);
+	osg::DisplaySettings::instance()->setNumMultiSamples(4);
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 	initializeShaders();
@@ -173,13 +181,16 @@ bool TroenGame::initializeViews()
 	m_gameView->setSceneData(m_rootNode);
 	m_gameView->setUpViewInWindow(100, 100, 1280, 720, 0);
 	//m_gameView->setUpViewOnSingleScreen(0);
+
+	m_gameEventHandler = new GameEventHandler(this);
+	m_gameView->addEventHandler(m_gameEventHandler);
 	return true;
 }
 
 bool TroenGame::initializeViewer()
 {
 	m_sampleOSGViewer = new SampleOSGViewer();
-	m_sampleOSGViewer->addView(m_gameView);
+	m_sampleOSGViewer.get()->addView(m_gameView);
 	return true;
 }
 

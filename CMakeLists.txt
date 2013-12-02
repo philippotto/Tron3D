@@ -199,6 +199,7 @@ set(sources
 	source/troengame.cpp
 	source/sampleosgviewer.h
 	source/sampleosgviewer.cpp
+	source/gameeventhandler.h
 
 	source/input/keyboard.h
 	source/input/keyboard.cpp
