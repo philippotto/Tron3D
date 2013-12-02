@@ -17,6 +17,7 @@ namespace osgViewer
 	class Viewer;
 	class CompositeViewer;
 	class View;
+	class StatsHandler;
 }
 
 namespace osgQt
@@ -72,6 +73,7 @@ namespace troen
 	class FenceView;
 	class AbstractView;	
 	class HUDView;
+	class SkyDome;
 
 	namespace util
 	{

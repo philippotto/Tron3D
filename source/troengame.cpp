@@ -4,7 +4,7 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
-
+#include <osgViewer/ViewerEventHandlers>
 // troen
 #include "sampleosgviewer.h"
 #include "updatebikepositioncallback.h"
@@ -26,12 +26,13 @@
 #include "controller/hudcontroller.h"
 #include "view/bikeview.h"
 #include "view/shaders.h"
+#include "view/skydome.h"
 
 using namespace troen;
 
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
-#define SOUND_VOLUME 0.f
+#define SOUND_VOLUME 1.f
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
 	m_gameThread(thread)
@@ -62,6 +63,7 @@ bool TroenGame::initialize()
 	initializeSound();
 
 	std::cout << "[TroenGame::initialize] models and scenegraph ..." << std::endl;
+	initializeSkyDome();
 	initializeControllers();
 	composeSceneGraph();
 
@@ -91,21 +93,27 @@ bool TroenGame::initializeSound()
 	return true;
 }
 
+bool TroenGame::initializeSkyDome()
+{
+	m_skyDome = new SkyDome;
+	return true;
+}
+
+
 bool TroenGame::initializeControllers()
 {
-
 	m_levelController = std::make_shared<LevelController>();
 	m_bikeController = std::make_shared<BikeController>(m_audioManager);
-	m_HUDController = std::make_shared<HUDController>();
+	//m_HUDController = std::make_shared<HUDController>();
 	return true;
 }
 
 bool TroenGame::composeSceneGraph()
 {
-	
+	m_rootNode->addChild(m_skyDome.get());
 	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_bikeController->getViewNode());
-	m_rootNode->addChild(m_HUDController->getViewNode());
+	//m_rootNode->addChild(m_HUDController->getViewNode());
 	
 	return true;
 }
@@ -152,16 +160,18 @@ bool TroenGame::initializeViews()
 	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator
 		= new osgGA::NodeTrackerManipulator;
 	manipulator->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-
 	m_bikeController->attachTrackingCamera(manipulator);
-
 	m_gameView->setCameraManipulator(manipulator.get());
+
+	m_statsHandler = new osgViewer::StatsHandler;
+	m_statsHandler->setKeyEventTogglesOnScreenStats(osgGA::GUIEventAdapter::KEY_T);
+	m_statsHandler->setKeyEventPrintsOutStats(osgGA::GUIEventAdapter::KEY_P);
+	m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
+	m_gameView->addEventHandler(m_statsHandler);
+
 	m_gameView->setSceneData(m_rootNode);
 	m_gameView->setUpViewInWindow(100, 100, 1280, 720, 0);
 	//m_gameView->setUpViewOnSingleScreen(0);
-
-	// TODO
-	// (possibly multiple ones for multiple rendering passes)
 	return true;
 }
 
@@ -169,9 +179,6 @@ bool TroenGame::initializeViewer()
 {
 	m_sampleOSGViewer = new SampleOSGViewer();
 	m_sampleOSGViewer->addView(m_gameView);
-
-
-
 	return true;
 }
 
@@ -184,7 +191,6 @@ bool TroenGame::initializeTimer()
 bool TroenGame::initializePhysicsWorld()
 {
 	m_physicsWorld = std::make_shared<PhysicsWorld>();
-	
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies());
 	// m_physicsWorld->addRigidBodies(m_bikeController->getRigidBodies());
 	m_bikeController->attachWorld(m_physicsWorld);
@@ -200,7 +206,7 @@ void TroenGame::startGameLoop()
 	initialize();
 	m_timer->start();
 
-	//m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
+	m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
 	m_audioManager->SetMasterVolume(SOUND_VOLUME);
 	m_audioManager->SetSongsVolume(SOUND_VOLUME);
 
@@ -211,7 +217,9 @@ void TroenGame::startGameLoop()
 	int skippedFrames = 0;
 	int maxSkippedFrames = 4;
 
-#ifdef DEBUG				
+// comment out to disable debug mode
+//#define DEBUG_DRAW
+#ifdef DEBUG_DRAW				
 	m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 #endif	
 
@@ -245,8 +253,6 @@ void TroenGame::startGameLoop()
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
-				//std::cout << "drawing" << std::endl;
-				emit newFrame(currTime);
 				m_sampleOSGViewer->frame();			
 				skippedFrames = 0;
 			}
@@ -286,11 +292,13 @@ bool TroenGame::shutdown()
 	//viewer & views
 	m_sampleOSGViewer = NULL;
 	m_gameView = NULL;
+	m_statsHandler = NULL;
 
 	// models & scenegraph
 	m_rootNode = NULL;
 	m_bikeController.reset();
 	m_levelController.reset();
+	m_HUDController.reset();
 
 	// sound
 	m_audioManager->StopSFXs();

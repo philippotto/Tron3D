@@ -21,9 +21,6 @@ namespace troen
 	public slots:
 		void startGameLoop();
 
-	signals:
-		void newFrame(double currentTime);
-
 	private:
 		bool initialize();
 		bool initializeViews();
@@ -35,7 +32,7 @@ namespace troen
 		bool initializeShaders();
 		bool initializePhysicsWorld();
 		bool initializeSound();
-
+		bool initializeSkyDome();
 
 		bool shutdown();
 		
@@ -45,6 +42,9 @@ namespace troen
 		osg::ref_ptr<SampleOSGViewer>		m_sampleOSGViewer;
 		osg::ref_ptr<osgViewer::View>		m_gameView;
 		osg::ref_ptr<osg::Group>			m_rootNode;
+		osg::ref_ptr<SkyDome>               m_skyDome;
+		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
+
 
 		std::shared_ptr<LevelController>	m_levelController;
 		std::shared_ptr<BikeController>		m_bikeController;

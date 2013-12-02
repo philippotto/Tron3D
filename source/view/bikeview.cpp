@@ -1,5 +1,4 @@
 #include "bikeview.h"
-
 //osg
 #include <osg/Texture2D>
 #include <osg/TexEnv>
@@ -13,7 +12,6 @@
 #include <osg/TexGenNode>
 #include <osgUtil/CullVisitor>
 #include <stdio.h>
-
 // troen
 #include "shaders.h"
 #include "../input/bikeinputstate.h"
@@ -26,11 +24,9 @@ using namespace troen;
 
 BikeView::BikeView()
 {
-
 	m_node = new osg::Group();
 	pat = new osg::PositionAttitudeTransform();
 	
-
 #ifndef _DEBUG
 	osg::Matrixd initialTransform;
 	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Vec3d(0.0, 0.0, 1.0));
@@ -103,9 +99,6 @@ BikeView::BikeView()
 	m_node->addChild(pat);
 }
 
-
-
-
 osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath,std::string specularTexturePath,std::string diffuseTexturePath, std::string normalTexturePath)
 {
 	enum BIKE_TEXTURES { DIFFUSE, SPECULAR, NORMAL };
@@ -121,8 +114,6 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath,std::s
 	osg::StateAttribute* stateAttributeMaterial = childState->getAttribute(osg::StateAttribute::MATERIAL);
 	if (stateAttributeMaterial != NULL)
 	{
-
-		
 		osg::Material *objMaterial = dynamic_cast<osg::Material*>(stateAttributeMaterial);
 		
 		osg::Vec4 diffuse = objMaterial->getDiffuse(osg::Material::FRONT_AND_BACK);
@@ -142,8 +133,6 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath,std::s
 		NodeState->addUniform(shininessU);
 
 
-
-
 	}
 
 	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
@@ -156,7 +145,6 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath,std::s
 		setTexture(NodeState, specularTexturePath, SPECULAR);
 	}
 
-
 	if (diffuseTexturePath != "")
 	{
 		osg::Uniform* diffuseMapU = new osg::Uniform("diffuseTexture", DIFFUSE);
@@ -168,9 +156,7 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath,std::s
 		osg::Uniform* normalMapU = new osg::Uniform("normalTexture", NORMAL);
 		NodeState->addUniform(normalMapU);
 		setTexture(NodeState, normalTexturePath, NORMAL);
-
 	}
-
 
 	return Node;
 }
@@ -180,11 +166,7 @@ void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string file
 
 	osg::Image* image = osgDB::readImageFile(filePath);
 	if (!image)
-
-	{
 		std::cout << "[TroenGame::bikeView]  File \"" << filePath << "\" not found." << std::endl;
-	}
-
 	else
 	{
 		osg::Texture2D* texture = new osg::Texture2D;
@@ -199,8 +181,6 @@ void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string file
 
 		//rootNode->setStateSet(stateset);
 	}
-
-
 }
 
 void BikeView::update()

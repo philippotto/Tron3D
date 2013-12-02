@@ -37,26 +37,26 @@ void LevelView::initialize()
 
 	// wall right
 	osg::ref_ptr<osg::Box> wallRight
-		= new osg::Box(osg::Vec3(levelSize / 2, 0, 50), 1, levelSize, 100);
+		= new osg::Box(osg::Vec3(levelSize / 2, 0, 10), 1, levelSize, 20);
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableRight
 		= new osg::ShapeDrawable(wallRight);
 
 	// wall left
 	osg::ref_ptr<osg::Box> wallLeft
-		= new osg::Box(osg::Vec3(-levelSize / 2, 0, 50), 1, levelSize, 100);
+		= new osg::Box(osg::Vec3(-levelSize / 2, 0, 10), 1, levelSize, 20);
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableLeft
 		= new osg::ShapeDrawable(wallLeft);
 
 
 	// wall back
 	osg::ref_ptr<osg::Box> wallBack
-		= new osg::Box(osg::Vec3(0, -levelSize / 2, 50), levelSize, 1, 100);
+		= new osg::Box(osg::Vec3(0, -levelSize / 2, 10), levelSize, 1, 20);
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableBack
 		= new osg::ShapeDrawable(wallBack);
 
 	// wall front
 	osg::ref_ptr<osg::Box> wallFront
-		= new osg::Box(osg::Vec3(0, levelSize / 2, 50), levelSize, 1, 100);
+		= new osg::Box(osg::Vec3(0, levelSize / 2, 10), levelSize, 1, 20);
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableFront
 		= new osg::ShapeDrawable(wallFront);
 

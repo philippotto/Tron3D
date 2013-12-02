@@ -4,7 +4,6 @@ using namespace troen;
 
 AbstractModel::AbstractModel()
 {
-	
 }
 
 std::vector<std::shared_ptr<btRigidBody>> AbstractModel::getRigidBodies()

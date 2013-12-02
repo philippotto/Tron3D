@@ -16,5 +16,7 @@ namespace troen
 			virtual std::vector<std::shared_ptr<btRigidBody>> getRigidBodies();
 		protected:
 			std::vector<std::shared_ptr<btRigidBody>> m_rigidBodies;
+			std::vector<std::shared_ptr<btMotionState>> m_motionStates;
+			std::vector<std::shared_ptr<btCollisionShape>> m_collisionShapes;
 	};
 }
