@@ -10,7 +10,8 @@
 using namespace troen;
 
 #define VMAX 1000
-#define FRICTION 0.1
+#define FRICTION 10
+#define PI 3.14159265359
 
 BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<FenceController> fenceController,
@@ -28,33 +29,33 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	btVector3 bikeDimensions = btVector3( 12.5, 25, 12.5 );
 #endif
 
-	m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();
+	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(bikeDimensions / 2);
 
-	btBoxShape *boxShape = new btBoxShape(bikeDimensions / 2);
-
-	BikeMotionState* bikeMotionState = new BikeMotionState(
-		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 100)),
+	std::shared_ptr<BikeMotionState> bikeMotionState = std::make_shared<BikeMotionState>(
+		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, bikeDimensions.z()/2)),
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
 		fenceController,
 		bikeDimensions
 	);
 
-	btScalar mass = 1000;
+	btScalar mass = 10;
 	btVector3 bikeInertia(0, 0, 0);
-	boxShape->calculateLocalInertia(mass, bikeInertia);
+	bikeShape->calculateLocalInertia(mass, bikeInertia);
 
-	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(mass, bikeMotionState, boxShape, bikeInertia);
+	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(mass, bikeMotionState.get(), bikeShape.get(), bikeInertia);
+	m_bikeRigidBodyCI.m_friction = 0;
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
 	bikeRigidBody->setCcdMotionThreshold(1 / bikeDimensions.y());
-	bikeRigidBody->setLinearVelocity(btVector3(1, 0, 1));
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
 	// for collision event handling
 	bikeRigidBody->setUserPointer(bikeController);
 
+	m_collisionShapes.push_back(bikeShape);
+	m_motionStates.push_back(bikeMotionState);
 	m_rigidBodies.push_back(bikeRigidBody);
 }
 
@@ -87,8 +88,7 @@ void BikeModel::updateState()
 
 	// initiate rotation
 	const float maximumTurn = 20;
-	const float turningRad = 3.14 / 180 * angle * maximumTurn;
-	
+	const float turningRad = PI / 180 * angle * maximumTurn;
 	
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
@@ -108,7 +108,6 @@ void BikeModel::updateState()
 	
 	currentVelocityVectorXY = front.rotate(axis, quat) * speed;
 	
-
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
