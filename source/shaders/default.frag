@@ -34,11 +34,11 @@ void main()
 	else // light source on the right side
 	{
 		  specularReflection = attenuation 
-                  * vec3(1.1) 
+                  * vec3(1.0) 
                   * specularMaterialColor.xyz
 				  * texture(specularTexture,texCoord).rgb
-                  * pow(max(0.0, dot(reflect(-lightDirection, 
-                  normal), viewDirection)), 
+                  * pow(
+				  max(0.0,(dot(reflect(-lightDirection, normal), viewDirection))), 
                   shininess * 0.8);
 	}
 	

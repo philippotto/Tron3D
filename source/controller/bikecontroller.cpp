@@ -45,6 +45,7 @@ void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipul
 void BikeController::updateModel()
 {
 	std::static_pointer_cast<BikeModel>(m_model)->updateState();
+
 }
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()

@@ -4,10 +4,14 @@
 #include <osg/Texture2D>
 #include <osg/TexEnv>
 #include <osg/TexGen>
+#include <osg/TextureCubeMap>
 #include <osg/TexMat>
 #include <osg/Material>
 #include <osg/Geode>
 #include <osgDB/WriteFile>
+#include <osg/CullFace>
+#include <osg/TexGenNode>
+#include <osgUtil/CullVisitor>
 #include <stdio.h>
 
 // troen
@@ -24,12 +28,12 @@ BikeView::BikeView()
 {
 
 	m_node = new osg::Group();
-	osg::PositionAttitudeTransform* pat = new osg::PositionAttitudeTransform();;
+	pat = new osg::PositionAttitudeTransform();
 	
 
 #ifndef _DEBUG
 	osg::Matrixd initialTransform;
-	osg::Quat rotationQuat(osg::DegreesToRadians(180.f), osg::Vec3d(0.0, 0.0, 1.0));
+	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Vec3d(0.0, 0.0, 1.0));
 	initialTransform.makeRotate(rotationQuat);
 	initialTransform *= initialTransform.scale(osg::Vec3f(5.0f, 5.0f, 5.0f));
 	initialTransform *= initialTransform.translate(0.0, 0.0, -3.0);
@@ -40,7 +44,7 @@ BikeView::BikeView()
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
 	pat->addChild(matrixTransform);
 	
-	osg::ref_ptr<osg::Node> MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
+	MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
 		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",
 		"data/models/cycle/MG_MovieCycle_BodyHeadLight_EMSS.tga",
 		"data/models/cycle/MG_MovieCycle_Body_NORM.tga");
@@ -138,13 +142,15 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath,std::s
 		NodeState->addUniform(shininessU);
 
 
+
+
 	}
 
-
+	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
 
 	if (specularTexturePath != "")
 	{
-		NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
+		
 		osg::Uniform* specularMapU = new osg::Uniform("specularTexture", SPECULAR);
 		NodeState->addUniform(specularMapU);
 		setTexture(NodeState, specularTexturePath, SPECULAR);
@@ -196,3 +202,170 @@ void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string file
 
 
 }
+
+void BikeView::update()
+{
+	MovieCycle_Body->getStateSet()->addUniform(new osg::Uniform("transform", pat->asMatrixTransform()->getMatrix()));
+}
+//
+//class UpdateCameraAndTexGenCallback : public osg::NodeCallback
+//{
+//public:
+//
+//	typedef std::vector< osg::ref_ptr<osg::Camera> >  CameraList;
+//
+//	UpdateCameraAndTexGenCallback(osg::NodePath& reflectorNodePath, CameraList& Cameras) :
+//		_reflectorNodePath(reflectorNodePath),
+//		_Cameras(Cameras)
+//	{
+//	}
+//
+//	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
+//	{
+//		// first update subgraph to make sure objects are all moved into position
+//		traverse(node, nv);
+//
+//		// compute the position of the center of the reflector subgraph
+//		osg::Matrixd worldToLocal = osg::computeWorldToLocal(_reflectorNodePath);
+//		osg::BoundingSphere bs = _reflectorNodePath.back()->getBound();
+//		osg::Vec3 position = bs.center();
+//
+//		typedef std::pair<osg::Vec3, osg::Vec3> ImageData;
+//		const ImageData id[] =
+//		{
+//			ImageData(osg::Vec3(1, 0, 0), osg::Vec3(0, -1, 0)), // +X
+//			ImageData(osg::Vec3(-1, 0, 0), osg::Vec3(0, -1, 0)), // -X
+//			ImageData(osg::Vec3(0, 1, 0), osg::Vec3(0, 0, 1)), // +Y
+//			ImageData(osg::Vec3(0, -1, 0), osg::Vec3(0, 0, -1)), // -Y
+//			ImageData(osg::Vec3(0, 0, 1), osg::Vec3(0, -1, 0)), // +Z
+//			ImageData(osg::Vec3(0, 0, -1), osg::Vec3(0, -1, 0))  // -Z
+//		};
+//
+//		for (unsigned int i = 0;
+//			i<6 && i<_Cameras.size();
+//			++i)
+//		{
+//			osg::Matrix localOffset;
+//			localOffset.makeLookAt(position, position + id[i].first, id[i].second);
+//
+//			osg::Matrix viewMatrix = worldToLocal*localOffset;
+//
+//			_Cameras[i]->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
+//			_Cameras[i]->setProjectionMatrixAsFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
+//			_Cameras[i]->setViewMatrix(viewMatrix);
+//		}
+//	}
+//
+//protected:
+//
+//	virtual ~UpdateCameraAndTexGenCallback() {}
+//
+//	osg::NodePath               _reflectorNodePath;
+//	CameraList                  _Cameras;
+//};
+//
+//class TexMatCullCallback : public osg::NodeCallback
+//{
+//public:
+//
+//	TexMatCullCallback(osg::TexMat* texmat) :
+//		_texmat(texmat)
+//	{
+//	}
+//
+//	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
+//	{
+//		// first update subgraph to make sure objects are all moved into position
+//		traverse(node, nv);
+//
+//		osgUtil::CullVisitor* cv = dynamic_cast<osgUtil::CullVisitor*>(nv);
+//		if (cv)
+//		{
+//			osg::Quat quat = cv->getModelViewMatrix()->getRotate();
+//			_texmat->setMatrix(osg::Matrix::rotate(quat.inverse()));
+//		}
+//	}
+//
+//protected:
+//
+//	osg::ref_ptr<osg::TexMat>    _texmat;
+//};
+//
+//
+//osg::Group* createShadowedScene(osg::Node* reflectedSubgraph, osg::NodePath reflectorNodePath, unsigned int unit, const osg::Vec4& clearColor, unsigned tex_width, unsigned tex_height, osg::Camera::RenderTargetImplementation renderImplementation)
+//{
+//
+//	osg::Group* group = new osg::Group;
+//
+//	osg::TextureCubeMap* texture = new osg::TextureCubeMap;
+//	texture->setTextureSize(tex_width, tex_height);
+//
+//	texture->setInternalFormat(GL_RGB);
+//	texture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+//	texture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+//	texture->setWrap(osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_EDGE);
+//	texture->setFilter(osg::TextureCubeMap::MIN_FILTER, osg::TextureCubeMap::LINEAR);
+//	texture->setFilter(osg::TextureCubeMap::MAG_FILTER, osg::TextureCubeMap::LINEAR);
+//
+//	// set up the render to texture cameras.
+//	UpdateCameraAndTexGenCallback::CameraList Cameras;
+//	for (unsigned int i = 0; i<6; ++i)
+//	{
+//		// create the camera
+//		osg::Camera* camera = new osg::Camera;
+//
+//		camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		camera->setClearColor(clearColor);
+//
+//		// set viewport
+//		camera->setViewport(0, 0, tex_width, tex_height);
+//
+//		// set the camera to render before the main camera.
+//		camera->setRenderOrder(osg::Camera::PRE_RENDER);
+//
+//		// tell the camera to use OpenGL frame buffer object where supported.
+//		camera->setRenderTargetImplementation(renderImplementation);
+//
+//		// attach the texture and use it as the color buffer.
+//		camera->attach(osg::Camera::COLOR_BUFFER, texture, 0, i);
+//
+//		// add subgraph to render
+//		camera->addChild(reflectedSubgraph);
+//
+//		group->addChild(camera);
+//
+//		Cameras.push_back(camera);
+//	}
+//
+//	// create the texgen node to project the tex coords onto the subgraph
+//	osg::TexGenNode* texgenNode = new osg::TexGenNode;
+//	texgenNode->getTexGen()->setMode(osg::TexGen::REFLECTION_MAP);
+//	texgenNode->setTextureUnit(unit);
+//	group->addChild(texgenNode);
+//
+//	// set the reflected subgraph so that it uses the texture and tex gen settings.    
+//	{
+//		osg::Node* reflectorNode = reflectorNodePath.front();
+//		group->addChild(reflectorNode);
+//
+//		osg::StateSet* stateset = reflectorNode->getOrCreateStateSet();
+//		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
+//		stateset->setTextureMode(unit, GL_TEXTURE_GEN_S, osg::StateAttribute::ON);
+//		stateset->setTextureMode(unit, GL_TEXTURE_GEN_T, osg::StateAttribute::ON);
+//		stateset->setTextureMode(unit, GL_TEXTURE_GEN_R, osg::StateAttribute::ON);
+//		stateset->setTextureMode(unit, GL_TEXTURE_GEN_Q, osg::StateAttribute::ON);
+//
+//		osg::TexMat* texmat = new osg::TexMat;
+//		stateset->setTextureAttributeAndModes(unit, texmat, osg::StateAttribute::ON);
+//
+//		reflectorNode->setCullCallback(new TexMatCullCallback(texmat));
+//	}
+//
+//	// add the reflector scene to draw just as normal
+//	group->addChild(reflectedSubgraph);
+//
+//	// set an update callback to keep moving the camera and tex gen in the right direction.
+//	group->setUpdateCallback(new UpdateCameraAndTexGenCallback(reflectorNodePath, Cameras));
+//
+//	return group;
+//}
