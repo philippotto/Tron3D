@@ -10,7 +10,7 @@
 using namespace troen;
 
 #define VMAX 1000
-#define FRICTION 0.1
+#define FRICTION 10
 #define PI 3.14159265359
 
 BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
@@ -48,7 +48,6 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
 	bikeRigidBody->setCcdMotionThreshold(1 / bikeDimensions.y());
-	bikeRigidBody->setLinearVelocity(btVector3(1, 0, 1));
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
