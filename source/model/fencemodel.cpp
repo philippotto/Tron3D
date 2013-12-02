@@ -65,5 +65,5 @@ void FenceModel::addFenceMarker(btVector3 a)
 
 float FenceModel::getFenceHeight()
 {
-	return 10;
+	return 15;
 }

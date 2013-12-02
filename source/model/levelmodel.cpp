@@ -9,8 +9,9 @@ LevelModel::LevelModel(const LevelController* levelController)
 {
 	m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();
 
-	std::shared_ptr<btStaticPlaneShape> groundShape = std::make_shared<btStaticPlaneShape>(btVector3(0, 0, 1), btScalar(0)); 
-	std::shared_ptr<btDefaultMotionState> groundMotionState = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, 0)));
+	btScalar levelSize = btScalar(getLevelSize());
+	std::shared_ptr<btBoxShape> groundShape = std::make_shared<btBoxShape>(btVector3(levelSize/2, levelSize/2, 1));
+	std::shared_ptr<btDefaultMotionState> groundMotionState = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1, -1)));
 	btRigidBody::btRigidBodyConstructionInfo
 		groundRigidBodyCI(btScalar(0), groundMotionState.get(), groundShape.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> groundRigidBody = std::make_shared<btRigidBody>(groundRigidBodyCI);
@@ -23,21 +24,19 @@ LevelModel::LevelModel(const LevelController* levelController)
 
 	for (auto body : m_rigidBodies)
 		body->setUserPointer((void*)levelController);
-	
 }
-
 
 void LevelModel::addWalls()
 {
 	// walls
 
-	// TODO: get data from levelView ? or the other way round?
+	// TODO
+	// get data from levelView ? or the other way round?
 	// in levelView: wallRight = new osg::Box(osg::Vec3(levelSize / 2, 0, 50), 1, levelSize, 100);
 	// center: levelSize/2, 0, 50
 	// width: 1
 	// length: levelSize
 	// height: 100
-
 
 	btVector3 planeNormal(-1, 0, 0);
 	// planeConstant = 0 ? 
@@ -45,13 +44,13 @@ void LevelModel::addWalls()
 	// TODO grab the value from origin
 	btScalar levelSize = btScalar(getLevelSize());
 	 
-	std::shared_ptr<btStaticPlaneShape> wallShape1 = std::make_shared<btStaticPlaneShape>(planeNormal, btScalar(0));
+	std::shared_ptr<btBoxShape> wallShape1 = std::make_shared<btBoxShape>(btVector3(1, levelSize/2, 20));
 	std::shared_ptr<btDefaultMotionState> wallMotionState1 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(levelSize / 2, 0, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
 		wallRigidBodyCI1(btScalar(0), wallMotionState1.get(), wallShape1.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> wallRigidBody1 = std::make_shared<btRigidBody>(wallRigidBodyCI1);
 
-	std::shared_ptr<btStaticPlaneShape> wallShape2 = std::make_shared<btStaticPlaneShape>(-planeNormal, btScalar(0));
+	std::shared_ptr<btBoxShape> wallShape2 = std::make_shared<btBoxShape>(btVector3(1, levelSize / 2, 20));
 	std::shared_ptr<btDefaultMotionState> wallMotionState2 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-levelSize / 2, 0, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
 		wallRigidBodyCI2(btScalar(0), wallMotionState2.get(), wallShape2.get(), btVector3(0, 0, 0));
@@ -59,13 +58,13 @@ void LevelModel::addWalls()
 
 	planeNormal.setX(0); planeNormal.setY(-1);
 
-	std::shared_ptr<btStaticPlaneShape> wallShape3 = std::make_shared<btStaticPlaneShape>(planeNormal, btScalar(0));
+	std::shared_ptr<btBoxShape> wallShape3 = std::make_shared<btBoxShape>(btVector3(levelSize / 2, 1, 20));
 	std::shared_ptr<btDefaultMotionState> wallMotionState3 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, levelSize / 2, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
 		wallRigidBodyCI3(btScalar(0), wallMotionState3.get(), wallShape3.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> wallRigidBody3 = std::make_shared<btRigidBody>(wallRigidBodyCI3);
 
-	std::shared_ptr<btStaticPlaneShape> wallShape4 = std::make_shared<btStaticPlaneShape>(-planeNormal, btScalar(0));
+	std::shared_ptr<btBoxShape> wallShape4 = std::make_shared<btBoxShape>(btVector3(levelSize / 2, 1, 20));
 	std::shared_ptr<btDefaultMotionState> wallMotionState4 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -levelSize / 2, 0)));
 	btRigidBody::btRigidBodyConstructionInfo
 		wallRigidBodyCI4(btScalar(0), wallMotionState4.get(), wallShape4.get(), btVector3(0, 0, 0));

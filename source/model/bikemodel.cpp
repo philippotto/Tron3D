@@ -11,6 +11,7 @@ using namespace troen;
 
 #define VMAX 1000
 #define FRICTION 0.1
+#define PI 3.14159265359
 
 BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<FenceController> fenceController,
@@ -31,17 +32,18 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(bikeDimensions / 2);
 
 	std::shared_ptr<BikeMotionState> bikeMotionState = std::make_shared<BikeMotionState>(
-		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 100)),
+		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, bikeDimensions.z()/2)),
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
 		fenceController,
 		bikeDimensions
 	);
 
-	btScalar mass = 1000;
+	btScalar mass = 10;
 	btVector3 bikeInertia(0, 0, 0);
 	bikeShape->calculateLocalInertia(mass, bikeInertia);
 
 	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(mass, bikeMotionState.get(), bikeShape.get(), bikeInertia);
+	m_bikeRigidBodyCI.m_friction = 0;
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
@@ -87,8 +89,7 @@ void BikeModel::updateState()
 
 	// initiate rotation
 	const float maximumTurn = 20;
-	const float turningRad = 3.14 / 180 * angle * maximumTurn;
-	
+	const float turningRad = PI / 180 * angle * maximumTurn;
 	
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
@@ -108,7 +109,6 @@ void BikeModel::updateState()
 	
 	currentVelocityVectorXY = front.rotate(axis, quat) * speed;
 	
-
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
