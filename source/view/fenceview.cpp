@@ -37,9 +37,9 @@ void FenceView::initializeFence()
 	m_drawArrays = new osg::DrawArrays(osg::PrimitiveSet::QUAD_STRIP, 0, 0);
 	m_geometry->addPrimitiveSet(m_drawArrays);
 
-	osg::Geode* geode = new osg::Geode();
-	geode->addDrawable(m_geometry);
-	m_node->addChild(geode);
+	m_geode = new osg::Geode();
+	m_geode->addDrawable(m_geometry);
+	m_node->addChild(m_geode);
 }
 
 void FenceView::initializeShader()
@@ -76,8 +76,6 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 
 void FenceView::removeAllFences()
 {
-	m_coordinates = new osg::Vec3Array;
-	m_drawArrays->setCount(m_coordinates->size());
-	m_geometry = new osg::Geometry;
-	m_geometry->addPrimitiveSet(m_drawArrays);
+	m_node->removeChild(m_geode);
+	initializeFence();
 }

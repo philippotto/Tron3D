@@ -30,6 +30,7 @@ namespace osg
 	class Camera;
 	class Node;
 	class Group;
+	class Geode;
 	class GraphicsContext;
 	class ShapeDrawable;
 }
