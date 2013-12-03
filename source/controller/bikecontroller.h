@@ -11,10 +11,10 @@ namespace troen
 	class BikeController : public AbstractController
 	{
 	public:
-		BikeController(const std::shared_ptr<sound::AudioManager>& audioManager);
+		BikeController(const std::weak_ptr<sound::AudioManager>& audioManager);
 		void setInputState(osg::ref_ptr<input::BikeInputState> &bikeInputState);
 		void attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator> &manipulator);
-		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
+		void attachWorld(std::weak_ptr<PhysicsWorld> &world);
 
 		void updateModel();
 
@@ -22,11 +22,11 @@ namespace troen
 
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
-		const std::shared_ptr<sound::AudioManager> getAudioManager();
+		const std::weak_ptr<sound::AudioManager> getAudioManager();
 		void removeAllFences();
 
 	private:
 		std::shared_ptr<FenceController> m_fenceController;
-		std::shared_ptr<sound::AudioManager> m_audioManager;
+		std::weak_ptr<sound::AudioManager> m_audioManager;
 	};
 }

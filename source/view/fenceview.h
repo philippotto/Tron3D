@@ -11,16 +11,17 @@ namespace troen
 	{
 	public:
 		FenceView(std::shared_ptr<FenceModel> &model);
-		void addFencePart(osg::Vec3 a, osg::Vec3 b);
+		void addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition);
 		void removeAllFences();
 
 	private:
 		void initializeFence();
 		void initializeShader();
-		osg::ref_ptr<osg::Geometry> m_geometry;
-		osg::ref_ptr<osg::Vec3Array> m_coordinates;
-		osg::ref_ptr<osg::DrawArrays> m_drawArrays;
-		std::shared_ptr<FenceModel> m_model;
+		osg::ref_ptr<osg::Geometry>		m_geometry;
+		osg::ref_ptr<osg::Vec3Array>	m_coordinates;
+		osg::ref_ptr<osg::DrawArrays>	m_drawArrays;
+
+		std::shared_ptr<FenceModel>		m_model;
 		float m_fenceHeight;
 	};
 }

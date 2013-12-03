@@ -57,25 +57,27 @@ void FenceView::initializeShader()
 	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::FENCE], osg::StateAttribute::ON);
 }
 
-void FenceView::addFencePart(osg::Vec3 a, osg::Vec3 b)// a lastPosition // b currentposition
+void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 {
 	if (m_coordinates->size()==0)
 	{
-		m_coordinates->push_back(a);
-		m_coordinates->push_back(osg::Vec3(a.x(), a.y(), a.z() + m_fenceHeight));
+		m_coordinates->push_back(lastPosition);
+		m_coordinates->push_back(osg::Vec3(lastPosition.x(), lastPosition.y(), lastPosition.z() + m_fenceHeight));
 	}
 
-	m_coordinates->push_back(b);
-	m_coordinates->push_back(osg::Vec3(b.x(), b.y(), b.z() + m_fenceHeight));
+	m_coordinates->push_back(currentPosition);
+	m_coordinates->push_back(osg::Vec3(currentPosition.x(), currentPosition.y(), currentPosition.z() + m_fenceHeight));
 	
-	// TODO remove if no disadvantages seem necessary?
+	// TODO
+	// remove if no disadvantages seem necessary?
 	// m_geometry->dirtyBound();
 	m_drawArrays->setCount(m_coordinates->size());
-	
 }
 
 void FenceView::removeAllFences()
 {
 	m_coordinates = new osg::Vec3Array;
 	m_drawArrays->setCount(m_coordinates->size());
+	m_geometry = new osg::Geometry;
+	m_geometry->addPrimitiveSet(m_drawArrays);
 }

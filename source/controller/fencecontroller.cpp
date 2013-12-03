@@ -26,11 +26,10 @@ void FenceController::update(btVector3 position)
 
 	if ((position - m_lastPosition).length() > fenceLength)
 	{
-
-		std::shared_ptr<FenceModel> fenceModel = (std::static_pointer_cast<FenceModel>(m_model));
-
-		fenceModel->addFencePart(m_lastPosition, position);
-		m_world->addRigidBody(fenceModel->getLastPart());
+		std::static_pointer_cast<FenceModel>(m_model)->addFencePart(m_lastPosition, position);
+		btRigidBody* lastFencePart = std::static_pointer_cast<FenceModel>(m_model)->getLastPart();
+		if (lastFencePart)
+			m_world.lock()->addRigidBody(lastFencePart);
 
 		std::static_pointer_cast<FenceView>(m_view)->addFencePart(
 			osg::Vec3(m_lastPosition.x(), m_lastPosition.y(), m_lastPosition.z()),
@@ -42,13 +41,13 @@ void FenceController::update(btVector3 position)
 }
 
 
-void FenceController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
+void FenceController::attachWorld(std::weak_ptr<PhysicsWorld> &world) {
 	m_world = world;
 }
 
 void FenceController::removeAllFences()
 {
-	m_world->removeRigidBodies(m_model->getRigidBodies());
+	m_world.lock()->removeRigidBodies(m_model->getRigidBodies());
 	std::static_pointer_cast<FenceModel>(m_model)->removeAllFences();
 	std::static_pointer_cast<FenceView>(m_view)->removeAllFences();
 }

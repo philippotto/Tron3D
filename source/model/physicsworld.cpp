@@ -187,7 +187,7 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 		case AbstractController::LEVELFLOORTYPE:
 		case AbstractController::LEVELWALLTYPE:
 		case AbstractController::BIKETYPE:
-			static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getAudioManager()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);
+			static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getAudioManager().lock()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);
 			break;
 		default:
 			break;
@@ -205,7 +205,7 @@ void PhysicsWorld::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 	collisionBodyControllers[1] = static_cast<AbstractController*>(pBody1->getUserPointer());
 
 	// exit if we got nullptrs
-	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
+	if (collisionBodyControllers[0] && collisionBodyControllers[1]) return;
 	
 	std::array<AbstractController::COLLISIONTYPE, 2> collisionTypes;
 	collisionTypes[0] = collisionBodyControllers[0]->getCollisionType();

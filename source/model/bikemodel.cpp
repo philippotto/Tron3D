@@ -22,12 +22,7 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
 
-#ifdef _DEBUG
-	btVector3 bikeDimensions = btVector3( bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin()) / 5;
-#endif
-#ifndef _DEBUG
 	btVector3 bikeDimensions = btVector3( 12.5, 25, 12.5 );
-#endif
 
 	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(bikeDimensions / 2);
 

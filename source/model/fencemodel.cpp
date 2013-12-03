@@ -44,6 +44,9 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 }
 
 btRigidBody* FenceModel::getLastPart() {
+	if (m_rigidBodies.empty())
+		return NULL;
+
 	return m_rigidBodies.back().get();
 }
 

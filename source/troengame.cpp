@@ -209,7 +209,7 @@ bool TroenGame::initializePhysicsWorld()
 	m_physicsWorld = std::make_shared<PhysicsWorld>();
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies());
 	// m_physicsWorld->addRigidBodies(m_bikeController->getRigidBodies());
-	m_bikeController->attachWorld(m_physicsWorld);
+	m_bikeController->attachWorld(std::weak_ptr<PhysicsWorld>(m_physicsWorld));
 	return true;
 }
 
