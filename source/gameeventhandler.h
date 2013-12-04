@@ -27,7 +27,7 @@ namespace troen
 				case osgGA::GUIEventAdapter::KEY_F:
 					m_troenGame->toggleFencePartsLimitEvent();
 					return true;
-				case osgGA::GUIEventAdapter::KEY_Space:
+				case osgGA::GUIEventAdapter::KEY_Shift_R:
 					m_troenGame->pauseGameEvent();
 					return true;
 				default:

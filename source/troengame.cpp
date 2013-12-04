@@ -241,8 +241,7 @@ void TroenGame::startGameLoop()
 	m_timer->start();
 
 	m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
-	m_audioManager->SetMasterVolume(SOUND_VOLUME);
-	m_audioManager->SetSongsVolume(SOUND_VOLUME);
+	m_audioManager->SetMasterVolume(0.f);
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();
