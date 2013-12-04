@@ -34,11 +34,12 @@ using namespace troen;
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
 #define SOUND_VOLUME 1.f
+#define DEFAULT_MAX_FENCE_PARTS 100
 // comment out to disable debug mode
 #define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= NULL*/) :
-	m_gameThread(thread)
+m_gameThread(thread), m_maxFenceParts(0)
 {
 	if (m_gameThread == NULL) {
 		m_gameThread = new QThread(this);
@@ -59,6 +60,21 @@ void TroenGame::switchSoundVolumeEvent()
 void TroenGame::removeAllFencesEvent()
 {
 	m_bikeController->removeAllFences();
+}
+
+void TroenGame::toggleFencePartsLimitEvent()
+{
+	if (m_maxFenceParts == 0){
+		m_maxFenceParts = DEFAULT_MAX_FENCE_PARTS;
+		std::cout << "[TroenGame::toggleFencePartsLimitEvent] turning fenceParsLimit ON ..." << std::endl;
+	}
+	else
+	{
+		m_maxFenceParts = 0;
+		std::cout << "[TroenGame::toggleFencePartsLimitEvent] turning fenceParsLimit OFF ..." << std::endl;
+	}
+
+	m_bikeController->enforceFencePartsLimit(m_maxFenceParts);
 }
 
 
@@ -143,8 +159,6 @@ bool TroenGame::initializeInput()
 	// dw: clean this up, move it to the appropriate place
 	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
 	m_bikeController->setInputState(bikeInputState);
-
-	//m_childNode->setUpdateCallback(new UpdateBikePositionCallback(m_bike));
 
 	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
 	std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);

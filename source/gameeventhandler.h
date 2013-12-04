@@ -26,6 +26,10 @@ namespace troen
 					m_troenGame->removeAllFencesEvent();
 					return true;
 					break;
+				case osgGA::GUIEventAdapter::KEY_F:
+					m_troenGame->toggleFencePartsLimitEvent();
+					return true;
+					break;
 				}
 			//case osgGA::GUIEventAdapter::KEYUP:
 			//	switch (ea.getKey()) {

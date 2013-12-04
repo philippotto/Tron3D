@@ -15,9 +15,9 @@ BikeController::BikeController(const std::weak_ptr<sound::AudioManager>& audioMa
  : m_audioManager(audioManager)
 {
 
-	m_view = std::static_pointer_cast<BikeView>(std::make_shared<BikeView>());
+	m_view = std::make_shared<BikeView>();
 	m_fenceController = std::make_shared<FenceController>();
-	m_model = std::static_pointer_cast<BikeModel>(std::make_shared<BikeModel>(getViewNode(), m_fenceController, this));
+	m_model = std::make_shared<BikeModel>(getViewNode(), m_fenceController, this);
 }
 
 void BikeController::setInputState(osg::ref_ptr<input::BikeInputState>& bikeInputState)
@@ -67,4 +67,9 @@ const std::weak_ptr<sound::AudioManager> BikeController::getAudioManager()
 void BikeController::removeAllFences()
 {
 	m_fenceController->removeAllFences();
+}
+
+void BikeController::enforceFencePartsLimit(int maxFenceParts)
+{
+	m_fenceController->enforceFencePartsLimit(maxFenceParts);
 }

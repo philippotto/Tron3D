@@ -6,15 +6,14 @@
 
 using namespace troen;
 
-FenceController::FenceController()
+FenceController::FenceController(int maxFenceParts /*= 0*/) : m_maxFenceParts(maxFenceParts)
 {
-	m_model = std::static_pointer_cast<FenceModel>(std::make_shared<FenceModel>(this));
-	m_view = std::static_pointer_cast<FenceView>(std::make_shared<FenceView>(std::static_pointer_cast<FenceModel>(m_model)));
+	m_model = std::make_shared<FenceModel>(this, m_maxFenceParts);
+	m_view = std::make_shared<FenceView>(std::dynamic_pointer_cast<FenceModel>(m_model), m_maxFenceParts);
 }
 
 void FenceController::update(btVector3 position)
 {
-	
 	// this determines how accurate the fence will be
 	const float fenceLength = 25;
 
@@ -27,9 +26,6 @@ void FenceController::update(btVector3 position)
 	if ((position - m_lastPosition).length() > fenceLength)
 	{
 		std::static_pointer_cast<FenceModel>(m_model)->addFencePart(m_lastPosition, position);
-		btRigidBody* lastFencePart = std::static_pointer_cast<FenceModel>(m_model)->getLastPart();
-		if (lastFencePart)
-			m_world.lock()->addRigidBody(lastFencePart);
 
 		std::static_pointer_cast<FenceView>(m_view)->addFencePart(
 			osg::Vec3(m_lastPosition.x(), m_lastPosition.y(), m_lastPosition.z()),
@@ -41,13 +37,25 @@ void FenceController::update(btVector3 position)
 }
 
 
-void FenceController::attachWorld(std::weak_ptr<PhysicsWorld> &world) {
+void FenceController::attachWorld(std::weak_ptr<PhysicsWorld> &world)
+{
 	m_world = world;
+	std::static_pointer_cast<FenceModel>(m_model)->attachWorld(world);
 }
 
 void FenceController::removeAllFences()
 {
-	m_world.lock()->removeRigidBodies(m_model->getRigidBodies());
 	std::static_pointer_cast<FenceModel>(m_model)->removeAllFences();
 	std::static_pointer_cast<FenceView>(m_view)->removeAllFences();
+}
+
+void FenceController::enforceFencePartsLimit(int maxFenceParts)
+{
+	if (m_maxFenceParts == maxFenceParts) return;
+
+	m_maxFenceParts = maxFenceParts;
+	std::static_pointer_cast<FenceModel>(m_model)->enforceFencePartsLimit(maxFenceParts);
+	std::static_pointer_cast<FenceView>(m_view)->enforceFencePartsLimit(maxFenceParts);
+
+
 }

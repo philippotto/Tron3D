@@ -1,6 +1,7 @@
 #pragma once
 // STD
 #include <vector>
+#include <deque>
 // bullet
 #include <btBulletDynamicsCommon.h>
 // troen

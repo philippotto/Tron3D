@@ -19,6 +19,7 @@ namespace troen
 		virtual ~TroenGame();
 		void switchSoundVolumeEvent();
 		void removeAllFencesEvent();
+		void toggleFencePartsLimitEvent();
 
 	public slots:
 		void startGameLoop();
@@ -58,6 +59,6 @@ namespace troen
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
 
-		int m_soundVolume;
+		int m_maxFenceParts;
 	};
 }

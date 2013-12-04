@@ -9,7 +9,7 @@
 
 using namespace troen;
 
-FenceView::FenceView(std::shared_ptr<FenceModel> &model)
+FenceView::FenceView(std::shared_ptr<FenceModel>& model, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
 {
 	m_model = model;
 	m_node = new osg::Group();
@@ -20,7 +20,7 @@ FenceView::FenceView(std::shared_ptr<FenceModel> &model)
 
 void FenceView::initializeFence()
 {
-	m_fenceHeight = m_model->getFenceHeight();
+	m_fenceHeight = m_model.lock()->getFenceHeight();
 
 	m_coordinates = new osg::Vec3Array;
 	m_coordinates->setDataVariance(osg::Object::DYNAMIC);
@@ -78,4 +78,9 @@ void FenceView::removeAllFences()
 {
 	m_node->removeChild(m_geode);
 	initializeFence();
+}
+
+void FenceView::enforceFencePartsLimit(int maxFenceParts)
+{
+
 }

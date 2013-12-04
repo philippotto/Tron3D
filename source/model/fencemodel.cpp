@@ -1,11 +1,18 @@
 #include "fencemodel.h"
+// troen
+#include "../model/physicsworld.h"
 
 using namespace troen;
 
-FenceModel::FenceModel(FenceController* fenceController)
+FenceModel::FenceModel(FenceController* fenceController, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
 {
 	m_fenceController = fenceController;
-	m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();
+	m_rigidBodyDeque = std::deque<std::shared_ptr<btRigidBody>>();
+}
+
+void FenceModel::attachWorld(std::weak_ptr<PhysicsWorld>& world)
+{
+	m_world = world;
 }
 
 void FenceModel::addFencePart(btVector3 a, btVector3 b)
@@ -38,37 +45,13 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
 	fenceRigidBody->setUserPointer(m_fenceController);
 
-	m_collisionShapes.push_back(fenceShape);
-	m_motionStates.push_back(fenceMotionState);
-	m_rigidBodies.push_back(fenceRigidBody);
-}
+	m_collisionShapeDeque.push_back(fenceShape);
+	m_motionStateDeque.push_back(fenceMotionState);
+	m_rigidBodyDeque.push_back(fenceRigidBody);
 
-btRigidBody* FenceModel::getLastPart() {
-	if (m_rigidBodies.empty())
-		return NULL;
+	m_world.lock()->addRigidBody(fenceRigidBody.get());
 
-	return m_rigidBodies.back().get();
-}
-
-void FenceModel::addFenceMarker(btVector3 a)
-{
-	std::shared_ptr<btBoxShape> fenceShape = std::make_shared<btBoxShape>(btVector3(0.5, 0.5, getFenceHeight() / 2));
-	
-	std::shared_ptr<btDefaultMotionState> fenceMotionState = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), a + btVector3(0, 0, getFenceHeight() / 4)));
-
-	// set mass to zero so that we get a static rigidBody (is this enough?)
-	btScalar mass = 0;
-	btVector3 fenceInertia(0, 0, 0);
-	// boxShape->calculateLocalInertia(mass, fenceInertia);www
-
-	btRigidBody::btRigidBodyConstructionInfo m_fenceRigidBodyCI(mass, fenceMotionState.get(), fenceShape.get(), fenceInertia);
-
-	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
-	fenceRigidBody->setUserPointer(m_fenceController);
-
-	m_collisionShapes.push_back(fenceShape);
-	m_motionStates.push_back(fenceMotionState);
-	m_rigidBodies.push_back(fenceRigidBody);
+	enforceFencePartsLimit(m_maxFenceParts);
 }
 
 float FenceModel::getFenceHeight()
@@ -78,7 +61,27 @@ float FenceModel::getFenceHeight()
 
 void FenceModel::removeAllFences()
 {
-	m_rigidBodies.clear();
-	m_motionStates.clear();
-	m_collisionShapes.clear();
+	for (auto rigidBody : m_rigidBodyDeque)
+		m_world.lock()->removeRigidBody(rigidBody.get());
+	m_rigidBodyDeque.clear();
+	m_motionStateDeque.clear();
+	m_collisionShapeDeque.clear();
+}
+
+void FenceModel::enforceFencePartsLimit(int maxFenceParts)
+{
+	if (m_maxFenceParts != maxFenceParts)
+		m_maxFenceParts = maxFenceParts;
+
+	if (maxFenceParts != 0 && m_rigidBodyDeque.size() > maxFenceParts)
+	for (int i = 0; i < maxFenceParts - m_rigidBodyDeque.size(); i++)
+		removeFirstFencePart();
+}
+
+void FenceModel::removeFirstFencePart()
+{
+	m_world.lock()->removeRigidBody(m_rigidBodyDeque.front().get());
+	m_rigidBodyDeque.pop_front();
+	m_motionStateDeque.pop_front();
+	m_collisionShapeDeque.pop_front();
 }
