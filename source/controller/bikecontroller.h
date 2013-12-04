@@ -18,18 +18,14 @@ namespace troen
 
 		void updateModel();
 
-		const COLLISIONTYPE getCollisionType() { return BIKETYPE; };
-
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
-		const std::weak_ptr<sound::AudioManager> getAudioManager();
 
-		// controlling the FenceControlelr
+		// controlling the FenceController
 		void removeAllFences();
 		void enforceFencePartsLimit(int maxFenceParts);
 
 	private:
 		std::shared_ptr<FenceController> m_fenceController;
-		std::weak_ptr<sound::AudioManager> m_audioManager;
 	};
 }

@@ -49,6 +49,7 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
 	// for collision event handling
 	bikeRigidBody->setUserPointer(bikeController);
+	bikeRigidBody->setUserIndex(BIKETYPE);
 
 	m_collisionShapes.push_back(bikeShape);
 	m_motionStates.push_back(bikeMotionState);

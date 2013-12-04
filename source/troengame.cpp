@@ -90,6 +90,8 @@ bool TroenGame::initialize()
 	osg::DisplaySettings::instance()->setNumMultiSamples(4);
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
+
+	std::cout << "[TroenGame::initialize] initializing shaders ..." << std::endl;
 	initializeShaders();
 
 	std::cout << "[TroenGame::initialize] initializing sound ..." << std::endl;
@@ -224,7 +226,7 @@ bool TroenGame::initializeTimer()
 
 bool TroenGame::initializePhysicsWorld()
 {
-	m_physicsWorld = std::make_shared<PhysicsWorld>();
+	m_physicsWorld = std::make_shared<PhysicsWorld>(m_audioManager);
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies());
 	// m_physicsWorld->addRigidBodies(m_bikeController->getRigidBodies());
 	m_bikeController->attachWorld(std::weak_ptr<PhysicsWorld>(m_physicsWorld));

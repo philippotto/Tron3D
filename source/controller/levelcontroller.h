@@ -11,6 +11,5 @@ namespace troen
 	{
 	public:
 		LevelController();
-		const COLLISIONTYPE getCollisionType() { return LEVELTYPE; };
 	};
 }

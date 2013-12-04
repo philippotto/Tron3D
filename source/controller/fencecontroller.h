@@ -17,8 +17,6 @@ namespace troen
 		void removeAllFences();
 		void enforceFencePartsLimit(int maxFenceParts);
 
-		virtual const COLLISIONTYPE getCollisionType() { return FENCETYPE; };
-
 	private:
 		btVector3 m_lastPosition;
 		std::weak_ptr<PhysicsWorld> m_world;

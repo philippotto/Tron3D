@@ -7,7 +7,7 @@
 
 //troen
 #include "../util/gldebugdrawer.h"
-#include "../controller/abstractcontroller.h"
+#include "../model/abstractmodel.h"
 #include "../controller/bikecontroller.h"
 #include "../sound/audiomanager.h"
 
@@ -16,7 +16,8 @@
 
 using namespace troen;
 
-PhysicsWorld::PhysicsWorld() : m_lastSimulationTime(0)
+PhysicsWorld::PhysicsWorld(std::shared_ptr<sound::AudioManager>& audioManager) :
+m_lastSimulationTime(0), m_audioManager(audioManager)
 {
 	initializeWorld();
 
@@ -161,34 +162,38 @@ void PhysicsWorld::checkForCollisionEvents()
 void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 {
 	//std::cout << "[PhysicsWorld::collisionEvent] collision detected" << std::endl;
+	btRigidBody * collidingBodies[2];
+	collidingBodies[0] = pBody0;
+	collidingBodies[1] = pBody1;
 
-	// find the two colliding objects
+	// get the controllers of the colliding objects
 	AbstractController* collisionBodyControllers[2];
 	collisionBodyControllers[0] = static_cast<AbstractController *>(pBody0->getUserPointer());
 	collisionBodyControllers[1] = static_cast<AbstractController *>(pBody1->getUserPointer());
 	
-	// exit if we got nullptrs
+	// exit either controlles was not found
 	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
 
-	std::array<AbstractController::COLLISIONTYPE,2> collisionTypes;
-	collisionTypes[0] = collisionBodyControllers[0]->getCollisionType();
-	collisionTypes[1] = collisionBodyControllers[1]->getCollisionType();
+	std::array<COLLISIONTYPE,2> collisionTypes;
+	collisionTypes[0] = static_cast<COLLISIONTYPE>(collidingBodies[0]->getUserIndex());
+	collisionTypes[1] = static_cast<COLLISIONTYPE>(collidingBodies[1]->getUserIndex());
 	
 	// handle colision events object specific
-	auto bikeIterator = std::find(collisionTypes.cbegin(), collisionTypes.cend(), AbstractController::BIKETYPE);
+	auto bikeIterator = std::find(collisionTypes.cbegin(), collisionTypes.cend(), BIKETYPE);
 	if (bikeIterator != collisionTypes.cend())
 	{
 		int bikeIndex = bikeIterator - collisionTypes.cbegin();
 		int otherIndex = bikeIndex == 0 ? 1 : 0;
-		switch (collisionBodyControllers[otherIndex]->getCollisionType())
+		switch (collisionTypes[otherIndex])
 		{
-		case AbstractController::FENCETYPE:
-		case AbstractController::LEVELTYPE:
-		case AbstractController::LEVELFLOORTYPE:
-		case AbstractController::LEVELWALLTYPE:
-		case AbstractController::BIKETYPE:
-			static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getAudioManager().lock()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);
+		case FENCETYPE:
+		case LEVELTYPE:
+		case LEVELWALLTYPE:
+		case BIKETYPE:
+			m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);
 			break;
+		case LEVELGROUNDTYPE:
+
 		default:
 			break;
 		}
@@ -198,32 +203,36 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 void PhysicsWorld::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 {
 	//std::cout << "[PhysicsWorld::seperationEvent] seperation detected" << std::endl;
+	btRigidBody * collidingBodies[2];
+	collidingBodies[0] = pBody0;
+	collidingBodies[1] = pBody1;
 
-	// get the two separating objects
+	// get the controllers of the separating objects
 	AbstractController* collisionBodyControllers[2];
-	collisionBodyControllers[0] = static_cast<AbstractController*>(pBody0->getUserPointer());
-	collisionBodyControllers[1] = static_cast<AbstractController*>(pBody1->getUserPointer());
+	collisionBodyControllers[0] = static_cast<AbstractController *>(pBody0->getUserPointer());
+	collisionBodyControllers[1] = static_cast<AbstractController *>(pBody1->getUserPointer());
 
-	// exit if we got nullptrs
-	if (collisionBodyControllers[0] && collisionBodyControllers[1]) return;
-	
-	std::array<AbstractController::COLLISIONTYPE, 2> collisionTypes;
-	collisionTypes[0] = collisionBodyControllers[0]->getCollisionType();
-	collisionTypes[1] = collisionBodyControllers[1]->getCollisionType();
+	// exit either controlles was not found
+	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
+
+	std::array<COLLISIONTYPE, 2> collisionTypes;
+	collisionTypes[0] = static_cast<COLLISIONTYPE>(collidingBodies[0]->getUserIndex());
+	collisionTypes[1] = static_cast<COLLISIONTYPE>(collidingBodies[1]->getUserIndex());
 
 	// handle separation events object specific
-	auto bikeIterator = std::find(collisionTypes.cbegin(), collisionTypes.cend(), AbstractController::BIKETYPE);
+	auto bikeIterator = std::find(collisionTypes.cbegin(), collisionTypes.cend(), BIKETYPE);
 	if (bikeIterator != collisionTypes.cend())
 	{
 		int bikeIndex = bikeIterator - collisionTypes.cbegin();
 		int otherIndex = bikeIndex == 0 ? 1 : 0;
-		switch (collisionBodyControllers[otherIndex]->getCollisionType())
+		switch (collisionTypes[otherIndex])
 		{
-		case AbstractController::FENCETYPE:
-		case AbstractController::LEVELTYPE:
-		case AbstractController::LEVELFLOORTYPE:
-		case AbstractController::LEVELWALLTYPE:
-		case AbstractController::BIKETYPE:
+		case FENCETYPE:
+		case LEVELTYPE:
+		case LEVELGROUNDTYPE:
+		case LEVELWALLTYPE:
+		case BIKETYPE:
+			break;
 		default:
 			break;
 		}

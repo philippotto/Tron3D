@@ -17,7 +17,7 @@ namespace troen
 	class PhysicsWorld
 	{
 	public:
-		PhysicsWorld();
+		PhysicsWorld(std::shared_ptr<sound::AudioManager>& audioManager);
 		virtual ~PhysicsWorld();
 
 		void initializeWorld();
@@ -42,6 +42,8 @@ namespace troen
 		btDefaultCollisionConfiguration *m_collisionConfiguration;
 		btCollisionDispatcher *m_dispatcher;
 		btBroadphaseInterface *m_broadphase;
+
+		std::weak_ptr<sound::AudioManager> m_audioManager;
 
 		// collision event variables
 		CollisionPairSet m_pairsLastUpdate;

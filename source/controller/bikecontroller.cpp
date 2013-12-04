@@ -12,7 +12,6 @@
 using namespace troen;
 
 BikeController::BikeController(const std::weak_ptr<sound::AudioManager>& audioManager)
- : m_audioManager(audioManager)
 {
 
 	m_view = std::make_shared<BikeView>();
@@ -57,11 +56,6 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 void BikeController::attachWorld(std::weak_ptr<PhysicsWorld> &world) {
 	world.lock()->addRigidBodies(getRigidBodies());
 	m_fenceController->attachWorld(world);
-}
-
-const std::weak_ptr<sound::AudioManager> BikeController::getAudioManager()
-{
-	return m_audioManager;
 }
 
 void BikeController::removeAllFences()

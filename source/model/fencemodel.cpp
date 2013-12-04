@@ -44,6 +44,7 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 
 	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
 	fenceRigidBody->setUserPointer(m_fenceController);
+	fenceRigidBody->setUserIndex(FENCETYPE);
 
 	m_collisionShapeDeque.push_back(fenceShape);
 	m_motionStateDeque.push_back(fenceMotionState);
