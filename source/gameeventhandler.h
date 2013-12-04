@@ -21,14 +21,16 @@ namespace troen
 				case osgGA::GUIEventAdapter::KEY_M:
 					m_troenGame->switchSoundVolumeEvent();
 					return true;
-					break;
 				case osgGA::GUIEventAdapter::KEY_C:
 					m_troenGame->removeAllFencesEvent();
 					return true;
-					break;
 				case osgGA::GUIEventAdapter::KEY_F:
 					m_troenGame->toggleFencePartsLimitEvent();
 					return true;
+				case osgGA::GUIEventAdapter::KEY_Space:
+					m_troenGame->pauseGameEvent();
+					return true;
+				default:
 					break;
 				}
 			//case osgGA::GUIEventAdapter::KEYUP:

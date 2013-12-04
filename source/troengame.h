@@ -15,11 +15,14 @@ namespace troen
 		Q_OBJECT
 
 	public:
-		TroenGame(QThread* thread = NULL);
+		TroenGame(QThread* thread = nullptr);
 		virtual ~TroenGame();
+		
+		// Events from GameEventHandler
 		void switchSoundVolumeEvent();
 		void removeAllFencesEvent();
 		void toggleFencePartsLimitEvent();
+		void pauseGameEvent();
 
 	public slots:
 		void startGameLoop();
@@ -60,5 +63,6 @@ namespace troen
 		std::shared_ptr<sound::AudioManager> m_audioManager;
 
 		int m_maxFenceParts;
+		bool m_gamePaused;
 	};
 }

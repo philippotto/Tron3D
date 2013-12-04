@@ -16,7 +16,6 @@
 
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
-
 #include "sound/audiomanager.h"
 
 #include "model/physicsworld.h"
@@ -38,10 +37,10 @@ using namespace troen;
 // comment out to disable debug mode
 #define DEBUG_DRAW
 
-TroenGame::TroenGame(QThread* thread /*= NULL*/) :
-m_gameThread(thread), m_maxFenceParts(0)
+TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
+m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(FALSE)
 {
-	if (m_gameThread == NULL) {
+	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
 	}
 	moveToThread(m_gameThread);
@@ -75,6 +74,11 @@ void TroenGame::toggleFencePartsLimitEvent()
 	}
 
 	m_bikeController->enforceFencePartsLimit(m_maxFenceParts);
+}
+
+void TroenGame::pauseGameEvent()
+{
+	m_gamePaused = m_gamePaused == false ? true : false;
 }
 
 
@@ -272,10 +276,12 @@ void TroenGame::startGameLoop()
 			updateModels() and checkForUserInput()
 			stepSimulation() (Physics) + updateViews()
 			//render();*/
+			if (!m_gamePaused)
+			{
+				m_bikeController->updateModel();
+				m_physicsWorld->stepSimulation(currTime);
+			}
 
-			m_bikeController->updateModel();
-
-			m_physicsWorld->stepSimulation(currTime);
 			m_audioManager->Update(currTime/1000);
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
@@ -318,12 +324,12 @@ bool TroenGame::shutdown()
 	//input
 
 	//viewer & views
-	m_sampleOSGViewer = NULL;
-	m_gameView = NULL;
-	m_statsHandler = NULL;
+	m_sampleOSGViewer = nullptr;
+	m_gameView = nullptr;
+	m_statsHandler = nullptr;
 
 	// models & scenegraph
-	m_rootNode = NULL;
+	m_rootNode = nullptr;
 	m_bikeController.reset();
 	m_levelController.reset();
 	m_HUDController.reset();
