@@ -68,6 +68,8 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 	m_coordinates->push_back(currentPosition);
 	m_coordinates->push_back(osg::Vec3(currentPosition.x(), currentPosition.y(), currentPosition.z() + m_fenceHeight));
 	
+	enforceFencePartsLimit(m_maxFenceParts);
+
 	// TODO
 	// remove if no disadvantages seem necessary?
 	// m_geometry->dirtyBound();
@@ -82,5 +84,17 @@ void FenceView::removeAllFences()
 
 void FenceView::enforceFencePartsLimit(int maxFenceParts)
 {
+	if (m_maxFenceParts != maxFenceParts)
+		m_maxFenceParts = maxFenceParts;
 
+	int currentFenceParts = m_coordinates->size() / 2;
+	if (maxFenceParts != 0 && currentFenceParts > maxFenceParts)
+	for (int i = 0; i < (currentFenceParts - maxFenceParts); i++)
+		removeFirstFencePart();
+}
+
+
+void FenceView::removeFirstFencePart()
+{
+	m_coordinates->erase(m_coordinates->begin(), m_coordinates->begin() + 1);
 }

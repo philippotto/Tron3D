@@ -12,9 +12,10 @@ namespace troen
 	{
 	public:
 		FenceView(std::shared_ptr<FenceModel>& model, int maxFenceParts);
-		void addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition);
 
+		void addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition);
 		void removeAllFences();
+		void removeFirstFencePart();
 		void enforceFencePartsLimit(int maxFenceParts);
 
 	private:
