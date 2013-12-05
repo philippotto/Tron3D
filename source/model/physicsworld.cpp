@@ -23,7 +23,7 @@ m_lastSimulationTime(0), m_audioManager(audioManager)
 
 #if defined DEBUG_DRAW
 	m_debug = new util::GLDebugDrawer();
-	m_debug->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+	m_debug->setDebugMode(btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE);
 	m_world->setDebugDrawer(m_debug);
 #endif
 }
@@ -50,7 +50,7 @@ void PhysicsWorld::initializeWorld()
 
 	m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 
-	m_world->setGravity(btVector3(0, 0, -100));
+	m_world->setGravity(btVector3(0, 0, -10));
 }
 
 void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies)
@@ -192,15 +192,14 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, bt
 			{
 				btScalar impulse = 0;
 				int numContacts = contactManifold->getNumContacts();
-				std::cout << numContacts << " - ";
+				//std::cout << numContacts << " - ";
 				for (int i = 0; i < numContacts; i++)
 				{
 					btManifoldPoint& pt = contactManifold->getContactPoint(i);
 					impulse = impulse + pt.getAppliedImpulse();
 				}
-				std::cout << "total impulse: " << impulse << std::endl;
+				//std::cout << "total impulse: " << impulse << std::endl;
 				if (impulse > 1800)
-					//m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);
 					m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", impulse / 20000, impulse / 19000, 1, 1);
 			}
 			break;

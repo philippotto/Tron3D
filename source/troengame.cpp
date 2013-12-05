@@ -33,7 +33,7 @@ using namespace troen;
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
 #define SOUND_VOLUME 1.f
-#define DEFAULT_MAX_FENCE_PARTS 100
+#define DEFAULT_MAX_FENCE_PARTS 150
 // comment out to disable debug mode
 #define DEBUG_DRAW
 
