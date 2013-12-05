@@ -15,19 +15,16 @@ LevelModel::LevelModel(const LevelController* levelController)
 	btRigidBody::btRigidBodyConstructionInfo
 		groundRigidBodyCI(btScalar(0), groundMotionState.get(), groundShape.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> groundRigidBody = std::make_shared<btRigidBody>(groundRigidBodyCI);
+	groundRigidBody->setUserPointer((void *)levelController);
 	groundRigidBody->setUserIndex(LEVELGROUNDTYPE);
 
 	m_collisionShapes.push_back(groundShape);
 	m_motionStates.push_back(groundMotionState);
 	m_rigidBodies.push_back(groundRigidBody);
 
-	addWalls();
-
-	for (auto body : m_rigidBodies)
-		body->setUserPointer((void*)levelController);
+	addWalls(levelController);
 }
-
-void LevelModel::addWalls()
+void LevelModel::addWalls(const LevelController* levelController)
 {
 	// walls
 
@@ -47,6 +44,7 @@ void LevelModel::addWalls()
 	btRigidBody::btRigidBodyConstructionInfo
 		wallRigidBodyCI1(btScalar(0), wallMotionState1.get(), wallShape1.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> wallRigidBody1 = std::make_shared<btRigidBody>(wallRigidBodyCI1);
+	wallRigidBody1->setUserPointer((void *)levelController);
 	wallRigidBody1->setUserIndex(LEVELWALLTYPE);
 
 	std::shared_ptr<btBoxShape> wallShape2 = std::make_shared<btBoxShape>(btVector3(1, levelSize / 2, 20));
@@ -54,6 +52,7 @@ void LevelModel::addWalls()
 	btRigidBody::btRigidBodyConstructionInfo
 		wallRigidBodyCI2(btScalar(0), wallMotionState2.get(), wallShape2.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> wallRigidBody2 = std::make_shared<btRigidBody>(wallRigidBodyCI2);
+	wallRigidBody2->setUserPointer((void *)levelController);
 	wallRigidBody2->setUserIndex(LEVELWALLTYPE);
 
 	std::shared_ptr<btBoxShape> wallShape3 = std::make_shared<btBoxShape>(btVector3(levelSize / 2, 1, 20));
@@ -61,6 +60,7 @@ void LevelModel::addWalls()
 	btRigidBody::btRigidBodyConstructionInfo
 		wallRigidBodyCI3(btScalar(0), wallMotionState3.get(), wallShape3.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> wallRigidBody3 = std::make_shared<btRigidBody>(wallRigidBodyCI3);
+	wallRigidBody3->setUserPointer((void *)levelController);
 	wallRigidBody3->setUserIndex(LEVELWALLTYPE);
 
 
@@ -69,6 +69,7 @@ void LevelModel::addWalls()
 	btRigidBody::btRigidBodyConstructionInfo
 		wallRigidBodyCI4(btScalar(0), wallMotionState4.get(), wallShape4.get(), btVector3(0, 0, 0));
 	std::shared_ptr<btRigidBody> wallRigidBody4 = std::make_shared<btRigidBody>(wallRigidBodyCI4);
+	wallRigidBody4->setUserPointer((void *)levelController);
 	wallRigidBody4->setUserIndex(LEVELWALLTYPE);
 
 	m_collisionShapes.push_back(wallShape1);

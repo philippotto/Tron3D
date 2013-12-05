@@ -48,6 +48,7 @@ class btCollisionDispatcher;
 class btBroadphaseInterface;
 class btRigidBody;
 class btCollisionShape;
+class btPersistentManifold;
 
 
 

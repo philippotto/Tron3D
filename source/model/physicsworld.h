@@ -30,7 +30,7 @@ namespace troen
 
 		// collision event functions
 		void checkForCollisionEvents();
-		virtual void collisionEvent(btRigidBody* pBody0, btRigidBody * pBody1);
+		virtual void collisionEvent(btRigidBody* pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold);
 		virtual void separationEvent(btRigidBody * pBody0, btRigidBody * pBody1);
 
 		// debugview

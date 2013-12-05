@@ -113,14 +113,14 @@ void PhysicsWorld::checkForCollisionEvents()
 	for (int i = 0; i < m_dispatcher->getNumManifolds(); ++i) {
 		
 		// get the manifold
-		btPersistentManifold* pManifold = m_dispatcher->getManifoldByIndexInternal(i);
+		btPersistentManifold* contactManifold = m_dispatcher->getManifoldByIndexInternal(i);
 
 		// ignore manifolds that have no contact points.
-		if (pManifold->getNumContacts() > 0)
+		if (contactManifold->getNumContacts() > 0)
 		{
 			// get the two rigid bodies involved in the collision
-			const btRigidBody* pBody0 = static_cast<const btRigidBody*>(pManifold->getBody0());
-			const btRigidBody* pBody1 = static_cast<const btRigidBody*>(pManifold->getBody1());
+			const btRigidBody* pBody0 = static_cast<const btRigidBody*>(contactManifold->getBody0());
+			const btRigidBody* pBody1 = static_cast<const btRigidBody*>(contactManifold->getBody1());
 			
 			// create the pair in a predictable order (using the pointer value)
 			bool const swapped = pBody0 > pBody1;
@@ -137,7 +137,7 @@ void PhysicsWorld::checkForCollisionEvents()
 			// from the previous update, it is a new
 			// pair and we must send a collision event
 			if (m_pairsLastUpdate.find(thisPair) == m_pairsLastUpdate.end())
-					collisionEvent((btRigidBody*)pBody0, (btRigidBody*)pBody1);			
+					collisionEvent((btRigidBody*)pBody0, (btRigidBody*)pBody1, contactManifold);			
 		}	
 	}
 	
@@ -159,7 +159,7 @@ void PhysicsWorld::checkForCollisionEvents()
 	m_pairsLastUpdate = pairsThisUpdate;
 }
 
-void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1)
+void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold)
 {
 	//std::cout << "[PhysicsWorld::collisionEvent] collision detected" << std::endl;
 	btRigidBody * collidingBodies[2];
@@ -186,14 +186,26 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 		int otherIndex = bikeIndex == 0 ? 1 : 0;
 		switch (collisionTypes[otherIndex])
 		{
-		case FENCETYPE:
-		case LEVELTYPE:
 		case LEVELWALLTYPE:
-		case BIKETYPE:
-			m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);
+			//std::cout << "collision with wall" << std::endl;
+		case FENCETYPE:
+			{
+						 btScalar impulse = 0;
+						 int numContacts = contactManifold->getNumContacts();
+						 std::cout << numContacts << " - ";
+						 for (int i = 0; i < numContacts; i++)
+						 {
+							 btManifoldPoint& pt = contactManifold->getContactPoint(i);
+							 impulse = impulse + pt.getAppliedImpulse();
+						 }
+				std::cout << "total impulse: " << impulse << std::endl;
+				if (impulse > 1800)
+					m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);
+			}
 			break;
 		case LEVELGROUNDTYPE:
-
+			//std::cout << "collision with ground" << std::endl;
+		case BIKETYPE:
 		default:
 			break;
 		}

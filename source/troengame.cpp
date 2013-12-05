@@ -125,6 +125,7 @@ bool TroenGame::initializeSound()
 	m_audioManager = std::shared_ptr<sound::AudioManager>(new sound::AudioManager);
 	m_audioManager->LoadSFX("data/sound/explosion.wav");
 	m_audioManager->LoadSong("data/sound/1.13. Derezzed.flac");
+	m_audioManager->SetSongsVolume(0.1);
 	return true;
 }
 
