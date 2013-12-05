@@ -200,7 +200,8 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, bt
 						 }
 				std::cout << "total impulse: " << impulse << std::endl;
 				if (impulse > 1800)
-					m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);
+					//m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);
+					m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", impulse / 20000, impulse / 19000, 1, 1);
 			}
 			break;
 		case LEVELGROUNDTYPE:
