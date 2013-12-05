@@ -190,14 +190,14 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, bt
 			//std::cout << "collision with wall" << std::endl;
 		case FENCETYPE:
 			{
-						 btScalar impulse = 0;
-						 int numContacts = contactManifold->getNumContacts();
-						 std::cout << numContacts << " - ";
-						 for (int i = 0; i < numContacts; i++)
-						 {
-							 btManifoldPoint& pt = contactManifold->getContactPoint(i);
-							 impulse = impulse + pt.getAppliedImpulse();
-						 }
+				btScalar impulse = 0;
+				int numContacts = contactManifold->getNumContacts();
+				std::cout << numContacts << " - ";
+				for (int i = 0; i < numContacts; i++)
+				{
+					btManifoldPoint& pt = contactManifold->getContactPoint(i);
+					impulse = impulse + pt.getAppliedImpulse();
+				}
 				std::cout << "total impulse: " << impulse << std::endl;
 				if (impulse > 1800)
 					//m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", .5f, 1.f, .5f, 1.f);

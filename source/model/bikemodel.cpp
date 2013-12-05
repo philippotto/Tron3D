@@ -51,6 +51,8 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	bikeRigidBody->setUserPointer(bikeController);
 	bikeRigidBody->setUserIndex(BIKETYPE);
 
+	bikeMotionState->setRigidBody(bikeRigidBody);
+
 	m_collisionShapes.push_back(bikeShape);
 	m_motionStates.push_back(bikeMotionState);
 	m_rigidBodies.push_back(bikeRigidBody);
