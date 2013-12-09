@@ -2,6 +2,7 @@
 // OSG
 #include <osg/ref_ptr>
 // troen
+#include "pollingdevice.h"
 #include "../forwarddeclarations.h"
 //other
 #define _AMD64_
@@ -11,18 +12,20 @@ namespace troen
 {
 namespace input
 {
-	class Gamepad
+	class Gamepad : public PollingDevice
 	{
 	public:
-		Gamepad(osg::ref_ptr<BikeInputState> bikeInputState);
+		Gamepad(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState) {
+			m_deadzoneX = 0.25f;
+			m_deadzoneY = 0.02f;
+		};
 		int getPort();
 		XINPUT_GAMEPAD* getState();
 		bool checkConnection();
-		bool refresh();
+		bool refresh() override;
 		bool isPressed(unsigned short button);
 
 	private:
-		osg::ref_ptr<BikeInputState> m_bikeInputState;
 		int m_controllerId;
 		XINPUT_STATE m_state;
 		float m_deadzoneX, m_deadzoneY;

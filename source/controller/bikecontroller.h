@@ -5,14 +5,14 @@
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractcontroller.h"
+#include "../input/bikeinputstate.h"
 
 namespace troen
 {
 	class BikeController : public AbstractController
 	{
 	public:
-		BikeController(const std::weak_ptr<sound::AudioManager>& audioManager);
-		void setInputState(osg::ref_ptr<input::BikeInputState> &bikeInputState);
+		BikeController(input::BikeInputState::InputDevice inputDevice);
 		void attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator> &manipulator);
 		void attachWorld(std::weak_ptr<PhysicsWorld> &world);
 
@@ -20,12 +20,17 @@ namespace troen
 
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
+		osg::ref_ptr<input::Keyboard> getEventHandler();
+		bool hasEventHandler();
 
 		// controlling the FenceController
 		void removeAllFences();
 		void enforceFencePartsLimit(int maxFenceParts);
 
 	private:
+		void initializeInput(input::BikeInputState::InputDevice inputDevice);
+		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		std::shared_ptr<FenceController> m_fenceController;
+		osg::ref_ptr<input::Keyboard> m_keyboardHandler = nullptr;
 	};
 }

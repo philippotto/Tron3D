@@ -7,24 +7,20 @@
 #include <osgViewer/ViewerEventHandlers>
 // troen
 #include "sampleosgviewer.h"
-#include "updatebikepositioncallback.h"
 #include "gameeventhandler.h"
 
 #include "input/bikeinputstate.h"
 #include "input/keyboard.h"
-#include "input/gamepad.h"
 
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
 
 #include "model/physicsworld.h"
-#include "model/bikemodel.h"
 #include "controller/levelcontroller.h"
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
 #include "controller/hudcontroller.h"
-#include "view/bikeview.h"
 #include "view/shaders.h"
 #include "view/skydome.h"
 #include "view/postprocessing.h"
@@ -38,10 +34,10 @@ using namespace troen;
 #define DEFAULT_WINDOW_WIDTH 1280
 #define DEFAULT_WINDOW_HEIGHT 720
 // comment out to disable debug mode
-#define DEBUG_DRAW
+//#define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
-m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(FALSE)
+m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(false)
 {
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
@@ -61,7 +57,10 @@ void TroenGame::switchSoundVolumeEvent()
 
 void TroenGame::removeAllFencesEvent()
 {
-	m_bikeController->removeAllFences();
+	for (auto bikeController : m_bikeControllers)
+	{
+		bikeController->removeAllFences();
+	}
 }
 
 void TroenGame::toggleFencePartsLimitEvent()
@@ -76,7 +75,10 @@ void TroenGame::toggleFencePartsLimitEvent()
 		std::cout << "[TroenGame::toggleFencePartsLimitEvent] turning fenceParsLimit OFF ..." << std::endl;
 	}
 
-	m_bikeController->enforceFencePartsLimit(m_maxFenceParts);
+	for (auto bikeController : m_bikeControllers)
+	{
+		bikeController->enforceFencePartsLimit(m_maxFenceParts);
+	}
 }
 
 void TroenGame::pauseGameEvent()
@@ -144,7 +146,9 @@ bool TroenGame::initializeSkyDome()
 bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
-	m_bikeController = std::make_shared<BikeController>(m_audioManager);
+	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::KEYBOARD));
+	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::GAMEPAD));
+	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::AI));
 	//m_HUDController = std::make_shared<HUDController>();
 	return true;
 }
@@ -157,12 +161,15 @@ bool TroenGame::composeSceneGraph()
 	// everything that is added to model node is flooded using provided ids
 	m_sceneNode =  m_postProcessing->getSceneNode();
 
+
 	m_sceneNode->addChild(m_skyDome.get());
 	m_sceneNode->addChild(m_levelController->getViewNode());
-	m_sceneNode->addChild(m_bikeController->getViewNode());
-	
-	m_rootNode->addChild(m_sceneNode);
 
+	for (auto bikeController : m_bikeControllers)
+	{
+		m_sceneNode->addChild(bikeController->getViewNode());
+	}
+	m_rootNode->addChild(m_sceneNode);
 	//m_rootNode->addChild(m_HUDController->getViewNode());
 	
 	return true;
@@ -176,27 +183,14 @@ bool TroenGame::initializeShaders()
 
 bool TroenGame::initializeInput()
 {
-	// TODO
-	// dw: clean this up, move it to the appropriate place
-	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
-	m_bikeController->setInputState(bikeInputState);
-
-	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
-	std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
-
-	if (USE_GAMEPAD)
+	for (auto bikeController : m_bikeControllers)
 	{
-		if (gamepad->checkConnection())
+		// attach keyboard handler to the gameView if existent
+		if (bikeController->hasEventHandler())
 		{
-			std::cout << "[TroenGame::initializeInput] Gamepad connected on port " << gamepad->getPort() << std::endl;
-			bikeInputState->setPollingDevice(gamepad);
-		} else
-		{
-			std::cout << "[TroenGame::initializeInput] USE_GAMEPAD true but no gamepad connected!" << std::endl;
+			m_gameView->addEventHandler(bikeController->getEventHandler());
 		}
 	}
-
-	m_gameView->addEventHandler(keyboardHandler);
 
 	return true;
 }
@@ -208,7 +202,7 @@ bool TroenGame::initializeViews()
 	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator
 		= new osgGA::NodeTrackerManipulator;
 	manipulator->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-	m_bikeController->attachTrackingCamera(manipulator);
+	m_bikeControllers[0]->attachTrackingCamera(manipulator);
 	m_gameView->setCameraManipulator(manipulator.get());
 
 	m_statsHandler = new osgViewer::StatsHandler;
@@ -243,8 +237,11 @@ bool TroenGame::initializePhysicsWorld()
 {
 	m_physicsWorld = std::make_shared<PhysicsWorld>(m_audioManager);
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies());
-	// m_physicsWorld->addRigidBodies(m_bikeController->getRigidBodies());
-	m_bikeController->attachWorld(std::weak_ptr<PhysicsWorld>(m_physicsWorld));
+
+	for (auto bikeController : m_bikeControllers)
+	{
+		bikeController->attachWorld(std::weak_ptr<PhysicsWorld>(m_physicsWorld));
+	}
 	return true;
 }
 
@@ -294,7 +291,10 @@ void TroenGame::startGameLoop()
 			//render();*/
 			if (!m_gamePaused)
 			{
-				m_bikeController->updateModel();
+				for (auto bikeController : m_bikeControllers)
+				{
+					bikeController->updateModel();
+				}
 				m_physicsWorld->stepSimulation(currTime);
 			}
 
@@ -333,11 +333,12 @@ bool TroenGame::shutdown()
 {
 	// clean up in reverse order from initialization
 
-	// physics
-	m_physicsWorld.reset();
 	//timer
 	m_timer.reset();
 	//input
+
+	// physics
+	m_physicsWorld.reset();
 
 	//viewer & views
 	m_sampleOSGViewer = nullptr;
@@ -346,14 +347,18 @@ bool TroenGame::shutdown()
 
 	// models & scenegraph
 	m_rootNode = nullptr;
-	m_bikeController.reset();
+
 	m_levelController.reset();
+	m_bikeControllers.clear();
 	m_HUDController.reset();
 
 	// sound
 	m_audioManager->StopSFXs();
 	m_audioManager->StopSongs();
 	m_audioManager.reset();
+
+	// shaders
+	shaders::m_allShaderPrograms.clear();
 
 	std::cout << "[TroenGame::shutdown] shutdown complete " << std::endl;
 	return true;

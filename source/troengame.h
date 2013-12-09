@@ -58,7 +58,7 @@ namespace troen
 		osg::ref_ptr<osg::Group>			m_sceneNode;
 
 		std::shared_ptr<LevelController>	m_levelController;
-		std::shared_ptr<BikeController>		m_bikeController;
+		std::vector<std::shared_ptr<BikeController>> m_bikeControllers;
 		std::shared_ptr<HUDController>		m_HUDController;
 
 		QThread*							m_gameThread;

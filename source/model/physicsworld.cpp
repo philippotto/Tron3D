@@ -12,7 +12,7 @@
 #include "../sound/audiomanager.h"
 
 // comment out to disable debug mode
-#define DEBUG_DRAW
+//#define DEBUG_DRAW
 
 using namespace troen;
 
@@ -56,7 +56,9 @@ void PhysicsWorld::initializeWorld()
 void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies)
 {
 	for (auto body : bodies)
+	{
 		m_world->addRigidBody(body.get());
+	}
 }
 
 void PhysicsWorld::addRigidBody(btRigidBody *body) {

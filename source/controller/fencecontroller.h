@@ -20,7 +20,6 @@ namespace troen
 	private:
 		btVector3 m_lastPosition;
 		std::weak_ptr<PhysicsWorld> m_world;
-
 		int m_maxFenceParts;
 	};
 }
