@@ -47,7 +47,8 @@ void FenceView::initializeShader()
 	osg::ref_ptr<osg::StateSet> NodeState = m_node->getOrCreateStateSet();
 
 	// TODO (dw) set to actual player color
-	osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", osg::Vec3(0.0, 1.0, 1.0));
+	// osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", osg::Vec3(0.0, 1.0, 1.0));
+	osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", osg::Vec3(fmod(rand() / 100.0, 1.0), fmod(rand() / 100.0, 1.0), fmod(rand() / 100.0, 1.0)));
 	NodeState->addUniform(fenceColorU);
 
 	osg::Uniform* fenceHeightU = new osg::Uniform("fenceHeight", m_fenceHeight);

@@ -56,7 +56,9 @@ void PhysicsWorld::initializeWorld()
 void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies)
 {
 	for (auto body : bodies)
+	{
 		m_world->addRigidBody(body.get());
+	}
 }
 
 void PhysicsWorld::addRigidBody(btRigidBody *body) {

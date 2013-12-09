@@ -88,6 +88,8 @@ namespace troen
 		class Keyboard;
 		class Gamepad;
 		class BikeInputState;
+		class PollingDevice;
+		class AI;
 	}
 
 	namespace sound

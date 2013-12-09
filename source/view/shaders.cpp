@@ -52,7 +52,6 @@ void shaders::reloadShader(
 		std::string *mystr;
 		mystr = new std::string(osgDB::getStrippedName(fragmentFileName));
 		
-		
 		program->setName(*mystr);
 	}
 }

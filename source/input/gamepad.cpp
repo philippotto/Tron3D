@@ -6,13 +6,6 @@
 
 using namespace troen::input;
 
-Gamepad::Gamepad(osg::ref_ptr<BikeInputState> bikeInputState)
-{
-	m_bikeInputState = bikeInputState;
-	m_deadzoneX = 0.25f;
-	m_deadzoneY = 0.02f;
-}
-
 int Gamepad::getPort()
 {
 	return m_controllerId + 1;
