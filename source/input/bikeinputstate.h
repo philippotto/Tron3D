@@ -17,6 +17,9 @@ namespace input
 		void setAngle(float angle);
 		void setAcceleration(float acceleration);
 		void setPollingDevice(std::shared_ptr<PollingDevice> pollingDevice);
+		enum InputDevice
+		{ KEYBOARD, GAMEPAD, AI };
+
 
 	private:
 		bool m_pollingEnabled;

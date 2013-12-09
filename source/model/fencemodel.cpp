@@ -74,9 +74,12 @@ void FenceModel::enforceFencePartsLimit(int maxFenceParts)
 	if (m_maxFenceParts != maxFenceParts)
 		m_maxFenceParts = maxFenceParts;
 
-	if (maxFenceParts != 0 && m_rigidBodyDeque.size() > maxFenceParts)
-	for (int i = 0; i < m_rigidBodyDeque.size() - maxFenceParts; i++)
-		removeFirstFencePart();
+	int rigidBodyDequeSize = m_rigidBodyDeque.size();
+	if (maxFenceParts != 0 && rigidBodyDequeSize > maxFenceParts)
+	{
+		for (int i = 0; i < rigidBodyDequeSize - maxFenceParts; i++)
+			removeFirstFencePart();
+	}
 }
 
 void FenceModel::removeFirstFencePart()

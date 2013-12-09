@@ -88,14 +88,17 @@ void FenceView::enforceFencePartsLimit(int maxFenceParts)
 	if (m_maxFenceParts != maxFenceParts)
 		m_maxFenceParts = maxFenceParts;
 
-	int currentFenceParts = m_coordinates->size() / 2;
+	// the quad strip cointains two more vertices for the beginning of the fence
+	int currentFenceParts = (m_coordinates->size() - 2) / 2;
 	if (maxFenceParts != 0 && currentFenceParts > maxFenceParts)
-	for (int i = 0; i < (currentFenceParts - maxFenceParts); i++)
-		removeFirstFencePart();
+	{
+		for (int i = 0; i < (currentFenceParts - maxFenceParts); i++)
+			removeFirstFencePart();
+	}
 }
 
 
 void FenceView::removeFirstFencePart()
 {
-	m_coordinates->erase(m_coordinates->begin(), m_coordinates->begin() + 1);
+	m_coordinates->erase(m_coordinates->begin(), m_coordinates->begin() + 2);
 }

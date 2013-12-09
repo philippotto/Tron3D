@@ -11,8 +11,6 @@
 
 #include "input/bikeinputstate.h"
 #include "input/keyboard.h"
-#include "input/gamepad.h"
-#include "input/ai.h"
 
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
@@ -33,10 +31,10 @@ using namespace troen;
 #define SOUND_VOLUME 1.f
 #define DEFAULT_MAX_FENCE_PARTS 150
 // comment out to disable debug mode
-#define DEBUG_DRAW
+//#define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
-m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(FALSE)
+m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(false)
 {
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
@@ -56,7 +54,10 @@ void TroenGame::switchSoundVolumeEvent()
 
 void TroenGame::removeAllFencesEvent()
 {
-	m_bikeController->removeAllFences();
+	for (auto bikeController : m_bikeControllers)
+	{
+		bikeController->removeAllFences();
+	}
 }
 
 void TroenGame::toggleFencePartsLimitEvent()
@@ -71,7 +72,10 @@ void TroenGame::toggleFencePartsLimitEvent()
 		std::cout << "[TroenGame::toggleFencePartsLimitEvent] turning fenceParsLimit OFF ..." << std::endl;
 	}
 
-	m_bikeController->enforceFencePartsLimit(m_maxFenceParts);
+	for (auto bikeController : m_bikeControllers)
+	{
+		bikeController->enforceFencePartsLimit(m_maxFenceParts);
+	}
 }
 
 void TroenGame::pauseGameEvent()
@@ -137,10 +141,9 @@ bool TroenGame::initializeSkyDome()
 bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
-	m_bikeController = std::make_shared<BikeController>(m_audioManager);
-	m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
-	//m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
-	//m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
+	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::KEYBOARD));
+	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::GAMEPAD));
+	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::AI));
 	//m_HUDController = std::make_shared<HUDController>();
 	return true;
 }
@@ -149,10 +152,10 @@ bool TroenGame::composeSceneGraph()
 {
 	m_rootNode->addChild(m_skyDome.get());
 	m_rootNode->addChild(m_levelController->getViewNode());
-	m_rootNode->addChild(m_bikeController->getViewNode());
-	for (int i = 0; i < m_bikeControllersAI.size(); i++)
+
+	for (auto bikeController : m_bikeControllers)
 	{
-		m_rootNode->addChild(m_bikeControllersAI[i]->getViewNode());
+		m_rootNode->addChild(bikeController->getViewNode());
 	}
 	//m_rootNode->addChild(m_HUDController->getViewNode());
 	
@@ -167,63 +170,16 @@ bool TroenGame::initializeShaders()
 
 bool TroenGame::initializeInput()
 {
-	// TODO
-	// dw: clean this up, move it to the appropriate place
-	std::vector<osgGA::GUIEventAdapter::KeySymbol> keys{
-		osgGA::GUIEventAdapter::KEY_W,
-		osgGA::GUIEventAdapter::KEY_A,
-		osgGA::GUIEventAdapter::KEY_S,
-		osgGA::GUIEventAdapter::KEY_D
-		};
-	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
-	m_bikeController->setInputState(bikeInputState);
-
-	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState, keys);
-	std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
-
-	if (USE_GAMEPAD)
+	for (auto bikeController : m_bikeControllers)
 	{
-		if (gamepad->checkConnection())
+		// attach keyboard handler to the gameView if existent
+		if (bikeController->hasEventHandler())
 		{
-			std::cout << "[TroenGame::initializeInput] Gamepad connected on port " << gamepad->getPort() << std::endl;
-			bikeInputState->setPollingDevice(gamepad);
-		} else
-		{
-			std::cout << "[TroenGame::initializeInput] USE_GAMEPAD true but no gamepad connected!" << std::endl;
+			m_gameView->addEventHandler(bikeController->getEventHandler());
 		}
 	}
 
-	m_gameView->addEventHandler(keyboardHandler);
-
-	// add "input" for the AIs
-	for (int i = 0; i < m_bikeControllersAI.size(); i++)
-	{
-		if (i == 0)
-		{
-			std::vector<osgGA::GUIEventAdapter::KeySymbol> keys2{
-				osgGA::GUIEventAdapter::KEY_Up,
-				osgGA::GUIEventAdapter::KEY_Left,
-				osgGA::GUIEventAdapter::KEY_Down,
-				osgGA::GUIEventAdapter::KEY_Right
-				};
-
-			osg::ref_ptr<input::BikeInputState> inputState = new input::BikeInputState();
-			m_bikeControllersAI[i]->setInputState(inputState);
-
-			osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(inputState, keys2);
-
-			m_gameView->addEventHandler(keyboardHandler);
-		}
-		else
-		{
-			osg::ref_ptr<input::BikeInputState> inputState = new input::BikeInputState();
-			m_bikeControllersAI[i]->setInputState(inputState);
-
-			std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(inputState);
-			inputState->setPollingDevice(ai);
-		}
 	}
-
 	return true;
 }
 
@@ -234,7 +190,7 @@ bool TroenGame::initializeViews()
 	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator
 		= new osgGA::NodeTrackerManipulator;
 	manipulator->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-	m_bikeController->attachTrackingCamera(manipulator);
+	m_bikeControllers[0]->attachTrackingCamera(manipulator);
 	m_gameView->setCameraManipulator(manipulator.get());
 
 	m_statsHandler = new osgViewer::StatsHandler;
@@ -255,7 +211,7 @@ bool TroenGame::initializeViews()
 	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator2
 		= new osgGA::NodeTrackerManipulator;
 	manipulator2->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-	m_bikeControllersAI[0]->attachTrackingCamera(manipulator2);
+	m_bikeControllers[1]->attachTrackingCamera(manipulator2);
 	m_gameView2->setCameraManipulator(manipulator2.get());
 
 	m_gameView2->setSceneData(m_rootNode);
@@ -284,10 +240,9 @@ bool TroenGame::initializePhysicsWorld()
 	m_physicsWorld = std::make_shared<PhysicsWorld>(m_audioManager);
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies());
 
-	m_bikeController->attachWorld(std::weak_ptr<PhysicsWorld>(m_physicsWorld));
-	for (int i = 0; i < m_bikeControllersAI.size(); i++)
+	for (auto bikeController : m_bikeControllers)
 	{
-		m_bikeControllersAI[i]->attachWorld(std::weak_ptr<PhysicsWorld>(m_physicsWorld));
+		bikeController->attachWorld(std::weak_ptr<PhysicsWorld>(m_physicsWorld));
 	}
 	return true;
 }
@@ -338,10 +293,9 @@ void TroenGame::startGameLoop()
 			//render();*/
 			if (!m_gamePaused)
 			{
-				m_bikeController->updateModel();
-				for (int i = 0; i < m_bikeControllersAI.size(); i++)
+				for (auto bikeController : m_bikeControllers)
 				{
-					m_bikeControllersAI[i]->updateModel();
+					bikeController->updateModel();
 				}
 				m_physicsWorld->stepSimulation(currTime);
 			}
@@ -400,8 +354,7 @@ bool TroenGame::shutdown()
 	m_rootNode = nullptr;
 
 	m_levelController.reset();
-	m_bikeController.reset();
-	m_bikeControllersAI.clear();
+	m_bikeControllers.clear();
 	m_HUDController.reset();
 
 	// sound
