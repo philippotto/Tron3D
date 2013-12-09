@@ -40,7 +40,6 @@ namespace troen
 		btDefaultCollisionConfiguration *m_collisionConfiguration;
 		btCollisionDispatcher *m_dispatcher;
 		btBroadphaseInterface *m_broadphase;
-		std::vector<std::shared_ptr<btRigidBody>> m_rigidBodies;
 
 		// collision event variables
 		CollisionPairSet m_pairsLastUpdate;

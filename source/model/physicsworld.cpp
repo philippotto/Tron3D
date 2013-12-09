@@ -29,28 +29,6 @@ PhysicsWorld::PhysicsWorld() : m_lastSimulationTime(0)
 
 PhysicsWorld::~PhysicsWorld()
 {
-	//for (auto body : m_rigidBodies)
-	//{
-	//	m_world->removeCollisionObject(body.get());
-	//	m_world->removeRigidBody(body.get());
-	//	body.reset();
-	//}
-
-	//remove the rigid bodies from the dynamics world and delete them
-	for (int i = m_world->getNumCollisionObjects() - 1; i >= 0; i--) {
-		btCollisionObject* obj = m_world->getCollisionObjectArray()[i];
-		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getMotionState()) {
-			//delete body->getMotionState();
-		}
-		if (obj){
-			m_world->removeCollisionObject(obj);
-			//delete obj->getCollisionShape();
-			//delete obj;
-		}
-	}
-
-	// TODO (dw) why does this cause an access violation?
 	delete m_world;
 	delete m_solver;
 	delete m_collisionConfiguration;
@@ -78,7 +56,6 @@ void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>
 {
 	for (auto body : bodies)
 	{
-		m_rigidBodies.push_back(body);
 		m_world->addRigidBody(body.get());
 	}
 }

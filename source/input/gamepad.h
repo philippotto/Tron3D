@@ -15,7 +15,10 @@ namespace input
 	class Gamepad : public PollingDevice
 	{
 	public:
-		Gamepad(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState) {};
+		Gamepad(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState) {
+			m_deadzoneX = 0.25f;
+			m_deadzoneY = 0.02f;
+		};
 		int getPort();
 		XINPUT_GAMEPAD* getState();
 		bool checkConnection();

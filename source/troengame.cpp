@@ -319,10 +319,6 @@ bool TroenGame::shutdown()
 	m_rootNode = NULL;
 	m_levelController.reset();
 	m_bikeController.reset();
-	//for (int i = 0; i < m_bikeControllersAI.size(); i++)
-	//{
-	//	m_bikeControllersAI[i].reset();
-	//}
 	m_bikeControllersAI.clear();
 	m_HUDController.reset();
 
@@ -330,6 +326,9 @@ bool TroenGame::shutdown()
 	m_audioManager->StopSFXs();
 	m_audioManager->StopSongs();
 	m_audioManager.reset();
+
+	// shaders
+	shaders::m_allShaderPrograms.clear();
 
 	std::cout << "[TroenGame::shutdown] shutdown complete " << std::endl;
 	return true;

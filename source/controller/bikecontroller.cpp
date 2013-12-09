@@ -53,6 +53,7 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 {
 
 	osg::ref_ptr<osg::Group> group = new osg::Group();
+	// TODO (dw) try not to disable culling, by resizing the childrens bounding boxes
 	group->setCullingActive(false);
 	group->addChild(m_fenceController->getViewNode());
 	group->addChild(std::static_pointer_cast<BikeView>(m_view)->getNode());
