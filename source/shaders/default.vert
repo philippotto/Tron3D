@@ -4,6 +4,7 @@ uniform vec4 diffuseMaterialColor;
 uniform vec4 ambientMaterialColor;
 uniform mat4 transform;
 uniform mat4 osg_ViewMatrixInverse;
+uniform vec3 playerColor;
 
 out vec2 texCoord;
 
@@ -62,9 +63,10 @@ void main()
 	   * diffuseLight.xyz
 	   * max(0.0, dot(normalDirection, lightDirection))
 	   * diffuseMaterialColor.xyz;
+	  // diffuseReflection = diffuseMaterialColor.xyz;
 	   // without material color!
 
-	diffuseColor = ambientLighting + diffuseReflection;
+	diffuseColor = (ambientLighting + diffuseReflection) * vec3(1.f, 1.f, 0.f);
 
 	texCoord = gl_MultiTexCoord0.xy;
 	gl_Position = gl_ModelViewProjectionMatrix   * gl_Vertex ;

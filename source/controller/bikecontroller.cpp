@@ -13,8 +13,8 @@ using namespace troen;
 
 BikeController::BikeController(const std::weak_ptr<sound::AudioManager>& audioManager)
 {
-
-	m_view = std::make_shared<BikeView>();
+	// TODO change player color here
+	m_view = std::make_shared<BikeView>(osg::Vec3(1.0f, 0.f, 0.f));
 	m_fenceController = std::make_shared<FenceController>();
 	m_model = std::make_shared<BikeModel>(getViewNode(), m_fenceController, this);
 }

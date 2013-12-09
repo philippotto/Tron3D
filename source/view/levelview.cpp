@@ -108,6 +108,8 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	geometry->setTexCoordArray(0, texCoords);
 	geometry->addPrimitiveSet(faceArray);
 
+
+
 	osg::ref_ptr<osg::Geode> plane = new osg::Geode();
 	plane->addDrawable(geometry);
 
@@ -134,6 +136,8 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	*/
 	osg::StateSet *groundStateSet = plane->getOrCreateStateSet();
 	groundStateSet->ref();
+
+
 	//groundStateSet->setAttribute(material);
 	//groundStateSet->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
 	
@@ -141,6 +145,10 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	groundStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
 	osg::Uniform* levelSizeUniform = new osg::Uniform("levelSize", levelSize);
 	groundStateSet->addUniform(levelSizeUniform);
+
+
+	osg::Uniform* modelIDU = new osg::Uniform("modelID", DEFAULT);
+	groundStateSet->addUniform(modelIDU);
 	//setTexture(groundStateSet, specularTexturePath, SPECULAR);
 
 	return  plane;

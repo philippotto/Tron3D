@@ -17,6 +17,13 @@ namespace troen
 			virtual osg::ref_ptr<osg::Group> getNode();
 			virtual void AbstractView::update();
 		
+
+			enum MODELGROUPS  {
+				DEFAULT,
+				GLOW,
+				BACKGROUND
+			};
+
 		protected:
 			osg::ref_ptr<osg::Group> m_node;
 	};

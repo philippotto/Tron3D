@@ -47,52 +47,24 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Vie
 	// convenient for alternating ping pong textures
 	TEXTURE_CONTENT  pingPong[] = { PING, PONG };
 	// start writing into PONG buffer (pass == 1 )
-	m_allCameras.push_back(pingPongPass(pass, COLOR, PING, shaders::HBLUR, -1.0));
+
+	m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::FILTERGLOWOBJECTS, -1.0));
 	m_root->addChild(m_allCameras[pass]);
 	pass++;
 
+
+	m_allCameras.push_back(pingPongPass(pass, PONG, PING, shaders::HBLUR, -1.0));
+	m_root->addChild(m_allCameras[pass]);
+	pass++;
+
+	
 	m_allCameras.push_back(pingPongPass(pass, PING, PONG, shaders::VBLUR, -1.0));
 	m_root->addChild(m_allCameras[pass]);
 	pass++;
 
-	// 3. JFA iteration passes: with decreasing kernel width, write id and shortest distance to current pixel
-	// initial jfa step width 
-	//int stepWidth = 1024;
-
-	//while (stepWidth >= 1)
-	//{
-
-	//	// jfa iteration passes, alternating ping and pong texture on each iteration
-	//	m_allCameras.push_back(distanceTransformPass(
-	//		pass,
-	//		pingPong[(pass + 1) % 2], pingPong[pass % 2],
-	//		JFA, stepWidth));
-	//	m_root->addChild(m_allCameras[pass]);
-
-	//	pass++;
-
-	//	// step width is halved on each iteration
-	//	stepWidth /= 2;
-	//}
-
-	// 4. do 2 additional cleaning passes  with step width 1.0 (JFA+2)
-	//m_allCameras.push_back(distanceTransformPass(pass, pingPong[(pass + 1) % 2], pingPong[pass % 2], JFA, 1.0));
-	//m_root->addChild(m_allCameras[pass]);
-	//pass++;
-
-	//m_allCameras.push_back(distanceTransformPass(pass, pingPong[(pass + 1) % 2], pingPong[pass % 2], JFA, 1.0));
-	//m_root->addChild(m_allCameras[pass]);
-	//pass++;
-
-	// 5. do post processing pass to combine everything
 	m_allCameras.push_back(postProcessingPass());
 	m_root->addChild(m_allCameras[m_allCameras.size() - 1]);
 }
-
-
-
-
-
 
 
 
@@ -244,9 +216,11 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 
 	// add sampler textures	
 	state->addUniform(new osg::Uniform("inputLayer", inputTexture));
+	state->addUniform(new osg::Uniform("idLayer", ID));
 	if (step != -1) state->addUniform(new osg::Uniform("currentStep", step));
 
 	state->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
+	state->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 
 	return camera.release();
 }
@@ -288,7 +262,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	state->addUniform(new osg::Uniform("sceneLayer", COLOR));
 	state->addUniform(new osg::Uniform("normalDepthLayer", NORMALDEPTH));
 	state->addUniform(new osg::Uniform("idLayer", ID));
-	state->addUniform(new osg::Uniform("voronoiLayer", PONG));
+	state->addUniform(new osg::Uniform("pongLayer", PONG));
 
 	state->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);

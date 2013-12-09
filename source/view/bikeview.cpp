@@ -22,9 +22,10 @@
 
 using namespace troen;
 
-BikeView::BikeView()
+BikeView::BikeView(osg::Vec3 color)
 {
 	m_node = new osg::Group();
+	m_playerColor = color;
 	pat = new osg::PositionAttitudeTransform();
 	
 #ifndef _DEBUG
@@ -43,44 +44,52 @@ BikeView::BikeView()
 	MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
 		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",
 		"data/models/cycle/MG_MovieCycle_BodyHeadLight_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Body_NORM.tga");
+		"data/models/cycle/MG_MovieCycle_Body_NORM.tga", DEFAULT);
 
 
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBody_MI.obj",
 		"data/models/cycle/MG_Player_Body_SPEC.tga",
 		"data/models/cycle/MG_Player_Body_EMSS.tga",
-		"data/models/cycle/MG_Player_Body_NORM.tga");
+		"data/models/cycle/MG_Player_Body_NORM.tga", GLOW, 0.1);
+
+	// set black body parts of player's back to white/gray
+	MovieCycle_Player_Body->getStateSet()->addUniform(new osg::Uniform("diffuseMaterialColor", osg::Vec3(0.5f, 0.5f, 0.5f)));
+
 
 	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart("data/models/cycle/MG_MovieCycle_Tire_MI.obj",
 		"",
 		"data/models/cycle/MG_MovieCycle_Tire_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Tire_NORM.tga");
+		"data/models/cycle/MG_MovieCycle_Tire_NORM.tga", GLOW, 0.5);
+
+	MovieCycle_Tire->getStateSet()->addUniform(new osg::Uniform("diffuseMaterialColor", osg::Vec3(1.f, 1.f, 1.f)));
+
+
 	
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerHelmet_MI.obj",
 		"data/models/cycle/MG_Player_Helmet_SPEC.tga",
 		"data/models/cycle/MG_Player_Helmet_EMSS.tga",
-		"data/models/cycle/MG_Player_Helmet_NORM.tga");
+		"data/models/cycle/MG_Player_Helmet_NORM.tga", DEFAULT);
 
 
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerDisc_MI.obj",
 		"data/models/cycle/MG_Player_Disc_SPEC.tga",
 		"data/models/cycle/MG_Player_Disc_EMSS.tga",
-		"data/models/cycle/MG_Player_Disc_NORM.tga");
+		"data/models/cycle/MG_Player_Disc_NORM.tga", GLOW);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Glass_MI = createCyclePart("data/models/cycle/MG_MovieCycle_Glass_MI.obj",
 		"data/models/cycle/Glass.tga",
 		"data/models/cycle/Glass.tga",
-		"");
+		"", DEFAULT);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Engine = createCyclePart("data/models/cycle/MG_MovieCycle_Engine_MI.obj",
 		"",
 		"data/models/cycle/MG_MovieCycle_Engine_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Engine_NORM.tga");
+		"data/models/cycle/MG_MovieCycle_Engine_NORM.tga", DEFAULT);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Baton = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBaton_MI.obj",
 		"data/models/cycle/MG_Player_Baton_SPEC.tga",
 		"data/models/cycle/MG_Player_Baton_EMSS.tga",
-		"data/models/cycle/MG_Player_Baton_NORM.tga");
+		"data/models/cycle/MG_Player_Baton_NORM.tga", GLOW);
 	
 	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Body);
 	MovieCycle_Body->asGroup()->addChild(MovieCycle_Tire);
@@ -99,7 +108,9 @@ BikeView::BikeView()
 	m_node->addChild(pat);
 }
 
-osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath,std::string specularTexturePath,std::string diffuseTexturePath, std::string normalTexturePath)
+osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::string specularTexturePath,
+	std::string diffuseTexturePath, std::string normalTexturePath,
+	int modelIndex, float glowIntensity)
 {
 	enum BIKE_TEXTURES { DIFFUSE, SPECULAR, NORMAL };
 
@@ -112,6 +123,22 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath,std::s
 	osg::ref_ptr<osg::Geode> singleGeode = dynamic_cast<osg::Geode*>(Node->asGroup()->getChild(0));
 	osg::ref_ptr<osg::StateSet> childState = singleGeode->getDrawable(0)->getStateSet();
 	osg::StateAttribute* stateAttributeMaterial = childState->getAttribute(osg::StateAttribute::MATERIAL);
+
+	osg::Uniform* modelIndexU = new osg::Uniform("modelID", modelIndex);
+	NodeState->addUniform(modelIndexU);
+
+	osg::Uniform* glowIntensityU = new osg::Uniform("glowIntensity", glowIntensity);
+	NodeState->addUniform(glowIntensityU);
+
+	osg::Uniform* ColorU;
+	if (modelIndex == GLOW) {
+		ColorU = new osg::Uniform("playerColor", m_playerColor);
+	} else {
+		ColorU = new osg::Uniform("playerColor", osg::Vec3(1.f, 1.f, 1.f));
+	}
+	NodeState->addUniform(ColorU);
+
+
 	if (stateAttributeMaterial != NULL)
 	{
 		osg::Material *objMaterial = dynamic_cast<osg::Material*>(stateAttributeMaterial);

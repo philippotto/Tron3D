@@ -1,5 +1,6 @@
 #version 130
 
+uniform vec3 playerColor;
 uniform vec4 specularMaterialColor;
 uniform float shininess;
 
@@ -12,6 +13,9 @@ in vec2 texCoord;
 in vec3 normalDirection;
 in vec3 viewDirection;
 in vec3 diffuseColor;
+
+uniform int modelID;
+uniform float glowIntensity;
 
 in vec3 lightDirection;
 
@@ -44,5 +48,9 @@ void main()
 	
 	//vec3 diffuse = max(dot(normal, 
 	
-	gl_FragColor = vec4(diffuseColor  * texture2D(diffuseTexture,texCoord).rgb + specularReflection, texture2D(diffuseTexture,texCoord).a);
+	gl_FragData[0] = vec4(diffuseColor  * texture2D(diffuseTexture,texCoord).rgb + specularReflection, texture2D(diffuseTexture,texCoord).a);
+
+	gl_FragData[1] = vec4(normalize(normal), 0.0);
+  gl_FragData[2] = vec4(modelID, glowIntensity, 0, 0);
+	
 }

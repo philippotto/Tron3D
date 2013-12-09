@@ -30,6 +30,7 @@ namespace troen
 							GBUFFER,
 							HBLUR,
 							VBLUR,
+							FILTERGLOWOBJECTS,
 							POST_PROCESSING,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};

@@ -53,6 +53,9 @@ void FenceView::initializeShader()
 	osg::Uniform* fenceHeightU = new osg::Uniform("fenceHeight", m_fenceHeight);
 	NodeState->addUniform(fenceHeightU);
 
+	osg::Uniform* modelIDU = new osg::Uniform("modelID", GLOW);
+	NodeState->addUniform(modelIDU);
+
 	NodeState->setMode(GL_BLEND, osg::StateAttribute::ON);
 	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::FENCE], osg::StateAttribute::ON);
 }

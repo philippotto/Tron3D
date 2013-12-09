@@ -22,6 +22,9 @@ void shaders::reloadShaders()
 	reloadShader(shaders::m_allShaderPrograms[HBLUR], "source/shaders/Blur.frag", "source/shaders/HBlur.vert");
 	reloadShader(shaders::m_allShaderPrograms[VBLUR], "source/shaders/Blur.frag", "source/shaders/VBlur.vert");
 	reloadShader(shaders::m_allShaderPrograms[POST_PROCESSING], "source/shaders/postprocessing.frag", "");
+
+	reloadShader(shaders::m_allShaderPrograms[FILTERGLOWOBJECTS], "source/shaders/filterglowobjects.frag", "");
+
 }
 
 void shaders::reloadShader(
