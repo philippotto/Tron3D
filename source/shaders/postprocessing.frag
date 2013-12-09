@@ -1,4 +1,4 @@
-#version 120
+#version 130
 
 uniform sampler2D sceneLayer;
 uniform sampler2D normalDepthLayer;
@@ -28,4 +28,5 @@ void main(void)
     // funny effect rings effect
 
    gl_FragColor = voronoiInfo; // uncomment to show only distance field
+
 }

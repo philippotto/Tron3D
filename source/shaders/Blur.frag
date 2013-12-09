@@ -1,6 +1,8 @@
 /* BlurFragmentShader.glsl */
 precision mediump float;
- 
+
+#version 130
+
 uniform sampler2D colorTex;
  
 in vec2 v_texCoord;
@@ -24,5 +26,5 @@ void main()
     gl_FragColor += texture2D(colorTex, v_blurTexCoords[11])*0.0215963866053;
     gl_FragColor += texture2D(colorTex, v_blurTexCoords[12])*0.00895781211794;
     gl_FragColor += texture2D(colorTex, v_blurTexCoords[13])*0.0044299121055113265;
-	gl_FragColor = texture2D(colorTex, v_texCoord         );
+    //gl_FragColor = texture2D(colorTex, v_texCoord); 
 } 

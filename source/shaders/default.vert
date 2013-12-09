@@ -46,7 +46,7 @@ void main()
 	//	 -  osg_ViewMatrixInverse*gl_ModelViewMatrix * gl_Vertex);
 	
 	vec3 vertexToLightSource =   vec4(light0.position
-	-  gl_ModelViewMatrix *  gl_Vertex);
+	-  gl_ModelViewMatrix *  gl_Vertex).xyz;
 	
 	
 	float distance = length(light0.position);

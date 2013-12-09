@@ -47,13 +47,13 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Vie
 	// convenient for alternating ping pong textures
 	TEXTURE_CONTENT  pingPong[] = { PING, PONG };
 	// start writing into PONG buffer (pass == 1 )
-	m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::HBLUR, -1.0));
+	m_allCameras.push_back(pingPongPass(pass, COLOR, PING, shaders::HBLUR, -1.0));
 	m_root->addChild(m_allCameras[pass]);
 	pass++;
 
-	//m_allCameras.push_back(pingPongPass(pass, PING, PONG, shaders::VBLUR, -1.0));
-	//m_root->addChild(m_allCameras[pass]);
-	//pass++;
+	m_allCameras.push_back(pingPongPass(pass, PING, PONG, shaders::VBLUR, -1.0));
+	m_root->addChild(m_allCameras[pass]);
+	pass++;
 
 	// 3. JFA iteration passes: with decreasing kernel width, write id and shortest distance to current pixel
 	// initial jfa step width 
@@ -154,7 +154,7 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		m_fboTextures[i]->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
 		m_fboTextures[i]->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER);
 		m_fboTextures[i]->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER);
-		m_fboTextures[i]->setBorderColor(osg::Vec4d(0.0, 1.0, 1.0, 1.0));
+		m_fboTextures[i]->setBorderColor(osg::Vec4d(0.0, 0.0, 0.0, 1.0));
 		m_fboTextures[i]->setResizeNonPowerOfTwoHint(true);
 
 		// important to reflect the change in size
@@ -185,7 +185,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 
 	// Configure fboCamera to draw fullscreen textured quad
 	// black clear color
-	cam->setClearColor(osg::Vec4(0, 0, 0, 0));
+	cam->setClearColor(osg::Vec4(0.0, 0.0, 0.5, 1.0));
 	cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	cam->setReferenceFrame(osg::Camera::RELATIVE_RF);
@@ -222,7 +222,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	camera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0), m_fboTextures[outputTexture]);
 
 	// Configure fboCamera to draw fullscreen textured quad
-	camera->setClearColor(osg::Vec4(0, 0, 0, 1));
+	camera->setClearColor(osg::Vec4(float(float(order)/float(m_allCameras.size())), 0.0, 0.0, 1.0));
 	camera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	camera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
@@ -231,7 +231,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	// geometry
 	osg::Geode* geode(new osg::Geode());
 	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
-	geode->getOrCreateStateSet()->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
+	//geode->getOrCreateStateSet()->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
 	geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 	camera->addChild(geode);
 
@@ -247,7 +247,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	if (step != -1) state->addUniform(new osg::Uniform("currentStep", step));
 
 	state->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
-	state->setTextureAttributeAndModes(0, m_fboTextures[outputTexture], osg::StateAttribute::ON);
 
 	return camera.release();
 }
@@ -265,17 +264,17 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + PONG), m_fboTextures[PONG]);
 
 	// configure postRenderCamera to draw fullscreen textured quad
-	postRenderCamera->setClearColor(osg::Vec4(0.2, 0, 0, 1)); // should never see this.
+	postRenderCamera->setClearColor(osg::Vec4(0.0, 0.5, 0.0, 1)); // should never see this.
 	postRenderCamera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
 	postRenderCamera->setRenderOrder(osg::Camera::POST_RENDER);
 
 	// geometry
 	osg::Geode* geode(new osg::Geode());
 	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
-	geode->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
+	/*geode->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
 	geode->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
 	geode->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
-	geode->getOrCreateStateSet()->setTextureAttributeAndModes(PONG, m_fboTextures[PONG], osg::StateAttribute::ON);
+	geode->getOrCreateStateSet()->setTextureAttributeAndModes(PONG, m_fboTextures[PONG], osg::StateAttribute::ON);*/
 	geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 	postRenderCamera->addChild(geode);
 

@@ -1,10 +1,14 @@
+#version 130
+
 out vec2 v_texCoord;
 out vec2 v_blurTexCoords[14];
  
 void main()
 {
     gl_Position = gl_Vertex;
-    v_texCoord = gl_Vertex.xy;
+    // todo: TexCoords nutzen
+    v_texCoord = (gl_Vertex.xy + vec2(1.0))/2.0;
+
     v_blurTexCoords[ 0] = v_texCoord + vec2(-0.028, 0.0);
     v_blurTexCoords[ 1] = v_texCoord + vec2(-0.024, 0.0);
     v_blurTexCoords[ 2] = v_texCoord + vec2(-0.020, 0.0);
