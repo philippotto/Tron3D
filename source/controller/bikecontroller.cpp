@@ -2,26 +2,75 @@
 // OSG
 #include "osg/PositionAttitudeTransform"
 //troen
-#include "../input/bikeinputstate.h"
 #include "../view/bikeview.h"
 #include "../model/bikemodel.h"
 #include "../controller/fencecontroller.h"
 #include "../model/physicsworld.h"
 #include "../sound/audiomanager.h"
+#include "../input/keyboard.h"
+#include "../input/gamepad.h"
+#include "../input/ai.h"
 
 using namespace troen;
 
-BikeController::BikeController(const std::weak_ptr<sound::AudioManager>& audioManager)
+BikeController::BikeController(input::BikeInputState::InputDevice inputDevice)
 {
-
 	m_view = std::make_shared<BikeView>();
 	m_fenceController = std::make_shared<FenceController>();
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	m_model = std::make_shared<BikeModel>(viewNode, m_fenceController, this);
+
+	initializeInput(inputDevice);
 }
 
-void BikeController::setInputState(osg::ref_ptr<input::BikeInputState>& bikeInputState)
+void BikeController::initializeInput(input::BikeInputState::InputDevice inputDevice)
+{
+	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
+	setInputState(bikeInputState);
+
+	switch (inputDevice)
+	{
+	case input::BikeInputState::KEYBOARD:
+	{
+		m_keyboardHandler = new input::Keyboard(bikeInputState);
+		break;
+	}
+	case input::BikeInputState::GAMEPAD:
+	{
+		std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
+
+		if (gamepad->checkConnection())
+		{
+			std::cout << "[TroenGame::initializeInput] Gamepad connected on port " << gamepad->getPort() << std::endl;
+			bikeInputState->setPollingDevice(gamepad);
+		}
+		else
+		{
+			std::cout << "[TroenGame::initializeInput] USE_GAMEPAD true but no gamepad connected!" << std::endl;
+		}
+		break;
+	}
+	case input::BikeInputState::AI:
+	{
+		std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(bikeInputState);
+		bikeInputState->setPollingDevice(ai);
+		break;
+	}
+	}
+}
+
+osg::ref_ptr<input::Keyboard> BikeController::getEventHandler()
+{
+	return m_keyboardHandler;
+}
+
+bool BikeController::hasEventHandler()
+{
+	return m_keyboardHandler != nullptr;
+}
+
+void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
 	std::static_pointer_cast<BikeModel>(m_model)->setInputState(bikeInputState);
 }

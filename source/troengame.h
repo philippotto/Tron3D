@@ -54,9 +54,8 @@ namespace troen
 
 
 		std::shared_ptr<LevelController>	m_levelController;
-		std::shared_ptr<BikeController>		m_bikeController;
+		std::vector<std::shared_ptr<BikeController>> m_bikeControllers;
 		std::shared_ptr<HUDController>		m_HUDController;
-		std::vector<std::shared_ptr<BikeController>> m_bikeControllersAI;
 
 		QThread*							m_gameThread;
 		std::shared_ptr<util::ChronoTimer>	m_timer;
