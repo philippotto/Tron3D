@@ -4,12 +4,15 @@
 #include "../model/fencemodel.h"
 #include "../model/physicsworld.h"
 
+#include <osg/Vec3>
+
 using namespace troen;
 
-FenceController::FenceController(int maxFenceParts /*= 0*/) : m_maxFenceParts(maxFenceParts)
+FenceController::FenceController(osg::Vec3 color, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
 {
+	m_playerColor = color;
 	m_model = std::make_shared<FenceModel>(this, m_maxFenceParts);
-	m_view = std::make_shared<FenceView>(std::dynamic_pointer_cast<FenceModel>(m_model), m_maxFenceParts);
+	m_view = std::make_shared<FenceView>(m_playerColor, std::dynamic_pointer_cast<FenceModel>(m_model), m_maxFenceParts);
 }
 
 void FenceController::update(btVector3 position)

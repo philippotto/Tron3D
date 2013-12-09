@@ -5,12 +5,14 @@
 #include "../forwarddeclarations.h"
 #include "abstractcontroller.h"
 
+#include <osg/Vec3>
+
 namespace troen
 {
 	class FenceController : public AbstractController
 	{
 	public:
-		FenceController(int maxFenceParts = 0);
+		FenceController(osg::Vec3 color, int maxFenceParts = 0);
 		void update(btVector3 position);
 		void attachWorld(std::weak_ptr<PhysicsWorld>& world);
 
@@ -21,5 +23,6 @@ namespace troen
 		btVector3 m_lastPosition;
 		std::weak_ptr<PhysicsWorld> m_world;
 		int m_maxFenceParts;
+		osg::Vec3 m_playerColor;
 	};
 }

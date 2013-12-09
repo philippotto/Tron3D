@@ -32,5 +32,7 @@ namespace troen
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		std::shared_ptr<FenceController> m_fenceController;
 		osg::ref_ptr<input::Keyboard> m_keyboardHandler = nullptr;
+
+		osg::Vec3 m_playerColor;
 	};
 }
