@@ -22,7 +22,7 @@ namespace troen
 	class PostProcessing : public AbstractView //, public osg::Referenced
 	{
 	public:
-		PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Viewer* viewer);
+		PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Viewer* viewer, int width, int height);
 		
 		
 		enum TEXTURE_CONTENT { COLOR, NORMALDEPTH, ID, PING, PONG, TEXTURE_CONTENT_SIZE };

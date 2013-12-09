@@ -5,6 +5,7 @@
 #include <osg/ref_ptr>
 #include <osg/PositionAttitudeTransform>
 #include <osg/ShapeDrawable>
+#include <osgGA/GUIEventAdapter>
 // troen
 #include "forwarddeclarations.h"
 
@@ -23,6 +24,8 @@ namespace troen
 		void removeAllFencesEvent();
 		void toggleFencePartsLimitEvent();
 		void pauseGameEvent();
+
+		void refreshTextures(const osgGA::GUIEventAdapter&);
 
 	public slots:
 		void startGameLoop();

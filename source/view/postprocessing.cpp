@@ -24,8 +24,8 @@ using namespace troen;
 // ugly but convenient global statics for shaders    
 static osg::ref_ptr<osg::Uniform> g_nearFarUniform;
 
-PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Viewer* viewer)
-:m_root(rootNode), m_width(1024), m_height(1024), m_modelNode(new osg::Group())
+PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Viewer* viewer, int width, int height)
+:m_root(rootNode), m_width(width), m_height(height), m_modelNode(new osg::Group())
 {
 	// init textures, will be recreated when screen size changes
 	setupTextures(m_width, m_height);

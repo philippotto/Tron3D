@@ -41,7 +41,14 @@ namespace troen
 			//	}
 			//	break;
 			}
+			if (ea.getEventType() == osgGA::GUIEventAdapter::RESIZE)
+			{
+				// re setup textures to new size
+				m_troenGame->refreshTextures(ea);
+			}
+
 			return false;
+
 		}
 	private:
 		TroenGame*   m_troenGame;

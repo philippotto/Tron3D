@@ -35,6 +35,8 @@ using namespace troen;
 #define USE_GAMEPAD true
 #define SOUND_VOLUME 1.f
 #define DEFAULT_MAX_FENCE_PARTS 150
+#define DEFAULT_WINDOW_WIDTH 1280
+#define DEFAULT_WINDOW_HEIGHT 720
 // comment out to disable debug mode
 #define DEBUG_DRAW
 
@@ -150,7 +152,7 @@ bool TroenGame::initializeControllers()
 bool TroenGame::composeSceneGraph()
 {
 	// add jump flooding renderer
-	m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, dynamic_cast<osgViewer::Viewer*>(m_sampleOSGViewer.get()));
+	m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, dynamic_cast<osgViewer::Viewer*>(m_sampleOSGViewer.get()), DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
 
 	// everything that is added to model node is flooded using provided ids
 	m_sceneNode =  m_postProcessing->getSceneNode();
@@ -355,4 +357,9 @@ bool TroenGame::shutdown()
 
 	std::cout << "[TroenGame::shutdown] shutdown complete " << std::endl;
 	return true;
+}
+
+
+void TroenGame::refreshTextures(const osgGA::GUIEventAdapter& ea){
+	m_postProcessing->setupTextures(ea.getWindowWidth(), ea.getWindowHeight());
 }
