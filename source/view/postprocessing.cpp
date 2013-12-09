@@ -18,6 +18,17 @@
 // troen
 #include "shaders.h"
 
+class timeUpdate : public osg::Uniform::Callback
+{
+public:
+	virtual void operator()
+		(osg::Uniform* uniform, osg::NodeVisitor* nv)
+	{
+		float time = nv->getFrameStamp()->getReferenceTime();
+		uniform->set(time);
+	}
+};
+
 
 using namespace troen;
 
@@ -218,6 +229,12 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	state->addUniform(new osg::Uniform("inputLayer", inputTexture));
 	state->addUniform(new osg::Uniform("idLayer", ID));
 	if (step != -1) state->addUniform(new osg::Uniform("currentStep", step));
+
+
+	// add time uniform
+	osg::Uniform* timeU = new osg::Uniform("time", 0.f);
+	state->addUniform(timeU);
+	timeU->setUpdateCallback(new timeUpdate());
 
 	state->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);

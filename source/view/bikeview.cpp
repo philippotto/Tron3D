@@ -76,6 +76,8 @@ BikeView::BikeView(osg::Vec3 color)
 		"data/models/cycle/MG_Player_Disc_EMSS.tga",
 		"data/models/cycle/MG_Player_Disc_NORM.tga", GLOW);
 
+	MovieCycle_Player_Disc->getStateSet()->addUniform(new osg::Uniform("diffuseMaterialColor", osg::Vec3(1.f, 1.f, 1.f)));
+
 	osg::ref_ptr<osg::Node> MovieCycle_Glass_MI = createCyclePart("data/models/cycle/MG_MovieCycle_Glass_MI.obj",
 		"data/models/cycle/Glass.tga",
 		"data/models/cycle/Glass.tga",
@@ -137,7 +139,6 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::
 		ColorU = new osg::Uniform("playerColor", osg::Vec3(1.f, 1.f, 1.f));
 	}
 	NodeState->addUniform(ColorU);
-
 
 	if (stateAttributeMaterial != NULL)
 	{

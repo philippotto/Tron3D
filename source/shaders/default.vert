@@ -66,7 +66,7 @@ void main()
 	  // diffuseReflection = diffuseMaterialColor.xyz;
 	   // without material color!
 
-	diffuseColor = (ambientLighting + diffuseReflection) * vec3(1.f, 1.f, 0.f);
+	diffuseColor = (ambientLighting + diffuseReflection) * playerColor;
 
 	texCoord = gl_MultiTexCoord0.xy;
 	gl_Position = gl_ModelViewProjectionMatrix   * gl_Vertex ;
