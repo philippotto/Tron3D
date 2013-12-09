@@ -18,6 +18,6 @@ namespace troen
 
 	private:
 		btVector3 m_lastPosition;
-		std::shared_ptr<PhysicsWorld> m_world;
+		std::weak_ptr<PhysicsWorld> m_world;
 	};
 }

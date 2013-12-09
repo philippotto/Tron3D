@@ -319,10 +319,11 @@ bool TroenGame::shutdown()
 	m_rootNode = NULL;
 	m_levelController.reset();
 	m_bikeController.reset();
-	for (int i = 0; i < m_bikeControllersAI.size(); i++)
-	{
-		m_bikeControllersAI[i].reset();
-	}
+	//for (int i = 0; i < m_bikeControllersAI.size(); i++)
+	//{
+	//	m_bikeControllersAI[i].reset();
+	//}
+	m_bikeControllersAI.clear();
 	m_HUDController.reset();
 
 	// sound

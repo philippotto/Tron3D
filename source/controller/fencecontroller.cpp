@@ -30,7 +30,7 @@ void FenceController::update(btVector3 position)
 		std::shared_ptr<FenceModel> fenceModel = (std::static_pointer_cast<FenceModel>(m_model));
 
 		fenceModel->addFencePart(m_lastPosition, position);
-		m_world->addRigidBody(fenceModel->getLastPart());
+		m_world.lock()->addRigidBody(fenceModel->getLastPart());
 
 		std::static_pointer_cast<FenceView>(m_view)->addFencePart(
 			osg::Vec3(m_lastPosition.x(), m_lastPosition.y(), m_lastPosition.z()),
