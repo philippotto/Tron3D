@@ -211,6 +211,13 @@ bool TroenGame::initializeViews()
 	m_gameView->addEventHandler(m_gameEventHandler);
 
 	m_gameView2 = new osgViewer::View;
+
+	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator
+		= new osgGA::NodeTrackerManipulator;
+	manipulator->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
+	m_bikeController->attachTrackingCamera(manipulator);
+	m_gameView->setCameraManipulator(manipulator.get());
+
 	m_gameView2->setCameraManipulator(manipulator.get());
 	m_gameView2->setSceneData(m_rootNode);
 	m_gameView2->setUpViewInWindow(500, 500, 640, 480);
