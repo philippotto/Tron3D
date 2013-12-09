@@ -17,18 +17,20 @@ namespace troen
 	class PhysicsWorld
 	{
 	public:
-		PhysicsWorld();
+		PhysicsWorld(std::shared_ptr<sound::AudioManager>& audioManager);
 		virtual ~PhysicsWorld();
 
 		void initializeWorld();
 		void stepSimulation(long double currentTime);
 
 		void addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies);
-		void addRigidBody(btRigidBody *body);
+		void addRigidBody(btRigidBody* body);
+		void removeRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies);
+		void removeRigidBody(btRigidBody* body);
 
 		// collision event functions
 		void checkForCollisionEvents();
-		virtual void collisionEvent(btRigidBody* pBody0, btRigidBody * pBody1);
+		virtual void collisionEvent(btRigidBody* pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold);
 		virtual void separationEvent(btRigidBody * pBody0, btRigidBody * pBody1);
 
 		// debugview
@@ -40,6 +42,8 @@ namespace troen
 		btDefaultCollisionConfiguration *m_collisionConfiguration;
 		btCollisionDispatcher *m_dispatcher;
 		btBroadphaseInterface *m_broadphase;
+
+		std::weak_ptr<sound::AudioManager> m_audioManager;
 
 		// collision event variables
 		CollisionPairSet m_pairsLastUpdate;

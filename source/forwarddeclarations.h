@@ -30,6 +30,7 @@ namespace osg
 	class Camera;
 	class Node;
 	class Group;
+	class Geode;
 	class GraphicsContext;
 	class ShapeDrawable;
 }
@@ -47,6 +48,7 @@ class btCollisionDispatcher;
 class btBroadphaseInterface;
 class btRigidBody;
 class btCollisionShape;
+class btPersistentManifold;
 
 
 
@@ -55,6 +57,7 @@ namespace troen
 {
 	class TroenGame;
 	class SampleOSGViewer;
+	class GameEventHandler;
 
 	class BikeModel;
 	class LevelModel;

@@ -10,14 +10,16 @@ namespace troen
 	class FenceController : public AbstractController
 	{
 	public:
-		FenceController();
+		FenceController(int maxFenceParts = 0);
 		void update(btVector3 position);
-		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
+		void attachWorld(std::weak_ptr<PhysicsWorld>& world);
 
-		virtual const COLLISIONTYPE getCollisionType() { return FENCETYPE; };
+		void removeAllFences();
+		void enforceFencePartsLimit(int maxFenceParts);
 
 	private:
 		btVector3 m_lastPosition;
 		std::weak_ptr<PhysicsWorld> m_world;
+		int m_maxFenceParts;
 	};
 }

@@ -12,6 +12,6 @@ namespace troen
 		int getLevelSize();
 
 	private:
-		void addWalls();	
+		void addWalls(const LevelController* levelController);	
 	};
 }
