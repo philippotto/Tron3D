@@ -11,9 +11,7 @@ std::vector<osg::ref_ptr<osg::Program> > shaders::m_allShaderPrograms;
 
 void shaders::reloadShaders()
 {
-
-		for (int i = 0; i < SHADER_NAME_COUNT; i++)
-			shaders::m_allShaderPrograms.push_back(NULL);
+	shaders::m_allShaderPrograms.resize(SHADER_NAME_COUNT);
 
 	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "source/shaders/default.frag", "source/shaders/default.vert");
 	reloadShader(shaders::m_allShaderPrograms[GRID], "source/shaders/grid.frag", "source/shaders/grid.vert");
@@ -58,8 +56,6 @@ void shaders::reloadShader(
 		program->setName(*mystr);
 	}
 }
-
-
 
 bool shaders::loadShaderSource(osg::Shader* obj, const std::string& fileName)
 {

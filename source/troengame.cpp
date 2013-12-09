@@ -209,6 +209,13 @@ bool TroenGame::initializeViews()
 
 	m_gameEventHandler = new GameEventHandler(this);
 	m_gameView->addEventHandler(m_gameEventHandler);
+
+	m_gameView2 = new osgViewer::View;
+	m_gameView2->setCameraManipulator(manipulator.get());
+	m_gameView2->setSceneData(m_rootNode);
+	m_gameView2->setUpViewInWindow(500, 500, 640, 480);
+
+
 	return true;
 }
 
@@ -216,6 +223,8 @@ bool TroenGame::initializeViewer()
 {
 	m_sampleOSGViewer = new SampleOSGViewer();
 	m_sampleOSGViewer.get()->addView(m_gameView);
+	m_sampleOSGViewer2 = new SampleOSGViewer();
+	m_sampleOSGViewer2.get()->addView(m_gameView2);
 	return true;
 }
 
@@ -258,7 +267,7 @@ void TroenGame::startGameLoop()
 #endif	
 
 	// GAME LOOP
-	while (!m_sampleOSGViewer->done())
+	while (!m_sampleOSGViewer->done() || m_sampleOSGViewer2->done())
 	{
 		long double currTime = m_timer->elapsed();
 		// are we significantly behind? if yes, "resync", force rendering
@@ -289,7 +298,8 @@ void TroenGame::startGameLoop()
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
-				m_sampleOSGViewer->frame();			
+				m_sampleOSGViewer->frame();	
+				m_sampleOSGViewer2->frame();
 				skippedFrames = 0;
 			}
 			else
@@ -327,7 +337,9 @@ bool TroenGame::shutdown()
 
 	//viewer & views
 	m_sampleOSGViewer = nullptr;
+	m_sampleOSGViewer2 = nullptr;
 	m_gameView = nullptr;
+	m_gameView2 = nullptr;
 	m_statsHandler = nullptr;
 
 	// models & scenegraph
