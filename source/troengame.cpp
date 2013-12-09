@@ -33,7 +33,7 @@ using namespace troen;
 #define SOUND_VOLUME 1.f
 #define DEFAULT_MAX_FENCE_PARTS 150
 // comment out to disable debug mode
-#define DEBUG_DRAW
+//#define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(FALSE)
@@ -138,7 +138,6 @@ bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
 	m_bikeController = std::make_shared<BikeController>(m_audioManager);
-	m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
 	m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
 	m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
 	//m_HUDController = std::make_shared<HUDController>();
