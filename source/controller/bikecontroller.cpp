@@ -11,13 +11,12 @@
 
 using namespace troen;
 
-BikeController::BikeController(const std::shared_ptr<sound::AudioManager>& audioManager)
- : m_audioManager(audioManager)
+BikeController::BikeController(const std::weak_ptr<sound::AudioManager>& audioManager)
 {
 
-	m_view = std::static_pointer_cast<BikeView>(std::make_shared<BikeView>());
+	m_view = std::make_shared<BikeView>();
 	m_fenceController = std::make_shared<FenceController>();
-	m_model = std::static_pointer_cast<BikeModel>(std::make_shared<BikeModel>(getViewNode(), m_fenceController, this));
+	m_model = std::make_shared<BikeModel>(getViewNode(), m_fenceController, this);
 }
 
 void BikeController::setInputState(osg::ref_ptr<input::BikeInputState>& bikeInputState)
@@ -55,12 +54,17 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	return group;
 };
 
-void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
-	world->addRigidBodies(getRigidBodies());
+void BikeController::attachWorld(std::weak_ptr<PhysicsWorld> &world) {
+	world.lock()->addRigidBodies(getRigidBodies());
 	m_fenceController->attachWorld(world);
 }
 
-const std::shared_ptr<sound::AudioManager> BikeController::getAudioManager()
+void BikeController::removeAllFences()
 {
-	return m_audioManager;
+	m_fenceController->removeAllFences();
+}
+
+void BikeController::enforceFencePartsLimit(int maxFenceParts)
+{
+	m_fenceController->enforceFencePartsLimit(maxFenceParts);
 }

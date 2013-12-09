@@ -1,4 +1,4 @@
-#version 130
+#version 120
 
 uniform sampler2D sceneLayer;
 uniform sampler2D normalDepthLayer;

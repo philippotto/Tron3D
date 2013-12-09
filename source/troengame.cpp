@@ -8,6 +8,7 @@
 // troen
 #include "sampleosgviewer.h"
 #include "updatebikepositioncallback.h"
+#include "gameeventhandler.h"
 
 #include "input/bikeinputstate.h"
 #include "input/keyboard.h"
@@ -15,7 +16,6 @@
 
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
-
 #include "sound/audiomanager.h"
 
 #include "model/physicsworld.h"
@@ -34,11 +34,14 @@ using namespace troen;
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
 #define SOUND_VOLUME 1.f
+#define DEFAULT_MAX_FENCE_PARTS 150
+// comment out to disable debug mode
+#define DEBUG_DRAW
 
-TroenGame::TroenGame(QThread* thread /*= NULL*/) :
-	m_gameThread(thread)
+TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
+m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(FALSE)
 {
-	if (m_gameThread == NULL) {
+	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
 	}
 	moveToThread(m_gameThread);
@@ -49,15 +52,47 @@ TroenGame::~TroenGame()
 {
 }
 
+void TroenGame::switchSoundVolumeEvent()
+{
+	m_audioManager->SetMasterVolume(1 - m_audioManager->GetMasterVolume());
+}
+
+void TroenGame::removeAllFencesEvent()
+{
+	m_bikeController->removeAllFences();
+}
+
+void TroenGame::toggleFencePartsLimitEvent()
+{
+	if (m_maxFenceParts == 0){
+		m_maxFenceParts = DEFAULT_MAX_FENCE_PARTS;
+		std::cout << "[TroenGame::toggleFencePartsLimitEvent] turning fenceParsLimit ON ..." << std::endl;
+	}
+	else
+	{
+		m_maxFenceParts = 0;
+		std::cout << "[TroenGame::toggleFencePartsLimitEvent] turning fenceParsLimit OFF ..." << std::endl;
+	}
+
+	m_bikeController->enforceFencePartsLimit(m_maxFenceParts);
+}
+
+void TroenGame::pauseGameEvent()
+{
+	m_gamePaused = m_gamePaused == false ? true : false;
+}
+
+
 bool TroenGame::initialize()
 {
 	m_rootNode = new osg::Group;
 
 	// careful about the order of initialization
-	// TODO
-	// initialize sound  here
+	osg::DisplaySettings::instance()->setNumMultiSamples(4);
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
+
+	std::cout << "[TroenGame::initialize] initializing shaders ..." << std::endl;
 	initializeShaders();
 
 	std::cout << "[TroenGame::initialize] initializing sound ..." << std::endl;
@@ -93,6 +128,7 @@ bool TroenGame::initializeSound()
 	m_audioManager = std::shared_ptr<sound::AudioManager>(new sound::AudioManager);
 	m_audioManager->LoadSFX("data/sound/explosion.wav");
 	m_audioManager->LoadSong("data/sound/1.13. Derezzed.flac");
+	m_audioManager->SetSongsVolume(0.1);
 	return true;
 }
 
@@ -143,8 +179,6 @@ bool TroenGame::initializeInput()
 	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
 	m_bikeController->setInputState(bikeInputState);
 
-	//m_childNode->setUpdateCallback(new UpdateBikePositionCallback(m_bike));
-
 	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
 	std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
 
@@ -184,13 +218,16 @@ bool TroenGame::initializeViews()
 	m_gameView->setSceneData(m_rootNode);
 	m_gameView->setUpViewInWindow(100, 100, 1280, 720, 0);
 	//m_gameView->setUpViewOnSingleScreen(0);
+
+	m_gameEventHandler = new GameEventHandler(this);
+	m_gameView->addEventHandler(m_gameEventHandler);
 	return true;
 }
 
 bool TroenGame::initializeViewer()
 {
 	m_sampleOSGViewer = new SampleOSGViewer();
-	m_sampleOSGViewer->addView(m_gameView);
+	m_sampleOSGViewer.get()->addView(m_gameView);
 	return true;
 }
 
@@ -202,10 +239,10 @@ bool TroenGame::initializeTimer()
 
 bool TroenGame::initializePhysicsWorld()
 {
-	m_physicsWorld = std::make_shared<PhysicsWorld>();
+	m_physicsWorld = std::make_shared<PhysicsWorld>(m_audioManager);
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies());
 	// m_physicsWorld->addRigidBodies(m_bikeController->getRigidBodies());
-	m_bikeController->attachWorld(m_physicsWorld);
+	m_bikeController->attachWorld(std::weak_ptr<PhysicsWorld>(m_physicsWorld));
 	return true;
 }
 
@@ -219,8 +256,7 @@ void TroenGame::startGameLoop()
 	m_timer->start();
 
 	m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
-	m_audioManager->SetMasterVolume(SOUND_VOLUME);
-	m_audioManager->SetSongsVolume(SOUND_VOLUME);
+	m_audioManager->SetMasterVolume(0.f);
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();
@@ -229,8 +265,6 @@ void TroenGame::startGameLoop()
 	int skippedFrames = 0;
 	int maxSkippedFrames = 4;
 
-// comment out to disable debug mode
-//#define DEBUG_DRAW
 #ifdef DEBUG_DRAW				
 	m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 #endif	
@@ -256,10 +290,12 @@ void TroenGame::startGameLoop()
 			updateModels() and checkForUserInput()
 			stepSimulation() (Physics) + updateViews()
 			//render();*/
+			if (!m_gamePaused)
+			{
+				m_bikeController->updateModel();
+				m_physicsWorld->stepSimulation(currTime);
+			}
 
-			m_bikeController->updateModel();
-
-			m_physicsWorld->stepSimulation(currTime);
 			m_audioManager->Update(currTime/1000);
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
@@ -302,12 +338,12 @@ bool TroenGame::shutdown()
 	//input
 
 	//viewer & views
-	m_sampleOSGViewer = NULL;
-	m_gameView = NULL;
-	m_statsHandler = NULL;
+	m_sampleOSGViewer = nullptr;
+	m_gameView = nullptr;
+	m_statsHandler = nullptr;
 
 	// models & scenegraph
-	m_rootNode = NULL;
+	m_rootNode = nullptr;
 	m_bikeController.reset();
 	m_levelController.reset();
 	m_HUDController.reset();

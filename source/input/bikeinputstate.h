@@ -20,6 +20,7 @@ namespace input
 
 	private:
 		bool m_pollingEnabled;
+		//TODO convert to weak_ptr
 		std::shared_ptr<input::Gamepad> m_pollingDevice;
 		float m_acceleration;
 		float m_angle;

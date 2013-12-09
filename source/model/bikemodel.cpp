@@ -22,12 +22,7 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
 
-#ifdef _DEBUG
-	btVector3 bikeDimensions = btVector3( bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin()) / 5;
-#endif
-#ifndef _DEBUG
 	btVector3 bikeDimensions = btVector3( 12.5, 25, 12.5 );
-#endif
 
 	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(bikeDimensions / 2);
 
@@ -48,11 +43,15 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
 	bikeRigidBody->setCcdMotionThreshold(1 / bikeDimensions.y());
+	bikeRigidBody->setCcdSweptSphereRadius(bikeDimensions.x() / 2.0 - 0.5);
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
 	// for collision event handling
 	bikeRigidBody->setUserPointer(bikeController);
+	bikeRigidBody->setUserIndex(BIKETYPE);
+
+	bikeMotionState->setRigidBody(bikeRigidBody);
 
 	m_collisionShapes.push_back(bikeShape);
 	m_motionStates.push_back(bikeMotionState);

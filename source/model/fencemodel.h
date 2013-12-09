@@ -8,15 +8,24 @@ namespace troen
 	class FenceModel : public AbstractModel
 	{
 	public:
-		FenceModel(FenceController* fenceController);
-		void addFence();
-		void addFencePart(btVector3 a, btVector3 b);
+		FenceModel(FenceController* fenceController, int maxFenceParts);
+		void attachWorld(std::weak_ptr<PhysicsWorld>& world);
+
 		float getFenceHeight();
 
-		btRigidBody* FenceModel::getLastPart();
+		void addFencePart(btVector3 a, btVector3 b);
+		void removeFirstFencePart();
+		void removeAllFences();
+		void enforceFencePartsLimit(int maxFenceParts);
 
-		void addFenceMarker(btVector3 a);
 	private:
 		FenceController* m_fenceController;
+		std::weak_ptr<PhysicsWorld> m_world;
+
+		std::deque<std::shared_ptr<btRigidBody>>		m_rigidBodyDeque;
+		std::deque<std::shared_ptr<btMotionState>>		m_motionStateDeque;
+		std::deque<std::shared_ptr<btCollisionShape>>	m_collisionShapeDeque;
+
+		int m_maxFenceParts;
 	};
 }

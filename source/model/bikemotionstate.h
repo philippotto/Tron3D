@@ -10,15 +10,21 @@ namespace troen
 	class BikeMotionState : public btMotionState 
 	{
 	public:
-		BikeMotionState(const btTransform &initialpos, osg::PositionAttitudeTransform* pat, std::shared_ptr<FenceController> fenceController,
-			btVector3 bikeDimensions) {
-			m_visibleObj = pat;
-			mPos1 = initialpos;
-			m_fenceController = fenceController;
-			m_bikeDimensions = bikeDimensions;
-		}
+		BikeMotionState(
+			const btTransform &initialpos,
+			osg::PositionAttitudeTransform* pat,
+			std::shared_ptr<FenceController> fenceController,
+			btVector3 bikeDimensions) :
+				m_position(initialpos),
+				m_visibleObj(pat),
+				m_fenceController(fenceController),
+				m_bikeDimensions(bikeDimensions){}
 
-		virtual ~BikeMotionState() {
+		virtual ~BikeMotionState() {}
+
+		void setRigidBody(std::weak_ptr<btRigidBody> bikeRigidBody)
+		{
+			m_rigidBody = bikeRigidBody;
 		}
 
 		void setNode(osg::PositionAttitudeTransform* pat) {
@@ -26,15 +32,19 @@ namespace troen
 		}
 
 		virtual void getWorldTransform(btTransform &worldTrans) const {
-			worldTrans = mPos1;
+			worldTrans = m_position;
 		}
 
 		virtual void setWorldTransform(const btTransform &worldTrans) {
-			if (NULL == m_visibleObj)
+			if (nullptr == m_visibleObj)
 				return; // silently return before we set a node
 			btQuaternion rot = worldTrans.getRotation();
 			osg::Vec3 axis = osg::Vec3(rot.getAxis().x(), rot.getAxis().y(), rot.getAxis().z());
 			osg::Quat rotationQuat(rot.getAngle(), axis);
+
+			// btVector3 angluarVelocity = m_rigidBody.lock()->getAngularVelocity();
+			// std::cout << angluarVelocity.x() << " " << angluarVelocity.y() << " " << angluarVelocity.z() << std::endl;
+
 			m_visibleObj->setAttitude(rotationQuat);
 
 			btVector3 pos = worldTrans.getOrigin();
@@ -44,13 +54,14 @@ namespace troen
 				0, -m_bikeDimensions.y() / 2, m_bikeDimensions.z() / 2).rotate(rot.getAxis(), rot.getAngle());
 			
 			// update fence accordingly
-			m_fenceController->update(pos - fenceOffset);
+			m_fenceController.lock()->update(pos - fenceOffset);
 		}
 
 	protected:
 		osg::PositionAttitudeTransform* m_visibleObj;
-		btTransform mPos1;
-		std::shared_ptr<FenceController> m_fenceController;
+		btTransform m_position;
+		std::weak_ptr<FenceController> m_fenceController;
+		std::weak_ptr<btRigidBody> m_rigidBody;
 		btVector3 m_bikeDimensions;
 	};
 }
