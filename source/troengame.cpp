@@ -139,8 +139,8 @@ bool TroenGame::initializeControllers()
 	m_levelController = std::make_shared<LevelController>();
 	m_bikeController = std::make_shared<BikeController>(m_audioManager);
 	m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
-	m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
-	m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
+	//m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
+	//m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
 	//m_HUDController = std::make_shared<HUDController>();
 	return true;
 }
@@ -169,10 +169,16 @@ bool TroenGame::initializeInput()
 {
 	// TODO
 	// dw: clean this up, move it to the appropriate place
+	std::vector<osgGA::GUIEventAdapter::KeySymbol> keys{
+		osgGA::GUIEventAdapter::KEY_W,
+		osgGA::GUIEventAdapter::KEY_A,
+		osgGA::GUIEventAdapter::KEY_S,
+		osgGA::GUIEventAdapter::KEY_D
+		};
 	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
 	m_bikeController->setInputState(bikeInputState);
 
-	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
+	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState, keys);
 	std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
 
 	if (USE_GAMEPAD)
@@ -192,11 +198,30 @@ bool TroenGame::initializeInput()
 	// add "input" for the AIs
 	for (int i = 0; i < m_bikeControllersAI.size(); i++)
 	{
-		osg::ref_ptr<input::BikeInputState> inputState = new input::BikeInputState();
-		m_bikeControllersAI[i]->setInputState(inputState);
+		if (i == 0)
+		{
+			std::vector<osgGA::GUIEventAdapter::KeySymbol> keys2{
+				osgGA::GUIEventAdapter::KEY_Up,
+				osgGA::GUIEventAdapter::KEY_Left,
+				osgGA::GUIEventAdapter::KEY_Down,
+				osgGA::GUIEventAdapter::KEY_Right
+				};
 
-		std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(inputState);
-		inputState->setPollingDevice(ai);
+			osg::ref_ptr<input::BikeInputState> inputState = new input::BikeInputState();
+			m_bikeControllersAI[i]->setInputState(inputState);
+
+			osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(inputState, keys2);
+
+			m_gameView->addEventHandler(keyboardHandler);
+		}
+		else
+		{
+			osg::ref_ptr<input::BikeInputState> inputState = new input::BikeInputState();
+			m_bikeControllersAI[i]->setInputState(inputState);
+
+			std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(inputState);
+			inputState->setPollingDevice(ai);
+		}
 	}
 
 	return true;
@@ -227,16 +252,14 @@ bool TroenGame::initializeViews()
 
 	m_gameView2 = new osgViewer::View;
 
-	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator
+	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator2
 		= new osgGA::NodeTrackerManipulator;
-	manipulator->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-	m_bikeController->attachTrackingCamera(manipulator);
-	m_gameView->setCameraManipulator(manipulator.get());
+	manipulator2->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
+	m_bikeControllersAI[0]->attachTrackingCamera(manipulator2);
+	m_gameView2->setCameraManipulator(manipulator2.get());
 
-	m_gameView2->setCameraManipulator(manipulator.get());
 	m_gameView2->setSceneData(m_rootNode);
 	m_gameView2->setUpViewInWindow(500, 500, 640, 480);
-
 
 	return true;
 }
