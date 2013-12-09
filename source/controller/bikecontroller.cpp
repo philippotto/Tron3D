@@ -17,7 +17,8 @@ BikeController::BikeController(const std::shared_ptr<sound::AudioManager>& audio
 
 	m_view = std::static_pointer_cast<BikeView>(std::make_shared<BikeView>());
 	m_fenceController = std::make_shared<FenceController>();
-	m_model = std::static_pointer_cast<BikeModel>(std::make_shared<BikeModel>(getViewNode(), m_fenceController, this));
+	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
+	m_model = std::static_pointer_cast<BikeModel>(std::make_shared<BikeModel>(viewNode, m_fenceController, this));
 }
 
 void BikeController::setInputState(osg::ref_ptr<input::BikeInputState>& bikeInputState)
@@ -36,7 +37,8 @@ void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipul
 
 	cameraOffset.makeTranslate(0, debugNormalizer * 100, -20);
 
-	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (getViewNode()->getChild(0));
+	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
+	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
 	// set the actual node as the track node, not the pat
 	manipulator->setTrackNode(pat->getChild(0));
 	manipulator->setHomePosition(pat->getPosition(), pat->getPosition() * cameraOffset, osg::Vec3d(0, debugNormalizer * 1, 0));
@@ -49,8 +51,11 @@ void BikeController::updateModel()
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
 {
-	osg::ref_ptr<osg::Group> group = std::static_pointer_cast<BikeView>(m_view)->getNode();
+
+	osg::ref_ptr<osg::Group> group = new osg::Group();
+	group->setCullingActive(false);
 	group->addChild(m_fenceController->getViewNode());
+	group->addChild(std::static_pointer_cast<BikeView>(m_view)->getNode());
 	return group;
 };
 
@@ -59,7 +64,7 @@ void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
 	m_fenceController->attachWorld(world);
 }
 
-const std::shared_ptr<sound::AudioManager> BikeController::getAudioManager()
+const std::weak_ptr<sound::AudioManager> BikeController::getAudioManager()
 {
 	return m_audioManager;
 }

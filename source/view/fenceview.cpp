@@ -47,7 +47,8 @@ void FenceView::initializeShader()
 	osg::ref_ptr<osg::StateSet> NodeState = m_node->getOrCreateStateSet();
 
 	// TODO (dw) set to actual player color
-	osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", osg::Vec3(0.0, 1.0, 1.0));
+	// osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", osg::Vec3(0.0, 1.0, 1.0));
+	osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", osg::Vec3(fmod(rand() / 100.0, 1.0), fmod(rand() / 100.0, 1.0), fmod(rand() / 100.0, 1.0)));
 	NodeState->addUniform(fenceColorU);
 
 	osg::Uniform* fenceHeightU = new osg::Uniform("fenceHeight", m_fenceHeight);
@@ -70,7 +71,7 @@ void FenceView::addFencePart(osg::Vec3 a, osg::Vec3 b)
 	m_coordinates->push_back(osg::Vec3(b.x(), b.y(), b.z() + m_fenceHeight));
 	
 	// TODO remove if no disadvantages seem necessary?
-	// m_geometry->dirtyBound();
 	m_drawArrays->setCount(m_coordinates->size());
+	//m_geometry->dirtyBound();
 	
 }

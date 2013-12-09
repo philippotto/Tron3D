@@ -7,11 +7,11 @@
 #include <osgViewer/ViewerEventHandlers>
 // troen
 #include "sampleosgviewer.h"
-#include "updatebikepositioncallback.h"
 
 #include "input/bikeinputstate.h"
 #include "input/keyboard.h"
 #include "input/gamepad.h"
+#include "input/ai.h"
 
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
@@ -19,12 +19,10 @@
 #include "sound/audiomanager.h"
 
 #include "model/physicsworld.h"
-#include "model/bikemodel.h"
 #include "controller/levelcontroller.h"
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
 #include "controller/hudcontroller.h"
-#include "view/bikeview.h"
 #include "view/shaders.h"
 #include "view/skydome.h"
 
@@ -104,6 +102,9 @@ bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
 	m_bikeController = std::make_shared<BikeController>(m_audioManager);
+	m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
+	m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
+	m_bikeControllersAI.push_back(std::make_shared<BikeController>(m_audioManager));
 	//m_HUDController = std::make_shared<HUDController>();
 	return true;
 }
@@ -113,6 +114,10 @@ bool TroenGame::composeSceneGraph()
 	m_rootNode->addChild(m_skyDome.get());
 	m_rootNode->addChild(m_levelController->getViewNode());
 	m_rootNode->addChild(m_bikeController->getViewNode());
+	for (int i = 0; i < m_bikeControllersAI.size(); i++)
+	{
+		m_rootNode->addChild(m_bikeControllersAI[i]->getViewNode());
+	}
 	//m_rootNode->addChild(m_HUDController->getViewNode());
 	
 	return true;
@@ -131,8 +136,6 @@ bool TroenGame::initializeInput()
 	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();
 	m_bikeController->setInputState(bikeInputState);
 
-	//m_childNode->setUpdateCallback(new UpdateBikePositionCallback(m_bike));
-
 	osg::ref_ptr<input::Keyboard> keyboardHandler = new input::Keyboard(bikeInputState);
 	std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
 
@@ -149,6 +152,16 @@ bool TroenGame::initializeInput()
 	}
 
 	m_gameView->addEventHandler(keyboardHandler);
+
+	// add "input" for the AIs
+	for (int i = 0; i < m_bikeControllersAI.size(); i++)
+	{
+		osg::ref_ptr<input::BikeInputState> inputState = new input::BikeInputState();
+		m_bikeControllersAI[i]->setInputState(inputState);
+
+		std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(inputState);
+		inputState->setPollingDevice(ai);
+	}
 
 	return true;
 }
@@ -192,8 +205,11 @@ bool TroenGame::initializePhysicsWorld()
 {
 	m_physicsWorld = std::make_shared<PhysicsWorld>();
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies());
-	// m_physicsWorld->addRigidBodies(m_bikeController->getRigidBodies());
 	m_bikeController->attachWorld(m_physicsWorld);
+	for (int i = 0; i < m_bikeControllersAI.size(); i++)
+	{
+		m_bikeControllersAI[i]->attachWorld(m_physicsWorld);
+	}
 	return true;
 }
 
@@ -246,6 +262,10 @@ void TroenGame::startGameLoop()
 			//render();*/
 
 			m_bikeController->updateModel();
+			for (int i = 0; i < m_bikeControllersAI.size(); i++)
+			{
+				m_bikeControllersAI[i]->updateModel();
+			}
 
 			m_physicsWorld->stepSimulation(currTime);
 			m_audioManager->Update(currTime/1000);
@@ -283,11 +303,12 @@ bool TroenGame::shutdown()
 {
 	// clean up in reverse order from initialization
 
-	// physics
-	m_physicsWorld.reset();
 	//timer
 	m_timer.reset();
 	//input
+
+	// physics
+	m_physicsWorld.reset();
 
 	//viewer & views
 	m_sampleOSGViewer = NULL;
@@ -296,8 +317,12 @@ bool TroenGame::shutdown()
 
 	// models & scenegraph
 	m_rootNode = NULL;
-	m_bikeController.reset();
 	m_levelController.reset();
+	m_bikeController.reset();
+	for (int i = 0; i < m_bikeControllersAI.size(); i++)
+	{
+		m_bikeControllersAI[i].reset();
+	}
 	m_HUDController.reset();
 
 	// sound

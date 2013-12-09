@@ -18,9 +18,6 @@ namespace troen
 			m_bikeDimensions = bikeDimensions;
 		}
 
-		virtual ~BikeMotionState() {
-		}
-
 		void setNode(osg::PositionAttitudeTransform* pat) {
 			m_visibleObj = pat;
 		}

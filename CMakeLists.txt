@@ -206,6 +206,10 @@ set(sources
 	source/input/gamepad.cpp
 	source/input/bikeinputstate.h
 	source/input/bikeinputstate.cpp
+	source/input/ai.h
+	source/input/ai.cpp
+	source/input/pollingdevice.h
+	source/input/pollingdevice.cpp
 
 	source/sound/audiomanager.h
 	source/sound/audiomanager.cpp

@@ -22,10 +22,10 @@ namespace troen
 
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
-		const std::shared_ptr<sound::AudioManager> getAudioManager();
+		const std::weak_ptr<sound::AudioManager> getAudioManager();
 
 	private:
 		std::shared_ptr<FenceController> m_fenceController;
-		std::shared_ptr<sound::AudioManager> m_audioManager;
+		std::weak_ptr<sound::AudioManager> m_audioManager;
 	};
 }
