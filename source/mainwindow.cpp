@@ -82,6 +82,11 @@ MainWindow::MainWindow(QWidget * parent)
 	m_splitscreenCheckBox = new QCheckBox("Splitscreen");
 	vBoxLayout->addWidget(m_splitscreenCheckBox, 0, Qt::AlignHCenter);
 
+	// splitscreenCheckBox
+	m_postProcessingCheckBox = new QCheckBox("PostProcessing");
+	vBoxLayout->addWidget(m_postProcessingCheckBox, 0, Qt::AlignHCenter);
+	m_postProcessingCheckBox->setChecked(true);
+
 	// gameStartButton
 	m_gameStartButton = new QPushButton(QString("start Game"));
 	m_gameStartButton->setContentsMargins(0, 5, 0, 5);
@@ -127,5 +132,6 @@ void MainWindow::prepareGameStart()
 		config.playerInputTypes[i] = m_playerComboBoxes.at(i)->currentIndex();
 	}
 	config.splitscreen = m_splitscreenCheckBox->isChecked();
+	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	emit startGame(config);
 }

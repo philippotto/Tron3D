@@ -37,7 +37,7 @@ using namespace troen;
 //#define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
-m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(false), m_splitscreen(false), m_numberOfBikes(0)
+m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(false), m_splitscreen(false), m_numberOfBikes(0), m_usePostProcessing(false)
 {
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
@@ -90,6 +90,7 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 {
 	m_numberOfBikes = config.numberOfBikes;
 	m_splitscreen = config.splitscreen;
+	m_usePostProcessing = config.usePostProcessing;
 
 	m_playerInputTypes.clear();
 	for (int i = 0; i < m_numberOfBikes; i++)
@@ -167,22 +168,25 @@ bool TroenGame::initializeControllers()
 
 bool TroenGame::composeSceneGraph()
 {
-	// add jump flooding renderer
-	m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, dynamic_cast<osgViewer::Viewer*>(m_sampleOSGViewer.get()), DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
-
-	// everything that is added to model node is flooded using provided ids
-	m_sceneNode =  m_postProcessing->getSceneNode();
-
+	if (m_usePostProcessing)
+	{
+		// add jump flooding renderer
+		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, dynamic_cast<osgViewer::Viewer*>(m_sampleOSGViewer.get()), DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+		// everything that is added to model node is flooded using provided ids
+		m_sceneNode = m_postProcessing->getSceneNode();
+	}
+	else
+		m_sceneNode = m_rootNode;
 
 	m_sceneNode->addChild(m_skyDome.get());
 	m_sceneNode->addChild(m_levelController->getViewNode());
+	//m_sceneNode->addChild(m_HUDController->getViewNode());
 
 	for (auto bikeController : m_bikeControllers)
-	{
 		m_sceneNode->addChild(bikeController->getViewNode());
-	}
-	m_rootNode->addChild(m_sceneNode);
-	//m_rootNode->addChild(m_HUDController->getViewNode());
+
+	if (m_usePostProcessing)
+		m_rootNode->addChild(m_sceneNode);
 	
 	return true;
 }

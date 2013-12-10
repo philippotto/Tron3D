@@ -38,6 +38,8 @@ namespace troen
 		QSpinBox*		m_bikeNumberSpinBox;
 		QVector<QComboBox*>	m_playerComboBoxes;
 		QCheckBox*		m_splitscreenCheckBox;
+		QCheckBox*		m_postProcessingCheckBox;
+
 
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;

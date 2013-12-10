@@ -74,7 +74,7 @@ void FenceModel::enforceFencePartsLimit(int maxFenceParts)
 	if (m_maxFenceParts != maxFenceParts)
 		m_maxFenceParts = maxFenceParts;
 
-	int rigidBodyDequeSize = m_rigidBodyDeque.size();
+	size_t rigidBodyDequeSize = m_rigidBodyDeque.size();
 	if (maxFenceParts != 0 && rigidBodyDequeSize > maxFenceParts)
 	{
 		for (int i = 0; i < rigidBodyDequeSize - maxFenceParts; i++)

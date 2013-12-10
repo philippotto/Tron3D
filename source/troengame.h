@@ -15,6 +15,7 @@ typedef struct s_GameConfig
 	int numberOfBikes;
 	int* playerInputTypes;
 	bool splitscreen;
+	bool usePostProcessing;
 } GameConfig;
 Q_DECLARE_METATYPE(s_GameConfig)
 
@@ -84,6 +85,7 @@ namespace troen
 		int m_maxFenceParts;
 		bool m_gamePaused;
 		bool m_splitscreen;
+		bool m_usePostProcessing;
 		int m_numberOfBikes;
 		std::vector<int> m_playerInputTypes;
 	};
