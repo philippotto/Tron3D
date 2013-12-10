@@ -6,6 +6,7 @@
 #include <osg/ref_ptr>
 #include <osg/PositionAttitudeTransform>
 #include <osg/ShapeDrawable>
+#include <osgGA/GUIEventAdapter>
 // troen
 #include "forwarddeclarations.h"
 
@@ -34,6 +35,8 @@ namespace troen
 		void removeAllFencesEvent();
 		void toggleFencePartsLimitEvent();
 		void pauseGameEvent();
+
+		void refreshTextures(const osgGA::GUIEventAdapter&);
 
 	public slots:
 		void prepareAndStartGame(GameConfig config);
@@ -66,7 +69,8 @@ namespace troen
 		osg::ref_ptr<osg::Group>			m_rootNode;
 		osg::ref_ptr<SkyDome>               m_skyDome;
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
-
+		std::shared_ptr<PostProcessing>		m_postProcessing;
+		osg::ref_ptr<osg::Group>			m_sceneNode;
 
 		std::shared_ptr<LevelController>	m_levelController;
 		std::vector<std::shared_ptr<BikeController>> m_bikeControllers;

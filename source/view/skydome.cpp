@@ -1,6 +1,8 @@
 #include "SkyDome.h"
 //#include "constants.h"
 
+#include "abstractview.h"
+
 #include <osg/TexEnv>
 #include <osg/TexGen>
 #include <osg/TexMat>
@@ -42,6 +44,8 @@ SkyDome::SkyDome() :
     //program->addShader(osgDB::readShaderFile("shader/TypeId.frag"));
     stateset->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
     stateset->addUniform(new osg::Uniform("cubemap", 0));
+
+	stateset->addUniform(new osg::Uniform("modelID", AbstractView::BACKGROUND));
 
     // clear the depth to the far plane.
     osg::ref_ptr<osg::Depth> depth = new osg::Depth(osg::Depth::ALWAYS, 1.0, 1.0);

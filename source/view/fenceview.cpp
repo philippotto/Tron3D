@@ -9,8 +9,9 @@
 
 using namespace troen;
 
-FenceView::FenceView(std::shared_ptr<FenceModel>& model, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
+FenceView::FenceView(osg::Vec3 color, std::shared_ptr<FenceModel>& model, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
 {
+	m_playerColor = color;
 	m_model = model;
 	m_node = new osg::Group();
 
@@ -45,14 +46,14 @@ void FenceView::initializeFence()
 void FenceView::initializeShader()
 {
 	osg::ref_ptr<osg::StateSet> NodeState = m_node->getOrCreateStateSet();
-
-	// TODO (dw) set to actual player color
-	// osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", osg::Vec3(0.0, 1.0, 1.0));
-	osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", osg::Vec3(fmod(rand() / 100.0, 1.0), fmod(rand() / 100.0, 1.0), fmod(rand() / 100.0, 1.0)));
+	osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", m_playerColor);
 	NodeState->addUniform(fenceColorU);
 
 	osg::Uniform* fenceHeightU = new osg::Uniform("fenceHeight", m_fenceHeight);
 	NodeState->addUniform(fenceHeightU);
+
+	osg::Uniform* modelIDU = new osg::Uniform("modelID", GLOW);
+	NodeState->addUniform(modelIDU);
 
 	NodeState->setMode(GL_BLEND, osg::StateAttribute::ON);
 	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::FENCE], osg::StateAttribute::ON);

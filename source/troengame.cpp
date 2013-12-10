@@ -23,6 +23,7 @@
 #include "controller/hudcontroller.h"
 #include "view/shaders.h"
 #include "view/skydome.h"
+#include "view/postprocessing.h"
 
 using namespace troen;
 
@@ -30,6 +31,8 @@ using namespace troen;
 #define USE_GAMEPAD true
 #define SOUND_VOLUME 1.f
 #define DEFAULT_MAX_FENCE_PARTS 150
+#define DEFAULT_WINDOW_WIDTH 1280
+#define DEFAULT_WINDOW_HEIGHT 720
 // comment out to disable debug mode
 //#define DEBUG_DRAW
 
@@ -113,12 +116,14 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] models and scenegraph ..." << std::endl;
 	initializeSkyDome();
 	initializeControllers();
-	composeSceneGraph();
+	
 
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
 
 	initializeViews();
 	initializeViewer();
+
+	composeSceneGraph();
 
 	std::cout << "[TroenGame::initialize] input ..." << std::endl;
 	initializeInput();
@@ -162,13 +167,21 @@ bool TroenGame::initializeControllers()
 
 bool TroenGame::composeSceneGraph()
 {
-	m_rootNode->addChild(m_skyDome.get());
-	m_rootNode->addChild(m_levelController->getViewNode());
+	// add jump flooding renderer
+	m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, dynamic_cast<osgViewer::Viewer*>(m_sampleOSGViewer.get()), DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+
+	// everything that is added to model node is flooded using provided ids
+	m_sceneNode =  m_postProcessing->getSceneNode();
+
+
+	m_sceneNode->addChild(m_skyDome.get());
+	m_sceneNode->addChild(m_levelController->getViewNode());
 
 	for (auto bikeController : m_bikeControllers)
 	{
-		m_rootNode->addChild(bikeController->getViewNode());
+		m_sceneNode->addChild(bikeController->getViewNode());
 	}
+	m_rootNode->addChild(m_sceneNode);
 	//m_rootNode->addChild(m_HUDController->getViewNode());
 	
 	return true;
@@ -385,4 +398,9 @@ bool TroenGame::shutdown()
 
 	std::cout << "[TroenGame::shutdown] shutdown complete " << std::endl;
 	return true;
+}
+
+
+void TroenGame::refreshTextures(const osgGA::GUIEventAdapter& ea){
+	m_postProcessing->setupTextures(ea.getWindowWidth(), ea.getWindowHeight());
 }

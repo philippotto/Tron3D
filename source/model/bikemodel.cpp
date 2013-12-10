@@ -32,7 +32,7 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 		fenceController,
 		bikeDimensions
 	);
-
+	
 	btScalar mass = 10;
 	btVector3 bikeInertia(0, 0, 0);
 	bikeShape->calculateLocalInertia(mass, bikeInertia);

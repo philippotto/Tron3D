@@ -11,7 +11,7 @@ namespace troen
 	class FenceView : public AbstractView
 	{
 	public:
-		FenceView(std::shared_ptr<FenceModel>& model, int maxFenceParts);
+		FenceView(osg::Vec3 color, std::shared_ptr<FenceModel>& model, int maxFenceParts);
 
 		void addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition);
 		void removeAllFences();
@@ -27,6 +27,8 @@ namespace troen
 		osg::ref_ptr<osg::Geode>		m_geode;
 
 		std::weak_ptr<FenceModel>		m_model;
+
+		osg::Vec3 m_playerColor;
 		float m_fenceHeight;
 		int m_maxFenceParts;
 	};

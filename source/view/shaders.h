@@ -23,9 +23,15 @@ namespace troen
 		void reloadShaders();
 
 
-		enum Shadernames  { DEFAULT,
+		enum Shadernames  {
+							BIKE,
 							GRID,
 							FENCE,
+							GBUFFER,
+							HBLUR,
+							VBLUR,
+							SELECT_GLOW_OBJECTS,
+							POST_PROCESSING,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
 

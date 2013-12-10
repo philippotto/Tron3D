@@ -11,12 +11,22 @@
 #include "../input/gamepad.h"
 #include "../input/ai.h"
 
+#include <cstdlib>
+
 using namespace troen;
 
 BikeController::BikeController(input::BikeInputState::InputDevice inputDevice)
 {
-	m_view = std::make_shared<BikeView>();
-	m_fenceController = std::make_shared<FenceController>();
+	// TODO change random generation of player color here
+
+	m_playerColor = osg::Vec3(
+		rand() > RAND_MAX / 2 ? 1 : 0,
+		rand() > RAND_MAX / 2 ? 1 : 0,
+		rand() > RAND_MAX / 2 ? 1 : 0
+	);
+
+	m_view = std::make_shared<BikeView>(m_playerColor);
+	m_fenceController = std::make_shared<FenceController>(m_playerColor);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	m_model = std::make_shared<BikeModel>(viewNode, m_fenceController, this);
@@ -111,6 +121,7 @@ void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipul
 void BikeController::updateModel()
 {
 	std::static_pointer_cast<BikeModel>(m_model)->updateState();
+
 }
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
