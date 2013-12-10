@@ -25,7 +25,7 @@ namespace input
 
 	private:
 		bool m_pollingEnabled;
-		std::weak_ptr<input::PollingDevice> m_pollingDevice;
+		std::shared_ptr<input::PollingDevice> m_pollingDevice;
 		float m_acceleration;
 		float m_angle;
 	};

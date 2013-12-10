@@ -24,7 +24,7 @@ float BikeInputState::getAngle()
 {
 	if (m_pollingEnabled)
 	{
-		m_pollingDevice.lock()->refresh();
+		m_pollingDevice->refresh();
 	}
 
 	return m_angle * ROTATION_VALUE;
@@ -35,7 +35,7 @@ float BikeInputState::getAcceleration()
 	// TODO dw: don't refresh twice
 	if (m_pollingEnabled)
 	{
-		m_pollingDevice.lock()->refresh();
+		m_pollingDevice->refresh();
 	}
 
 	return m_acceleration * MOVE_VALUE;

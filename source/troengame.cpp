@@ -34,7 +34,7 @@ using namespace troen;
 //#define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
-m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(false)
+m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(false), m_splitscreen(false)
 {
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
@@ -126,8 +126,8 @@ bool TroenGame::initializeSound()
 {
 	m_audioManager = std::shared_ptr<sound::AudioManager>(new sound::AudioManager);
 	m_audioManager->LoadSFX("data/sound/explosion.wav");
-	m_audioManager->LoadSong("data/sound/1.13. Derezzed.flac");
-	m_audioManager->SetSongsVolume(0.1);
+	m_audioManager->LoadSong("data/sound/theGameHasChanged.mp3");
+	m_audioManager->SetSongsVolume(0.5);
 	return true;
 }
 
@@ -142,7 +142,7 @@ bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
 	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::KEYBOARD_wasd));
-	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::GAMEPAD));
+	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::KEYBOARD_arrows));
 	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::AI));
 	//m_HUDController = std::make_shared<HUDController>();
 	return true;
@@ -204,16 +204,20 @@ bool TroenGame::initializeViews()
 	m_gameEventHandler = new GameEventHandler(this);
 	m_gameView->addEventHandler(m_gameEventHandler);
 
-	m_gameView2 = new osgViewer::View;
+	if (m_splitscreen)
+	{
+		m_gameView2 = new osgViewer::View;
 
-	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator2
-		= new osgGA::NodeTrackerManipulator;
-	manipulator2->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-	m_bikeControllers[1]->attachTrackingCamera(manipulator2);
-	m_gameView2->setCameraManipulator(manipulator2.get());
+		osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator2
+			= new osgGA::NodeTrackerManipulator;
+		manipulator2->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
+		m_bikeControllers[1]->attachTrackingCamera(manipulator2);
+		m_gameView2->setCameraManipulator(manipulator2.get());
 
-	m_gameView2->setSceneData(m_rootNode);
-	m_gameView2->setUpViewInWindow(500, 500, 640, 480);
+		m_gameView2->setSceneData(m_rootNode);
+		m_gameView2->setUpViewInWindow(500, 500, 640, 480);
+	}
+
 
 	return true;
 }
@@ -222,8 +226,11 @@ bool TroenGame::initializeViewer()
 {
 	m_sampleOSGViewer = new SampleOSGViewer();
 	m_sampleOSGViewer.get()->addView(m_gameView);
-	m_sampleOSGViewer2 = new SampleOSGViewer();
-	m_sampleOSGViewer2.get()->addView(m_gameView2);
+	if (m_splitscreen)
+	{
+		m_sampleOSGViewer2 = new SampleOSGViewer();
+		m_sampleOSGViewer2.get()->addView(m_gameView2);
+	}
 	return true;
 }
 
@@ -254,7 +261,7 @@ void TroenGame::startGameLoop()
 	initialize();
 	m_timer->start();
 
-	m_audioManager->PlaySong("data/sound/1.13. Derezzed.flac");
+	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
 	m_audioManager->SetMasterVolume(0.f);
 
 	// GAME LOOP VARIABLES
@@ -269,7 +276,7 @@ void TroenGame::startGameLoop()
 #endif	
 
 	// GAME LOOP
-	while (!m_sampleOSGViewer->done() || m_sampleOSGViewer2->done())
+	while (!m_sampleOSGViewer->done())
 	{
 		long double currTime = m_timer->elapsed();
 		// are we significantly behind? if yes, "resync", force rendering
@@ -293,6 +300,7 @@ void TroenGame::startGameLoop()
 			{
 				for (auto bikeController : m_bikeControllers)
 				{
+					//std::cout << "...";
 					bikeController->updateModel();
 				}
 				m_physicsWorld->stepSimulation(currTime);
@@ -304,7 +312,7 @@ void TroenGame::startGameLoop()
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
 				m_sampleOSGViewer->frame();	
-				m_sampleOSGViewer2->frame();
+				if(m_splitscreen) m_sampleOSGViewer2->frame();
 				skippedFrames = 0;
 			}
 			else

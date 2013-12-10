@@ -50,7 +50,8 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 			osgGA::GUIEventAdapter::KEY_Right
 		});
 		break;
-	}	case input::BikeInputState::GAMEPAD:
+	}	
+	case input::BikeInputState::GAMEPAD:
 	{
 		std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
 

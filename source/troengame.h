@@ -15,6 +15,13 @@ namespace troen
 		Q_OBJECT
 
 	public:
+		struct gameConfig
+		{
+			int numberOfBikes;
+			int* bikeInputtypes;
+			bool splitscreen;
+		};
+
 		TroenGame(QThread* thread = nullptr);
 		virtual ~TroenGame();
 		
@@ -25,7 +32,7 @@ namespace troen
 		void pauseGameEvent();
 
 	public slots:
-		void startGameLoop();
+		void prepareAndStartGame(struct game);
 
 	private:
 		bool initialize();
@@ -41,7 +48,8 @@ namespace troen
 		bool initializeSkyDome();
 
 		bool shutdown();
-		
+		void startGameLoop();
+
 		// TODO
 		// implement some kind of menu to start the game from
 		//osg::ref_ptr<osgViewer::View>		m_menuView;
@@ -67,5 +75,6 @@ namespace troen
 
 		int m_maxFenceParts;
 		bool m_gamePaused;
+		bool m_splitscreen;
 	};
 }
