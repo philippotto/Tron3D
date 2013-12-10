@@ -34,7 +34,7 @@ using namespace troen;
 //#define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
-m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(false), m_splitscreen(false)
+m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(false), m_splitscreen(false), m_numberOfBikes(0)
 {
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
@@ -83,6 +83,17 @@ void TroenGame::pauseGameEvent()
 	m_gamePaused = m_gamePaused == false ? true : false;
 }
 
+void TroenGame::prepareAndStartGame(GameConfig config)
+{
+	m_numberOfBikes = config.numberOfBikes;
+	m_splitscreen = config.splitscreen;
+
+	m_playerInputTypes.clear();
+	for (int i = 0; i < m_numberOfBikes; i++)
+		m_playerInputTypes.push_back(config.playerInputTypes[i]);
+
+	startGameLoop();
+}
 
 bool TroenGame::initialize()
 {
@@ -141,9 +152,10 @@ bool TroenGame::initializeSkyDome()
 bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
-	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::KEYBOARD_wasd));
-	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::KEYBOARD_arrows));
-	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::AI));
+	for (int i = 0; i < m_numberOfBikes; i++)
+	{
+		m_bikeControllers.push_back(std::make_shared<BikeController>((input::BikeInputState::InputDevice)m_playerInputTypes[i]));
+	}
 	//m_HUDController = std::make_shared<HUDController>();
 	return true;
 }

@@ -1,12 +1,21 @@
 #pragma once
 // Qt
 #include <QThread>
+#include <QMetaType>
 // OSG
 #include <osg/ref_ptr>
 #include <osg/PositionAttitudeTransform>
 #include <osg/ShapeDrawable>
 // troen
 #include "forwarddeclarations.h"
+
+typedef struct s_GameConfig
+{
+	int numberOfBikes;
+	int* playerInputTypes;
+	bool splitscreen;
+} GameConfig;
+Q_DECLARE_METATYPE(s_GameConfig)
 
 namespace troen
 {
@@ -15,12 +24,7 @@ namespace troen
 		Q_OBJECT
 
 	public:
-		struct gameConfig
-		{
-			int numberOfBikes;
-			int* bikeInputtypes;
-			bool splitscreen;
-		};
+
 
 		TroenGame(QThread* thread = nullptr);
 		virtual ~TroenGame();
@@ -32,7 +36,7 @@ namespace troen
 		void pauseGameEvent();
 
 	public slots:
-		void prepareAndStartGame(struct game);
+		void prepareAndStartGame(GameConfig config);
 
 	private:
 		bool initialize();
@@ -76,5 +80,7 @@ namespace troen
 		int m_maxFenceParts;
 		bool m_gamePaused;
 		bool m_splitscreen;
+		int m_numberOfBikes;
+		std::vector<int> m_playerInputTypes;
 	};
 }

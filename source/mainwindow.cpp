@@ -97,7 +97,7 @@ MainWindow::MainWindow(QWidget * parent)
 	m_troenGame = new TroenGame(m_gameThread);
 
 	connect(m_gameStartButton, SIGNAL(clicked()), this, SLOT(prepareGameStart()));
-	connect(this, SIGNAL(startGame()), m_troenGame, SLOT(startGameLoop()));
+	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(GameConfig)));
 	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updatePlayerInputBoxes()));
 }
 
@@ -119,6 +119,13 @@ void MainWindow::updatePlayerInputBoxes()
 
 void MainWindow::prepareGameStart()
 {
-
-	emit startGame();
+	GameConfig config;
+	config.numberOfBikes = m_bikeNumberSpinBox->value();
+	config.playerInputTypes = new int[config.numberOfBikes];
+	for (int i = 0; i < config.numberOfBikes; i++)
+	{
+		config.playerInputTypes[i] = m_playerComboBoxes.at(i)->currentIndex();
+	}
+	config.splitscreen = m_splitscreenCheckBox->isChecked();
+	emit startGame(config);
 }

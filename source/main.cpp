@@ -9,6 +9,9 @@ int main(int argc, char* argv[])
 {
 	int result = -1;
 
+	// register meta types
+	qRegisterMetaType<GameConfig>("GameConfig");
+
 	// setup application settings
 	QApplication::setApplicationName("Troen");
 	QApplication * application = new QApplication(argc, argv);

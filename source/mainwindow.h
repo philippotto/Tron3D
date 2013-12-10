@@ -9,6 +9,7 @@
 #include <QCheckBox>
 // troen
 #include "forwarddeclarations.h"
+#include "troengame.h"
 
 
 namespace troen
@@ -22,7 +23,7 @@ namespace troen
 		virtual ~MainWindow();
 
 	signals:
-		void startGame();
+		void startGame(GameConfig config);
 
 	public slots:
 		void updatePlayerInputBoxes();
