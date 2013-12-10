@@ -39,24 +39,20 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Vie
 	// 1. gBuffer pass: render color, normal&depth, id buffer
 	unsigned int pass = 0;
 	m_allCameras.push_back(gBufferPass()); 
-	m_root->addChild(m_allCameras[pass]);
-	pass++;
-
+	m_root->addChild(m_allCameras[pass++]);
+	
 	// 2. prepare pass: render id buffer as seeds into PONG texture
 	TEXTURE_CONTENT pingPong[] = { PING, PONG };
 	// start writing into PONG buffer (pass == 1 )
 
 	m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::SELECT_GLOW_OBJECTS, -1.0));
-	m_root->addChild(m_allCameras[pass]);
-	pass++;
+	m_root->addChild(m_allCameras[pass++]);
 	
 	m_allCameras.push_back(pingPongPass(pass, PONG, PING, shaders::HBLUR, -1.0));
-	m_root->addChild(m_allCameras[pass]);
-	pass++;
+	m_root->addChild(m_allCameras[pass++]);
 		
 	m_allCameras.push_back(pingPongPass(pass, PING, PONG, shaders::VBLUR, -1.0));
-	m_root->addChild(m_allCameras[pass]);
-	pass++;
+	m_root->addChild(m_allCameras[pass++]);
 
 	m_allCameras.push_back(postProcessingPass());
 	m_root->addChild(m_allCameras[m_allCameras.size() - 1]);
@@ -97,7 +93,7 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 	}
 
 	// important to reflect the change in size for the FBO
-	if (m_allCameras.size()>0)
+	if (m_allCameras.size() > 0)
 	{
 		for (size_t i = 0, iEnd = m_allCameras.size(); i<iEnd; i++)
 		{
@@ -156,7 +152,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 
 	// need to know about near far changes for correct depth 
 	cam->setCullCallback(new NearFarCallback());
-
 	cam->addChild(m_modelNode);
 
 	// attach shader program
@@ -194,7 +189,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	camera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0), m_fboTextures[outputTexture]);
 
 	// Configure fboCamera to draw fullscreen textured quad
-	camera->setClearColor(osg::Vec4(float(float(order)/float(m_allCameras.size())), 0.0, 0.0, 1.0));
+	camera->setClearColor(osg::Vec4(0.0, float(float(order) / float(m_allCameras.size())), 0.0, 1.0));
 	camera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	camera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
