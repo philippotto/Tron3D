@@ -18,18 +18,6 @@
 // troen
 #include "shaders.h"
 
-class timeUpdate : public osg::Uniform::Callback
-{
-public:
-	virtual void operator()
-		(osg::Uniform* uniform, osg::NodeVisitor* nv)
-	{
-		float time = nv->getFrameStamp()->getReferenceTime();
-		uniform->set(time);
-	}
-};
-
-
 using namespace troen;
 
 // ugly but convenient global statics for shaders    
@@ -44,9 +32,9 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Vie
 	// create shaders
 	shaders::reloadShaders();
 
-	//////////////////////////////////////////////////////////////////////////
-	// Multi pass rendering and Ping Pong for JFA
-	//////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////
+	// Multi pass rendering and Ping Pong //
+	////////////////////////////////////////
 
 	// 1. gBuffer pass: render color, normal&depth, id buffer
 	unsigned int pass = 0;
@@ -54,21 +42,18 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Vie
 	m_root->addChild(m_allCameras[pass]);
 	pass++;
 
-	// 2. JFA prepare pass: render id buffer as seeds into PONG texture
-	// convenient for alternating ping pong textures
-	TEXTURE_CONTENT  pingPong[] = { PING, PONG };
+	// 2. prepare pass: render id buffer as seeds into PONG texture
+	TEXTURE_CONTENT pingPong[] = { PING, PONG };
 	// start writing into PONG buffer (pass == 1 )
 
-	m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::FILTERGLOWOBJECTS, -1.0));
+	m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::SELECT_GLOW_OBJECTS, -1.0));
 	m_root->addChild(m_allCameras[pass]);
 	pass++;
-
-
+	
 	m_allCameras.push_back(pingPongPass(pass, PONG, PING, shaders::HBLUR, -1.0));
 	m_root->addChild(m_allCameras[pass]);
 	pass++;
-
-	
+		
 	m_allCameras.push_back(pingPongPass(pass, PING, PONG, shaders::VBLUR, -1.0));
 	m_root->addChild(m_allCameras[pass]);
 	pass++;
@@ -76,39 +61,6 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Vie
 	m_allCameras.push_back(postProcessingPass());
 	m_root->addChild(m_allCameras[m_allCameras.size() - 1]);
 }
-
-
-
-class NearFarCallback : public osg::NodeCallback
-{
-	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
-	{
-		traverse(node, nv);
-
-		osgUtil::CullVisitor * cv = dynamic_cast<osgUtil::CullVisitor*> (nv);
-		if (cv)
-		{
-			double n = cv->getCalculatedNearPlane();
-			double f = cv->getCalculatedFarPlane();
-
-			osg::Matrixd m = *cv->getProjectionMatrix();
-			cv->clampProjectionMatrix(m, n, f);
-
-			if (n != m_oldNear || f != m_oldFar)
-			{
-				m_oldNear = n;
-				m_oldFar = f;
-				g_nearFarUniform->set(osg::Vec2(n, f));
-			}
-		}
-	}
-
-private:
-	double m_oldNear;
-	double m_oldFar;
-};
-
-
 
 // sets up textures
 void PostProcessing::setupTextures(const unsigned int & width, const unsigned int &height)
@@ -154,6 +106,36 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 	}
 }
 
+
+class NearFarCallback : public osg::NodeCallback
+{
+	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
+	{
+		traverse(node, nv);
+
+		osgUtil::CullVisitor * cv = dynamic_cast<osgUtil::CullVisitor*> (nv);
+		if (cv)
+		{
+			double n = cv->getCalculatedNearPlane();
+			double f = cv->getCalculatedFarPlane();
+
+			osg::Matrixd m = *cv->getProjectionMatrix();
+			cv->clampProjectionMatrix(m, n, f);
+
+			if (n != m_oldNear || f != m_oldFar)
+			{
+				m_oldNear = n;
+				m_oldFar = f;
+				g_nearFarUniform->set(osg::Vec2(n, f));
+			}
+		}
+	}
+
+private:
+	double m_oldNear;
+	double m_oldFar;
+};
+
 // create gbuffer creation camera
 osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 {
@@ -163,8 +145,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
-
-
 
 	// Configure fboCamera to draw fullscreen textured quad
 	// black clear color
@@ -181,9 +161,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 
 	// attach shader program
 	cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-
 	cam->getOrCreateStateSet()->addUniform(new osg::Uniform("colorTex", COLOR));
-
 	cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
 	cam->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
 	cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
@@ -194,6 +172,17 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 
 	return cam;
 }
+
+class timeUpdate : public osg::Uniform::Callback
+{
+public:
+	virtual void operator()
+		(osg::Uniform* uniform, osg::NodeVisitor* nv)
+	{
+		float time = nv->getFrameStamp()->getReferenceTime();
+		uniform->set(time);
+	}
+};
 
 
 // create skeleton creation camera 
@@ -214,14 +203,12 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	// geometry
 	osg::Geode* geode(new osg::Geode());
 	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
-	//geode->getOrCreateStateSet()->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
 	geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 	camera->addChild(geode);
 
 	// attach shader program
 	osg::ref_ptr<osg::StateSet>	state = camera->getOrCreateStateSet();
 	state->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-
 
 	state->setAttributeAndModes(shaders::m_allShaderPrograms[type], osg::StateAttribute::ON);
 
@@ -289,8 +276,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	return postRenderCamera;
 }
 
-
-
 bool PostProcessing::handleGuiEvents(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter&, osg::Object*, osg::NodeVisitor*)
 {
 	if (ea.getEventType() == osgGA::GUIEventAdapter::RESIZE)
@@ -301,3 +286,7 @@ bool PostProcessing::handleGuiEvents(const osgGA::GUIEventAdapter& ea, osgGA::GU
 	}
 	else return false;
 }
+
+
+
+

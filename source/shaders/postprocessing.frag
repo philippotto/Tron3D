@@ -21,17 +21,6 @@ void main(void)
     vec3 normal = texture2D(normalDepthLayer, st).xyz;
     float depth = texture2D(normalDepthLayer, st).w;
     
-    // insert your post processing here
-
-    //gl_FragColor = sceneColor;
-
-    // funny effect rings effect
-
 
     gl_FragColor = pongColor * 3 + sceneColor;
-    // gl_FragColor = sceneColor;
-
-    
-   // gl_FragColor = mix(sceneColor, pongColor, step(1.f, objectID));
-
 }

@@ -10,7 +10,4 @@ void main(void)
 
 	gl_Position = ftransform();
 	theNormal = normalize(gl_NormalMatrix * gl_Normal);
-   
-  // linearDepth = (-(gl_ModelViewMatrix * gl_Vertex).z-nearFar.x)/(nearFar.y-nearFar.x);
-  //linearDepth = -gl_Position.z /(gl_DepthRange.far-gl_DepthRange.near); 
 }

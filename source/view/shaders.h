@@ -24,13 +24,13 @@ namespace troen
 
 
 		enum Shadernames  {
-							DEFAULT,
+							BIKE,
 							GRID,
 							FENCE,
 							GBUFFER,
 							HBLUR,
 							VBLUR,
-							FILTERGLOWOBJECTS,
+							SELECT_GLOW_OBJECTS,
 							POST_PROCESSING,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};

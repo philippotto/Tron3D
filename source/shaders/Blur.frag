@@ -1,48 +1,40 @@
-/* BlurFragmentShader.glsl */
-
 #version 130
-// precision mediump float;
 
 uniform float time;
 uniform sampler2D colorTex;
 uniform sampler2D inputLayer;
 uniform sampler2D idLayer;
 
-
 in vec2 v_texCoord;
 in vec2 v_blurTexCoords[14];
 
 in float doHorizontalBlur;
- 
-float sigma = 4 + 4 * (sin(time*1.5) + 1);     // The sigma value for the gaussian function: higher value means more blur
-                         // A good value for 9x9 is around 3 to 5
-                         // A good value for 7x7 is around 2.5 to 4
-                         // A good value for 5x5 is around 2 to 3.5
-                         // ... play around with this based on what you need :)
 
+// The sigma value for the gaussian function: higher value means more blur 
+// good values are:
+// 9x9: 3 to 5; 7x7: 2.5 to 4, 5x5: 2 to 3.5
+float sigma = 4 + 8 * (sin(time*2.f)+ 1.f)/2.f;
 
 const float pi = 3.14159265f;
 
-
 void main() {
+
     float blurSize;
     float numBlurPixelsPerSide;
-    vec2  blurMultiplyVec;
-
-    float objectID = texture2D(idLayer, v_texCoord).x;
     float glowIntensity = texture2D(idLayer, v_texCoord).y;
 
-    if (doHorizontalBlur < 0.1f) {
-        numBlurPixelsPerSide = 8.0f;
+
+    vec2 blurMultiplyVec;
+    if (doHorizontalBlur == 0.0f)
+    {
+        numBlurPixelsPerSide = 16.0f;
         blurMultiplyVec      = vec2(1.0f, 0.0f);
 
-        blurSize = 1.f / 700.f * glowIntensity;  // This should usually be equal to
-                         // 1.0f / texture_pixel_width for a horizontal blur, and
-                         // 1.0f / texture_pixel_height for a vertical blur.
-            
-    }else {
-        // return;
-        numBlurPixelsPerSide = 8.0f;
+        // This should usually be equal to
+        // 1.0f / texture_pixel_width (or _height) for a horizontal (vertical) blur
+        blurSize = 1.f / 700.f * glowIntensity;
+    } else {
+        numBlurPixelsPerSide = 16.0f;
         blurMultiplyVec      = vec2(0.0f, 1.0f);
         blurSize = 1.f / 700.f * glowIntensity;
     }
@@ -62,7 +54,8 @@ void main() {
   incrementalGaussian.xy *= incrementalGaussian.yz;
 
   // Go through the remaining 8 vertical samples (4 on each side of the center)
-  for (float i = 1.0f; i <= numBlurPixelsPerSide; i++) { 
+  for (float i = 1.0f; i <= numBlurPixelsPerSide; i++)
+  { 
     avgValue += texture2D(inputLayer, v_texCoord.xy - i * blurSize * 
                           blurMultiplyVec) * incrementalGaussian.x;         
     avgValue += texture2D(inputLayer, v_texCoord.xy + i * blurSize * 
@@ -72,5 +65,4 @@ void main() {
   }
 
   gl_FragColor = avgValue / coefficientSum;
-  // gl_FragColor = v_texCoord.xy;
 }

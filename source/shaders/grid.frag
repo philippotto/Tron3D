@@ -10,14 +10,8 @@ in float linearDepth;
 
 void main()
 {
-	// Apply a procedural texture here.
-
-	//float i = ... ; 
 	int inverseFrequency = 100;
 	
-	// float xBlack = abs(sign(mod(floor(5000 * uv.x), inverseFrequency)));
-	// float yBlack = abs(sign(mod(floor(5000 * uv.y), inverseFrequency)));
-
 	float modifier = 2;
 	float smoothingFactorX = abs(mod((5000 / modifier * uv.x), inverseFrequency / modifier) - 5);
 	float smoothingFactorY = abs(mod((5000 / modifier * uv.y), inverseFrequency / modifier) - 5);
@@ -30,7 +24,7 @@ void main()
 
 	gl_FragData[1] = vec4(normalize(theNormal), linearDepth); // normal and depth
 	
-    // change this to use other attributes for the object id, e.g., texcoords
-    gl_FragData[2] = vec4(modelID, glowIntensity,0,0); // id
+  // change this to use other attributes for the object id, e.g., texcoords
+  gl_FragData[2] = vec4(modelID, glowIntensity,0,0); // id
 
 }

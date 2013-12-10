@@ -17,7 +17,7 @@ using namespace troen;
 
 BikeController::BikeController(input::BikeInputState::InputDevice inputDevice)
 {
-	// TODO change player color here
+	// TODO change random generation of player color here
 
 	m_playerColor = osg::Vec3(
 		rand() > RAND_MAX / 2 ? 1 : 0,
