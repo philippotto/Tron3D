@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 // Qt
+#include <QDir>
+#include <QSettings>
 #include <QThread>
 #include <QBoxLayout>
 #include <QLabel>
@@ -97,6 +99,10 @@ MainWindow::MainWindow(QWidget * parent)
 	m_statusBar->showMessage("...");
 	setStatusBar(m_statusBar);
 
+	// settings
+	m_settingsFileName = QDir::currentPath() + ":/settings.ini";
+	loadSettings();
+
 	// create GameThread and Game
 	m_gameThread = new QThread(this);
 	m_troenGame = new TroenGame(m_gameThread);
@@ -133,5 +139,42 @@ void MainWindow::prepareGameStart()
 	}
 	config.splitscreen = m_splitscreenCheckBox->isChecked();
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
+
+	saveSettings();
 	emit startGame(config);
+}
+
+void MainWindow::loadSettings()
+{
+	QSettings settings(m_settingsFileName, QSettings::IniFormat);
+	
+	m_bikeNumberSpinBox->setValue(settings.value("bikeNumber").toInt());
+	m_splitscreenCheckBox->setChecked(settings.value("splitscreen").toBool());
+	m_postProcessingCheckBox->setChecked(settings.value("postProcessing").toBool());
+
+	for (int i = 0; i < MAX_BIKES; i++)
+	{
+		int playerInput =
+			settings.value("player" + QString::number(i) + "input").toInt();
+		m_playerComboBoxes.at(i)->setCurrentIndex(playerInput);
+	}
+
+	updatePlayerInputBoxes();
+}
+
+void MainWindow::saveSettings()
+{
+	QSettings settings(m_settingsFileName, QSettings::IniFormat);
+
+	settings.setValue("bikeNumber", QString::number(m_bikeNumberSpinBox->value()));
+	settings.setValue("splitscreen", QString::number(m_splitscreenCheckBox->isChecked()));
+	settings.setValue("postProcessing", QString::number(m_postProcessingCheckBox->isChecked()));
+
+	for (int i = 0; i < MAX_BIKES; i++)
+	{
+		settings.setValue("player" + QString::number(i) + "input",
+			m_playerComboBoxes.at(i)->currentIndex());
+	}
+
+	settings.sync();
 }

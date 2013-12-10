@@ -28,18 +28,21 @@ namespace troen
 	public slots:
 		void updatePlayerInputBoxes();
 
+	private:
+		void loadSettings();
+		void saveSettings();
+
 	private slots:
 		void prepareGameStart();
 
-
 	private:
+		QString			m_settingsFileName;
 		QStatusBar*		m_statusBar;
 		QPushButton*	m_gameStartButton;
 		QSpinBox*		m_bikeNumberSpinBox;
 		QVector<QComboBox*>	m_playerComboBoxes;
 		QCheckBox*		m_splitscreenCheckBox;
 		QCheckBox*		m_postProcessingCheckBox;
-
 
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;
