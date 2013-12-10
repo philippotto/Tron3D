@@ -11,20 +11,21 @@ namespace input
 	class BikeInputState : public osg::Referenced
 	{
 	public:
+		enum InputDevice
+		{
+			KEYBOARD_wasd, KEYBOARD_arrows, GAMEPAD, AI
+		};
+
 		BikeInputState();
 		float getAngle();
 		float getAcceleration();
 		void setAngle(float angle);
 		void setAcceleration(float acceleration);
 		void setPollingDevice(std::shared_ptr<PollingDevice> pollingDevice);
-		enum InputDevice
-		{ KEYBOARD, GAMEPAD, AI };
-
 
 	private:
 		bool m_pollingEnabled;
-		//TODO convert to weak_ptr
-		std::shared_ptr<input::PollingDevice> m_pollingDevice;
+		std::weak_ptr<input::PollingDevice> m_pollingDevice;
 		float m_acceleration;
 		float m_angle;
 	};

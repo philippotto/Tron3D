@@ -141,7 +141,7 @@ bool TroenGame::initializeSkyDome()
 bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
-	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::KEYBOARD));
+	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::KEYBOARD_wasd));
 	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::GAMEPAD));
 	m_bikeControllers.push_back(std::make_shared<BikeController>(input::BikeInputState::AI));
 	//m_HUDController = std::make_shared<HUDController>();
@@ -177,8 +177,6 @@ bool TroenGame::initializeInput()
 		{
 			m_gameView->addEventHandler(bikeController->getEventHandler());
 		}
-	}
-
 	}
 	return true;
 }

@@ -31,12 +31,26 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 
 	switch (inputDevice)
 	{
-	case input::BikeInputState::KEYBOARD:
+	case input::BikeInputState::KEYBOARD_wasd:
 	{
-		m_keyboardHandler = new input::Keyboard(bikeInputState);
+		m_keyboardHandler = new input::Keyboard(bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol>{
+				osgGA::GUIEventAdapter::KEY_W,
+				osgGA::GUIEventAdapter::KEY_A,
+				osgGA::GUIEventAdapter::KEY_S,
+				osgGA::GUIEventAdapter::KEY_D
+			});
 		break;
 	}
-	case input::BikeInputState::GAMEPAD:
+	case input::BikeInputState::KEYBOARD_arrows:
+	{
+		m_keyboardHandler = new input::Keyboard(bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol>{
+			osgGA::GUIEventAdapter::KEY_Up,
+			osgGA::GUIEventAdapter::KEY_Left,
+			osgGA::GUIEventAdapter::KEY_Down,
+			osgGA::GUIEventAdapter::KEY_Right
+		});
+		break;
+	}	case input::BikeInputState::GAMEPAD:
 	{
 		std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
 
