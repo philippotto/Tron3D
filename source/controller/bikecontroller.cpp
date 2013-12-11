@@ -17,13 +17,8 @@ using namespace troen;
 
 BikeController::BikeController(input::BikeInputState::InputDevice inputDevice)
 {
-	// TODO change random generation of player color here
-
-	m_playerColor = osg::Vec3(
-		rand() > RAND_MAX / 2 ? 1 : 0,
-		rand() > RAND_MAX / 2 ? 1 : 0,
-		rand() > RAND_MAX / 2 ? 1 : 0
-	);
+	// TODO change random generation of player color here (and remove generateRandomColor-Function)
+	m_playerColor = generateRandomColor();
 
 	m_view = std::make_shared<BikeView>(m_playerColor);
 	m_fenceController = std::make_shared<FenceController>(m_playerColor);
@@ -32,6 +27,23 @@ BikeController::BikeController(input::BikeInputState::InputDevice inputDevice)
 	m_model = std::make_shared<BikeModel>(viewNode, m_fenceController, this);
 
 	initializeInput(inputDevice);
+}
+
+
+osg::Vec3 BikeController::generateRandomColor() {
+	// initialize rand
+	srand(time(NULL));
+
+	int r, g, b;
+	r = rand() > RAND_MAX / 2 ? 1 : 0;
+	g = rand() > RAND_MAX / 2 ? 1 : 0;
+
+	if (r + g == 0)
+		b = 1.f;
+	else
+		b = rand() > RAND_MAX / 2 ? 1 : 0;
+
+	return osg::Vec3(r, g, b);
 }
 
 void BikeController::initializeInput(input::BikeInputState::InputDevice inputDevice)

@@ -22,12 +22,12 @@ namespace troen
 	class PostProcessing : public AbstractView //, public osg::Referenced
 	{
 	public:
-		PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Viewer* viewer, int width, int height);
+		PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height);
 		
 		
 		enum TEXTURE_CONTENT { COLOR, NORMALDEPTH, ID, PING, PONG, TEXTURE_CONTENT_SIZE };
 
-		osg::ref_ptr<osg::Group> getSceneNode() { return m_modelNode; };
+		osg::ref_ptr<osg::Group> getSceneNode() { return m_sceneNode; };
 		osg::ref_ptr<osg::Camera> pingPongPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, int type, int step);
 		void setupTextures(const unsigned int & width, const unsigned int &height);
 		bool handleGuiEvents(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter&, osg::Object*, osg::NodeVisitor*);
@@ -47,7 +47,7 @@ namespace troen
 
 
 		osg::ref_ptr<osg::Group> m_root;
-		osg::ref_ptr<osg::Group> m_modelNode;
+		osg::ref_ptr<osg::Group> m_sceneNode;
 
 
 		int m_width;

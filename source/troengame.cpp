@@ -170,9 +170,7 @@ bool TroenGame::composeSceneGraph()
 {
 	if (m_usePostProcessing)
 	{
-		// add jump flooding renderer
-		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, dynamic_cast<osgViewer::Viewer*>(m_sampleOSGViewer.get()), DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
-		// everything that is added to model node is flooded using provided ids
+		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
 		m_sceneNode = m_postProcessing->getSceneNode();
 	}
 	else

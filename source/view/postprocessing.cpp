@@ -11,7 +11,6 @@
 #include <osg/CullFace>
 #include <osg/TexGenNode>
 #include <osgUtil/CullVisitor>
-#include <osgViewer/Viewer>
 #include <osgGA/StateSetManipulator>
 #include <osgDB/FileNameUtils>
 #include <stdio.h>
@@ -23,10 +22,11 @@ using namespace troen;
 // ugly but convenient global statics for shaders    
 static osg::ref_ptr<osg::Uniform> g_nearFarUniform;
 
-PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Viewer* viewer, int width, int height)
-:m_root(rootNode), m_width(width), m_height(height), m_modelNode(new osg::Group())
+PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height)
+:m_root(rootNode), m_width(width), m_height(height), m_sceneNode(new osg::Group())
 {
 	// init textures, will be recreated when screen size changes
+	
 	setupTextures(m_width, m_height);
 
 	// create shaders
@@ -73,8 +73,14 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		if (!m_fboTextures[i])  
 			m_fboTextures[i] = new osg::Texture2D();
 		
-		m_fboTextures[i]->setTextureWidth(width);
-		m_fboTextures[i]->setTextureHeight(height);
+		
+		if (false && (i == PING || i == PONG)) {
+			m_fboTextures[i]->setTextureWidth(width / 2);
+			m_fboTextures[i]->setTextureHeight(height / 2);
+		} else {
+			m_fboTextures[i]->setTextureWidth(width);
+			m_fboTextures[i]->setTextureHeight(height);
+		}
 
 		// higher resolution
 		m_fboTextures[i]->setInternalFormat(GL_RGBA32F_ARB);
@@ -152,7 +158,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 
 	// need to know about near far changes for correct depth 
 	cam->setCullCallback(new NearFarCallback());
-	cam->addChild(m_modelNode);
+	cam->addChild(m_sceneNode);
 
 	// attach shader program
 	cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
@@ -181,7 +187,7 @@ public:
 
 
 // create skeleton creation camera 
-osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, int type, int step)
+osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, int shader, int step)
 {
 	osg::ref_ptr<osg::Camera> camera(new osg::Camera());
 
@@ -205,7 +211,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	osg::ref_ptr<osg::StateSet>	state = camera->getOrCreateStateSet();
 	state->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
 
-	state->setAttributeAndModes(shaders::m_allShaderPrograms[type], osg::StateAttribute::ON);
+	state->setAttributeAndModes(shaders::m_allShaderPrograms[shader], osg::StateAttribute::ON);
 
 	// add sampler textures	
 	state->addUniform(new osg::Uniform("inputLayer", inputTexture));

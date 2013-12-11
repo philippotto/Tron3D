@@ -1,12 +1,12 @@
 #version 130
 
 uniform float time;
-uniform sampler2D colorTex;
+// uniform sampler2D colorTex;
 uniform sampler2D inputLayer;
 uniform sampler2D idLayer;
 
 in vec2 v_texCoord;
-in vec2 v_blurTexCoords[14];
+// in vec2 v_blurTexCoords[14];
 
 in float doHorizontalBlur;
 
@@ -22,7 +22,6 @@ void main() {
     float blurSize;
     float numBlurPixelsPerSide;
     float glowIntensity = texture2D(idLayer, v_texCoord).y;
-
 
     vec2 blurMultiplyVec;
     if (doHorizontalBlur == 0.0f)

@@ -33,6 +33,8 @@ namespace troen
 		std::shared_ptr<FenceController> m_fenceController;
 		osg::ref_ptr<input::Keyboard> m_keyboardHandler = nullptr;
 
+		osg::Vec3 BikeController::generateRandomColor();
+
 		osg::Vec3 m_playerColor;
 	};
 }
