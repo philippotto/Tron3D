@@ -29,9 +29,6 @@ namespace troen
 		osg::ref_ptr<osg::Vec3Array>	m_coordinates;
 		osg::ref_ptr<osg::DrawArrays>	m_drawArrays;
 		osg::ref_ptr<osg::Geode>		m_geode;
-		osg::ref_ptr<osg::Geode>		m_fenceGap;
-		osg::ref_ptr<osg::Box>			m_unitCube;
-		osg::ref_ptr<osg::PositionAttitudeTransform> m_gapPat;
 
 		std::weak_ptr<FenceModel>		m_model;
 

@@ -42,46 +42,15 @@ void FenceView::initializeFence()
 	m_geode = new osg::Geode();
 	m_geode->addDrawable(m_geometry);
 
-	// fenceGap
-	
-	initializeFenceGap();
 	m_node->addChild(m_geode);
-	m_node->addChild(m_gapPat);
-	m_node->setCullingActive(false);
 }
 
-void FenceView::initializeFenceGap() {
-	
-	if (m_gapPat)
-		// don't reinitialize fence gap
-		return;
-
-	m_gapPat = new osg::PositionAttitudeTransform();
-	m_gapPat->setPosition(osg::Vec3(2.5, 0, 0));
-
-	osg::ref_ptr<osg::Geometry> quadGeometry = osg::createTexturedQuadGeometry(osg::Vec3(0.0f, -0.5f, 0.0f),
-		osg::Vec3(0.f, 1.f, 0.0f),
-		osg::Vec3(0.0f, 0.0f, m_fenceHeight),
-		0.0f, 0.0f, 1.0f, 1.0f);
-
-	m_fenceGap = new osg::Geode();
-	m_fenceGap->addDrawable(quadGeometry);
-	m_gapPat->addChild(m_fenceGap);
-}
-
-void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position) {
-	
-	m_gapPat->setPosition((position + lastPosition) / 2);
-	m_gapPat->setScale(osg::Vec3(1.f, (position - lastPosition).length(), 1.f));
-	
-	if (lastPosition != position) {
-		osg::Quat rotationQuat;
-		osg::Vec3 fenceVector = position - lastPosition;
-		const osg::Vec3 forward = osg::Vec3(0, 1, 0);
-		rotationQuat.makeRotate(forward, fenceVector);
-		m_gapPat->setAttitude(rotationQuat);
+void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
+{
+	if (m_coordinates->size() > 1) {
+		m_coordinates->at(m_coordinates->size() - 2) = osg::Vec3(position.x(), position.y(), position.z());
+		m_coordinates->at(m_coordinates->size() - 1) = osg::Vec3(position.x(), position.y(), position.z() + m_fenceHeight);
 	}
-
 }
 
 
@@ -104,7 +73,7 @@ void FenceView::initializeShader()
 
 void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 {
-	if (m_coordinates->size()==0)
+	if (m_coordinates->size() == 0)
 	{
 		m_coordinates->push_back(lastPosition);
 		m_coordinates->push_back(osg::Vec3(lastPosition.x(), lastPosition.y(), lastPosition.z() + m_fenceHeight));
@@ -124,7 +93,6 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 void FenceView::removeAllFences()
 {
 	m_node->removeChild(m_geode);
-	m_node->removeChild(m_gapPat);
 	initializeFence();
 }
 
