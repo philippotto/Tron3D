@@ -68,6 +68,7 @@ void FenceView::initializeShader()
 	NodeState->addUniform(modelIDU);
 
 	NodeState->setMode(GL_BLEND, osg::StateAttribute::ON);
+	NodeState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::FENCE], osg::StateAttribute::ON);
 }
 
