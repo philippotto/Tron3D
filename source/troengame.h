@@ -38,6 +38,7 @@ namespace troen
 		void pauseGameEvent();
 
 		void refreshTextures(const osgGA::GUIEventAdapter&);
+		void TroenGame::setFovy(float newFovy);
 
 	public slots:
 		void prepareAndStartGame(GameConfig config);
@@ -66,6 +67,7 @@ namespace troen
 
 		osg::ref_ptr<osgViewer::View>		m_gameView;
 		osg::ref_ptr<osgViewer::View>		m_gameView2;
+
 		osg::ref_ptr<GameEventHandler>		m_gameEventHandler;
 		osg::ref_ptr<osg::Group>			m_rootNode;
 		osg::ref_ptr<SkyDome>               m_skyDome;

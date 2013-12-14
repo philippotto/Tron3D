@@ -23,6 +23,7 @@ namespace troen
 					return true;
 				case osgGA::GUIEventAdapter::KEY_C:
 					m_troenGame->removeAllFencesEvent();
+
 					return true;
 				case osgGA::GUIEventAdapter::KEY_F:
 					m_troenGame->toggleFencePartsLimitEvent();
