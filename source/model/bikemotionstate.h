@@ -41,10 +41,7 @@ namespace troen
 			btQuaternion rot = worldTrans.getRotation();
 			osg::Vec3 axis = osg::Vec3(rot.getAxis().x(), rot.getAxis().y(), rot.getAxis().z());
 			osg::Quat rotationQuat(rot.getAngle(), axis);
-
-			// btVector3 angluarVelocity = m_rigidBody.lock()->getAngularVelocity();
-			// std::cout << angluarVelocity.x() << " " << angluarVelocity.y() << " " << angluarVelocity.z() << std::endl;
-
+			
 			m_visibleObj->setAttitude(rotationQuat);
 
 			btVector3 pos = worldTrans.getOrigin();

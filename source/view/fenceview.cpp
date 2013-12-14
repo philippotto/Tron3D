@@ -133,7 +133,7 @@ void FenceView::enforceFencePartsLimit(int maxFenceParts)
 	if (m_maxFenceParts != maxFenceParts)
 		m_maxFenceParts = maxFenceParts;
 
-	// the quad strip cointains two more vertices for the beginning of the fence
+	// the quad strip contains two more vertices for the beginning of the fence
 	int currentFenceParts = (m_coordinates->size() - 2) / 2;
 	if (maxFenceParts != 0 && currentFenceParts > maxFenceParts)
 	{

@@ -9,7 +9,7 @@
 namespace troen
 {
 
-	class HUDView : public AbstractView //, public osg::Referenced
+	class HUDView : public AbstractView
 	{
 	public:
 		HUDView();
