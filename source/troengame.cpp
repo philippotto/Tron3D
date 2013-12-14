@@ -404,5 +404,7 @@ bool TroenGame::shutdown()
 
 
 void TroenGame::refreshTextures(const osgGA::GUIEventAdapter& ea){
-	m_postProcessing->setupTextures(ea.getWindowWidth(), ea.getWindowHeight());
+	if (m_postProcessing){
+		m_postProcessing->setupTextures(ea.getWindowWidth(), ea.getWindowHeight());
+	}
 }
