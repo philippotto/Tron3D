@@ -9,6 +9,7 @@
 #include "../sound/audiomanager.h"
 #include "../input/keyboard.h"
 #include "../input/gamepad.h"
+#include "../input/gamepadps4.h"
 #include "../input/ai.h"
 
 #include <cstdlib>
@@ -80,6 +81,21 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 		if (gamepad->checkConnection())
 		{
 			std::cout << "[TroenGame::initializeInput] Gamepad connected on port " << gamepad->getPort() << std::endl;
+			bikeInputState->setPollingDevice(gamepad);
+		}
+		else
+		{
+			std::cout << "[TroenGame::initializeInput] USE_GAMEPAD true but no gamepad connected!" << std::endl;
+		}
+		break;
+	}
+	case input::BikeInputState::GAMEPADPS4:
+	{
+		std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState);
+
+		if (gamepad->checkConnection())
+		{
+			std::cout << "[TroenGame::initializeInput] PS4 Controller connected" << std::endl;
 			bikeInputState->setPollingDevice(gamepad);
 		}
 		else
