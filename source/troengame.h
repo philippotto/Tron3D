@@ -38,7 +38,8 @@ namespace troen
 		void pauseGameEvent();
 
 		void refreshTextures(const osgGA::GUIEventAdapter&);
-		void TroenGame::setFovy(float newFovy);
+		void setFovy(float newFovy);
+		float getFovy();
 
 	public slots:
 		void prepareAndStartGame(GameConfig config);

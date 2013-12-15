@@ -218,6 +218,13 @@ void TroenGame::setFovy(float newFovy)
 	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
 }
 
+float TroenGame::getFovy()
+{
+	double fovy, aspect, znear, zfar;
+	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	return fovy;
+}
+
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
