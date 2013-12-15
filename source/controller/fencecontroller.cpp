@@ -26,17 +26,19 @@ void FenceController::update(btVector3 position)
 		return;
 	}
 
+	osg::Vec3 osgPosition = osg::Vec3(position.x(), position.y(), position.z());
+	osg::Vec3 osgLastPosition = osg::Vec3(m_lastPosition.x(), m_lastPosition.y(), m_lastPosition.z());
+	// add new fence part
 	if ((position - m_lastPosition).length() > fenceLength)
 	{
 		std::static_pointer_cast<FenceModel>(m_model)->addFencePart(m_lastPosition, position);
-
-		std::static_pointer_cast<FenceView>(m_view)->addFencePart(
-			osg::Vec3(m_lastPosition.x(), m_lastPosition.y(), m_lastPosition.z()),
-			osg::Vec3(position.x(), position.y(), position.z())
-		);
-
+		std::static_pointer_cast<FenceView>(m_view)->addFencePart(osgLastPosition,osgPosition);
 		m_lastPosition = position;
 	}
+
+	// update fence gap
+	std::static_pointer_cast<FenceView>(m_view)->updateFenceGap(osgLastPosition, osgPosition);
+
 }
 
 

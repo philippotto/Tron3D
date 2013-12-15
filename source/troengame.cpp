@@ -83,7 +83,7 @@ void TroenGame::toggleFencePartsLimitEvent()
 
 void TroenGame::pauseGameEvent()
 {
-	m_gamePaused = m_gamePaused == false ? true : false;
+	m_gamePaused = !m_gamePaused;
 }
 
 void TroenGame::prepareAndStartGame(GameConfig config)
@@ -136,6 +136,9 @@ bool TroenGame::initialize()
 	initializePhysicsWorld();
 
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
+
+
+
 	return true;
 }
 
@@ -208,6 +211,20 @@ bool TroenGame::initializeInput()
 	return true;
 }
 
+void TroenGame::setFovy(float newFovy)
+{
+	double fovy, aspect, znear, zfar;
+	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
+}
+
+float TroenGame::getFovy()
+{
+	double fovy, aspect, znear, zfar;
+	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	return fovy;
+}
+
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
@@ -244,7 +261,6 @@ bool TroenGame::initializeViews()
 		m_gameView2->setSceneData(m_rootNode);
 		m_gameView2->setUpViewInWindow(500, 500, 640, 480);
 	}
-
 
 	return true;
 }
@@ -286,6 +302,7 @@ void TroenGame::startGameLoop()
 
 	// INITIALIZATION
 	initialize();
+
 	m_timer->start();
 
 	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
@@ -297,6 +314,8 @@ void TroenGame::startGameLoop()
 	const long double maxMillisecondsBetweenFrames = 50;
 	int skippedFrames = 0;
 	int maxSkippedFrames = 4;
+
+	bool nearPlaneAdapted = false;
 
 #ifdef DEBUG_DRAW				
 	m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
@@ -338,7 +357,18 @@ void TroenGame::startGameLoop()
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
-				m_sampleOSGViewer->frame();	
+				m_sampleOSGViewer->frame();
+				
+				if (!nearPlaneAdapted) {
+					// doesn't work if it's executed earlier
+					// TODO should be done for m_gameView2 and other possible views
+					double fovy, aspect, znear, zfar;
+					m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+					m_gameView->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+					znear = 1.0;
+					m_gameView->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+				}
+
 				if(m_splitscreen) m_sampleOSGViewer2->frame();
 				skippedFrames = 0;
 			}
@@ -404,5 +434,7 @@ bool TroenGame::shutdown()
 
 
 void TroenGame::refreshTextures(const osgGA::GUIEventAdapter& ea){
-	m_postProcessing->setupTextures(ea.getWindowWidth(), ea.getWindowHeight());
+	if (m_postProcessing){
+		m_postProcessing->setupTextures(ea.getWindowWidth(), ea.getWindowHeight());
+	}
 }

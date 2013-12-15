@@ -26,10 +26,12 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 
 	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(bikeDimensions / 2);
 
+	// todo deliver "this" as a shared_ptr ?
 	std::shared_ptr<BikeMotionState> bikeMotionState = std::make_shared<BikeMotionState>(
 		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, bikeDimensions.z()/2)),
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
 		fenceController,
+		this,
 		bikeDimensions
 	);
 	
@@ -69,13 +71,17 @@ void BikeModel::resetState()
 	m_rotation = 0.0;
 }
 
+float BikeModel::getSteering() {
+	return m_steering;
+}
+
 void BikeModel::updateState()
 {
 	const btVector3 up = btVector3(0, 0, 1);
 	const btVector3 front = btVector3(0, -1, 0);
 
 	// call this exactly once per frame
-	float angle = m_bikeInputState->getAngle();
+	m_steering = m_bikeInputState->getAngle();
 	float velocity = m_bikeInputState->getAcceleration();
 
 	
@@ -87,7 +93,7 @@ void BikeModel::updateState()
 
 	// initiate rotation
 	const float maximumTurn = 20;
-	const float turningRad = PI / 180 * angle * maximumTurn;
+	const float turningRad = PI / 180 * m_steering * maximumTurn;
 	
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 

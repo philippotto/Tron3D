@@ -1,8 +1,5 @@
 #pragma once
 
-// necessary for wireframe debugging ? but with this variable, compilation fails
-// #define BT_USE_DOUBLE_PRECISION
-
 // STD includes we need everywhere
 #include <memory>
 #include <iostream>

@@ -3,6 +3,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
 #include <osg/Vec4>
+#include <osg/PositionAttitudeTransform>
 // troen
 #include "shaders.h"
 #include "../model/fencemodel.h"
@@ -40,8 +41,19 @@ void FenceView::initializeFence()
 
 	m_geode = new osg::Geode();
 	m_geode->addDrawable(m_geometry);
+
 	m_node->addChild(m_geode);
 }
+
+void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
+{
+	if (m_coordinates->size() > 1) {
+		m_coordinates->at(m_coordinates->size() - 2) = osg::Vec3(position.x(), position.y(), position.z());
+		m_coordinates->at(m_coordinates->size() - 1) = osg::Vec3(position.x(), position.y(), position.z() + m_fenceHeight);
+	}
+}
+
+
 
 void FenceView::initializeShader()
 {
@@ -56,12 +68,13 @@ void FenceView::initializeShader()
 	NodeState->addUniform(modelIDU);
 
 	NodeState->setMode(GL_BLEND, osg::StateAttribute::ON);
+	NodeState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::FENCE], osg::StateAttribute::ON);
 }
 
 void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 {
-	if (m_coordinates->size()==0)
+	if (m_coordinates->size() == 0)
 	{
 		m_coordinates->push_back(lastPosition);
 		m_coordinates->push_back(osg::Vec3(lastPosition.x(), lastPosition.y(), lastPosition.z() + m_fenceHeight));
@@ -89,7 +102,7 @@ void FenceView::enforceFencePartsLimit(int maxFenceParts)
 	if (m_maxFenceParts != maxFenceParts)
 		m_maxFenceParts = maxFenceParts;
 
-	// the quad strip cointains two more vertices for the beginning of the fence
+	// the quad strip contains two more vertices for the beginning of the fence
 	int currentFenceParts = (m_coordinates->size() - 2) / 2;
 	if (maxFenceParts != 0 && currentFenceParts > maxFenceParts)
 	{

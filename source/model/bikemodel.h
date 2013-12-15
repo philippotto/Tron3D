@@ -23,6 +23,7 @@ namespace troen
 		void accelerate(float velocity);
 		float getRotation();
 		float getVelocity();
+		float getSteering();
 		osg::Vec3d getPositionOSG();
 		btVector3 BikeModel::getPositionBt();
 
@@ -30,5 +31,6 @@ namespace troen
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 		float m_velocity;
 		float m_rotation;
+		float m_steering;
 	};
 }

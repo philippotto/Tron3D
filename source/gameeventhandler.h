@@ -24,6 +24,12 @@ namespace troen
 				case osgGA::GUIEventAdapter::KEY_C:
 					m_troenGame->removeAllFencesEvent();
 					return true;
+				case osgGA::GUIEventAdapter::KEY_I:
+					m_troenGame->setFovy(m_troenGame->getFovy() - 5);
+					return true;
+				case osgGA::GUIEventAdapter::KEY_O:
+					m_troenGame->setFovy(m_troenGame->getFovy() + 5);
+					return true;
 				case osgGA::GUIEventAdapter::KEY_F:
 					m_troenGame->toggleFencePartsLimitEvent();
 					return true;
