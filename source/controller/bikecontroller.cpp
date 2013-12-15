@@ -81,12 +81,12 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 		if (gamepad->checkConnection())
 		{
 			std::cout << "[TroenGame::initializeInput] Gamepad connected on port " << gamepad->getPort() << std::endl;
-			bikeInputState->setPollingDevice(gamepad);
 		}
 		else
 		{
-			std::cout << "[TroenGame::initializeInput] USE_GAMEPAD true but no gamepad connected!" << std::endl;
+			std::cout << "[TroenGame::initializeInput] No gamepad connected!" << std::endl;
 		}
+		bikeInputState->setPollingDevice(gamepad);
 		break;
 	}
 	case input::BikeInputState::GAMEPADPS4:
@@ -96,12 +96,12 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 		if (gamepad->checkConnection())
 		{
 			std::cout << "[TroenGame::initializeInput] PS4 Controller connected" << std::endl;
-			bikeInputState->setPollingDevice(gamepad);
 		}
 		else
 		{
-			std::cout << "[TroenGame::initializeInput] USE_GAMEPAD true but no gamepad connected!" << std::endl;
+			std::cout << "[TroenGame::initializeInput] No PS4 Controller connected!" << std::endl;
 		}
+		bikeInputState->setPollingDevice(gamepad);
 		break;
 	}
 	case input::BikeInputState::AI:

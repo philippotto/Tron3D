@@ -26,7 +26,7 @@
 FIND_PATH(HIDAPI_INCLUDE_DIR
   NAMES hidapi.h
   PATHS
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/hidapi
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/hidapi/include
 )
 
 FIND_LIBRARY(HIDAPI_LIBRARY
@@ -35,34 +35,13 @@ FIND_LIBRARY(HIDAPI_LIBRARY
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/hidapi/lib
 )
 
-FIND_LIBRARY(HIDAPI_LIBRARY_DEBUG 
-  NAMES hidapid
-  PATHS
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/hidapi/lib
-)
-
-#find_library(HIDAPI_LIBRARY
-#	NAMES hidapi)
-
-#find_path(HIDAPI_INCLUDE_DIR
-#	NAMES hidapi.h)
-
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(HIDAPI
 	DEFAULT_MSG
 	HIDAPI_LIBRARY
 	HIDAPI_INCLUDE_DIR)
 
-macro(_HIDAPI_APPEND_LIBRARIES _list _release)
-   set(_debug ${_release}_DEBUG)
-   if(${_debug})
-      set(${_list} ${${_list}} optimized ${${_release}} debug ${${_debug}})
-   else()
-      set(${_list} ${${_list}} ${${_release}})
-   endif()
-endmacro()
-
 if(HIDAPI_FOUND)
-	_HIDAPI_APPEND_LIBRARIES(HIDAPI_LIBRARIES HIDAPI_LIBRARY)
+	set(HIDAPI_LIBRARIES "${HIDAPI_LIBRARY}")
 	set(HIDAPI_INCLUDE_DIRS "${HIDAPI_INCLUDE_DIR}")
 endif()

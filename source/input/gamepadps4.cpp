@@ -1,17 +1,21 @@
-#pragma once
 #include "gamepadps4.h"
-#include <string>       // std::string
-#include <iostream>     // std::cout
-#include <sstream>      // std::stringstream
 // troen
 #include "bikeinputstate.h"
-
 
 // VID and PID values of the specific device
 #define VID		0x054c
 #define PID		0x05c4
 
 using namespace troen::input;
+
+GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState)
+{
+	m_deadzoneX = 0.05f;
+	m_deadzoneY = 0.02f;
+
+	//initialise hid api
+	hid_init();
+}
 
 GamepadPS4::~GamepadPS4()
 {
@@ -20,9 +24,8 @@ GamepadPS4::~GamepadPS4()
 }
 
 /*
-returns foreach type whether it is pressed (1) or not (0)
-But for {LEFT|RIGHT}_HAT_{X|Y} it returns a value between 0 and 255.
-Atttion: The positon without intercating of {LEFT|RIGHT}_HAT_{X|Y} differs between 125 and 130
+Returns for each type whether it is pressed (1) or not (0).
+For {LEFT|RIGHT}_HAT_{X|Y} it returns a value between 0 and 255.
 */
 int GamepadPS4::getValueFromKey(GamepadPS4::PS4KEY type, unsigned char *buffer){
 
@@ -95,49 +98,39 @@ int GamepadPS4::getBitAt(int k, unsigned char * buffer){
 	return -1;
 }
 
-/*
-print (iEnd - iStart) times 8 bits of buffer
-*/
-void GamepadPS4::printBinary(unsigned char *buffer, int iStart, int iEnd){
-	unsigned long ulBytes = 0x00;
-	unsigned long n = ulBytes;
-	for (int i = iStart; i<iEnd; i++) {
-		long n = ulBytes | buffer[i];
-		for (int j = 0; j < 8; j++) {
-			if (n & 1)
-				printf("1");
-			else
-				printf("0");
-			n >>= 1;
-		}
-		printf(" ");
-	}
-	printf("\n");
-}
-
-
 //check for events and handle them
 bool GamepadPS4::refresh()
 {
 	unsigned char buf[64];
 
-	//ckeck whether controller is available, if not search for controller
-	if (hid_read(_controller, buf, 64) == -1){
-		return false;
-	};
+	// check whether controller is available, if not search for controller
+	// if it is still not available do nothing
+	if (!_controller || hid_read(_controller, buf, 64) == -1){
+		if (!checkConnection())
+		{
+			m_bikeInputState->setAngle(0);
+			m_bikeInputState->setAcceleration(0);
+			return false;
+		};
+	}
+
 	unsigned char *buffer = buf;
 
-	//controlled by LEFT_HAT
+	// get angle value from LEFT_HAT
 	float normLX = (getValueFromKey(GamepadPS4::PS4KEY::LEFT_HAT_X, buffer) - 128) / 128.f;
 	float leftStickX = (abs(normLX) < m_deadzoneX ? 0 : (abs(normLX) - m_deadzoneX) * (normLX / abs(normLX)));
 	m_bikeInputState->setAngle(-leftStickX);
+
+	// TODO (dw) receive continous values from right_2 and left_2
+	// get acceleration from RIGHT_2 and LEFT_2
+	float rightTrigger = getValueFromKey(GamepadPS4::PS4KEY::RIGHT_2_PRESSED, buffer);// / 255.f;
+	float leftTrigger = getValueFromKey(GamepadPS4::PS4KEY::LEFT_2_PRESSED, buffer);// / 255.f;
+	m_bikeInputState->setAcceleration(rightTrigger - leftTrigger);
+
 	return true;
 }
 
 bool GamepadPS4::checkConnection(){
-	//initialise hid api 
-	hid_init();
-
 	// Open the device using the vendor_id, product_id,
 	// and optionally the Serial number.
 	if ((_controller = hid_open(VID, PID, NULL)) != NULL)

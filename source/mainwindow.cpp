@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget * parent)
 		playerComboBox->addItem("KEYBOARD_wasd");
 		playerComboBox->addItem("KEYBOARD_arrows");
 		playerComboBox->addItem("GAMEPAD");
+		playerComboBox->addItem("GAMEPADPS4");
 		playerComboBox->addItem("AI");
 		playerInputLayout->addWidget(playerComboBox);
 		m_playerComboBoxes.push_back(playerComboBox);
