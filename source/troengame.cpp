@@ -83,7 +83,7 @@ void TroenGame::toggleFencePartsLimitEvent()
 
 void TroenGame::pauseGameEvent()
 {
-	m_gamePaused = m_gamePaused == false ? true : false;
+	m_gamePaused = !m_gamePaused;
 }
 
 void TroenGame::prepareAndStartGame(GameConfig config)

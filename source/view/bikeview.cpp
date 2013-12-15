@@ -145,14 +145,12 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::
 	if (modelIndex == GLOW) {
 		ColorU = new osg::Uniform("playerColor", m_playerColor);
 		// set parts to white/gray so that we can color it
-		NodeState->addUniform(new osg::Uniform("diffuseMaterialColor", osg::Vec3(0.5f, 0.5f, 0.5f)));
+		NodeState->addUniform(new osg::Uniform("diffuseMaterialColor", osg::Vec4(0.5f, 0.5f, 0.5f, 1.f)));
 	}
 	else {
 		ColorU = new osg::Uniform("playerColor", osg::Vec3(1.f, 1.f, 1.f));
 	}
 	NodeState->addUniform(ColorU);
-
-	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::BIKE], osg::StateAttribute::ON);
 
 	if (specularTexturePath != "")
 	{
@@ -174,6 +172,8 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::
 		setTexture(NodeState, normalTexturePath, NORMAL);
 	}
 
+	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::BIKE], osg::StateAttribute::ON);
+
 	return Node;
 }
 
@@ -187,6 +187,7 @@ void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string file
 	{
 		osg::Texture2D* texture = new osg::Texture2D;
 		texture->setImage(image);
+		texture->setResizeNonPowerOfTwoHint(false);
 
 	/*	osg::TexEnv* texenv = new osg::TexEnv;
 		texenv->setMode(osg::TexEnv::BLEND);
