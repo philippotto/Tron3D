@@ -32,7 +32,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Find the WinSDK libs
 if (WIN32)
-	set(CMAKE_PREFIX_PATH "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
+	set(CMAKE_PREFIX_PATH "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64" "C:\\Program Files (x86)\\Windows Kits\\8.1\\Lib\\winv6.3\\um\\x64")
 	cmake_policy(SET CMP0020 NEW)
 endif (WIN32)
 
@@ -183,6 +183,9 @@ find_package(BULLET REQUIRED)
 # FMOD
 find_package(FMOD REQUIRED)
 
+# HIDAPI
+find_package(HIDAPI REQUIRED)
+
 #################################################
 # SOURCES
 #################################################
@@ -199,13 +202,20 @@ set(sources
 	source/troengame.cpp
 	source/sampleosgviewer.h
 	source/sampleosgviewer.cpp
+	source/gameeventhandler.h
 
 	source/input/keyboard.h
 	source/input/keyboard.cpp
 	source/input/gamepad.h
 	source/input/gamepad.cpp
+	source/input/gamepadps4.h
+	source/input/gamepadps4.cpp
 	source/input/bikeinputstate.h
 	source/input/bikeinputstate.cpp
+	source/input/ai.h
+	source/input/ai.cpp
+	source/input/pollingdevice.h
+	source/input/pollingdevice.cpp
 
 	source/sound/audiomanager.h
 	source/sound/audiomanager.cpp
@@ -245,6 +255,11 @@ set(sources
 	source/view/shaders.cpp
 	source/view/hudview.h
 	source/view/hudview.cpp
+	source/view/skydome.h
+	source/view/skydome.cpp
+	source/view/postprocessing.cpp
+	source/view/postprocessing.h
+	source/view/motionblur.h
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
@@ -274,6 +289,7 @@ include_directories(
 	${OPENSCENEGRAPH_INCLUDE_DIRS}
 	${BULLET_INCLUDE_DIRS}
 	${FMOD_INCLUDE_DIRS}
+	${HIDAPI_INCLUDE_DIRS}
 )
 
 target_link_libraries( ${target}
@@ -282,4 +298,5 @@ target_link_libraries( ${target}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
 	${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
+	${HIDAPI_LIBRARIES}
 )

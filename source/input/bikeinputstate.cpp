@@ -14,7 +14,7 @@ BikeInputState::BikeInputState()
 	m_angle = 0.0;
 }
 
-void BikeInputState::setPollingDevice(std::shared_ptr<Gamepad> pollingDevice)
+void BikeInputState::setPollingDevice(std::shared_ptr<PollingDevice> pollingDevice)
 {
 	m_pollingEnabled = true;
 	m_pollingDevice = pollingDevice;

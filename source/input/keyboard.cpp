@@ -5,9 +5,10 @@
 
 using namespace troen::input;
 
-Keyboard::Keyboard(osg::ref_ptr<BikeInputState> bikeInputState)
+Keyboard::Keyboard(osg::ref_ptr<BikeInputState> bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol> keys)
 {
 	m_bikeInputState = bikeInputState;
+	m_keys = keys;
 }
 
 bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActionAdapter& actionAdapter)
@@ -16,63 +17,59 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 	{
 	case(osgGA::GUIEventAdapter::KEYDOWN) :
 	{
-		switch (eventAdapter.getKey())
+		int key = eventAdapter.getKey();
+		if (key == m_keys[0]) // forward
 		{
-		case 'w':
-			//std::cout << "[Keyboard::handle] w key pressed" << std::endl;
 			m_bikeInputState->setAcceleration(1.0);
 			return false;
-			break;
-		case 'a':
-			//std::cout << "[Keyboard::handle] a key pressed" << std::endl;
+		}
+		else if (key == m_keys[1]) // left
+		{
 			m_bikeInputState->setAngle(1.0);
 			return false;
-			break;
-		case 's':
-			//std::cout << "[Keyboard::handle] s key pressed" << std::endl;
+		}
+		else if (key == m_keys[2]) // backwards
+		{
 			m_bikeInputState->setAcceleration(-1.0);
 			return false;
-			break;
-		case 'd':
-			//std::cout << "[Keyboard::handle] d key pressed" << std::endl;
+		}
+		else if (key == m_keys[3])
+		{
 			m_bikeInputState->setAngle(-1.0);
 			return false;
-			break;	
-		case 'r':
+		}
+		// todo, move to gameeventhandler
+		else if (key == osgGA::GUIEventAdapter::KEY_R)
+		{
 			std::cout << "Reloading shaders" << std::endl;
 			shaders::reloadShaders();
-			break;
-		default:
-			return false;
 		}
+		return false;
 	}
 	case(osgGA::GUIEventAdapter::KEYUP) :
 	{
-		switch (eventAdapter.getKey())
+		int key = eventAdapter.getKey();
+		if (key == m_keys[0]) // forward
 		{
-		case 'w':
-			//std::cout << "[Keyboard::handle] w key released" << std::endl;
 			m_bikeInputState->setAcceleration(0.0);
-			return false;
-			break;
-		case 'a':
-			//std::cout << "[Keyboard::handle] a key released" << std::endl;
-			m_bikeInputState->setAngle(0.0);
-			return false;
-			break;
-		case 's':
-			//std::cout << "[Keyboard::handle] s key released" << std::endl;
-			m_bikeInputState->setAcceleration(0.0);
-			return false;
-			break;
-		case 'd':
-			//std::cout << "[Keyboard::handle] d key released" << std::endl;
-			m_bikeInputState->setAngle(0.0);
-			return false;
-			break;
-		default:
 			return false;
 		}
+		else if (key == m_keys[1]) // left
+		{
+			m_bikeInputState->setAngle(0.0);
+			return false;
+		}
+		else if (key == m_keys[2]) // backwards
+		{
+			m_bikeInputState->setAcceleration(0.0);
+			return false;
+		}
+		else if (key == m_keys[3])
+		{
+			m_bikeInputState->setAngle(-0.0);
+			return false;
+		}
+		return false;
 	}
 	default:
 		return false;

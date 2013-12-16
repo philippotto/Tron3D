@@ -1,4 +1,4 @@
-GP2013 - Awesome Game by Team Awesome
+GP2013 - Awesome Game
 ======
 
 Audiovisual sex as a source of inspiration can be found here: http://www.youtube.com/watch?v=3GBLtnxxtzQ
@@ -16,6 +16,11 @@ Set up FMOD:
 Set up BULLET_PHYSICS:
 - Just copy the BULLET_PHYSICS folder (in our Dropbox) to %ProjectDir%\3rdParty\BULLET_PHYSICS
 - no setting of any evironment variable or PATH variable necessary
+
+Set up HIDAPI
+- Copy the hidapi folder (in our Dropbox) to
+%ProjectDir%\3rdParty\hidapi
+- add %ProjectDir%\3rdParty\hidapi to your PATH
 
 Set up correct Working Directory:
 - in MSVC goto DEBUG->properties->ConfigurationProperties->Debugging and set WorkingDirectory to ".." (without the quotes)

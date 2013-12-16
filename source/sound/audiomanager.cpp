@@ -153,6 +153,11 @@ void AudioManager::Update(float elapsed) {
 void AudioManager::SetMasterVolume(float volume) {
 	master->setVolume(volume);
 }
+float AudioManager::GetMasterVolume(){
+	float volume;
+	master->getVolume(&volume);
+	return volume;
+}
 void AudioManager::SetSFXsVolume(float volume) {
 	groups[CATEGORY_SFX]->setVolume(volume);
 }

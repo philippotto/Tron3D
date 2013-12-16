@@ -1,6 +1,8 @@
 #pragma once
 // OSG
 #include <osg/Geometry>
+#include <osg/Geode>
+#include <osg/PositionAttitudeTransform>
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
@@ -10,16 +12,28 @@ namespace troen
 	class FenceView : public AbstractView
 	{
 	public:
-		FenceView(std::shared_ptr<FenceModel> &model);
-		void addFencePart(osg::Vec3 a, osg::Vec3 b);
+		FenceView(osg::Vec3 color, std::shared_ptr<FenceModel>& model, int maxFenceParts);
+
+		void addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition);
+		void removeAllFences();
+		void removeFirstFencePart();
+		void enforceFencePartsLimit(int maxFenceParts);
+
+		void updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position);
 
 	private:
 		void initializeFence();
+		void initializeFenceGap();
 		void initializeShader();
-		osg::Geometry* m_geometry;
-		std::vector<osg::Vec3> m_coordinates;
-		osg::DrawArrays* m_drawArrays;
-		std::shared_ptr<FenceModel> m_model;
+		osg::ref_ptr<osg::Geometry>		m_geometry;
+		osg::ref_ptr<osg::Vec3Array>	m_coordinates;
+		osg::ref_ptr<osg::DrawArrays>	m_drawArrays;
+		osg::ref_ptr<osg::Geode>		m_geode;
+
+		std::weak_ptr<FenceModel>		m_model;
+
+		osg::Vec3 m_playerColor;
 		float m_fenceHeight;
+		int m_maxFenceParts;
 	};
 }

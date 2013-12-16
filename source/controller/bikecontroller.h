@@ -5,27 +5,36 @@
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractcontroller.h"
+#include "../input/bikeinputstate.h"
 
 namespace troen
 {
 	class BikeController : public AbstractController
 	{
 	public:
-		BikeController(const std::shared_ptr<sound::AudioManager>& audioManager);
-		void setInputState(osg::ref_ptr<input::BikeInputState> &bikeInputState);
+		BikeController(input::BikeInputState::InputDevice inputDevice);
 		void attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator> &manipulator);
-		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
+		void attachWorld(std::weak_ptr<PhysicsWorld> &world);
 
 		void updateModel();
 
-		const COLLISIONTYPE getCollisionType() { return BIKETYPE; };
-
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
-		const std::shared_ptr<sound::AudioManager> getAudioManager();
+		osg::ref_ptr<input::Keyboard> getEventHandler();
+		bool hasEventHandler();
+
+		// controlling the FenceController
+		void removeAllFences();
+		void enforceFencePartsLimit(int maxFenceParts);
 
 	private:
+		void initializeInput(input::BikeInputState::InputDevice inputDevice);
+		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		std::shared_ptr<FenceController> m_fenceController;
-		std::shared_ptr<sound::AudioManager> m_audioManager;
+		osg::ref_ptr<input::Keyboard> m_keyboardHandler = nullptr;
+
+		osg::Vec3 BikeController::generateRandomColor();
+
+		osg::Vec3 m_playerColor;
 	};
 }

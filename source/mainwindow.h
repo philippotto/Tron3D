@@ -3,10 +3,13 @@
 #include <QWidget>
 #include <QMainWindow>
 #include <QStatusBar>
-#include <QStackedWidget>
 #include <QPushButton>
+#include <QSpinBox>
+#include <QComboBox>
+#include <QCheckBox>
 // troen
 #include "forwarddeclarations.h"
+#include "troengame.h"
 
 
 namespace troen
@@ -19,13 +22,24 @@ namespace troen
 		MainWindow (QWidget * parent = NULL);
 		virtual ~MainWindow();
 
+	signals:
+		void startGame(GameConfig config);
+
 	public slots:
-		void fpsChanged(double time);
+		void updatePlayerInputBoxes();
+
+	private slots:
+		void prepareGameStart();
+
 
 	private:
 		QStatusBar*		m_statusBar;
-		QStackedWidget* m_stackedWidget;
-		QPushButton*	m_pushButton;
+		QPushButton*	m_gameStartButton;
+		QSpinBox*		m_bikeNumberSpinBox;
+		QVector<QComboBox*>	m_playerComboBoxes;
+		QCheckBox*		m_splitscreenCheckBox;
+		QCheckBox*		m_postProcessingCheckBox;
+
 
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;
