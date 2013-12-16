@@ -26,7 +26,6 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 :m_root(rootNode), m_width(width), m_height(height), m_sceneNode(new osg::Group())
 {
 	// init textures, will be recreated when screen size changes
-	
 	setupTextures(m_width, m_height);
 
 	// create shaders
@@ -107,7 +106,9 @@ void PostProcessing::setupTextures(const unsigned int & widthO, const unsigned i
 		for (size_t i = 0, iEnd = m_allCameras.size(); i<iEnd; i++)
 		{
 			m_allCameras[i]->setRenderingCache(0);
+			if (i < m_allCameras.size() - 1)
 			m_allCameras[i]->setViewport(new osg::Viewport(0, 0, width, height));
+
 		}
 	}
 }
@@ -253,7 +254,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 
 	// geometry
 	osg::Geode* geode(new osg::Geode());
-	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(4, 0, 0), osg::Vec3(0, 4, 0)));
+	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
 	/*geode->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
 	geode->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
 	geode->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
