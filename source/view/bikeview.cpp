@@ -49,7 +49,7 @@ BikeView::BikeView(osg::Vec3 color)
 		"data/models/cycle/MG_Player_Body_NORM.tga", GLOW, 0.1);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart("data/models/cycle/MG_MovieCycle_Tire_MI.obj",
-		"",
+		"data/models/cycle/MG_MovieCycle_Tire_DIFF.tga",
 		"data/models/cycle/MG_MovieCycle_Tire_EMSS.tga",
 		"data/models/cycle/MG_MovieCycle_Tire_NORM.tga", GLOW, 0.5);
 

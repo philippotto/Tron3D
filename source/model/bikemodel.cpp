@@ -9,7 +9,7 @@
 
 using namespace troen;
 
-#define VMAX 1000
+#define VMAX 800
 #define FRICTION 10
 #define PI 3.14159265359
 

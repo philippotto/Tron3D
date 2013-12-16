@@ -26,12 +26,14 @@
 #include "view/shaders.h"
 #include "view/skydome.h"
 #include "view/postprocessing.h"
+#include "view/motionblur.h"
 
 using namespace troen;
 
 // TODO: pass as parameter to troengame
 #define USE_GAMEPAD true
 #define SOUND_VOLUME 1.f
+
 #define DEFAULT_MAX_FENCE_PARTS 150
 #define DEFAULT_WINDOW_WIDTH 1280
 #define DEFAULT_WINDOW_HEIGHT 720
@@ -279,13 +281,24 @@ bool TroenGame::initializeViews()
 
 bool TroenGame::initializeViewer()
 {
+	double persistence = 0.05;
+	osgViewer::Viewer::Windows windows;
+
 	m_sampleOSGViewer = new SampleOSGViewer();
 	m_sampleOSGViewer.get()->addView(m_gameView);
+
+	m_sampleOSGViewer->getWindows(windows);
+	windows.at(0)->add(new MotionBlurOperation(persistence));
+
 	if (m_splitscreen)
 	{
 		m_sampleOSGViewer2 = new SampleOSGViewer();
 		m_sampleOSGViewer2.get()->addView(m_gameView2);
+
+		m_sampleOSGViewer2->getWindows(windows);
+		windows.at(0)->add(new MotionBlurOperation(persistence));
 	}
+
 	return true;
 }
 

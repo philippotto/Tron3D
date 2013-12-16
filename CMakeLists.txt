@@ -259,6 +259,7 @@ set(sources
 	source/view/skydome.cpp
 	source/view/postprocessing.cpp
 	source/view/postprocessing.h
+	source/view/motionblur.h
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
