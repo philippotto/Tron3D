@@ -183,6 +183,9 @@ find_package(BULLET REQUIRED)
 # FMOD
 find_package(FMOD REQUIRED)
 
+# HIDAPI
+find_package(HIDAPI REQUIRED)
+
 #################################################
 # SOURCES
 #################################################
@@ -205,6 +208,8 @@ set(sources
 	source/input/keyboard.cpp
 	source/input/gamepad.h
 	source/input/gamepad.cpp
+	source/input/gamepadps4.h
+	source/input/gamepadps4.cpp
 	source/input/bikeinputstate.h
 	source/input/bikeinputstate.cpp
 	source/input/ai.h
@@ -283,6 +288,7 @@ include_directories(
 	${OPENSCENEGRAPH_INCLUDE_DIRS}
 	${BULLET_INCLUDE_DIRS}
 	${FMOD_INCLUDE_DIRS}
+	${HIDAPI_INCLUDE_DIRS}
 )
 
 target_link_libraries( ${target}
@@ -291,4 +297,5 @@ target_link_libraries( ${target}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
 	${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
+	${HIDAPI_LIBRARIES}
 )
