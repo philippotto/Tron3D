@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget * parent)
 		bikeNumberLayout->addWidget(bikeNumberLabel);
 
 		m_bikeNumberSpinBox = new QSpinBox;
-		m_bikeNumberSpinBox->setMinimum(2);
+		m_bikeNumberSpinBox->setMinimum(1);
 		m_bikeNumberSpinBox->setMaximum(6);
 		m_bikeNumberSpinBox->setValue(2);
 		bikeNumberLayout->addWidget(m_bikeNumberSpinBox);
@@ -83,6 +83,10 @@ MainWindow::MainWindow(QWidget * parent)
 	m_splitscreenCheckBox = new QCheckBox("Splitscreen");
 	vBoxLayout->addWidget(m_splitscreenCheckBox, 0, Qt::AlignHCenter);
 
+	//fullscreenCheckBox
+	m_fullscreenCheckBox = new QCheckBox("Fullscreen");
+	vBoxLayout->addWidget(m_fullscreenCheckBox, 0, Qt::AlignHCenter);
+
 	// splitscreenCheckBox
 	m_postProcessingCheckBox = new QCheckBox("PostProcessing");
 	vBoxLayout->addWidget(m_postProcessingCheckBox, 0, Qt::AlignHCenter);
@@ -103,8 +107,14 @@ MainWindow::MainWindow(QWidget * parent)
 	m_troenGame = new TroenGame(m_gameThread);
 
 	connect(m_gameStartButton, SIGNAL(clicked()), this, SLOT(prepareGameStart()));
-	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(GameConfig)));
 	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updatePlayerInputBoxes()));
+	connect(m_splitscreenCheckBox, SIGNAL(stateChanged(int)), this, SLOT(splitscreenToggled()));
+	connect(m_fullscreenCheckBox, SIGNAL(stateChanged(int)), this, SLOT(fullscreenToggled()));
+	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(bikeNumberChanged(int)));
+
+	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(GameConfig)));
+
+
 }
 
 MainWindow::~MainWindow()
@@ -133,6 +143,34 @@ void MainWindow::prepareGameStart()
 		config.playerInputTypes[i] = m_playerComboBoxes.at(i)->currentIndex();
 	}
 	config.splitscreen = m_splitscreenCheckBox->isChecked();
+	config.fullscreen = m_fullscreenCheckBox->isChecked();
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	emit startGame(config);
+}
+
+void MainWindow::splitscreenToggled()
+{
+	if (m_splitscreenCheckBox->isChecked())
+		m_fullscreenCheckBox->setChecked(false);
+}
+
+void MainWindow::fullscreenToggled()
+{
+	if (m_fullscreenCheckBox->isChecked())
+		m_splitscreenCheckBox->setChecked(false);
+}
+
+void MainWindow::bikeNumberChanged(int newBikeNumber)
+{
+	if (newBikeNumber < 2)
+	{
+		m_splitscreenCheckBox->setChecked(false);
+		m_splitscreenCheckBox->setCheckable(false);
+		m_splitscreenCheckBox->setDisabled(true);
+	}
+	else
+	{
+		m_splitscreenCheckBox->setCheckable(true);
+		m_splitscreenCheckBox->setDisabled(false);
+	}
 }

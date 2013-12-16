@@ -15,6 +15,7 @@ typedef struct s_GameConfig
 	int numberOfBikes;
 	int* playerInputTypes;
 	bool splitscreen;
+	bool fullscreen;
 	bool usePostProcessing;
 } GameConfig;
 Q_DECLARE_METATYPE(s_GameConfig)
@@ -37,7 +38,7 @@ namespace troen
 		void toggleFencePartsLimitEvent();
 		void pauseGameEvent();
 
-		void refreshTextures(const osgGA::GUIEventAdapter&);
+		void refreshTextures(int width, int height);
 		void setFovy(float newFovy);
 		float getFovy();
 
@@ -88,6 +89,7 @@ namespace troen
 		int m_maxFenceParts;
 		bool m_gamePaused;
 		bool m_splitscreen;
+		bool m_fullscreen;
 		bool m_usePostProcessing;
 		int m_numberOfBikes;
 		std::vector<int> m_playerInputTypes;
