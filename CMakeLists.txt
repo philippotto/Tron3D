@@ -260,6 +260,8 @@ set(sources
 	source/view/postprocessing.cpp
 	source/view/postprocessing.h
 	source/view/motionblur.h
+	source/view/nodefollowcameramanipulator.h
+	source/view/nodefollowcameramanipulator.cpp
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp

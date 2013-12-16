@@ -3,10 +3,12 @@
 #include "osg/PositionAttitudeTransform"
 //troen
 #include "../view/bikeview.h"
+#include "../view/nodefollowcameramanipulator.h"
 #include "../model/bikemodel.h"
 #include "../controller/fencecontroller.h"
 #include "../model/physicsworld.h"
 #include "../sound/audiomanager.h"
+
 #include "../input/keyboard.h"
 #include "../input/gamepad.h"
 #include "../input/gamepadps4.h"
@@ -128,7 +130,7 @@ void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInput
 	std::static_pointer_cast<BikeModel>(m_model)->setInputState(bikeInputState);
 }
 
-void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator>& manipulator)
+void BikeController::attachTrackingCamera(osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
 {
 	osg::Matrixd cameraOffset;
 

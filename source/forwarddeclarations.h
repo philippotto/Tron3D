@@ -76,6 +76,7 @@ namespace troen
 	class HUDView;
 	class SkyDome;
 	class PostProcessing;
+	class NodeFollowCameraManipulator;
 
 	namespace util
 	{
