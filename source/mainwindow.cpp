@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget * parent)
 		m_bikeNumberSpinBox = new QSpinBox;
 		m_bikeNumberSpinBox->setMinimum(1);
 		m_bikeNumberSpinBox->setMaximum(6);
-		m_bikeNumberSpinBox->setValue(2);
+		m_bikeNumberSpinBox->setValue(1);
 		bikeNumberLayout->addWidget(m_bikeNumberSpinBox);
 
 		vBoxLayout->addWidget(bikeNumberWidget);
@@ -81,6 +81,8 @@ MainWindow::MainWindow(QWidget * parent)
 
 	// splitscreenCheckBox
 	m_splitscreenCheckBox = new QCheckBox("Splitscreen");
+	m_splitscreenCheckBox->setChecked(false);
+	m_splitscreenCheckBox->setDisabled(true);
 	vBoxLayout->addWidget(m_splitscreenCheckBox, 0, Qt::AlignHCenter);
 
 	//fullscreenCheckBox
@@ -90,7 +92,7 @@ MainWindow::MainWindow(QWidget * parent)
 	// splitscreenCheckBox
 	m_postProcessingCheckBox = new QCheckBox("PostProcessing");
 	vBoxLayout->addWidget(m_postProcessingCheckBox, 0, Qt::AlignHCenter);
-	m_postProcessingCheckBox->setChecked(true);
+	m_postProcessingCheckBox->setChecked(false);
 
 	// gameStartButton
 	m_gameStartButton = new QPushButton(QString("start Game"));

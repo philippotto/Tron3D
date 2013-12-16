@@ -2,20 +2,28 @@
 
 using namespace troen;
 
-//void NodeFollowCameraManipulator::setByMatrix( const osg::Matrixd& matrix ){}
-	
+void NodeFollowCameraManipulator::setByMatrix( const osg::Matrixd& matrix )
+{
+	osg::Vec3d eye, center, up;
+	matrix.getLookAt(eye, center, up, _distance);
+	computePosition(eye, center, up);
+}
 
-//void NodeFollowCameraManipulator::setByInverseMatrix( const osg::Matrixd& matrix ){}
+osg::Matrixd NodeFollowCameraManipulator::getMatrix() const
+{
+	osg::Vec3d nodeCenter;
+	osg::Quat nodeRotation;
+	computeNodeCenterAndRotation(nodeCenter, nodeRotation);
+	return osg::Matrixd::translate(0.0, 0.0, _distance)*osg::Matrixd::rotate(_rotation)*osg::Matrixd::rotate(nodeRotation)*osg::Matrix::translate(nodeCenter);
+}
 
-//osg::Matrixd NodeFollowCameraManipulator::getMatrix() const
-//{
-//	return osg::Matrixd::inverse(getInverseMatrix());
-//}
-//
-//osg::Matrixd NodeFollowCameraManipulator::getInverseMatrix() const
-//{
-//	return m_lastViewMatrix;
-//}
+osg::Matrixd NodeFollowCameraManipulator::getInverseMatrix() const
+{
+	osg::Vec3d nodeCenter;
+	osg::Quat nodeRotation;
+	computeNodeCenterAndRotation(nodeCenter, nodeRotation);
+	return osg::Matrixd::translate(-nodeCenter)*osg::Matrixd::rotate(nodeRotation.inverse())*osg::Matrixd::rotate(_rotation.inverse())*osg::Matrixd::translate(0.0, 0.0, -_distance);
+}
 
 void NodeFollowCameraManipulator::update(osg::Vec3f nodeMoveDirection, osg::Vec3f position, osg::Vec3f upDirection)
 {

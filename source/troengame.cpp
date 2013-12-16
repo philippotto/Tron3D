@@ -243,8 +243,8 @@ bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
 
-	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
-		= new NodeFollowCameraManipulator(90.f);
+	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator
+		= new osgGA::NodeTrackerManipulator();
 	manipulator->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
 	m_bikeControllers[0]->attachTrackingCamera(manipulator);
 	m_gameView->setCameraManipulator(manipulator.get());
@@ -268,8 +268,8 @@ bool TroenGame::initializeViews()
 	{
 		m_gameView2 = new osgViewer::View;
 
-		osg::ref_ptr<NodeFollowCameraManipulator> manipulator2
-			= new NodeFollowCameraManipulator(90.f);
+		osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator2
+			= new osgGA::NodeTrackerManipulator();
 		manipulator2->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
 		m_bikeControllers[1]->attachTrackingCamera(manipulator2);
 		m_gameView2->setCameraManipulator(manipulator2.get());

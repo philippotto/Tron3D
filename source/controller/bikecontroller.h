@@ -13,7 +13,7 @@ namespace troen
 	{
 	public:
 		BikeController(input::BikeInputState::InputDevice inputDevice);
-		void attachTrackingCamera(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
+		void attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator> &manipulator);
 		void attachWorld(std::weak_ptr<PhysicsWorld> &world);
 
 		void updateModel();
