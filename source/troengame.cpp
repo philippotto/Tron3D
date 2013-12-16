@@ -5,6 +5,8 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
 #include <osgViewer/ViewerEventHandlers>
+#include <osgViewer/config/SingleScreen>
+#include <osgViewer/config/SingleWindow>
 // troen
 #include "sampleosgviewer.h"
 #include "gameeventhandler.h"
@@ -37,7 +39,13 @@ using namespace troen;
 //#define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
-m_gameThread(thread), m_maxFenceParts(0), m_gamePaused(false), m_splitscreen(false), m_numberOfBikes(0), m_usePostProcessing(false)
+m_gameThread(thread),
+m_maxFenceParts(0),
+m_gamePaused(false),
+m_splitscreen(false),
+m_fullscreen(false),
+m_numberOfBikes(0),
+m_usePostProcessing(false)
 {
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
@@ -90,6 +98,7 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 {
 	m_numberOfBikes = config.numberOfBikes;
 	m_splitscreen = config.splitscreen;
+	m_fullscreen = config.fullscreen;
 	m_usePostProcessing = config.usePostProcessing;
 
 	m_playerInputTypes.clear();
@@ -173,7 +182,8 @@ bool TroenGame::composeSceneGraph()
 {
 	if (m_usePostProcessing)
 	{
-		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
+		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
 		m_sceneNode = m_postProcessing->getSceneNode();
 	}
 	else
@@ -242,8 +252,10 @@ bool TroenGame::initializeViews()
 	m_gameView->addEventHandler(m_statsHandler);
 
 	m_gameView->setSceneData(m_rootNode);
-	m_gameView->setUpViewInWindow(100, 100, 1280, 720, 0);
-	//m_gameView->setUpViewOnSingleScreen(0);
+	if (m_fullscreen)
+		m_gameView->apply(new osgViewer::SingleScreen(0));
+	else
+		m_gameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
 
 	m_gameEventHandler = new GameEventHandler(this);
 	m_gameView->addEventHandler(m_gameEventHandler);
@@ -433,8 +445,8 @@ bool TroenGame::shutdown()
 }
 
 
-void TroenGame::refreshTextures(const osgGA::GUIEventAdapter& ea){
+void TroenGame::refreshTextures(int width, int height){
 	if (m_postProcessing){
-		m_postProcessing->setupTextures(ea.getWindowWidth(), ea.getWindowHeight());
+		m_postProcessing->setupTextures(width, height);
 	}
 }

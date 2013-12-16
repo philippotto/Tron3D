@@ -50,7 +50,7 @@ namespace troen
 			if (ea.getEventType() == osgGA::GUIEventAdapter::RESIZE)
 			{
 				// re setup textures to new size
-				m_troenGame->refreshTextures(ea);
+				m_troenGame->refreshTextures(ea.getWindowWidth(), ea.getWindowHeight());
 			}
 
 			return false;

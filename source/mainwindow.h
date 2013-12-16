@@ -30,6 +30,9 @@ namespace troen
 
 	private slots:
 		void prepareGameStart();
+		void splitscreenToggled();
+		void fullscreenToggled();
+		void bikeNumberChanged(int newBikeNumber);
 
 
 	private:
@@ -38,6 +41,7 @@ namespace troen
 		QSpinBox*		m_bikeNumberSpinBox;
 		QVector<QComboBox*>	m_playerComboBoxes;
 		QCheckBox*		m_splitscreenCheckBox;
+		QCheckBox*		m_fullscreenCheckBox;
 		QCheckBox*		m_postProcessingCheckBox;
 
 
