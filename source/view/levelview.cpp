@@ -11,6 +11,11 @@
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
+#include <osg/Texture2D>
+#include <osg/TexEnv>
+#include <osg/TexGen>
+#include <osg/TexGenNode>
 
 
 #include "../model/levelmodel.h"
@@ -77,7 +82,9 @@ void LevelView::initialize()
 	wallStateSet->addUniform(modelIDU);
 
 	m_node->addChild(outerWallsGeode);
-	//m_node->addChild(constructBox());
+
+	m_node->addChild(constructBox(osg::Vec3(10.0,0.0,50.0),osg::Vec3(50.0,50.0,100.0)));
+
 	m_node->addChild(constructGround());
 }
 
@@ -164,4 +171,138 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	//setTexture(groundStateSet, specularTexturePath, SPECULAR);
 
 	return  plane;
+}
+
+
+
+
+osg::ref_ptr<osg::Geode> LevelView::constructBox(osg::Vec3 position,osg::Vec3 scale)
+{
+	int levelSize = m_model->getLevelSize();
+	osg::Geometry* boxGeometry = new osg::Geometry;
+
+	// Vertices
+	osg::Vec3Array* vertices = new osg::Vec3Array;
+	//somehow postscale doesnt work..
+	vertices->push_back(osg::Vec3(-.5*scale.x(), -.5*scale.y(), -.5*scale.z()) + position); // 0
+	vertices->push_back(osg::Vec3(.5*scale.x(), -.5*scale.y(), -.5*scale.z()) + position); // 3
+	vertices->push_back(osg::Vec3(.5*scale.x(), -.5*scale.y(), .5*scale.z()) + position); // 5
+	vertices->push_back(osg::Vec3(-.5*scale.x(), -.5*scale.y(), .5*scale.z()) + position); // 1
+
+	vertices->push_back(osg::Vec3(-.5*scale.x(), -.5*scale.y(), .5*scale.z()) + position); // 1
+	vertices->push_back(osg::Vec3(.5*scale.x(), -.5*scale.y(), .5*scale.z()) + position); // 5
+	vertices->push_back(osg::Vec3(.5*scale.x(), .5*scale.y(), .5*scale.z()) + position); // 7
+	vertices->push_back(osg::Vec3(-.5*scale.x(), .5*scale.y(), .5*scale.z()) + position); // 4
+
+	vertices->push_back(osg::Vec3(-.5*scale.x(), -.5*scale.y(), -.5*scale.z()) + position); // 0
+	vertices->push_back(osg::Vec3(-.5*scale.x(), -.5*scale.y(), .5*scale.z()) + position); // 1
+	vertices->push_back(osg::Vec3(-.5*scale.x(), .5*scale.y(), .5*scale.z()) + position); // 4
+	vertices->push_back(osg::Vec3(-.5*scale.x(), .5*scale.y(), -.5*scale.z()) + position); // 2
+
+	vertices->push_back(osg::Vec3(.5*scale.x(), -.5*scale.y(), -.5*scale.z()) + position); // 3
+	vertices->push_back(osg::Vec3(.5*scale.x(), .5*scale.y(), -.5*scale.z()) + position); // 6
+	vertices->push_back(osg::Vec3(.5*scale.x(), .5*scale.y(), .5*scale.z()) + position); // 7
+	vertices->push_back(osg::Vec3(.5*scale.x(), -.5*scale.y(), .5*scale.z()) + position); // 5
+
+	vertices->push_back(osg::Vec3(.5*scale.x(), .5*scale.y(), -.5*scale.z()) + position); // 6
+	vertices->push_back(osg::Vec3(-.5*scale.x(), .5*scale.y(), -.5*scale.z()) + position); // 2
+	vertices->push_back(osg::Vec3(-.5*scale.x(), .5*scale.y(), .5*scale.z()) + position); // 4
+	vertices->push_back(osg::Vec3(.5*scale.x(), .5*scale.y(), .5*scale.z()) + position); // 7
+
+	vertices->push_back(osg::Vec3(.5*scale.x(), -.5*scale.y(), -.5*scale.z()) + position); // 3
+	vertices->push_back(osg::Vec3(-.5*scale.x(), -.5*scale.y(), -.5*scale.z()) + position); // 0
+	vertices->push_back(osg::Vec3(-.5*scale.x(), .5*scale.y(), -.5*scale.z()) + position); // 2
+	vertices->push_back(osg::Vec3(.5*scale.x(), .5*scale.y(), -.5*scale.z()) + position); // 6
+
+	boxGeometry->setVertexArray(vertices);
+
+	// TexCoords
+	osg::Vec2Array *texCoords = new osg::Vec2Array();
+	for (int i = 0; i < 6; i++){
+		texCoords->push_back(osg::Vec2(0.0, 0.0));
+		texCoords->push_back(osg::Vec2(1.0, 0.0));
+		texCoords->push_back(osg::Vec2(1.0, 1.0));
+		texCoords->push_back(osg::Vec2(0.0, 1.0));
+	}
+	boxGeometry->setTexCoordArray(0, texCoords);
+
+	// Normals
+	osg::Vec3Array* normals = new osg::Vec3Array;
+	normals->push_back(osg::Vec3(0, -1, 0));
+	normals->push_back(osg::Vec3(0, -1, 0));
+	normals->push_back(osg::Vec3(0, -1, 0));
+	normals->push_back(osg::Vec3(0, -1, 0));
+
+	normals->push_back(osg::Vec3(0, 0, 1));
+	normals->push_back(osg::Vec3(0, 0, 1));
+	normals->push_back(osg::Vec3(0, 0, 1));
+	normals->push_back(osg::Vec3(0, 0, 1));
+
+	normals->push_back(osg::Vec3(-1, 0, 0));
+	normals->push_back(osg::Vec3(-1, 0, 0));
+	normals->push_back(osg::Vec3(-1, 0, 0));
+	normals->push_back(osg::Vec3(-1, 0, 0));
+
+	normals->push_back(osg::Vec3(1, 0, 0));
+	normals->push_back(osg::Vec3(1, 0, 0));
+	normals->push_back(osg::Vec3(1, 0, 0));
+	normals->push_back(osg::Vec3(1, 0, 0));
+
+	normals->push_back(osg::Vec3(0, 1, 0));
+	normals->push_back(osg::Vec3(0, 1, 0));
+	normals->push_back(osg::Vec3(0, 1, 0));
+	normals->push_back(osg::Vec3(0, 1, 0));
+
+	normals->push_back(osg::Vec3(0, 0, -1));
+	normals->push_back(osg::Vec3(0, 0, -1));
+	normals->push_back(osg::Vec3(0, 0, -1));
+	normals->push_back(osg::Vec3(0, 0, -1));
+	boxGeometry->setNormalArray(normals);
+	boxGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+	// Faces
+	boxGeometry->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0,
+		vertices->size()));
+
+	//osg::DrawElementsUInt *faceArray = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+
+	//for (int i = 0; i < 6 * 4; i++)
+	//	faceArray->push_back(i);
+	//boxGeometry->addPrimitiveSet(faceArray);
+
+
+	osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
+	boxGeode->addDrawable(boxGeometry);
+
+	osg::StateSet *boxStateSet = boxGeode->getOrCreateStateSet();
+	boxStateSet->ref();
+
+	boxStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
+
+	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", levelSize);
+	boxStateSet->addUniform(textureMapU);
+
+	setTexture(boxStateSet, "data/textures/troen_box_tex.tga", 0);
+
+
+	osg::Uniform* modelIDU = new osg::Uniform("modelID", DEFAULT);
+	boxStateSet->addUniform(modelIDU);
+
+	return boxGeode;
+}
+
+void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit)
+{
+
+	osg::Image* image = osgDB::readImageFile(filePath);
+	if (!image)
+		std::cout << "[TroenGame::levelView]  File \"" << filePath << "\" not found." << std::endl;
+	else
+	{
+		osg::Texture2D* texture = new osg::Texture2D;
+		texture->setImage(image);
+		texture->setResizeNonPowerOfTwoHint(false);
+		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
+
+	}
 }

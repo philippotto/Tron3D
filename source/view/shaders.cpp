@@ -12,7 +12,7 @@ std::vector<osg::ref_ptr<osg::Program> > shaders::m_allShaderPrograms;
 void shaders::reloadShaders()
 {
 	shaders::m_allShaderPrograms.resize(SHADER_NAME_COUNT);
-
+	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "source/shaders/default.frag", "source/shaders/default.vert");
 	reloadShader(shaders::m_allShaderPrograms[BIKE], "source/shaders/bike.frag", "source/shaders/bike.vert");
 	reloadShader(shaders::m_allShaderPrograms[GRID], "source/shaders/grid.frag", "source/shaders/grid.vert");
 	reloadShader(shaders::m_allShaderPrograms[FENCE], "source/shaders/fence.frag", "source/shaders/fence.vert");

@@ -17,7 +17,8 @@ namespace troen
 	private:
 		void initialize();
 		osg::ref_ptr<osg::Geode> constructGround();
-		//osg::ref_ptr<osg::Group> constructBox();
+		osg::ref_ptr<osg::Geode> constructBox(osg::Vec3 position , osg::Vec3 scale);
+		void setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit);
 
 		std::shared_ptr<LevelModel> m_model;
 
