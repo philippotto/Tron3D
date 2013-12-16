@@ -437,4 +437,5 @@ void TroenGame::refreshTextures(const osgGA::GUIEventAdapter& ea){
 	if (m_postProcessing){
 		m_postProcessing->setupTextures(ea.getWindowWidth(), ea.getWindowHeight());
 	}
+
 }

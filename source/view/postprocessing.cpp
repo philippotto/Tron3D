@@ -59,11 +59,14 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 }
 
 // sets up textures
-void PostProcessing::setupTextures(const unsigned int & width, const unsigned int &height)
+void PostProcessing::setupTextures(const unsigned int & widthO, const unsigned int &heightO)
 {
 	//////////////////////////////////////////////////////////////////////////
 	// 2D textures as render targets
 	//////////////////////////////////////////////////////////////////////////
+
+	int width = widthO / 2;
+	int height = heightO / 2;
 
 	// store color, normal & Depth, id in textures
 	m_fboTextures.resize(TEXTURE_CONTENT_SIZE);
@@ -75,8 +78,8 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		
 		
 		if (false && (i == PING || i == PONG)) {
-			m_fboTextures[i]->setTextureWidth(width / 2);
-			m_fboTextures[i]->setTextureHeight(height / 2);
+			m_fboTextures[i]->setTextureWidth(width);
+			m_fboTextures[i]->setTextureHeight(height);
 		} else {
 			m_fboTextures[i]->setTextureWidth(width);
 			m_fboTextures[i]->setTextureHeight(height);
@@ -104,6 +107,7 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		for (size_t i = 0, iEnd = m_allCameras.size(); i<iEnd; i++)
 		{
 			m_allCameras[i]->setRenderingCache(0);
+			m_allCameras[i]->setViewport(new osg::Viewport(0, 0, width, height));
 		}
 	}
 }
@@ -249,7 +253,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 
 	// geometry
 	osg::Geode* geode(new osg::Geode());
-	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
+	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(4, 0, 0), osg::Vec3(0, 4, 0)));
 	/*geode->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
 	geode->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
 	geode->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
