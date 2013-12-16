@@ -61,7 +61,7 @@ void main()
 
 	vec3 diffuseReflection = attenuation 
 	   * diffuseLight.xyz
-	   * max(0.0, dot(normalDirection, lightDirection))
+	   //* max(0.0, dot(normalDirection, lightDirection))
 	   * diffuseMaterialColor.xyz;
 	  // diffuseReflection = diffuseMaterialColor.xyz;
 	   // without material color!
