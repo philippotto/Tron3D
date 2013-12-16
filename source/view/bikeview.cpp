@@ -33,7 +33,7 @@ BikeView::BikeView(osg::Vec3 color)
 	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Vec3d(0.0, 0.0, 1.0));
 	initialTransform.makeRotate(rotationQuat);
 	initialTransform *= initialTransform.scale(osg::Vec3f(5.0f, 5.0f, 5.0f));
-	initialTransform *= initialTransform.translate(0.0, 0.0, -3.0);
+	initialTransform *= initialTransform.translate(0.0, 0.0, -4.9);
 	
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
 	pat->addChild(matrixTransform);
@@ -56,7 +56,7 @@ BikeView::BikeView(osg::Vec3 color)
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerHelmet_MI.obj",
 		"data/models/cycle/MG_Player_Helmet_SPEC.tga",
 		"data/models/cycle/MG_Player_Helmet_EMSS.tga",
-		"data/models/cycle/MG_Player_Helmet_NORM.tga", DEFAULT);
+		"data/models/cycle/MG_Player_Helmet_NORM.tga", GLOW, 0.3);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerDisc_MI.obj",
 		"data/models/cycle/MG_Player_Disc_SPEC.tga",
