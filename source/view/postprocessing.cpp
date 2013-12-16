@@ -58,14 +58,14 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 }
 
 // sets up textures
-void PostProcessing::setupTextures(const unsigned int & widthO, const unsigned int &heightO)
+void PostProcessing::setupTextures(const unsigned int & width, const unsigned int &height)
 {
 	//////////////////////////////////////////////////////////////////////////
 	// 2D textures as render targets
 	//////////////////////////////////////////////////////////////////////////
 
-	int width = widthO / 2;
-	int height = heightO / 2;
+	int halfedWidth = width / 2;
+	int halfedHeight = height / 2;
 
 	// store color, normal & Depth, id in textures
 	m_fboTextures.resize(TEXTURE_CONTENT_SIZE);
@@ -76,9 +76,9 @@ void PostProcessing::setupTextures(const unsigned int & widthO, const unsigned i
 			m_fboTextures[i] = new osg::Texture2D();
 		
 		
-		if (false && (i == PING || i == PONG)) {
-			m_fboTextures[i]->setTextureWidth(width);
-			m_fboTextures[i]->setTextureHeight(height);
+		if (i == PING || i == PONG) {
+			m_fboTextures[i]->setTextureWidth(halfedWidth);
+			m_fboTextures[i]->setTextureHeight(halfedHeight);
 		} else {
 			m_fboTextures[i]->setTextureWidth(width);
 			m_fboTextures[i]->setTextureHeight(height);
@@ -106,8 +106,9 @@ void PostProcessing::setupTextures(const unsigned int & widthO, const unsigned i
 		for (size_t i = 0, iEnd = m_allCameras.size(); i<iEnd; i++)
 		{
 			m_allCameras[i]->setRenderingCache(0);
-			if (i < m_allCameras.size() - 1)
-			m_allCameras[i]->setViewport(new osg::Viewport(0, 0, width, height));
+			if (i != 0 && i != iEnd - 1)
+				// only draw with halfed resolution, if we process the gbuffer + postprocessing pass
+				m_allCameras[i]->setViewport(new osg::Viewport(0, 0, halfedWidth, halfedHeight));
 
 		}
 	}
