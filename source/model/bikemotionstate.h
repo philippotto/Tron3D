@@ -66,7 +66,7 @@ namespace troen
 			// tiltDampening = 1 would lead to immediate/unsmooth tilt
 			// 1 / maximumTilt specifies angle in radiant
 			static const float tiltDampening = 20.f;
-			static const float maximumTilt = 8.f;
+			static const float maximumTilt = 16.f;
 
 			float desiredTilt = m_bikeModel->getSteering() / maximumTilt;
 			m_currentTilt = m_currentTilt + (desiredTilt - m_currentTilt) / tiltDampening;

@@ -1,6 +1,6 @@
 #include "bikecontroller.h"
 // OSG
-#include "osg/PositionAttitudeTransform"
+#include <osg/PositionAttitudeTransform>
 //troen
 #include "../view/bikeview.h"
 #include "../view/nodefollowcameramanipulator.h"
@@ -147,13 +147,11 @@ void BikeController::attachTrackingCamera
 
 	// set camera position
 	manipulator->setHomePosition(
-		osg::Vec3f(0.f, debugNormalizer * -200.f, 50.f), // homeEye
+		osg::Vec3f(0.f, debugNormalizer * -135.f, 20.f), // homeEye
 		osg::Vec3f(), // homeCenter
 		osg::Z_AXIS, // up
 		false
 		);
-	manipulator->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-
 }
 
 void BikeController::updateModel()

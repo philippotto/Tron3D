@@ -7,24 +7,15 @@ namespace troen
 	class NodeFollowCameraManipulator : public osgGA::NodeTrackerManipulator
 	{
 	public:
-		NodeFollowCameraManipulator(float distanceToNode = 90.f) : m_distance(distanceToNode) {};
-
-		virtual void setByMatrix( const osg::Matrixd& matrix );
-
-		//virtual void setByInverseMatrix( const osg::Matrixd& matrix );
-
 		virtual osg::Matrixd getMatrix() const;
-
 		virtual osg::Matrixd getInverseMatrix() const;
+		virtual void setByMatrix(const osg::Matrixd& matrix);
+		virtual void setByInverseMatrix(const osg::Matrixd& matrix);
 
-	//public slots:
-		void update(osg::Vec3f nodeMoveDirection, osg::Vec3f position, osg::Vec3f upDirection);
-		void update(osg::Vec3f nodeMoveDirection, osg::Vec3f position, osg::Vec3f upDirection, double speed);
-		void updateWithFixPosition(osg::Vec3f nodeMoveDirection, osg::Vec3f position, osg::Vec3f upDirection, double speed);
+		virtual void computeNodeCenterAndRotation(osg::Vec3d& nodeCenter, osg::Quat& nodeRotation) const;
 
-	private:
-		osg::Matrixd m_lastViewMatrix;
-		float m_distance;
+	protected:
+		osg::Vec3 rollPitchYaw(float x, float y, float z, float w) const;
 
 	};
 }
