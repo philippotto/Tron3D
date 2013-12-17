@@ -130,7 +130,9 @@ void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInput
 	std::static_pointer_cast<BikeModel>(m_model)->setInputState(bikeInputState);
 }
 
-void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipulator>& manipulator)
+void BikeController::attachTrackingCamera
+//  (osg::ref_ptr<osgGA::NodeTrackerManipulator>& manipulator)
+  (osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
 {
 	int debugNormalizer = 1;
 #ifdef _DEBUG
@@ -144,18 +146,14 @@ void BikeController::attachTrackingCamera(osg::ref_ptr<osgGA::NodeTrackerManipul
 	manipulator->setTrackNode(pat->getChild(0));
 
 	// set camera position
-	//manipulator->setHomePosition(
-	//	pat->getPosition() + osg::Vec3f(0.f, debugNormalizer * -200.f, 100.f), //eye
-	//	pat->getPosition() + osg::Vec3f(0.f, debugNormalizer * 100.f, 30.f), //homeCenter
-	//	osg::Vec3f(0.f, debugNormalizer * 1.f, 0.f), //up
-	//	false
-	//	);
 	manipulator->setHomePosition(
-		osg::Vec3f(0.f, debugNormalizer * -200.f, 100.f), //eye
-		osg::Vec3f(0.f, 0.f, 30.f), //homeCenter
-		osg::Vec3f(0.f, debugNormalizer * 1.f, 0.f), //up
+		osg::Vec3f(0.f, debugNormalizer * -200.f, 50.f), // homeEye
+		osg::Vec3f(), // homeCenter
+		osg::Z_AXIS, // up
 		false
 		);
+	manipulator->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
+
 }
 
 void BikeController::updateModel()

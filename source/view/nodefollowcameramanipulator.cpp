@@ -6,7 +6,7 @@ void NodeFollowCameraManipulator::setByMatrix( const osg::Matrixd& matrix )
 {
 	osg::Vec3d eye, center, up;
 	matrix.getLookAt(eye, center, up, _distance);
-	computePosition(eye, center, up);
+	computePosition(eye, center, osg::Z_AXIS);
 }
 
 osg::Matrixd NodeFollowCameraManipulator::getMatrix() const

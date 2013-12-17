@@ -98,6 +98,28 @@ void TroenGame::pauseGameEvent()
 	m_gamePaused = !m_gamePaused;
 }
 
+void TroenGame::setFovy(float newFovy)
+{
+	double fovy, aspect, znear, zfar;
+	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
+}
+
+float TroenGame::getFovy()
+{
+	double fovy, aspect, znear, zfar;
+	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	return fovy;
+}
+
+
+void TroenGame::refreshTextures(int width, int height){
+	if (m_postProcessing){
+		m_postProcessing->setupTextures(width, height);
+	}
+}
+
+
 void TroenGame::prepareAndStartGame(GameConfig config)
 {
 	m_numberOfBikes = config.numberOfBikes;
@@ -131,9 +153,7 @@ bool TroenGame::initialize()
 	initializeSkyDome();
 	initializeControllers();
 	
-
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
-
 	initializeViews();
 	initializeViewer();
 
@@ -149,8 +169,6 @@ bool TroenGame::initialize()
 	initializePhysicsWorld();
 
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
-
-
 
 	return true;
 }
@@ -225,27 +243,14 @@ bool TroenGame::initializeInput()
 	return true;
 }
 
-void TroenGame::setFovy(float newFovy)
-{
-	double fovy, aspect, znear, zfar;
-	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
-}
-
-float TroenGame::getFovy()
-{
-	double fovy, aspect, znear, zfar;
-	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-	return fovy;
-}
-
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
 
-	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator
-		= new osgGA::NodeTrackerManipulator();
-	manipulator->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
+	//osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator
+	//	= new osgGA::NodeTrackerManipulator();
+	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
+		= new NodeFollowCameraManipulator();
 	m_bikeControllers[0]->attachTrackingCamera(manipulator);
 	m_gameView->setCameraManipulator(manipulator.get());
 
@@ -268,9 +273,10 @@ bool TroenGame::initializeViews()
 	{
 		m_gameView2 = new osgViewer::View;
 
-		osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator2
-			= new osgGA::NodeTrackerManipulator();
-		manipulator2->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
+		//osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator2
+		//	= new osgGA::NodeTrackerManipulator();
+		osg::ref_ptr<NodeFollowCameraManipulator> manipulator2
+			= new NodeFollowCameraManipulator();
 		m_bikeControllers[1]->attachTrackingCamera(manipulator2);
 		m_gameView2->setCameraManipulator(manipulator2.get());
 
@@ -457,11 +463,4 @@ bool TroenGame::shutdown()
 
 	std::cout << "[TroenGame::shutdown] shutdown complete " << std::endl;
 	return true;
-}
-
-
-void TroenGame::refreshTextures(int width, int height){
-	if (m_postProcessing){
-		m_postProcessing->setupTextures(width, height);
-	}
 }
