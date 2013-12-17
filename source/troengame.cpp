@@ -36,7 +36,7 @@ using namespace troen;
 #define USE_GAMEPAD true
 #define SOUND_VOLUME 1.f
 
-#define DEFAULT_MAX_FENCE_PARTS 150
+#define DEFAULT_MAX_FENCE_PARTS 100
 #define DEFAULT_WINDOW_WIDTH 1280
 #define DEFAULT_WINDOW_HEIGHT 720
 // comment out to disable debug mode
