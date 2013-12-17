@@ -32,6 +32,7 @@ namespace troen
 							VBLUR,
 							SELECT_GLOW_OBJECTS,
 							POST_PROCESSING,
+							OUTER_WALL,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
 

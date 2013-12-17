@@ -17,6 +17,7 @@ namespace troen
 	private:
 		void initialize();
 		osg::ref_ptr<osg::Geode> constructGround();
+		//osg::ref_ptr<osg::Group> constructBox();
 
 		std::shared_ptr<LevelModel> m_model;
 

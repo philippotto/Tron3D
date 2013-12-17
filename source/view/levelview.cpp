@@ -33,7 +33,7 @@ void LevelView::initialize()
 	m_node = new osg::Group();
 
 	osg::ref_ptr<osg::Group> levelGroup = new osg::Group();
-	osg::ref_ptr<osg::Geode> levelGeode = new osg::Geode();
+	osg::ref_ptr<osg::Geode> outerWallsGeode = new osg::Geode();
 
 	// wall right
 	osg::ref_ptr<osg::Box> wallRight
@@ -43,7 +43,7 @@ void LevelView::initialize()
 
 	// wall left
 	osg::ref_ptr<osg::Box> wallLeft
-		= new osg::Box(osg::Vec3(-levelSize / 2, 0, 10), 1, levelSize, 20);
+		= new osg::Box(osg::Vec3(-levelSize / 2, 0, 10),1, levelSize, 20);
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableLeft
 		= new osg::ShapeDrawable(wallLeft);
 
@@ -60,13 +60,25 @@ void LevelView::initialize()
 	osg::ref_ptr<osg::ShapeDrawable> wallDrawableFront
 		= new osg::ShapeDrawable(wallFront);
 
-	levelGeode->addDrawable(wallDrawableLeft);
-	levelGeode->addDrawable(wallDrawableRight);
-	levelGeode->addDrawable(wallDrawableFront);
-	levelGeode->addDrawable(wallDrawableBack);
+	outerWallsGeode->addDrawable(wallDrawableLeft);
+	outerWallsGeode->addDrawable(wallDrawableRight);
+	outerWallsGeode->addDrawable(wallDrawableFront);
+	outerWallsGeode->addDrawable(wallDrawableBack);
 
+	osg::StateSet *wallStateSet = outerWallsGeode->getOrCreateStateSet();
+	wallStateSet->ref();
+
+
+	wallStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OUTER_WALL], osg::StateAttribute::ON);
+	osg::Uniform* levelSizeUniform = new osg::Uniform("levelSize", levelSize);
+	wallStateSet->addUniform(levelSizeUniform);
+
+	osg::Uniform* modelIDU = new osg::Uniform("modelID", DEFAULT);
+	wallStateSet->addUniform(modelIDU);
+
+	m_node->addChild(outerWallsGeode);
+	//m_node->addChild(constructBox());
 	m_node->addChild(constructGround());
-	m_node->addChild(levelGeode);
 }
 
 osg::ref_ptr<osg::Geode>  LevelView::constructGround()
