@@ -22,7 +22,7 @@ FenceView::FenceView(osg::Vec3 color, std::shared_ptr<FenceModel>& model, int ma
 
 void FenceView::initializeFence()
 {
-	m_fenceHeight = m_model.lock()->getFenceHeight();
+	m_fenceHeight = m_model.lock()->getFenceHeight() - 3;
 
 	m_coordinates = new osg::Vec3Array;
 	m_coordinates->setDataVariance(osg::Object::DYNAMIC);
