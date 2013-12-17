@@ -41,7 +41,7 @@ void NodeFollowCameraManipulator::setByInverseMatrix(const osg::Matrixd& matrix)
 void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeCenter, osg::Quat& nodeRotation) const
 {
 	osg::Vec3 positionOffset = osg::Vec3(0, 0, 25);
-	float rotationOffset = .01;
+	float rotationOffset = .05;
 
 	osg::Matrixd localToWorld, worldToLocal;
 	computeNodeLocalToWorld(localToWorld);

@@ -289,7 +289,7 @@ bool TroenGame::initializeViews()
 
 bool TroenGame::initializeViewer()
 {
-	double persistence = 0.05;
+	double persistence = 0.06;
 	osgViewer::Viewer::Windows windows;
 
 	m_sampleOSGViewer = new SampleOSGViewer();
