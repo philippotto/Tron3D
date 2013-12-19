@@ -11,6 +11,8 @@
 
 namespace troen
 {
+	const double PI(3.14159265359);
+
 	const int DEFAULT_WINDOW_WIDTH(1280);
 	const int DEFAULT_WINDOW_HEIGHT(720);
 	const float DEFAULT_SOUND_VOLUME(1.f);
