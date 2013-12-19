@@ -4,15 +4,12 @@
 // bullet
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
-
 //troen
+#include "../constants.h"
 #include "../util/gldebugdrawer.h"
 #include "../model/abstractmodel.h"
 #include "../controller/bikecontroller.h"
 #include "../sound/audiomanager.h"
-
-// comment out to disable debug mode
-#define DEBUG_DRAW
 
 using namespace troen;
 

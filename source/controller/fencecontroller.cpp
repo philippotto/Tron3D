@@ -1,5 +1,6 @@
 #include "fencecontroller.h"
 // troen
+#include "../constants.h"
 #include "../view/fenceview.h"
 #include "../model/fencemodel.h"
 #include "../model/physicsworld.h"
@@ -23,16 +24,11 @@ FenceController::FenceController(osg::Vec3 color, btTransform initialTransform, 
 
 void FenceController::update(btVector3 position, btQuaternion rotation)
 {
-	// TODO:
-	// (jd) move magic numbers
-	// this determines how accurate the fence will be
-	const float fenceLength = 15;
-
 	adjustPositionUsingFenceOffset(rotation, position);
 	osg::Vec3 osgPosition = osg::Vec3(position.x(), position.y(), position.z());
 	osg::Vec3 osgLastPosition = osg::Vec3(m_lastPosition.x(), m_lastPosition.y(), m_lastPosition.z());
 	// add new fence part
-	if ((position - m_lastPosition).length() > fenceLength)
+	if ((position - m_lastPosition).length() > DEFAULT_FENCE_LENGTH)
 	{
 		std::static_pointer_cast<FenceModel>(m_model)->addFencePart(m_lastPosition, position);
 		std::static_pointer_cast<FenceView>(m_view)->addFencePart(osgLastPosition,osgPosition);
@@ -41,7 +37,6 @@ void FenceController::update(btVector3 position, btQuaternion rotation)
 
 	// update fence gap
 	std::static_pointer_cast<FenceView>(m_view)->updateFenceGap(osgLastPosition, osgPosition);
-
 }
 
 
@@ -68,14 +63,10 @@ void FenceController::enforceFencePartsLimit(int maxFenceParts)
 
 void FenceController::adjustPositionUsingFenceOffset(const btQuaternion& rotation, btVector3& position)
 {
-	// TODO:
-	// (jd) move magic numbers
-	btVector3 bikeDimensions = btVector3(12.5, 25, 12.5);
-
 	btVector3 fenceOffset = btVector3(
 		0,
-		-bikeDimensions.y() / 2,
-		bikeDimensions.z() / 2).rotate(rotation.getAxis(), rotation.getAngle()
+		-DEFAULT_BIKE_DIMENSIONS.y() / 2,
+		DEFAULT_BIKE_DIMENSIONS.z() / 2).rotate(rotation.getAxis(), rotation.getAngle()
 		);
 
 	position = position - fenceOffset;

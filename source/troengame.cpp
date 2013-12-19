@@ -8,6 +8,7 @@
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>
 // troen
+#include "constants.h"
 #include "sampleosgviewer.h"
 #include "gameeventhandler.h"
 
@@ -31,14 +32,6 @@
 
 
 using namespace troen;
-
-// TODO: pass as parameter to troengame
-#define SOUND_VOLUME 1.f
-#define DEFAULT_MAX_FENCE_PARTS 100
-#define DEFAULT_WINDOW_WIDTH 1280
-#define DEFAULT_WINDOW_HEIGHT 720
-// comment out to disable debug mode
-#define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
@@ -225,7 +218,9 @@ bool TroenGame::initializeViews()
 	if (m_fullscreen)
 		m_gameView->apply(new osgViewer::SingleScreen(0));
 	else
+	{
 		m_gameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
+	}
 
 	m_gameEventHandler = new GameEventHandler(this);
 	m_gameView->addEventHandler(m_gameEventHandler);

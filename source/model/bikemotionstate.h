@@ -1,8 +1,9 @@
 #pragma once
-
+// OSG
 #include <osg/PositionAttitudeTransform>
-
+// bullet
 #include <btBulletDynamicsCommon.h>
+// troen
 #include "../controller/fencecontroller.h"
 #include "../model/bikemodel.h"
 
@@ -15,13 +16,11 @@ namespace troen
 			const btTransform &initialTransform,
 			osg::PositionAttitudeTransform* pat,
 			std::shared_ptr<FenceController> fenceController,
-			BikeModel *bikeModel,
-			btVector3 bikeDimensions) :
+			BikeModel *bikeModel) :
 				m_positionTransform(initialTransform),
 				m_visibleObj(pat),
 				m_fenceController(fenceController),
 				m_bikeModel(bikeModel),
-				m_bikeDimensions(bikeDimensions),
 				m_currentTilt(0) {}
 
 		virtual ~BikeMotionState() {}
@@ -77,7 +76,6 @@ namespace troen
 		std::weak_ptr<FenceController> m_fenceController;
 		BikeModel* m_bikeModel;
 		std::weak_ptr<btRigidBody> m_rigidBody;
-		btVector3 m_bikeDimensions;
 		float m_currentTilt;
 	};
 }

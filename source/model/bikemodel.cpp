@@ -4,6 +4,7 @@
 // STD
 #include <math.h>
 // troen
+#include "../constants.h"
 #include "../input/bikeinputstate.h"
 #include "bikemotionstate.h"
 
@@ -24,11 +25,7 @@ BikeModel::BikeModel(
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
 
-	// TODO:
-	// (jd) move these magic numbers
-	btVector3 bikeDimensions = btVector3( 12.5, 25, 12.5 );
-
-	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(bikeDimensions / 2);
+	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(DEFAULT_BIKE_DIMENSIONS / 2);
 
 	// todo deliver "this" as a shared_ptr ?
 	// jd: i tried this, this class would have to inherit from std::enable_shared_from_this<>,
@@ -37,8 +34,7 @@ BikeModel::BikeModel(
 		initialTransform,
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
 		fenceController,
-		this,
-		bikeDimensions
+		this
 	);
 	
 	btScalar mass = 100;
@@ -50,8 +46,8 @@ BikeModel::BikeModel(
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
-	bikeRigidBody->setCcdMotionThreshold(1 / bikeDimensions.y());
-	bikeRigidBody->setCcdSweptSphereRadius(bikeDimensions.x() / 2.0 - 0.5);
+	bikeRigidBody->setCcdMotionThreshold(1 / DEFAULT_BIKE_DIMENSIONS.y());
+	bikeRigidBody->setCcdSweptSphereRadius(DEFAULT_BIKE_DIMENSIONS.x() / 2.0 - 0.5);
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
