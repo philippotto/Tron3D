@@ -134,7 +134,7 @@ osg::ref_ptr<osg::Geode>  LevelView::constructGround()
 	//osg::Image *image = osgDB::readImageFile("data/models/Images/grid.tga");
 	/*if (!image) {
 		std::cout << "[LevelView::constructGround] Couldn't load texture." << std::endl;
-		return NULL;
+		return nullptr;
 	}
 	osg::Texture2D *texture = new osg::Texture2D;
 	texture->setDataVariance(osg::Object::DYNAMIC);

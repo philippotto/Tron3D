@@ -33,7 +33,7 @@ m_initialTransform(initialTransform)
 
 osg::Vec3 BikeController::generateRandomColor() {
 	// initialize rand
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	int r, g, b;
 	r = rand() > RAND_MAX / 2 ? 1 : 0;

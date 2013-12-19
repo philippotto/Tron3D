@@ -133,7 +133,7 @@ bool GamepadPS4::refresh()
 bool GamepadPS4::checkConnection(){
 	// Open the device using the vendor_id, product_id,
 	// and optionally the Serial number.
-	if ((_controller = hid_open(VID, PID, NULL)) != NULL)
+	if ((_controller = hid_open(VID, PID, nullptr)) != nullptr)
 		return true;
 
 	return false;

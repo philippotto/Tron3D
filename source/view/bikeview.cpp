@@ -116,7 +116,7 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::
 	osg::Uniform* glowIntensityU = new osg::Uniform("glowIntensity", glowIntensity);
 	NodeState->addUniform(glowIntensityU);
 
-	if (stateAttributeMaterial != NULL)
+	if (stateAttributeMaterial != nullptr)
 	{
 		osg::Material *objMaterial = dynamic_cast<osg::Material*>(stateAttributeMaterial);
 		

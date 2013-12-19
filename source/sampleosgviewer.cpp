@@ -2,7 +2,7 @@
 
 using namespace troen;
 
-SampleOSGViewer::SampleOSGViewer(osg::GraphicsContext* context /*= NULL*/)
+SampleOSGViewer::SampleOSGViewer(osg::GraphicsContext* context /*= nullptr*/)
 {
 	setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
 }

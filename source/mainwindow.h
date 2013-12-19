@@ -19,7 +19,7 @@ namespace troen
 		Q_OBJECT
 
 	public:
-		MainWindow (QWidget * parent = NULL);
+		MainWindow (QWidget * parent = nullptr);
 		virtual ~MainWindow();
 
 	signals:
