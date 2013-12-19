@@ -53,8 +53,6 @@ void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
 	}
 }
 
-
-
 void FenceView::initializeShader()
 {
 	osg::ref_ptr<osg::StateSet> NodeState = m_node->getOrCreateStateSet();

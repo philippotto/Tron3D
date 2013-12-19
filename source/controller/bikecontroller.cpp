@@ -14,11 +14,10 @@
 #include "../input/gamepadps4.h"
 #include "../input/ai.h"
 
-#include <cstdlib>
-
 using namespace troen;
 
-BikeController::BikeController(input::BikeInputState::InputDevice inputDevice)
+BikeController::BikeController(input::BikeInputState::InputDevice inputDevice, btTransform initialTransform) :
+m_initialTransform(initialTransform)
 {
 	// TODO change random generation of player color here (and remove generateRandomColor-Function)
 	m_playerColor = generateRandomColor();
@@ -27,7 +26,7 @@ BikeController::BikeController(input::BikeInputState::InputDevice inputDevice)
 	m_fenceController = std::make_shared<FenceController>(m_playerColor);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
-	m_model = std::make_shared<BikeModel>(viewNode, m_fenceController, this);
+	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
 
 	initializeInput(inputDevice);
 }

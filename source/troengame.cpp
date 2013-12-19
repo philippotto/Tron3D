@@ -33,9 +33,7 @@
 using namespace troen;
 
 // TODO: pass as parameter to troengame
-#define USE_GAMEPAD true
 #define SOUND_VOLUME 1.f
-
 #define DEFAULT_MAX_FENCE_PARTS 100
 #define DEFAULT_WINDOW_WIDTH 1280
 #define DEFAULT_WINDOW_HEIGHT 720
@@ -143,13 +141,13 @@ bool TroenGame::initialize()
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 
-	std::cout << "[TroenGame::initialize] initializing shaders ..." << std::endl;
+	std::cout << "[TroenGame::initialize] shaders ..." << std::endl;
 	initializeShaders();
 
-	std::cout << "[TroenGame::initialize] initializing sound ..." << std::endl;
+	std::cout << "[TroenGame::initialize] sound ..." << std::endl;
 	initializeSound();
 
-	std::cout << "[TroenGame::initialize] models and scenegraph ..." << std::endl;
+	std::cout << "[TroenGame::initialize] controllers (models & views) ..." << std::endl;
 	initializeSkyDome();
 	initializeControllers();
 	
@@ -157,6 +155,7 @@ bool TroenGame::initialize()
 	initializeViews();
 	initializeViewer();
 
+	std::cout << "[TroenGame::initialize] postprocessing & scenegraph ..." << std::endl;
 	composeSceneGraph();
 
 	std::cout << "[TroenGame::initialize] input ..." << std::endl;
@@ -170,6 +169,12 @@ bool TroenGame::initialize()
 
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
 
+	return true;
+}
+
+bool TroenGame::initializeShaders()
+{
+	shaders::reloadShaders();
 	return true;
 }
 
@@ -194,52 +199,10 @@ bool TroenGame::initializeControllers()
 	m_levelController = std::make_shared<LevelController>();
 	for (int i = 0; i < m_numberOfBikes; i++)
 	{
-		m_bikeControllers.push_back(std::make_shared<BikeController>((input::BikeInputState::InputDevice)m_playerInputTypes[i]));
+		m_bikeControllers.push_back(std::make_shared<BikeController>((
+			input::BikeInputState::InputDevice)m_playerInputTypes[i],m_levelController->initialPositionTransformForBikeWithIndex(i)));
 	}
 	//m_HUDController = std::make_shared<HUDController>();
-	return true;
-}
-
-bool TroenGame::composeSceneGraph()
-{
-	if (m_usePostProcessing)
-	{
-		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
-		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
-		m_sceneNode = m_postProcessing->getSceneNode();
-	}
-	else
-		m_sceneNode = m_rootNode;
-
-	m_sceneNode->addChild(m_skyDome.get());
-	m_sceneNode->addChild(m_levelController->getViewNode());
-	//m_sceneNode->addChild(m_HUDController->getViewNode());
-
-	for (auto bikeController : m_bikeControllers)
-		m_sceneNode->addChild(bikeController->getViewNode());
-
-	if (m_usePostProcessing)
-		m_rootNode->addChild(m_sceneNode);
-	
-	return true;
-}
-
-bool TroenGame::initializeShaders()
-{
-	shaders::reloadShaders();
-	return true;
-}
-
-bool TroenGame::initializeInput()
-{
-	for (auto bikeController : m_bikeControllers)
-	{
-		// attach keyboard handler to the gameView if existent
-		if (bikeController->hasEventHandler())
-		{
-			m_gameView->addEventHandler(bikeController->getEventHandler());
-		}
-	}
 	return true;
 }
 
@@ -247,8 +210,6 @@ bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
 
-	//osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator
-	//	= new osgGA::NodeTrackerManipulator();
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 		= new NodeFollowCameraManipulator();
 	m_bikeControllers[0]->attachTrackingCamera(manipulator);
@@ -273,8 +234,6 @@ bool TroenGame::initializeViews()
 	{
 		m_gameView2 = new osgViewer::View;
 
-		//osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator2
-		//	= new osgGA::NodeTrackerManipulator();
 		osg::ref_ptr<NodeFollowCameraManipulator> manipulator2
 			= new NodeFollowCameraManipulator();
 		m_bikeControllers[1]->attachTrackingCamera(manipulator2);
@@ -307,6 +266,43 @@ bool TroenGame::initializeViewer()
 		windows.at(0)->add(new MotionBlurOperation(persistence));
 	}
 
+	return true;
+}
+
+bool TroenGame::composeSceneGraph()
+{
+	if (m_usePostProcessing)
+	{
+		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
+		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
+		m_sceneNode = m_postProcessing->getSceneNode();
+	}
+	else
+		m_sceneNode = m_rootNode;
+
+	m_sceneNode->addChild(m_skyDome.get());
+	m_sceneNode->addChild(m_levelController->getViewNode());
+	//m_sceneNode->addChild(m_HUDController->getViewNode());
+
+	for (auto bikeController : m_bikeControllers)
+		m_sceneNode->addChild(bikeController->getViewNode());
+
+	if (m_usePostProcessing)
+		m_rootNode->addChild(m_sceneNode);
+
+	return true;
+}
+
+bool TroenGame::initializeInput()
+{
+	for (auto bikeController : m_bikeControllers)
+	{
+		// attach keyboard handler to the gameView if existent
+		if (bikeController->hasEventHandler())
+		{
+			m_gameView->addEventHandler(bikeController->getEventHandler());
+		}
+	}
 	return true;
 }
 

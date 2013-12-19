@@ -13,7 +13,9 @@ using namespace troen;
 #define FRICTION 10
 #define PI 3.14159265359
 
-BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
+BikeModel::BikeModel(
+	btTransform initialTransform,
+	osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<FenceController> fenceController,
 	BikeController* bikeController)
 {
@@ -22,13 +24,17 @@ BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
 
+	// TODO:
+	// (jd) move these magic numbers
 	btVector3 bikeDimensions = btVector3( 12.5, 25, 12.5 );
 
 	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(bikeDimensions / 2);
 
 	// todo deliver "this" as a shared_ptr ?
+	// jd: i tried this, this class would have to inherit from std::enable_shared_from_this<>,
+	// so i thought it to complicated.
 	std::shared_ptr<BikeMotionState> bikeMotionState = std::make_shared<BikeMotionState>(
-		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, bikeDimensions.z()/2)),
+		initialTransform,
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
 		fenceController,
 		this,

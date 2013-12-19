@@ -12,17 +12,17 @@ namespace troen
 	{
 	public:
 		BikeMotionState(
-			const btTransform &initialpos,
+			const btTransform &initialTransform,
 			osg::PositionAttitudeTransform* pat,
 			std::shared_ptr<FenceController> fenceController,
 			BikeModel *bikeModel,
 			btVector3 bikeDimensions) :
-				m_position(initialpos),
+				m_positionTransform(initialTransform),
 				m_visibleObj(pat),
 				m_fenceController(fenceController),
 				m_bikeModel(bikeModel),
 				m_bikeDimensions(bikeDimensions),
-				m_currentTilt(0){}
+				m_currentTilt(0) {}
 
 		virtual ~BikeMotionState() {}
 
@@ -36,7 +36,7 @@ namespace troen
 		}
 
 		virtual void getWorldTransform(btTransform &worldTrans) const {
-			worldTrans = m_position;
+			worldTrans = m_positionTransform;
 		}
 
 		virtual void setWorldTransform(const btTransform &worldTrans) {
@@ -79,7 +79,7 @@ namespace troen
 
 	protected:
 		osg::PositionAttitudeTransform* m_visibleObj;
-		btTransform m_position;
+		btTransform m_positionTransform;
 		std::weak_ptr<FenceController> m_fenceController;
 		BikeModel* m_bikeModel;
 		std::weak_ptr<btRigidBody> m_rigidBody;

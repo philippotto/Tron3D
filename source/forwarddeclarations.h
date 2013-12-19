@@ -46,7 +46,8 @@ class btBroadphaseInterface;
 class btRigidBody;
 class btCollisionShape;
 class btPersistentManifold;
-
+class btVector3;
+class btTransform;
 
 
 // own classes

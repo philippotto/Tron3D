@@ -2,6 +2,8 @@
 // OSG
 #include <osg/ref_ptr>
 #include <osgGA/NodeTrackerManipulator>
+//bullet
+#include <btBulletDynamicsCommon.h>
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractcontroller.h"
@@ -12,9 +14,8 @@ namespace troen
 	class BikeController : public AbstractController
 	{
 	public:
-		BikeController(input::BikeInputState::InputDevice inputDevice);
+		BikeController(input::BikeInputState::InputDevice inputDevice, btTransform initialPosition);
 		void attachTrackingCamera
-			//(osg::ref_ptr<osgGA::NodeTrackerManipulator> &manipulator);
 			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
 		void attachWorld(std::weak_ptr<PhysicsWorld> &world);
 
@@ -38,5 +39,6 @@ namespace troen
 		osg::Vec3 BikeController::generateRandomColor();
 
 		osg::Vec3 m_playerColor;
+		btTransform m_initialTransform;
 	};
 }

@@ -18,7 +18,7 @@ FenceController::FenceController(osg::Vec3 color, int maxFenceParts) : m_maxFenc
 void FenceController::update(btVector3 position)
 {
 	// this determines how accurate the fence will be
-	const float fenceLength = 25;
+	const float fenceLength = 15;
 
 	if (!m_lastPosition)
 	{

@@ -89,7 +89,6 @@ BikeView::BikeView(osg::Vec3 color)
 
 #endif
 #ifdef _DEBUG
-	
 	pat->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
 #endif
 	m_node->addChild(pat);
