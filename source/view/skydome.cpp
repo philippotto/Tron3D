@@ -1,5 +1,4 @@
 #include "SkyDome.h"
-//#include "constants.h"
 
 #include "abstractview.h"
 

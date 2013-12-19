@@ -204,6 +204,7 @@ set(sources
 	source/sampleosgviewer.cpp
 	source/gameeventhandler.h
 	source/constants.h
+	source/constants.cpp
 
 	source/input/keyboard.h
 	source/input/keyboard.cpp

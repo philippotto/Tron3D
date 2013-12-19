@@ -47,7 +47,7 @@ void PhysicsWorld::initializeWorld()
 
 	m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 
-	m_world->setGravity(btVector3(0, 0, -10));
+	m_world->setGravity(DEFAULT_GRAVITY);
 }
 
 void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies)
@@ -197,7 +197,7 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, bt
 					btManifoldPoint& pt = contactManifold->getContactPoint(i);
 					impulse = impulse + pt.getAppliedImpulse();
 				}
-				//std::cout << "total impulse: " << impulse << std::endl;
+				std::cout << "total impulse: " << impulse << std::endl;
 				if (impulse > 1000)
 					m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", impulse / 10000, impulse / 9000, 1, 1);
 			}

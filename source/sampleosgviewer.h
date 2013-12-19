@@ -15,5 +15,4 @@ namespace troen
 
 		osg::ref_ptr<osg::Camera>		m_camera;
 	};
-
 }

@@ -30,6 +30,7 @@ namespace osg
 	class Geode;
 	class GraphicsContext;
 	class ShapeDrawable;
+	class Vec3f;
 }
 
 namespace osgGA

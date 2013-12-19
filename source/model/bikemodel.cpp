@@ -10,9 +10,6 @@
 
 using namespace troen;
 
-#define VMAX 800
-#define FRICTION 10
-
 BikeModel::BikeModel(
 	btTransform initialTransform,
 	osg::ref_ptr<osg::Group> node,
@@ -24,7 +21,7 @@ BikeModel::BikeModel(
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
 
-	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(DEFAULT_BIKE_DIMENSIONS / 2);
+	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(BIKE_DIMENSIONS / 2);
 
 	// todo deliver "this" as a shared_ptr ?
 	// jd: i tried this, this class would have to inherit from std::enable_shared_from_this<>,
@@ -36,17 +33,16 @@ BikeModel::BikeModel(
 		this
 	);
 	
-	btScalar mass = 100;
 	btVector3 bikeInertia(0, 0, 0);
-	bikeShape->calculateLocalInertia(mass, bikeInertia);
+	bikeShape->calculateLocalInertia(BIKE_MASS, bikeInertia);
 
-	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(mass, bikeMotionState.get(), bikeShape.get(), bikeInertia);
+	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(BIKE_MASS, bikeMotionState.get(), bikeShape.get(), bikeInertia);
 	m_bikeRigidBodyCI.m_friction = 0;
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
-	bikeRigidBody->setCcdMotionThreshold(1 / DEFAULT_BIKE_DIMENSIONS.y());
-	bikeRigidBody->setCcdSweptSphereRadius(DEFAULT_BIKE_DIMENSIONS.x() / 2.0 - 0.5);
+	bikeRigidBody->setCcdMotionThreshold(1 / BIKE_DIMENSIONS.y());
+	bikeRigidBody->setCcdSweptSphereRadius(BIKE_DIMENSIONS.x() * .5f - BIKE_DIMENSIONS.x() * 0.01);
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
@@ -104,8 +100,8 @@ void BikeModel::updateState()
 	
 	int speed = currentVelocityVectorXY.length() + velocity * maximumAcceleration;
 
-	if (speed > VMAX)
-		speed = VMAX;
+	if (speed > BIKE_MAX_VELOCITY)
+		speed = BIKE_MAX_VELOCITY;
 
 	// adapt velocity vector to real direction
 

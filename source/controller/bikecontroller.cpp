@@ -2,6 +2,7 @@
 // OSG
 #include <osg/PositionAttitudeTransform>
 //troen
+#include "../constants.h"
 #include "../view/bikeview.h"
 #include "../view/nodefollowcameramanipulator.h"
 #include "../model/bikemodel.h"
@@ -132,11 +133,6 @@ void BikeController::attachTrackingCamera
 //  (osg::ref_ptr<osgGA::NodeTrackerManipulator>& manipulator)
   (osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
 {
-	int debugNormalizer = 1;
-#ifdef _DEBUG
-	debugNormalizer = -1;
-#endif
-
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
 
@@ -145,7 +141,7 @@ void BikeController::attachTrackingCamera
 
 	// set camera position
 	manipulator->setHomePosition(
-		osg::Vec3f(0.f, debugNormalizer * -135.f, 20.f), // homeEye
+		CAMERA_EYE_POSITION, // homeEye
 		osg::Vec3f(), // homeCenter
 		osg::Z_AXIS, // up
 		false

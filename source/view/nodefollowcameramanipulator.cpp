@@ -1,7 +1,8 @@
 #include "nodefollowcameramanipulator.h"
-
+// OSG
 #include <osg/PositionAttitudeTransform>
-
+// troen
+#include "../constants.h"
 using namespace troen;
 
 
@@ -40,9 +41,6 @@ void NodeFollowCameraManipulator::setByInverseMatrix(const osg::Matrixd& matrix)
 
 void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeCenter, osg::Quat& nodeRotation) const
 {
-	osg::Vec3 positionOffset = osg::Vec3(0, 0, 25);
-	float rotationOffset = .05;
-
 	osg::Matrixd localToWorld, worldToLocal;
 	computeNodeLocalToWorld(localToWorld);
 	computeNodeWorldToLocal(worldToLocal);
@@ -50,7 +48,7 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 	osg::NodePath nodePath;
 	if (_trackNodePath.getNodePath(nodePath) && !nodePath.empty())
 	{
-		nodeCenter = osg::Vec3d(nodePath.back()->getBound().center())*localToWorld + positionOffset;
+		nodeCenter = osg::Vec3d(nodePath.back()->getBound().center())*localToWorld + CAMERA_POSITION_OFFSET;
 	}
 	else
 		nodeCenter = osg::Vec3d(0.0f, 0.0f, 0.0f)*localToWorld;
@@ -58,9 +56,9 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 	osg::Matrixd coordinateFrame = getCoordinateFrame(nodeCenter);
 	osg::Matrixd localToFrame(localToWorld*osg::Matrixd::inverse(coordinateFrame));
 
-	double azim = atan2(-localToFrame(0, 1), localToFrame(0, 0));
+	double yaw = atan2(-localToFrame(0, 1), localToFrame(0, 0));
 	osg::Quat nodeRotationRelToFrame, rotationOfFrame;
-	nodeRotationRelToFrame.makeRotate(-azim + rotationOffset, 0.0, 0.0, 1.0);
+	nodeRotationRelToFrame.makeRotate(-yaw + CAMERA_ROTATION_OFFSET, 0.0, 0.0, 1.0);
 	rotationOfFrame = coordinateFrame.getRotate();
 	nodeRotation = nodeRotationRelToFrame*rotationOfFrame;
 }

@@ -1,11 +1,9 @@
 #include "bikeinputstate.h"
 // troen
+#include "../constants.h"
 #include "gamepad.h"
 
 using namespace troen::input;
-
-#define MOVE_VALUE 2.0
-#define ROTATION_VALUE 10.0
 
 BikeInputState::BikeInputState()
 {
@@ -27,7 +25,7 @@ float BikeInputState::getAngle()
 		m_pollingDevice->refresh();
 	}
 
-	return m_angle * ROTATION_VALUE;
+	return m_angle * BIKE_ROTATION_VALUE;
 }
 
 float BikeInputState::getAcceleration()
@@ -38,7 +36,7 @@ float BikeInputState::getAcceleration()
 		m_pollingDevice->refresh();
 	}
 
-	return m_acceleration * MOVE_VALUE;
+	return m_acceleration * BIKE_MOVE_VALUE;
 }
 
 void BikeInputState::setAngle(float angle)

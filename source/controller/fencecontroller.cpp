@@ -28,7 +28,7 @@ void FenceController::update(btVector3 position, btQuaternion rotation)
 	osg::Vec3 osgPosition = osg::Vec3(position.x(), position.y(), position.z());
 	osg::Vec3 osgLastPosition = osg::Vec3(m_lastPosition.x(), m_lastPosition.y(), m_lastPosition.z());
 	// add new fence part
-	if ((position - m_lastPosition).length() > DEFAULT_FENCE_LENGTH)
+	if ((position - m_lastPosition).length() > FENCE_PART_LENGTH)
 	{
 		std::static_pointer_cast<FenceModel>(m_model)->addFencePart(m_lastPosition, position);
 		std::static_pointer_cast<FenceView>(m_view)->addFencePart(osgLastPosition,osgPosition);
@@ -65,8 +65,8 @@ void FenceController::adjustPositionUsingFenceOffset(const btQuaternion& rotatio
 {
 	btVector3 fenceOffset = btVector3(
 		0,
-		-DEFAULT_BIKE_DIMENSIONS.y() / 2,
-		DEFAULT_BIKE_DIMENSIONS.z() / 2).rotate(rotation.getAxis(), rotation.getAngle()
+		-BIKE_DIMENSIONS.y() / 2,
+		BIKE_DIMENSIONS.z() / 2).rotate(rotation.getAxis(), rotation.getAngle()
 		);
 
 	position = position - fenceOffset;
