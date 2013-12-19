@@ -52,14 +52,8 @@ namespace troen
 			btVector3 pos = worldTrans.getOrigin();
 			m_visibleObj->setPosition(osg::Vec3(pos.x(), pos.y(), pos.z()));
 			
-			btVector3 fenceOffset = btVector3(
-				0,
-				-m_bikeDimensions.y() / 2,
-				m_bikeDimensions.z() / 2).rotate(rot.getAxis(), rot.getAngle()
-			);
-			
 			// update fence accordingly
-			m_fenceController.lock()->update(pos - fenceOffset);
+			m_fenceController.lock()->update(pos, rot);
 		}
 
 		osg::Quat getTilt() {

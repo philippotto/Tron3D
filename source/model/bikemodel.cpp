@@ -41,7 +41,7 @@ BikeModel::BikeModel(
 		bikeDimensions
 	);
 	
-	btScalar mass = 10;
+	btScalar mass = 100;
 	btVector3 bikeInertia(0, 0, 0);
 	bikeShape->calculateLocalInertia(mass, bikeInertia);
 

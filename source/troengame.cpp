@@ -38,7 +38,7 @@ using namespace troen;
 #define DEFAULT_WINDOW_WIDTH 1280
 #define DEFAULT_WINDOW_HEIGHT 720
 // comment out to disable debug mode
-//#define DEBUG_DRAW
+#define DEBUG_DRAW
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),

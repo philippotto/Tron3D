@@ -12,7 +12,7 @@
 #include "../sound/audiomanager.h"
 
 // comment out to disable debug mode
-//#define DEBUG_DRAW
+#define DEBUG_DRAW
 
 using namespace troen;
 

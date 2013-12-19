@@ -12,14 +12,16 @@ namespace troen
 	class FenceController : public AbstractController
 	{
 	public:
-		FenceController(osg::Vec3 color, int maxFenceParts = 0);
-		void update(btVector3 position);
+		FenceController(osg::Vec3 color, btTransform initialTransform = btTransform::getIdentity(), int maxFenceParts = 0);
+		void update(btVector3 position, btQuaternion rotation);
 		void attachWorld(std::weak_ptr<PhysicsWorld>& world);
 
 		void removeAllFences();
 		void enforceFencePartsLimit(int maxFenceParts);
 
 	private:
+		void adjustPositionUsingFenceOffset(const btQuaternion& rotation, btVector3& position);
+
 		btVector3 m_lastPosition;
 		std::weak_ptr<PhysicsWorld> m_world;
 		int m_maxFenceParts;

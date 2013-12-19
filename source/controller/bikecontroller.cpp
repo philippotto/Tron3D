@@ -23,14 +23,13 @@ m_initialTransform(initialTransform)
 	m_playerColor = generateRandomColor();
 
 	m_view = std::make_shared<BikeView>(m_playerColor);
-	m_fenceController = std::make_shared<FenceController>(m_playerColor);
+	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
 
 	initializeInput(inputDevice);
 }
-
 
 osg::Vec3 BikeController::generateRandomColor() {
 	// initialize rand
