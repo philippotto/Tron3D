@@ -45,6 +45,7 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 	computeNodeLocalToWorld(localToWorld);
 	computeNodeWorldToLocal(worldToLocal);
 
+	// center
 	osg::NodePath nodePath;
 	if (_trackNodePath.getNodePath(nodePath) && !nodePath.empty())
 	{
@@ -53,12 +54,23 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 	else
 		nodeCenter = osg::Vec3d(0.0f, 0.0f, 0.0f)*localToWorld;
 
+	// rotation
 	osg::Matrixd coordinateFrame = getCoordinateFrame(nodeCenter);
 	osg::Matrixd localToFrame(localToWorld*osg::Matrixd::inverse(coordinateFrame));
 
+	osg::Quat nodeYawRelToFrame, nodePitchRelToFrame, nodeRollRelToFrame;
+	osg::Quat rotationOfFrame;
+
 	double yaw = atan2(-localToFrame(0, 1), localToFrame(0, 0));
-	osg::Quat nodeRotationRelToFrame, rotationOfFrame;
-	nodeRotationRelToFrame.makeRotate(-yaw + CAMERA_ROTATION_OFFSET, 0.0, 0.0, 1.0);
+	nodeYawRelToFrame.makeRotate(-yaw + CAMERA_ROTATION_OFFSET, osg::Z_AXIS);
+	
+	double roll = atan2(-localToFrame(0, 2), sqrt(pow(localToFrame(1, 2), 2) + pow(localToFrame(2, 2), 2)));
+	nodeRollRelToFrame.makeRotate(roll / CAMERA_TILT_FACTOR,osg::Y_AXIS);
+
+	// jd: camera pitch rotation not wanted so far, maybe useful for later
+	//double pitch = atan2(localToFrame(1, 2), localToFrame(2, 2));
+	//nodePitchRelToFrame.makeRotate(pitch, osg::X_AXIS);
+	
 	rotationOfFrame = coordinateFrame.getRotate();
-	nodeRotation = nodeRotationRelToFrame*rotationOfFrame;
+	nodeRotation = nodeRollRelToFrame*nodeYawRelToFrame*rotationOfFrame;
 }

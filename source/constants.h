@@ -25,12 +25,16 @@ namespace troen
 
 	// BIKE
 	extern const btVector3 BIKE_DIMENSIONS;
-	extern const float BIKE_VIEW_SCALE_FACTOR;
 	extern const osg::Vec3f BIKE_VIEW_SCALE_FACTORS;
 	extern const osg::Vec3f BIKE_VIEW_TRANSLATE_VALUES;
 
 	extern const float BIKE_MASS;
 	extern const int BIKE_MAX_VELOCITY;
+	extern const int BIKE_MIN_VELOCITY;
+
+	extern const float BIKE_TILT_DAMPENING;
+	extern const float BIKE_TILT_MAX;
+
 	//INPUT
 	extern const float BIKE_MOVE_VALUE;
 	extern const float BIKE_ROTATION_VALUE;
@@ -47,6 +51,11 @@ namespace troen
 	extern const osg::Vec3 CAMERA_POSITION_OFFSET;
 	extern const float CAMERA_ROTATION_OFFSET;
 	extern const osg::Vec3 CAMERA_EYE_POSITION;
+	extern const float CAMERA_TILT_FACTOR;
+
+	// PHYSICS
+	extern const float BIKE_IMPACT_THRESHOLD_LOW;
+	extern const float BIKE_IMPACT_THRESHOLD_HIGH;
 }
 
 #endif

@@ -20,6 +20,7 @@
 #include "sound/audiomanager.h"
 
 #include "model/physicsworld.h"
+#include "model/abstractmodel.h"
 #include "controller/levelcontroller.h"
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
@@ -310,7 +311,7 @@ bool TroenGame::initializeTimer()
 bool TroenGame::initializePhysicsWorld()
 {
 	m_physicsWorld = std::make_shared<PhysicsWorld>(m_audioManager);
-	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies());
+	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies(),COLGROUP_LEVEL,COLMASK_LEVEL);
 
 	for (auto bikeController : m_bikeControllers)
 	{

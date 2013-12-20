@@ -55,14 +55,10 @@ namespace troen
 			m_fenceController.lock()->update(pos, rot);
 		}
 
-		osg::Quat getTilt() {
-			// tiltDampening = 1 would lead to immediate/unsmooth tilt
-			// 1 / maximumTilt specifies angle in radiant
-			static const float tiltDampening = 20.f;
-			static const float maximumTilt = 16.f;
-
-			float desiredTilt = m_bikeModel->getSteering() / maximumTilt;
-			m_currentTilt = m_currentTilt + (desiredTilt - m_currentTilt) / tiltDampening;
+		osg::Quat getTilt()
+		{
+			float desiredTilt = m_bikeModel->getSteering() / BIKE_TILT_MAX;
+			m_currentTilt = m_currentTilt + (desiredTilt - m_currentTilt) / BIKE_TILT_DAMPENING;
 			
 			osg::Quat tiltingQuat;
 			tiltingQuat.makeRotate(m_currentTilt, osg::Vec3(0, 1, 0));

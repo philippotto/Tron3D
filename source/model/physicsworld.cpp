@@ -187,7 +187,7 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, bt
 		switch (collisionTypes[otherIndex])
 		{
 		case LEVELWALLTYPE:
-			//std::cout << "collision with wall" << std::endl;
+		case BIKETYPE:
 		case FENCETYPE:
 			{
 				btScalar impulse = 0;
@@ -198,14 +198,13 @@ void PhysicsWorld::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, bt
 					btManifoldPoint& pt = contactManifold->getContactPoint(i);
 					impulse = impulse + pt.getAppliedImpulse();
 				}
-				std::cout << "total impulse: " << impulse << std::endl;
+				// std::cout << "total impulse: " << impulse << std::endl;
 				if (impulse > 1000)
 					m_audioManager.lock()->PlaySFX("data/sound/explosion.wav", impulse / 10000, impulse / 9000, 1, 1);
 			}
 			break;
 		case LEVELGROUNDTYPE:
 			//std::cout << "collision with ground" << std::endl;
-		case BIKETYPE:
 		default:
 			break;
 		}

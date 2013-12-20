@@ -102,6 +102,8 @@ void BikeModel::updateState()
 
 	if (speed > BIKE_MAX_VELOCITY)
 		speed = BIKE_MAX_VELOCITY;
+	else if (speed < BIKE_MIN_VELOCITY)
+		speed = BIKE_MIN_VELOCITY;
 
 	// adapt velocity vector to real direction
 
