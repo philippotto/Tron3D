@@ -189,18 +189,31 @@ bool MainWindow::eventFilter(QObject* object, QEvent* event)
 {
 	if (event->type() == QEvent::KeyPress) {
 		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-		if (keyEvent->key() == Qt::Key_Space) {
-			prepareGameStart();
+		if (keyEvent->key() == Qt::Key_Return) {
+			this->prepareGameStart();
 			keyEvent->accept();
 			return true;
 		}
 		else if (keyEvent->key() == Qt::Key_Escape)
 		{
-			QEvent * closeEvent = new QCloseEvent();
-			QCoreApplication::sendEvent(this, closeEvent);
+			this->close();
 			keyEvent->accept();
 			return true;
 		}
 	}
 	return QMainWindow::eventFilter(object, event);
+}
+
+void MainWindow::childEvent(QChildEvent* e)
+{
+	if (e->child()->isWidgetType()) {
+		if (e->type() == QEvent::ChildAdded) {
+			e->child()->installEventFilter(this);
+		}
+		else if (e->type() == QEvent::ChildRemoved) {
+			e->child()->removeEventFilter(this);
+		}
+	}
+
+	QWidget::childEvent(e);
 }

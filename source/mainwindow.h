@@ -30,6 +30,7 @@ namespace troen
 
 	protected:
 		virtual bool eventFilter(QObject* object, QEvent* event);
+		virtual void childEvent(QChildEvent* e);
 
 	private slots:
 		void prepareGameStart();

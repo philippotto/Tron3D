@@ -50,9 +50,10 @@ namespace troen
 	// CAMERA
 	const osg::Vec3 CAMERA_POSITION_OFFSET(0, 0, BIKE_DIMENSIONS.y());
 	const float CAMERA_ROTATION_OFFSET(.05f);
+#ifndef _DEBUG
 	const int debugNormalizer = 1;
-#ifdef _DEBUG
-	debugNormalizer = -1;
+#else _DEBUG
+	const int debugNormalizer = -1;
 #endif
 	const osg::Vec3 CAMERA_EYE_POSITION(0.f,debugNormalizer * -BIKE_DIMENSIONS.y()*5.5f,BIKE_DIMENSIONS.z()*.8f);
 	const float CAMERA_TILT_FACTOR(16.f);
