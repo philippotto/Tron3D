@@ -3,6 +3,8 @@
 #include <QThread>
 #include <QBoxLayout>
 #include <QLabel>
+#include <QKeyEvent>
+#include <QCoreApplication>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -181,4 +183,24 @@ void MainWindow::bikeNumberChanged(int newBikeNumber)
 		m_splitscreenCheckBox->setCheckable(true);
 		m_splitscreenCheckBox->setDisabled(false);
 	}
+}
+
+bool MainWindow::eventFilter(QObject* object, QEvent* event)
+{
+	if (event->type() == QEvent::KeyPress) {
+		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+		if (keyEvent->key() == Qt::Key_Space) {
+			prepareGameStart();
+			keyEvent->accept();
+			return true;
+		}
+		else if (keyEvent->key() == Qt::Key_Escape)
+		{
+			QEvent * closeEvent = new QCloseEvent();
+			QCoreApplication::sendEvent(this, closeEvent);
+			keyEvent->accept();
+			return true;
+		}
+	}
+	return QMainWindow::eventFilter(object, event);
 }

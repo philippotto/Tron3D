@@ -28,6 +28,9 @@ namespace troen
 	public slots:
 		void updatePlayerInputBoxes();
 
+	protected:
+		virtual bool eventFilter(QObject* object, QEvent* event);
+
 	private slots:
 		void prepareGameStart();
 		void splitscreenToggled();
