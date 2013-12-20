@@ -89,10 +89,15 @@ MainWindow::MainWindow(QWidget * parent)
 	m_fullscreenCheckBox = new QCheckBox("Fullscreen");
 	vBoxLayout->addWidget(m_fullscreenCheckBox, 0, Qt::AlignHCenter);
 
-	// splitscreenCheckBox
+	// postProcessingCheckBox
 	m_postProcessingCheckBox = new QCheckBox("PostProcessing");
 	vBoxLayout->addWidget(m_postProcessingCheckBox, 0, Qt::AlignHCenter);
 	m_postProcessingCheckBox->setChecked(false);
+
+	// debugViewCheckBox
+	m_debugViewCheckBox = new QCheckBox("DebugView");
+	vBoxLayout->addWidget(m_debugViewCheckBox, 0, Qt::AlignHCenter);
+	m_debugViewCheckBox->setChecked(false);
 
 	// gameStartButton
 	m_gameStartButton = new QPushButton(QString("start Game"));
@@ -147,6 +152,7 @@ void MainWindow::prepareGameStart()
 	config.splitscreen = m_splitscreenCheckBox->isChecked();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
+	config.useDebugView = m_debugViewCheckBox->isChecked();
 	emit startGame(config);
 }
 

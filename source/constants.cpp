@@ -14,6 +14,8 @@ namespace troen
 	const int DEFAULT_WINDOW_WIDTH(1280);
 	const int DEFAULT_WINDOW_HEIGHT(720);
 	const float DEFAULT_SOUND_VOLUME(1.f);
+	
+	const int NUM_MULTISAMPLES(8);
 
 	//PHYSIS
 	const btVector3 DEFAULT_GRAVITY(0,0,-10);

@@ -13,16 +13,17 @@
 
 using namespace troen;
 
-PhysicsWorld::PhysicsWorld(std::shared_ptr<sound::AudioManager>& audioManager) :
-m_lastSimulationTime(0), m_audioManager(audioManager)
+PhysicsWorld::PhysicsWorld(std::shared_ptr<sound::AudioManager>& audioManager, bool useDebugView = false) :
+m_lastSimulationTime(0), m_audioManager(audioManager), m_useDebugView(useDebugView)
 {
 	initializeWorld();
 
-#if defined DEBUG_DRAW
-	m_debug = new util::GLDebugDrawer();
-	m_debug->setDebugMode(btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE);
-	m_world->setDebugDrawer(m_debug);
-#endif
+	if (m_useDebugView)
+	{
+		m_debug = new util::GLDebugDrawer();
+		m_debug->setDebugMode(btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE);
+		m_world->setDebugDrawer(m_debug);
+	}	
 }
 
 PhysicsWorld::~PhysicsWorld()
@@ -84,9 +85,10 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	// framerate & flow of the game
 	//std::cout << "[PhysicsWorld::stepSimulation] timeSinceLastSimulation = " << timeSinceLastSimulation/1000 << std::endl;
 	
-#if defined DEBUG_DRAW
-	m_debug->BeginDraw();
-#endif
+	if (m_useDebugView)
+	{
+		m_debug->BeginDraw();
+	}
 	
 	// mind the following constraint:
 	// timeStep < maxSubSteps * fixedTimeStep
@@ -95,10 +97,11 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	m_world->stepSimulation(timeSinceLastSimulation/1000.f, 8);
 	//m_world->stepSimulation(1 / 60.f, 10);
 	
-#if defined DEBUG_DRAW
-	m_world->debugDrawWorld();
-	m_debug->EndDraw();
-#endif
+	if (m_useDebugView)
+	{
+		m_world->debugDrawWorld();
+		m_debug->EndDraw();
+	}	
 
 	checkForCollisionEvents();
 }

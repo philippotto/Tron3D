@@ -118,6 +118,7 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 	m_splitscreen = config.splitscreen;
 	m_fullscreen = config.fullscreen;
 	m_usePostProcessing = config.usePostProcessing;
+	m_useDebugView = config.useDebugView;
 
 	m_playerInputTypes.clear();
 	for (int i = 0; i < m_numberOfBikes; i++)
@@ -131,7 +132,7 @@ bool TroenGame::initialize()
 	m_rootNode = new osg::Group;
 
 	// careful about the order of initialization
-	osg::DisplaySettings::instance()->setNumMultiSamples(4);
+	osg::DisplaySettings::instance()->setNumMultiSamples(NUM_MULTISAMPLES);
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 
@@ -310,7 +311,7 @@ bool TroenGame::initializeTimer()
 
 bool TroenGame::initializePhysicsWorld()
 {
-	m_physicsWorld = std::make_shared<PhysicsWorld>(m_audioManager);
+	m_physicsWorld = std::make_shared<PhysicsWorld>(m_audioManager, m_useDebugView);
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies(),COLGROUP_LEVEL,COLMASK_LEVEL);
 
 	for (auto bikeController : m_bikeControllers)
@@ -322,7 +323,7 @@ bool TroenGame::initializePhysicsWorld()
 
 void TroenGame::startGameLoop()
 {
-	// game loop from here:
+	// adaptive game loop from here:
 	// http://entropyinteractive.com/2011/02/game-engine-design-the-game-loop/
 
 	// INITIALIZATION
@@ -333,6 +334,9 @@ void TroenGame::startGameLoop()
 	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
 	m_audioManager->SetMasterVolume(0.f);
 
+	if (m_useDebugView)
+		m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
+
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();
 	const long double minMillisecondsBetweenFrames = 10;
@@ -342,9 +346,6 @@ void TroenGame::startGameLoop()
 
 	bool nearPlaneAdapted = false;
 
-#ifdef DEBUG_DRAW				
-	m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
-#endif	
 
 	// GAME LOOP
 	while (!m_sampleOSGViewer->done())

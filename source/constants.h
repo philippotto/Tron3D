@@ -7,9 +7,6 @@
 
 // http://stackoverflow.com/questions/3681140/how-do-i-avoid-both-global-variables-and-magic-numbers
 
-// comment out to disable debug mode
-//#define DEBUG_DRAW
-
 namespace troen
 {
 	// GENERAL
@@ -19,6 +16,8 @@ namespace troen
 	extern const int DEFAULT_WINDOW_WIDTH;
 	extern const int DEFAULT_WINDOW_HEIGHT;
 	extern const float DEFAULT_SOUND_VOLUME;
+
+	extern const int NUM_MULTISAMPLES;
 
 	//PHYSIS
 	extern const btVector3 DEFAULT_GRAVITY;

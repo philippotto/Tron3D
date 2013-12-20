@@ -17,6 +17,7 @@ typedef struct s_GameConfig
 	bool splitscreen;
 	bool fullscreen;
 	bool usePostProcessing;
+	bool useDebugView;
 } GameConfig;
 Q_DECLARE_METATYPE(s_GameConfig)
 
@@ -91,6 +92,7 @@ namespace troen
 		bool m_splitscreen;
 		bool m_fullscreen;
 		bool m_usePostProcessing;
+		bool m_useDebugView;
 		int m_numberOfBikes;
 		std::vector<int> m_playerInputTypes;
 	};

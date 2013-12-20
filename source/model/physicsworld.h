@@ -17,7 +17,7 @@ namespace troen
 	class PhysicsWorld
 	{
 	public:
-		PhysicsWorld(std::shared_ptr<sound::AudioManager>& audioManager);
+		PhysicsWorld(std::shared_ptr<sound::AudioManager>& audioManager, bool useDebugView);
 		virtual ~PhysicsWorld();
 
 		void initializeWorld();
@@ -50,5 +50,7 @@ namespace troen
 
 		// steping variables
 		long double m_lastSimulationTime;
+
+		bool m_useDebugView;
 	};
 }
