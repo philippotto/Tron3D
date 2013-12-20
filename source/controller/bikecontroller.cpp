@@ -166,7 +166,7 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 };
 
 void BikeController::attachWorld(std::weak_ptr<PhysicsWorld> &world) {
-	world.lock()->addRigidBodies(getRigidBodies());
+	world.lock()->addRigidBodies(getRigidBodies(),COLGROUP_BIKE, COLMASK_BIKE);
 	m_fenceController->attachWorld(world);
 }
 

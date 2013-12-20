@@ -50,7 +50,7 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 	m_motionStateDeque.push_back(fenceMotionState);
 	m_rigidBodyDeque.push_back(fenceRigidBody);
 
-	m_world.lock()->addRigidBody(fenceRigidBody.get());
+	m_world.lock()->addRigidBody(fenceRigidBody.get(),COLGROUP_FENCE, COLMASK_FENCE);
 
 	enforceFencePartsLimit(m_maxFenceParts);
 }

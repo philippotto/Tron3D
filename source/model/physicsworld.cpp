@@ -50,16 +50,17 @@ void PhysicsWorld::initializeWorld()
 	m_world->setGravity(DEFAULT_GRAVITY);
 }
 
-void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies)
+void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies, const short group/*=0*/, const short mask/*=0*/)
 {
 	for (auto body : bodies)
 	{
-		m_world->addRigidBody(body.get());
+		m_world->addRigidBody(body.get(), group, mask);
 	}
 }
 
-void PhysicsWorld::addRigidBody(btRigidBody *body) {
-	m_world->addRigidBody(body);
+void PhysicsWorld::addRigidBody(btRigidBody *body,const short group /*=0*/, const short mask /*=0*/)
+{
+	m_world->addRigidBody(body, group, mask);
 }
 
 void PhysicsWorld::removeRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies)
