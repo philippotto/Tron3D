@@ -55,6 +55,7 @@ namespace troen
 		bool composeSceneGraph();
 		bool initializeTimer();
 		bool initializeShaders();
+		bool initializeGameLogic();
 		bool initializePhysicsWorld();
 		bool initializeSound();
 		bool initializeSkyDome();
@@ -85,6 +86,7 @@ namespace troen
 		QThread*							m_gameThread;
 		std::shared_ptr<util::ChronoTimer>	m_timer;
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
+		std::shared_ptr<GameLogic>			m_gameLogic;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
 
 		int m_maxFenceParts;

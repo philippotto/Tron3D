@@ -17,7 +17,7 @@ namespace troen
 	class PhysicsWorld
 	{
 	public:
-		PhysicsWorld(std::shared_ptr<sound::AudioManager>& audioManager, bool useDebugView);
+		PhysicsWorld(std::shared_ptr<GameLogic>& gameLogic, bool useDebugView = false);
 		virtual ~PhysicsWorld();
 
 		void initializeWorld();
@@ -28,29 +28,24 @@ namespace troen
 		void removeRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies);
 		void removeRigidBody(btRigidBody* body);
 
-		// collision event functions
-		void checkForCollisionEvents();
-		virtual void collisionEvent(btRigidBody* pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold);
-		virtual void separationEvent(btRigidBody * pBody0, btRigidBody * pBody1);
-
 		// debugview
 		util::GLDebugDrawer* m_debug;
 
 	private:
-		btDiscreteDynamicsWorld *m_world;
-		btSequentialImpulseConstraintSolver *m_solver;
-		btDefaultCollisionConfiguration *m_collisionConfiguration;
-		btCollisionDispatcher *m_dispatcher;
-		btBroadphaseInterface *m_broadphase;
+		btDiscreteDynamicsWorld*			m_world;
+		btSequentialImpulseConstraintSolver*m_solver;
+		btDefaultCollisionConfiguration*	m_collisionConfiguration;
+		btCollisionDispatcher*				m_dispatcher;
+		btBroadphaseInterface*				m_broadphase;
 
-		std::weak_ptr<sound::AudioManager> m_audioManager;
-
-		// collision event variables
+		// collision events
+		void checkForCollisionEvents();
 		CollisionPairSet m_pairsLastUpdate;
 
 		// steping variables
 		long double m_lastSimulationTime;
 
 		bool m_useDebugView;
+		std::shared_ptr<GameLogic> m_gameLogic;
 	};
 }

@@ -11,6 +11,7 @@
 #include "constants.h"
 #include "sampleosgviewer.h"
 #include "gameeventhandler.h"
+#include "gamelogic.h"
 
 #include "input/bikeinputstate.h"
 #include "input/keyboard.h"
@@ -94,6 +95,7 @@ void TroenGame::setFovy(float newFovy)
 {
 	double fovy, aspect, znear, zfar;
 	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	//std::cout << fovy << std::endl;
 	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
 }
 
@@ -159,7 +161,8 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] timer ..." << std::endl;
 	initializeTimer();
 	
-	std::cout << "[TroenGame::initialize] physics ..." << std::endl;
+	std::cout << "[TroenGame::initialize] game logic & physics ..." << std::endl;
+	initializeGameLogic();
 	initializePhysicsWorld();
 
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
@@ -309,9 +312,15 @@ bool TroenGame::initializeTimer()
 	return true;
 }
 
+bool TroenGame::initializeGameLogic()
+{
+	m_gameLogic = std::make_shared<GameLogic>(m_audioManager);
+	return true;
+}
+
 bool TroenGame::initializePhysicsWorld()
 {
-	m_physicsWorld = std::make_shared<PhysicsWorld>(m_audioManager, m_useDebugView);
+	m_physicsWorld = std::make_shared<PhysicsWorld>(m_gameLogic, m_useDebugView);
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies(),COLGROUP_LEVEL,COLMASK_LEVEL);
 
 	for (auto bikeController : m_bikeControllers)
@@ -372,7 +381,6 @@ void TroenGame::startGameLoop()
 			{
 				for (auto bikeController : m_bikeControllers)
 				{
-					//std::cout << "...";
 					bikeController->updateModel();
 				}
 				m_physicsWorld->stepSimulation(currTime);
@@ -429,8 +437,9 @@ bool TroenGame::shutdown()
 	m_timer.reset();
 	//input
 
-	// physics
+	// physics & gamelogic
 	m_physicsWorld.reset();
+	m_gameLogic.reset();
 
 	//viewer & views
 	m_sampleOSGViewer = nullptr;

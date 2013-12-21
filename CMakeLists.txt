@@ -205,6 +205,8 @@ set(sources
 	source/gameeventhandler.h
 	source/constants.h
 	source/constants.cpp
+	source/gamelogic.h
+	source/gamelogic.cpp
 
 	source/input/keyboard.h
 	source/input/keyboard.cpp
