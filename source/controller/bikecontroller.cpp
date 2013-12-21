@@ -1,6 +1,7 @@
 #include "bikecontroller.h"
 // OSG
 #include <osg/PositionAttitudeTransform>
+#include <osgViewer/View>
 //troen
 #include "../constants.h"
 #include "../view/bikeview.h"
@@ -17,7 +18,9 @@
 
 using namespace troen;
 
-BikeController::BikeController(input::BikeInputState::InputDevice inputDevice, btTransform initialTransform) :
+BikeController::BikeController(
+	input::BikeInputState::InputDevice inputDevice,
+	btTransform initialTransform) :
 m_initialTransform(initialTransform)
 {
 	// TODO change random generation of player color here (and remove generateRandomColor-Function)
@@ -148,15 +151,47 @@ void BikeController::attachTrackingCamera
 		);
 }
 
+void BikeController::attachGameView(osg::ref_ptr<osgViewer::View> gameView)
+{
+	m_gameView = gameView;
+}
+
+
+void BikeController::setFovy(float newFovy)
+{
+	if (!m_gameView.valid()) return;
+	double fovy, aspect, znear, zfar;
+	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
+}
+
+float BikeController::getFovy()
+{
+	if (!m_gameView.valid())
+		return 0;
+	double fovy, aspect, znear, zfar;
+	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	return fovy;
+}
+
 void BikeController::updateModel()
 {
-	std::static_pointer_cast<BikeModel>(m_model)->updateState();
+	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState();
+
+	if (!m_gameView.valid()) return;
+
+	if (speed < BIKE_MIN_VELOCITY * 2)
+		setFovy(FOVY_INITIAL);
+	else
+	{
+		double newFovy = (speed - BIKE_MIN_VELOCITY * 2) / (BIKE_MAX_VELOCITY - BIKE_MIN_VELOCITY * 2);
+		setFovy(newFovy);
+	}
 
 }
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
 {
-
 	osg::ref_ptr<osg::Group> group = new osg::Group();
 	// TODO (dw) try not to disable culling, by resizing the childrens bounding boxes
 	group->setCullingActive(false);

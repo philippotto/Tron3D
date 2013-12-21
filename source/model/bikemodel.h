@@ -20,7 +20,7 @@ namespace troen
 			BikeController* bikeController);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		void resetState();
-		void updateState();
+		float updateState();
 		void rotate(float angle);
 		void accelerate(float velocity);
 		float getRotation();

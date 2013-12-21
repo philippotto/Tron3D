@@ -33,11 +33,15 @@ BikeModel::BikeModel(
 		this
 	);
 	
+	// TODO
+	// make friction & ineartia work without wrong behaviour of bike (left turn)
 	btVector3 bikeInertia(0, 0, 0);
 	bikeShape->calculateLocalInertia(BIKE_MASS, bikeInertia);
+	//std::cout << bikeInertia.getX() << ".." << bikeInertia.getY() << ".." << bikeInertia.getZ() << std::endl;
 
 	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(BIKE_MASS, bikeMotionState.get(), bikeShape.get(), bikeInertia);
-	m_bikeRigidBodyCI.m_friction = 0;
+	m_bikeRigidBodyCI.m_friction = 0.f;
+	//std::cout << m_bikeRigidBodyCI.m_friction << std::endl;
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
@@ -72,7 +76,7 @@ float BikeModel::getSteering() {
 	return m_steering;
 }
 
-void BikeModel::updateState()
+float BikeModel::updateState()
 {
 	const btVector3 up = btVector3(0, 0, 1);
 	const btVector3 front = btVector3(0, -1, 0);
@@ -98,7 +102,7 @@ void BikeModel::updateState()
 	const int maximumAcceleration = 5;
 	// const int dampFactor = 1;
 	
-	int speed = currentVelocityVectorXY.length() + velocity * maximumAcceleration;
+	float speed = currentVelocityVectorXY.length() + velocity * maximumAcceleration;
 
 	if (speed > BIKE_MAX_VELOCITY)
 		speed = BIKE_MAX_VELOCITY;
@@ -115,6 +119,7 @@ void BikeModel::updateState()
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
+	return speed;
 }
 
 float BikeModel::getRotation()

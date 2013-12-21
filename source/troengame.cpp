@@ -95,8 +95,9 @@ void TroenGame::setFovy(float newFovy)
 {
 	double fovy, aspect, znear, zfar;
 	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-	//std::cout << fovy << std::endl;
+	std::cout << "old: " << fovy;
 	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
+	std::cout << "   new: " << newFovy << std::endl;
 }
 
 float TroenGame::getFovy()
@@ -195,6 +196,7 @@ bool TroenGame::initializeSkyDome()
 bool TroenGame::initializeControllers()
 {
 	m_levelController = std::make_shared<LevelController>();
+
 	for (int i = 0; i < m_numberOfBikes; i++)
 	{
 		m_bikeControllers.push_back(std::make_shared<BikeController>((
@@ -230,6 +232,8 @@ bool TroenGame::initializeViews()
 	m_gameEventHandler = new GameEventHandler(this);
 	m_gameView->addEventHandler(m_gameEventHandler);
 
+	m_bikeControllers[0]->attachGameView(m_gameView);
+
 	if (m_splitscreen)
 	{
 		m_gameView2 = new osgViewer::View;
@@ -241,6 +245,8 @@ bool TroenGame::initializeViews()
 
 		m_gameView2->setSceneData(m_rootNode);
 		m_gameView2->setUpViewInWindow(500, 500, 640, 480);
+
+		m_bikeControllers[1]->attachGameView(m_gameView2);
 	}
 
 	return true;

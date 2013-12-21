@@ -19,6 +19,9 @@ namespace troen
 
 	extern const int NUM_MULTISAMPLES;
 
+	extern const double FOVY_INITIAL;
+	extern const double FOVY_MAX;
+
 	//PHYSIS
 	extern const btVector3 DEFAULT_GRAVITY;
 
