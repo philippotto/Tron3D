@@ -33,16 +33,16 @@ osg::ref_ptr<osg::Geode> LevelView::autoConstructObstacles()
 	osg::ref_ptr<osg::Geode> obstacleGeode = new osg::Geode();
 
 	
-osg::ref_ptr<osg::Box> obstacle0
-	= new osg::Box(osg::Vec3(0.0,40.0,0.0), 20.000009536743164, 20.000009536743164, 20.0);
-osg::ref_ptr<osg::ShapeDrawable> boxDrawable0
-	= new osg::ShapeDrawable(obstacle0); 
+	osg::ref_ptr<osg::Box> obstacle0
+		= new osg::Box(osg::Vec3(0.0,40.0,0.0), 20.000009536743164, 20.000009536743164, 20.0);
+	osg::ref_ptr<osg::ShapeDrawable> boxDrawable0
+		= new osg::ShapeDrawable(obstacle0); 
 obstacleGeode->addDrawable(boxDrawable0);
 
-osg::ref_ptr<osg::Box> obstacle1
-	= new osg::Box(osg::Vec3(0.0,-40.0,0.0), 20.000009536743164, 20.000009536743164, 20.0);
-osg::ref_ptr<osg::ShapeDrawable> boxDrawable1
-	= new osg::ShapeDrawable(obstacle1); 
+	osg::ref_ptr<osg::Box> obstacle1
+		= new osg::Box(osg::Vec3(0.0,-40.0,0.0), 20.000009536743164, 20.000009536743164, 20.0);
+	osg::ref_ptr<osg::ShapeDrawable> boxDrawable1
+		= new osg::ShapeDrawable(obstacle1); 
 obstacleGeode->addDrawable(boxDrawable1);
 
 	

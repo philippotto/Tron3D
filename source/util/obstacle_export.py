@@ -1,17 +1,50 @@
 import bpy
+
 ### HOWTO: open this file in blender text editor. Edit your scene and make  sure only cubes are used (only translate and scale are supported for now)
 ## all cubes have to be prefixed by "Cube"
-
 
 #please modify to your own path, for now
 FILE_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\source\view\auto_levelView.cpp"
 
 
+class LevelExporter():
+	def __init__(self):
+		# obstacle has to be named Cube_XXX to be registered as an obstacle
+		self.obstacles = []
+		for object in bpy.data.scenes['Scene'].objects:
+			if object.name.startswith("Cube"):
+				self.obstacles.append(object)
+	
+		with open(FILE_PATH,"w") as output_file:
+			output_file.write(self.levelView_template().format(auto_gen_code=self.get_view_autogen()))
+
+	def get_view_autogen(self):
+		#write out the cubes location and dimensions
+		auto_gen_code  = ""
+		for ob_index in range(len(self.obstacles)):
+			obstacle = self.obstacles[ob_index]
+			position_str = "osg::Vec3(" + str(obstacle.location.x) + "," + \
+		                    str(obstacle.location.y) + "," + str(obstacle.location.z) + ")"
+			auto_gen_code += self.create_box_stub_str().format(ob_index=ob_index,
+														  vec3_location=position_str, 
+														  length_x=str(obstacle.dimensions.x),
+														  length_y=str(obstacle.dimensions.y),
+														  length_z=str(obstacle.dimensions.z) )
+			auto_gen_code += "\nobstacleGeode->addDrawable(boxDrawable{ob_index});\n".format(ob_index=str(ob_index))
+		return auto_gen_code
 
 
+	def create_box_stub_str(self):
+		#boilerplate code to create a box
+		return """
+	osg::ref_ptr<osg::Box> obstacle{ob_index}
+		= new osg::Box({vec3_location}, {length_x}, {length_y}, {length_z});
+	osg::ref_ptr<osg::ShapeDrawable> boxDrawable{ob_index}
+		= new osg::ShapeDrawable(obstacle{ob_index}); """
 
-
-Cpp_string_levelView = """
+	
+	def levelView_template(self):
+		return """
 #include "levelview.h"
 // STD
 #include <math.h>
@@ -63,40 +96,5 @@ osg::ref_ptr<osg::Geode> LevelView::autoConstructObstacles()
 }}
 """
 
-#for reference:
-# // 
-
-output_file = open(FILE_PATH,"w")
-
-#boilerplate code to create a box
-create_box_str = """
-osg::ref_ptr<osg::Box> obstacle{ob_index}
-	= new osg::Box({vec3_location}, {length_x}, {length_y}, {length_z});
-osg::ref_ptr<osg::ShapeDrawable> boxDrawable{ob_index}
-	= new osg::ShapeDrawable(obstacle{ob_index}); """
-
-
-# obstacle has to be named Cube_XXX to be registered as an obstacle
-obstacles = []
-for object in bpy.data.scenes['Scene'].objects:
-	if object.name.startswith("Cube"):
-		obstacles.append(object)
-
-#write out the cubes location and dimenions
-auto_gen_code  = ""
-for ob_index in range(len(obstacles)):
-	obstacle = obstacles[ob_index]
-	position_str = "osg::Vec3(" + str(obstacle.location.x) + "," + \
-                    str(obstacle.location.y) + "," + str(obstacle.location.z) + ")"
-	auto_gen_code += create_box_str.format(ob_index=ob_index,
-												  vec3_location=position_str, 
-												  length_x=str(obstacle.dimensions.x),
-												  length_y=str(obstacle.dimensions.y),
-												  length_z=str(obstacle.dimensions.z) )
-	auto_gen_code += "\nobstacleGeode->addDrawable(boxDrawable{ob_index});\n".format(ob_index=str(ob_index))
-
-
-
-output_file.write(Cpp_string_levelView.format(auto_gen_code=auto_gen_code))
-output_file.close()
-
+if __name__ == '__main__':
+	LevelExporter()
