@@ -20,7 +20,7 @@ namespace troen
 	extern const int NUM_MULTISAMPLES;
 
 	extern const double FOVY_INITIAL;
-	extern const double FOVY_MAX;
+	extern const double FOVY_ADDITION_MAX;
 
 	//PHYSIS
 	extern const btVector3 DEFAULT_GRAVITY;
@@ -31,8 +31,8 @@ namespace troen
 	extern const osg::Vec3f BIKE_VIEW_TRANSLATE_VALUES;
 
 	extern const float BIKE_MASS;
-	extern const int BIKE_MAX_VELOCITY;
-	extern const int BIKE_MIN_VELOCITY;
+	extern const int BIKE_VELOCITY_MAX;
+	extern const int BIKE_VELOCITY_MIN;
 
 	extern const float BIKE_TILT_DAMPENING;
 	extern const float BIKE_TILT_MAX;

@@ -225,9 +225,7 @@ bool TroenGame::initializeViews()
 	if (m_fullscreen)
 		m_gameView->apply(new osgViewer::SingleScreen(0));
 	else
-	{
 		m_gameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
-	}
 
 	m_gameEventHandler = new GameEventHandler(this);
 	m_gameView->addEventHandler(m_gameEventHandler);

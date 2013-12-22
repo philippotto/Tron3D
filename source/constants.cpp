@@ -16,7 +16,7 @@ namespace troen
 	const float DEFAULT_SOUND_VOLUME(1.f);
 
 	const double FOVY_INITIAL(29.1484);
-	const double FOVY_MAX(79.1484);
+	const double FOVY_ADDITION_MAX(50);
 	
 	const int NUM_MULTISAMPLES(8);
 
@@ -30,8 +30,8 @@ namespace troen
 	const osg::Vec3f BIKE_VIEW_TRANSLATE_VALUES(0,0,-BIKE_DIMENSIONS.z() * 4.9f / 12.5);
 
 	const float BIKE_MASS(300);
-	const int BIKE_MAX_VELOCITY(BIKE_DIMENSIONS.y() * 40);
-	const int BIKE_MIN_VELOCITY(BIKE_DIMENSIONS.y() * 10);
+	const int BIKE_VELOCITY_MAX(BIKE_DIMENSIONS.y() * 60);
+	const int BIKE_VELOCITY_MIN(BIKE_DIMENSIONS.y() * 10);
 
 	// BIKE_TILT_DAMPENING = 1 would lead to immediate/unsmooth tilt
 	// 1 / BIKE_TILT_MAX specifies angle in radiant
@@ -62,6 +62,6 @@ namespace troen
 	const float CAMERA_TILT_FACTOR(16.f);
 
 	// PHYSICS
-	const float BIKE_IMPACT_THRESHOLD_LOW(BIKE_MASS*BIKE_MIN_VELOCITY);
-	const float BIKE_IMPACT_THRESHOLD_HIGH(BIKE_MASS*BIKE_MAX_VELOCITY);
+	const float BIKE_IMPACT_THRESHOLD_LOW(BIKE_MASS*BIKE_VELOCITY_MIN);
+	const float BIKE_IMPACT_THRESHOLD_HIGH(BIKE_MASS*BIKE_VELOCITY_MAX);
 }

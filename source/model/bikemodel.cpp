@@ -99,15 +99,15 @@ float BikeModel::updateState()
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
 	// accelerate	
-	const int maximumAcceleration = 5;
+	const int maximumAcceleration = 2;
 	// const int dampFactor = 1;
 	
 	float speed = currentVelocityVectorXY.length() + velocity * maximumAcceleration;
 
-	if (speed > BIKE_MAX_VELOCITY)
-		speed = BIKE_MAX_VELOCITY;
-	else if (speed < BIKE_MIN_VELOCITY)
-		speed = BIKE_MIN_VELOCITY;
+	if (speed > BIKE_VELOCITY_MAX)
+		speed = BIKE_VELOCITY_MAX;
+	else if (speed < BIKE_VELOCITY_MIN)
+		speed = BIKE_VELOCITY_MIN;
 
 	// adapt velocity vector to real direction
 

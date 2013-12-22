@@ -180,11 +180,12 @@ void BikeController::updateModel()
 
 	if (!m_gameView.valid()) return;
 
-	if (speed < BIKE_MIN_VELOCITY * 2)
+	if (speed < BIKE_VELOCITY_MIN * 2)
 		setFovy(FOVY_INITIAL);
 	else
 	{
-		double newFovy = (speed - BIKE_MIN_VELOCITY * 2) / (BIKE_MAX_VELOCITY - BIKE_MIN_VELOCITY * 2);
+		double fovyFactor = (speed - BIKE_VELOCITY_MIN * 2) / (BIKE_VELOCITY_MAX - BIKE_VELOCITY_MIN * 2);
+		double newFovy = FOVY_INITIAL + fovyFactor * FOVY_ADDITION_MAX;
 		setFovy(newFovy);
 	}
 
