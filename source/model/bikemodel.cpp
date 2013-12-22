@@ -91,18 +91,21 @@ float BikeModel::updateState()
 	btScalar zComponent = currentVelocityVectorXY.getZ();
 	currentVelocityVectorXY = btVector3(currentVelocityVectorXY.getX(), currentVelocityVectorXY.getY(), 0);
 
-
-	// initiate rotation
-	const float maximumTurn = 20;
-	const float turningRad = PI / 180 * m_steering * maximumTurn;
-	
-	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
+	// TODO:
+	// acceleration & rotation should both be time dependent
+	// atm they still depend on the framerate
 
 	// accelerate	
-	const float accelerationFactor = 1.1;
-	const float dampConstant = 0.3;
-	
-	float speed = currentVelocityVectorXY.length() + acceleration * accelerationFactor - dampConstant;
+	float speed = currentVelocityVectorXY.length() + acceleration * BIKE_ACCELERATION_FACTOR_MAX - BIKE_VELOCITY_DAMPENING_TERM;
+
+	// rotate:
+	// turnFactor
+	// -> stronger steering for low velocities
+	// -> weaker steering at high velocities
+	float turnFactor = clamp(0,1,BIKE_VELOCITY_MIN / (.5f*speed));
+	float turningRad = PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor);
+
+	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
 	if (speed > BIKE_VELOCITY_MAX)
 		speed = BIKE_VELOCITY_MAX;

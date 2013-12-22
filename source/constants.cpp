@@ -15,7 +15,7 @@ namespace troen
 	const float DEFAULT_SOUND_VOLUME(1.f);
 
 	const float FOVY_INITIAL(29.1484f);
-	const float FOVY_ADDITION_MAX(30.f);
+	const float FOVY_ADDITION_MAX(20.f);
 	const float FOVY_DELTA_MAX(.7f);
 	
 	const int NUM_MULTISAMPLES(8);
@@ -31,7 +31,11 @@ namespace troen
 
 	const float BIKE_MASS(300);
 	const int BIKE_VELOCITY_MAX(BIKE_DIMENSIONS.y() * 60);
-	const int BIKE_VELOCITY_MIN(BIKE_DIMENSIONS.y() * 10);
+	const int BIKE_VELOCITY_MIN(BIKE_DIMENSIONS.y() * 20);
+	const float BIKE_VELOCITY_DAMPENING_TERM(.3f);
+	const float BIKE_ACCELERATION_FACTOR_MAX(1.1f);
+	const float BIKE_TURN_FACTOR_MAX(20);
+
 
 	// BIKE_TILT_DAMPENING = 1 would lead to immediate/unsmooth tilt
 	// 1 / BIKE_TILT_MAX specifies angle in radiant
