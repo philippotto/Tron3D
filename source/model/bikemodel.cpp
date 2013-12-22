@@ -83,7 +83,7 @@ float BikeModel::updateState()
 
 	// call this exactly once per frame
 	m_steering = m_bikeInputState->getAngle();
-	float velocity = m_bikeInputState->getAcceleration();
+	float acceleration = m_bikeInputState->getAcceleration();
 
 	
 	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
@@ -99,10 +99,10 @@ float BikeModel::updateState()
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
 	// accelerate	
-	const int maximumAcceleration = 2;
-	// const int dampFactor = 1;
+	const float accelerationFactor = 1.1;
+	const float dampConstant = 0.3;
 	
-	float speed = currentVelocityVectorXY.length() + velocity * maximumAcceleration;
+	float speed = currentVelocityVectorXY.length() + acceleration * accelerationFactor - dampConstant;
 
 	if (speed > BIKE_VELOCITY_MAX)
 		speed = BIKE_VELOCITY_MAX;

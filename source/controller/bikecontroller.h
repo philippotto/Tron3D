@@ -35,8 +35,10 @@ namespace troen
 
 	private:
 		osg::Vec3 generateRandomColor();
+
 		void setFovy(float newFovy);
 		float getFovy();
+		float computeFovyDelta(float speed, float currentFovy);
 
 		void initializeInput(input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);

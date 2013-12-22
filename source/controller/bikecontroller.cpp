@@ -174,21 +174,22 @@ float BikeController::getFovy()
 	return fovy;
 }
 
+float BikeController::computeFovyDelta(float speed, float currentFovy)
+{
+	float fovyFactor = (speed - BIKE_VELOCITY_MIN) / (BIKE_VELOCITY_MAX - BIKE_VELOCITY_MIN);
+	fovyFactor = fovyFactor > 0 ? fovyFactor : 0;
+	float newFovy = FOVY_INITIAL + interpolate(fovyFactor, InterpolateCubed) * FOVY_ADDITION_MAX;
+	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, newFovy - currentFovy); 
+}
+
 void BikeController::updateModel()
 {
 	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState();
 
 	if (!m_gameView.valid()) return;
 
-	if (speed < BIKE_VELOCITY_MIN * 2)
-		setFovy(FOVY_INITIAL);
-	else
-	{
-		double fovyFactor = (speed - BIKE_VELOCITY_MIN * 2) / (BIKE_VELOCITY_MAX - BIKE_VELOCITY_MIN * 2);
-		double newFovy = FOVY_INITIAL + fovyFactor * FOVY_ADDITION_MAX;
-		setFovy(newFovy);
-	}
-
+	float currentFovy = getFovy();
+	setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 }
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()

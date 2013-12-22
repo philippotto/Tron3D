@@ -8,15 +8,15 @@
 namespace troen
 {
 	// GENERAL
-	const double PI(3.14159265359);
 
 	// GAME
 	const int DEFAULT_WINDOW_WIDTH(1280);
 	const int DEFAULT_WINDOW_HEIGHT(720);
 	const float DEFAULT_SOUND_VOLUME(1.f);
 
-	const double FOVY_INITIAL(29.1484);
-	const double FOVY_ADDITION_MAX(50);
+	const float FOVY_INITIAL(29.1484f);
+	const float FOVY_ADDITION_MAX(30.f);
+	const float FOVY_DELTA_MAX(.7f);
 	
 	const int NUM_MULTISAMPLES(8);
 
