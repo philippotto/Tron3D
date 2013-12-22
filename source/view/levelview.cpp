@@ -86,7 +86,8 @@ void LevelView::initialize()
 
 	m_node->addChild(outerWallsGeode);
 	m_node->addChild(constructGround());
-	m_node->addChild(constructObstacles());
+	//m_node->addChild(constructObstacles());
+	m_node->addChild(autoConstructObstacles());
 }
 
 osg::ref_ptr<osg::Geode>  LevelView::constructGround()
@@ -316,7 +317,7 @@ osg::ref_ptr<osg::Geode> LevelView::constructObstacles()
 
 	// 
 	osg::ref_ptr<osg::Box> box1
-		= new osg::Box(osg::Vec3(0, -30, 10), 5, 5, 20);
+		= new osg::Box(osg::Vec3(0, -60, 10), 5, 5, 20);
 	osg::ref_ptr<osg::ShapeDrawable> boxDrawable1
 		= new osg::ShapeDrawable(box1);
 

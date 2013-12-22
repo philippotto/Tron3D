@@ -247,6 +247,7 @@ set(sources
 	source/view/bikeview.cpp
 	source/view/levelview.h
 	source/view/levelview.cpp
+	source/view/auto_levelView.cpp
 	source/view/fenceview.h
 	source/view/fenceview.cpp
 	source/view/abstractview.h
