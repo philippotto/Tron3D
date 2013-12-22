@@ -23,7 +23,7 @@ LevelModel::LevelModel(const LevelController* levelController)
 	m_rigidBodies.push_back(groundRigidBody);
 
 	addWalls(levelController);
-	addObstacles(levelController);
+	auto_addObstacles(levelController);
 }
 void LevelModel::addWalls(const LevelController* levelController)
 {
