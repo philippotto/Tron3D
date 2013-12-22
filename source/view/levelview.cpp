@@ -81,11 +81,12 @@ void LevelView::initialize()
 	osg::Uniform* modelIDU = new osg::Uniform("modelID", DEFAULT);
 	wallStateSet->addUniform(modelIDU);
 
+
+	//m_node->addChild(constructBox(osg::Vec3(10.0,0.0,50.0),osg::Vec3(50.0,50.0,100.0)));
+
 	m_node->addChild(outerWallsGeode);
-
-	m_node->addChild(constructBox(osg::Vec3(10.0,0.0,50.0),osg::Vec3(50.0,50.0,100.0)));
-
 	m_node->addChild(constructGround());
+	m_node->addChild(constructObstacles());
 }
 
 osg::ref_ptr<osg::Geode>  LevelView::constructGround()
@@ -305,4 +306,46 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
 
 	}
+}
+
+osg::ref_ptr<osg::Geode> LevelView::constructObstacles()
+{
+	int levelSize = m_model->getLevelSize();
+	osg::ref_ptr<osg::Group> obstacleGroup = new osg::Group();
+	osg::ref_ptr<osg::Geode> obstacleGeode = new osg::Geode();
+
+	// 
+	osg::ref_ptr<osg::Box> box1
+		= new osg::Box(osg::Vec3(0, -30, 10), 5, 5, 20);
+	osg::ref_ptr<osg::ShapeDrawable> boxDrawable1
+		= new osg::ShapeDrawable(box1);
+
+	// wall left
+	osg::ref_ptr<osg::Box> box2
+		= new osg::Box(osg::Vec3(-20, -30, 10), 5, 5, 20);
+	osg::ref_ptr<osg::ShapeDrawable> boxDrawable2
+		= new osg::ShapeDrawable(box2);
+
+
+	obstacleGeode->addDrawable(boxDrawable1);
+	obstacleGeode->addDrawable(boxDrawable2);
+
+
+	osg::StateSet *obstaclesStateSet = obstacleGeode->getOrCreateStateSet();
+	obstaclesStateSet->ref();
+
+
+	obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
+
+
+
+	setTexture(obstaclesStateSet, "data/textures/troen_box_tex.tga", 0);
+
+	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
+	obstaclesStateSet->addUniform(textureMapU);
+
+	osg::Uniform* modelIDU = new osg::Uniform("modelID", DEFAULT);
+	obstaclesStateSet->addUniform(modelIDU);
+
+	return obstacleGeode;
 }

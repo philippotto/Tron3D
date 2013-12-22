@@ -23,6 +23,7 @@ LevelModel::LevelModel(const LevelController* levelController)
 	m_rigidBodies.push_back(groundRigidBody);
 
 	addWalls(levelController);
+	addObstacles(levelController);
 }
 void LevelModel::addWalls(const LevelController* levelController)
 {
@@ -90,4 +91,49 @@ void LevelModel::addWalls(const LevelController* levelController)
 
 int LevelModel::getLevelSize() {
 	return 6000;
+}
+
+void LevelModel::addObstacles(const LevelController* levelController)
+{
+	// obstacles
+
+	// TODO
+	// get data from levelView ? or the other way round?
+	// in levelView: obstacleRight = new osg::Box(osg::Vec3(levelSize / 2, 0, 50), 1, levelSize, 100);
+	// center: levelSize/2, 0, 50
+	// width: 1
+	// length: levelSize
+	// height: 100
+
+	// TODO grab the value from origin
+	btScalar levelSize = btScalar(getLevelSize());
+
+	std::shared_ptr<btBoxShape> obstacleShape1 = std::make_shared<btBoxShape>(btVector3(2.5, 2.5, 10));
+	std::shared_ptr<btDefaultMotionState> obstacleMotionState1 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -30, 10)));
+	btRigidBody::btRigidBodyConstructionInfo
+		obstacleRigidBodyCI1(btScalar(0), obstacleMotionState1.get(), obstacleShape1.get(), btVector3(0, 0, 0));
+	std::shared_ptr<btRigidBody> obstacleRigidBody1 = std::make_shared<btRigidBody>(obstacleRigidBodyCI1);
+	obstacleRigidBody1->setUserPointer((void *)levelController);
+	obstacleRigidBody1->setUserIndex(LEVELWALLTYPE);
+
+	std::shared_ptr<btBoxShape> obstacleShape2 = std::make_shared<btBoxShape>(btVector3(2.5, 2.5, 10));
+	std::shared_ptr<btDefaultMotionState> obstacleMotionState2 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-20, -30, 10)));
+	btRigidBody::btRigidBodyConstructionInfo
+		obstacleRigidBodyCI2(btScalar(0), obstacleMotionState2.get(), obstacleShape1.get(), btVector3(0, 0, 0));
+	std::shared_ptr<btRigidBody> obstacleRigidBody2 = std::make_shared<btRigidBody>(obstacleRigidBodyCI2);
+	obstacleRigidBody2->setUserPointer((void *)levelController);
+	obstacleRigidBody2->setUserIndex(LEVELWALLTYPE);
+
+
+	m_collisionShapes.push_back(obstacleShape1);
+	m_collisionShapes.push_back(obstacleShape2);
+
+
+	m_motionStates.push_back(obstacleMotionState1);
+	m_motionStates.push_back(obstacleMotionState2);
+
+	m_rigidBodies.push_back(obstacleRigidBody1);
+	m_rigidBodies.push_back(obstacleRigidBody2);
+
+
 }
