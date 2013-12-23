@@ -333,7 +333,7 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles()
 	return obstacleGroup;
 }
 
-osg::ref_ptr<osg::Geode> LevelView::constructSimpleBox(osg::Vec3 position, osg::Vec3 extents, osg::Quat rotation)
+osg::ref_ptr<osg::MatrixTransform> LevelView::constructSimpleBox(osg::Vec3 position, osg::Vec3 extents, osg::Quat rotation)
 {
 	osg::ref_ptr<osg::Box> box1
 		= new osg::Box(position, extents.x(), extents.y(), extents.z());
@@ -343,6 +343,12 @@ osg::ref_ptr<osg::Geode> LevelView::constructSimpleBox(osg::Vec3 position, osg::
 	osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
 	boxGeode->addDrawable(boxDrawable1);
 
-	return boxGeode;
+	osg::Matrixd initialTransform;
+	initialTransform.makeRotate(rotation);
+
+	osg::ref_ptr<osg::MatrixTransform> matrixTransform = new osg::MatrixTransform(initialTransform);
+	matrixTransform->addChild(boxGeode);
+
+	return matrixTransform;
 
 }

@@ -35,7 +35,11 @@ class LevelExporter():
 														  pos_z=str(obstacle.location.z*SCALE), 
 														  length_x=str(obstacle.dimensions.x*SCALE),
 														  length_y=str(obstacle.dimensions.y*SCALE),
-														  length_z=str(obstacle.dimensions.z*SCALE) )
+														  length_z=str(obstacle.dimensions.z*SCALE),
+														  quat_x=str(obstacle.rotation_quaternion.x),
+														  quat_y=str(obstacle.rotation_quaternion.y),
+														  quat_z=str(obstacle.rotation_quaternion.z),
+														  quat_w=str(obstacle.rotation_quaternion.w) )
 		return auto_gen_code
 
 
@@ -50,7 +54,11 @@ class LevelExporter():
 														  pos_z=str(obstacle.location.z*SCALE),
 														  half_length_x=str(obstacle.dimensions.x*SCALE/2.0),
 														  half_length_y=str(obstacle.dimensions.y*SCALE/2.0),
-														  half_length_z=str(obstacle.dimensions.z*SCALE/2.0) )
+														  half_length_z=str(obstacle.dimensions.z*SCALE/2.0),
+														  quat_x=str(obstacle.rotation_quaternion.x),
+														  quat_y=str(obstacle.rotation_quaternion.y),
+														  quat_z=str(obstacle.rotation_quaternion.z),
+														  quat_w=str(obstacle.rotation_quaternion.w) )
 		return auto_gen_code
 
 
@@ -58,7 +66,7 @@ class LevelExporter():
 		#boilerplate code to create a box
 		return """
 			obstacleGroup->addChild(constructSimpleBox(osg::Vec3({pos_x},{pos_y},{pos_z}),
-								 osg::Vec3({length_x}, {length_y}, {length_z}), osg::Quat(0.0, 0.0, 0.0, 1.0))); """
+								 osg::Vec3({length_x}, {length_y}, {length_z}), osg::Quat({quat_x},{quat_y},{quat_z},{quat_w}))); """
 
 	
 	def levelView_template(self):
@@ -121,7 +129,7 @@ class LevelExporter():
 	def create_box_collision_shape_str(self):
 		return """
 		std::shared_ptr<btBoxShape> obstacleShape{ob_index} = std::make_shared<btBoxShape>(btVector3({half_length_x}, {half_length_y}, {half_length_z}));
-		std::shared_ptr<btDefaultMotionState> obstacleMotionState{ob_index} = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3({pos_x}, {pos_y}, {pos_z})));
+		std::shared_ptr<btDefaultMotionState> obstacleMotionState{ob_index} = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion({quat_x},{quat_y},{quat_z},{quat_w}), btVector3({pos_x}, {pos_y}, {pos_z})));
 		btRigidBody::btRigidBodyConstructionInfo
 			obstacleRigidBodyCI{ob_index}(btScalar(0), obstacleMotionState{ob_index}.get(), obstacleShape{ob_index}.get(), btVector3(0, 0, 0));
 		std::shared_ptr<btRigidBody> obstacleRigidBody{ob_index} = std::make_shared<btRigidBody>(obstacleRigidBodyCI{ob_index});
@@ -143,7 +151,7 @@ class LevelExporter():
 		#include "LinearMath/btHashMap.h"
 
 		using namespace troen;
-		
+
 		//!!!!!!!!!!!!! WARNING: AUTO_GENERATED !!!!!!!!!!!!!!!!!!!!!!
 		// If you want to change something generally, please edit obstacle_export.py, otherwise be sure to mark changes to this code otherwise it might be overwritten
 

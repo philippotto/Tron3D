@@ -5,7 +5,7 @@
 		#include "LinearMath/btHashMap.h"
 
 		using namespace troen;
-		
+
 		//!!!!!!!!!!!!! WARNING: AUTO_GENERATED !!!!!!!!!!!!!!!!!!!!!!
 		// If you want to change something generally, please edit obstacle_export.py, otherwise be sure to mark changes to this code otherwise it might be overwritten
 
@@ -18,7 +18,7 @@
 
 		
 		std::shared_ptr<btBoxShape> obstacleShape0 = std::make_shared<btBoxShape>(btVector3(10.000004768371582, 10.000004768371582, 10.0));
-		std::shared_ptr<btDefaultMotionState> obstacleMotionState0 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-15.566339492797852, -85.02395629882812, 0.0)));
+		std::shared_ptr<btDefaultMotionState> obstacleMotionState0 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0.0,0.4085420072078705,0.0,0.9127395153045654), btVector3(-15.566339492797852, -85.02395629882812, 0.0)));
 		btRigidBody::btRigidBodyConstructionInfo
 			obstacleRigidBodyCI0(btScalar(0), obstacleMotionState0.get(), obstacleShape0.get(), btVector3(0, 0, 0));
 		std::shared_ptr<btRigidBody> obstacleRigidBody0 = std::make_shared<btRigidBody>(obstacleRigidBodyCI0);
@@ -31,8 +31,8 @@
 		m_rigidBodies.push_back(obstacleRigidBody0);
 
 		
-		std::shared_ptr<btBoxShape> obstacleShape1 = std::make_shared<btBoxShape>(btVector3(10.000004768371582, 10.000004768371582, 10.0));
-		std::shared_ptr<btDefaultMotionState> obstacleMotionState1 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(72.07053184509277, 0.0, 0.0)));
+		std::shared_ptr<btBoxShape> obstacleShape1 = std::make_shared<btBoxShape>(btVector3(10.000005960464478, 10.000004768371582, 10.0));
+		std::shared_ptr<btDefaultMotionState> obstacleMotionState1 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(-0.24187618494033813,-0.5839407444000244,0.29655107855796814,0.715937614440918), btVector3(72.07053184509277, 0.0, 0.0)));
 		btRigidBody::btRigidBodyConstructionInfo
 			obstacleRigidBodyCI1(btScalar(0), obstacleMotionState1.get(), obstacleShape1.get(), btVector3(0, 0, 0));
 		std::shared_ptr<btRigidBody> obstacleRigidBody1 = std::make_shared<btRigidBody>(obstacleRigidBodyCI1);
@@ -46,7 +46,7 @@
 
 		
 		std::shared_ptr<btBoxShape> obstacleShape2 = std::make_shared<btBoxShape>(btVector3(10.000004768371582, 10.000004768371582, 10.0));
-		std::shared_ptr<btDefaultMotionState> obstacleMotionState2 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-86.83469772338867, 0.0, 0.0)));
+		std::shared_ptr<btDefaultMotionState> obstacleMotionState2 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0.0,0.0,0.3826834559440613,0.9238795042037964), btVector3(-86.83469772338867, 0.0, 0.0)));
 		btRigidBody::btRigidBodyConstructionInfo
 			obstacleRigidBodyCI2(btScalar(0), obstacleMotionState2.get(), obstacleShape2.get(), btVector3(0, 0, 0));
 		std::shared_ptr<btRigidBody> obstacleRigidBody2 = std::make_shared<btRigidBody>(obstacleRigidBodyCI2);
@@ -60,7 +60,7 @@
 
 		
 		std::shared_ptr<btBoxShape> obstacleShape3 = std::make_shared<btBoxShape>(btVector3(10.000004768371582, 10.000004768371582, 10.0));
-		std::shared_ptr<btDefaultMotionState> obstacleMotionState3 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-14.399127960205078, 98.87603759765625, 0.0)));
+		std::shared_ptr<btDefaultMotionState> obstacleMotionState3 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0.0,0.0,0.2964495122432709,0.9550485610961914), btVector3(-14.399127960205078, 98.87603759765625, 0.0)));
 		btRigidBody::btRigidBodyConstructionInfo
 			obstacleRigidBodyCI3(btScalar(0), obstacleMotionState3.get(), obstacleShape3.get(), btVector3(0, 0, 0));
 		std::shared_ptr<btRigidBody> obstacleRigidBody3 = std::make_shared<btRigidBody>(obstacleRigidBodyCI3);
