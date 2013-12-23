@@ -27,27 +27,28 @@
 		//!!!!!!!!!!!!! WARNING: AUTO_GENERATED !!!!!!!!!!!!!!!!!!!!!!
 		// If you want to change something generally, please edit obstacle_export.py, otherwise be sure to mark changes to this code otherwise it might be overwritten
 
-		osg::ref_ptr<osg::Geode> LevelView::autoConstructObstacles()
+		osg::ref_ptr<osg::Group> LevelView::autoConstructObstacles()
 		{
 			int levelSize = m_model->getLevelSize();
-			osg::ref_ptr<osg::Geode> obstacleGeode = new osg::Geode();
+			osg::ref_ptr<osg::Group> obstacleGroup = new osg::Group();
 
+			//obstacleGroup->addChild(constructSimpleBox(osg::Vec3(-20, -30, 10), osg::Vec3(5, 5, 20), osg::Quat(0.0, 0.0, 0.0, 1.0)));
+			/////!!!! AUTO_GENERATED from here!!! /////
 			
-	osg::ref_ptr<osg::Box> obstacle0
-		= new osg::Box(osg::Vec3(0.0,40.0,0.0), 20.000009536743164, 20.000009536743164, 20.0);
-	osg::ref_ptr<osg::ShapeDrawable> boxDrawable0
-		= new osg::ShapeDrawable(obstacle0); 
-obstacleGeode->addDrawable(boxDrawable0);
+			obstacleGroup->addChild(constructSimpleBox(osg::Vec3(-15.566339492797852,-85.02395629882812,0.0),
+								 osg::Vec3(20.000009536743164, 20.000009536743164, 20.0), osg::Quat(0.0, 0.0, 0.0, 1.0))); 
+			obstacleGroup->addChild(constructSimpleBox(osg::Vec3(72.07053184509277,0.0,0.0),
+								 osg::Vec3(20.000009536743164, 20.000009536743164, 20.0), osg::Quat(0.0, 0.0, 0.0, 1.0))); 
+			obstacleGroup->addChild(constructSimpleBox(osg::Vec3(-86.83469772338867,0.0,0.0),
+								 osg::Vec3(20.000009536743164, 20.000009536743164, 20.0), osg::Quat(0.0, 0.0, 0.0, 1.0))); 
+			obstacleGroup->addChild(constructSimpleBox(osg::Vec3(-14.399127960205078,98.87603759765625,0.0),
+								 osg::Vec3(20.000009536743164, 20.000009536743164, 20.0), osg::Quat(0.0, 0.0, 0.0, 1.0))); 
 
-	osg::ref_ptr<osg::Box> obstacle1
-		= new osg::Box(osg::Vec3(0.0,-40.0,0.0), 20.000009536743164, 20.000009536743164, 20.0);
-	osg::ref_ptr<osg::ShapeDrawable> boxDrawable1
-		= new osg::ShapeDrawable(obstacle1); 
-obstacleGeode->addDrawable(boxDrawable1);
+			////// ------ to here ---------- /////
 
-			
-			osg::StateSet *obstaclesStateSet = obstacleGeode->getOrCreateStateSet();
+			osg::StateSet *obstaclesStateSet = obstacleGroup->getOrCreateStateSet();
 			obstaclesStateSet->ref();
+
 			obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
 
 			setTexture(obstaclesStateSet, "data/textures/troen_box_tex.tga", 0);
@@ -58,6 +59,6 @@ obstacleGeode->addDrawable(boxDrawable1);
 			osg::Uniform* modelIDU = new osg::Uniform("modelID", DEFAULT);
 			obstaclesStateSet->addUniform(modelIDU);
 
-			return obstacleGeode;
+			return obstacleGroup;
 		}
 		

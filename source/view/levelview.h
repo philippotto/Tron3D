@@ -18,8 +18,9 @@ namespace troen
 		void initialize();
 		osg::ref_ptr<osg::Geode> constructGround();
 		osg::ref_ptr<osg::Geode> constructBox(osg::Vec3 position , osg::Vec3 scale);
-		osg::ref_ptr<osg::Geode> constructObstacles();
-		osg::ref_ptr<osg::Geode> LevelView::autoConstructObstacles();
+		osg::ref_ptr<osg::Group> constructObstacles();
+		osg::ref_ptr<osg::Geode> constructSimpleBox(osg::Vec3 position, osg::Vec3 extents, osg::Quat rotation);
+		osg::ref_ptr<osg::Group> autoConstructObstacles();
 		void setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit);
 
 		std::shared_ptr<LevelModel> m_model;

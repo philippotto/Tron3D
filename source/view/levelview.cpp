@@ -82,7 +82,7 @@ void LevelView::initialize()
 	wallStateSet->addUniform(modelIDU);
 
 
-	//m_node->addChild(constructBox(osg::Vec3(10.0,0.0,50.0),osg::Vec3(50.0,50.0,100.0)));
+	m_node->addChild(constructBox(osg::Vec3(10.0,0.0,50.0),osg::Vec3(50.0,50.0,100.0)));
 
 	m_node->addChild(outerWallsGeode);
 	m_node->addChild(constructGround());
@@ -309,36 +309,18 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 	}
 }
 
-osg::ref_ptr<osg::Geode> LevelView::constructObstacles()
+
+osg::ref_ptr<osg::Group> LevelView::constructObstacles()
 {
 	int levelSize = m_model->getLevelSize();
 	osg::ref_ptr<osg::Group> obstacleGroup = new osg::Group();
-	osg::ref_ptr<osg::Geode> obstacleGeode = new osg::Geode();
 
-	// 
-	osg::ref_ptr<osg::Box> box1
-		= new osg::Box(osg::Vec3(0, -60, 10), 5, 5, 20);
-	osg::ref_ptr<osg::ShapeDrawable> boxDrawable1
-		= new osg::ShapeDrawable(box1);
+	obstacleGroup->addChild(constructSimpleBox(osg::Vec3(-20, -30, 10), osg::Vec3(5, 5, 20), osg::Quat(0.0, 0.0, 0.0, 1.0)));
 
-	// wall left
-	osg::ref_ptr<osg::Box> box2
-		= new osg::Box(osg::Vec3(-20, -30, 10), 5, 5, 20);
-	osg::ref_ptr<osg::ShapeDrawable> boxDrawable2
-		= new osg::ShapeDrawable(box2);
-
-
-	obstacleGeode->addDrawable(boxDrawable1);
-	obstacleGeode->addDrawable(boxDrawable2);
-
-
-	osg::StateSet *obstaclesStateSet = obstacleGeode->getOrCreateStateSet();
+	osg::StateSet *obstaclesStateSet = obstacleGroup->getOrCreateStateSet();
 	obstaclesStateSet->ref();
 
-
 	obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
-
-
 
 	setTexture(obstaclesStateSet, "data/textures/troen_box_tex.tga", 0);
 
@@ -348,5 +330,19 @@ osg::ref_ptr<osg::Geode> LevelView::constructObstacles()
 	osg::Uniform* modelIDU = new osg::Uniform("modelID", DEFAULT);
 	obstaclesStateSet->addUniform(modelIDU);
 
-	return obstacleGeode;
+	return obstacleGroup;
+}
+
+osg::ref_ptr<osg::Geode> LevelView::constructSimpleBox(osg::Vec3 position, osg::Vec3 extents, osg::Quat rotation)
+{
+	osg::ref_ptr<osg::Box> box1
+		= new osg::Box(position, extents.x(), extents.y(), extents.z());
+	osg::ref_ptr<osg::ShapeDrawable> boxDrawable1
+		= new osg::ShapeDrawable(box1);
+
+	osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
+	boxGeode->addDrawable(boxDrawable1);
+
+	return boxGeode;
+
 }

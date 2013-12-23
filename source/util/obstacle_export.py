@@ -6,7 +6,8 @@ import bpy
 #please modify to your own path, for now
 VIEW_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\source\view\auto_levelview.cpp"
 MODEL_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\source\model\auto_levelmodel.cpp"
-
+#scale blender units by
+SCALE = 10.0
 
 class LevelExporter():
 	def __init__(self):
@@ -29,13 +30,12 @@ class LevelExporter():
 		for ob_index in range(len(self.obstacles)):
 			obstacle = self.obstacles[ob_index]
 			auto_gen_code += self.create_box_stub_str().format(ob_index=ob_index,
-														  pos_x=str(obstacle.location.x),
-														  pos_y=str(obstacle.location.y),
-														  pos_z=str(obstacle.location.z), 
-														  length_x=str(obstacle.dimensions.x),
-														  length_y=str(obstacle.dimensions.y),
-														  length_z=str(obstacle.dimensions.z) )
-			auto_gen_code += "\nobstacleGeode->addDrawable(boxDrawable{ob_index});\n".format(ob_index=str(ob_index))
+														  pos_x=str(obstacle.location.x*SCALE),
+														  pos_y=str(obstacle.location.y*SCALE),
+														  pos_z=str(obstacle.location.z*SCALE), 
+														  length_x=str(obstacle.dimensions.x*SCALE),
+														  length_y=str(obstacle.dimensions.y*SCALE),
+														  length_z=str(obstacle.dimensions.z*SCALE) )
 		return auto_gen_code
 
 
@@ -45,22 +45,20 @@ class LevelExporter():
 		for ob_index in range(len(self.obstacles)):
 			obstacle = self.obstacles[ob_index]
 			auto_gen_code += self.create_box_collision_shape_str().format(ob_index=ob_index,
-														  pos_x=str(obstacle.location.x),
-														  pos_y=str(obstacle.location.y),
-														  pos_z=str(obstacle.location.z),
-														  half_length_x=str(obstacle.dimensions.x/2.0),
-														  half_length_y=str(obstacle.dimensions.y/2.0),
-														  half_length_z=str(obstacle.dimensions.z/2.0) )
+														  pos_x=str(obstacle.location.x*SCALE),
+														  pos_y=str(obstacle.location.y*SCALE),
+														  pos_z=str(obstacle.location.z*SCALE),
+														  half_length_x=str(obstacle.dimensions.x*SCALE/2.0),
+														  half_length_y=str(obstacle.dimensions.y*SCALE/2.0),
+														  half_length_z=str(obstacle.dimensions.z*SCALE/2.0) )
 		return auto_gen_code
 
 
 	def create_box_stub_str(self):
 		#boilerplate code to create a box
 		return """
-	osg::ref_ptr<osg::Box> obstacle{ob_index}
-		= new osg::Box(osg::Vec3({pos_x},{pos_y},{pos_z}), {length_x}, {length_y}, {length_z});
-	osg::ref_ptr<osg::ShapeDrawable> boxDrawable{ob_index}
-		= new osg::ShapeDrawable(obstacle{ob_index}); """
+			obstacleGroup->addChild(constructSimpleBox(osg::Vec3({pos_x},{pos_y},{pos_z}),
+								 osg::Vec3({length_x}, {length_y}, {length_z}), osg::Quat(0.0, 0.0, 0.0, 1.0))); """
 
 	
 	def levelView_template(self):
@@ -93,15 +91,20 @@ class LevelExporter():
 		//!!!!!!!!!!!!! WARNING: AUTO_GENERATED !!!!!!!!!!!!!!!!!!!!!!
 		// If you want to change something generally, please edit obstacle_export.py, otherwise be sure to mark changes to this code otherwise it might be overwritten
 
-		osg::ref_ptr<osg::Geode> LevelView::autoConstructObstacles()
+		osg::ref_ptr<osg::Group> LevelView::autoConstructObstacles()
 		{{
 			int levelSize = m_model->getLevelSize();
-			osg::ref_ptr<osg::Geode> obstacleGeode = new osg::Geode();
+			osg::ref_ptr<osg::Group> obstacleGroup = new osg::Group();
 
+			//obstacleGroup->addChild(constructSimpleBox(osg::Vec3(-20, -30, 10), osg::Vec3(5, 5, 20), osg::Quat(0.0, 0.0, 0.0, 1.0)));
+			/////!!!! AUTO_GENERATED from here!!! /////
 			{auto_gen_code}
-			
-			osg::StateSet *obstaclesStateSet = obstacleGeode->getOrCreateStateSet();
+
+			////// ------ to here ---------- /////
+
+			osg::StateSet *obstaclesStateSet = obstacleGroup->getOrCreateStateSet();
 			obstaclesStateSet->ref();
+
 			obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
 
 			setTexture(obstaclesStateSet, "data/textures/troen_box_tex.tga", 0);
@@ -112,7 +115,7 @@ class LevelExporter():
 			osg::Uniform* modelIDU = new osg::Uniform("modelID", DEFAULT);
 			obstaclesStateSet->addUniform(modelIDU);
 
-			return obstacleGeode;
+			return obstacleGroup;
 		}}
 		"""
 	def create_box_collision_shape_str(self):
@@ -140,6 +143,10 @@ class LevelExporter():
 		#include "LinearMath/btHashMap.h"
 
 		using namespace troen;
+		
+		//!!!!!!!!!!!!! WARNING: AUTO_GENERATED !!!!!!!!!!!!!!!!!!!!!!
+		// If you want to change something generally, please edit obstacle_export.py, otherwise be sure to mark changes to this code otherwise it might be overwritten
+
 
 		void LevelModel::auto_addObstacles(const LevelController* levelController)
 	{{
