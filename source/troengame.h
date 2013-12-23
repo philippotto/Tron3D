@@ -28,8 +28,6 @@ namespace troen
 		Q_OBJECT
 
 	public:
-
-
 		TroenGame(QThread* thread = nullptr);
 		virtual ~TroenGame();
 		
@@ -37,7 +35,11 @@ namespace troen
 		void switchSoundVolumeEvent();
 		void removeAllFencesEvent();
 		void toggleFencePartsLimitEvent();
-		void pauseGameEvent();
+		void pauseEvent();
+
+		// Logic Events
+		void pauseSimulation();
+		void unpauseSimulation();
 
 		void refreshTextures(int width, int height);
 		void setFovy(float newFovy);
@@ -66,9 +68,10 @@ namespace troen
 		// TODO
 		// implement some kind of menu to start the game from
 		//osg::ref_ptr<osgViewer::View>		m_menuView;
+
+		// OSG Components
 		osg::ref_ptr<SampleOSGViewer>		m_sampleOSGViewer;
 		osg::ref_ptr<SampleOSGViewer>		m_sampleOSGViewer2;
-
 		osg::ref_ptr<osgViewer::View>		m_gameView;
 		osg::ref_ptr<osgViewer::View>		m_gameView2;
 
@@ -79,6 +82,7 @@ namespace troen
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
 
+		// Controllers
 		std::shared_ptr<LevelController>	m_levelController;
 		std::vector<std::shared_ptr<BikeController>> m_bikeControllers;
 		std::shared_ptr<HUDController>		m_HUDController;
@@ -89,13 +93,16 @@ namespace troen
 		std::shared_ptr<GameLogic>			m_gameLogic;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
 
+		std::vector<int> m_playerInputTypes;
+
 		int m_maxFenceParts;
-		bool m_gamePaused;
+		bool m_simulationPaused;
+
+		// Startup Options
+		int m_numberOfBikes;
 		bool m_splitscreen;
 		bool m_fullscreen;
 		bool m_usePostProcessing;
 		bool m_useDebugView;
-		int m_numberOfBikes;
-		std::vector<int> m_playerInputTypes;
 	};
 }

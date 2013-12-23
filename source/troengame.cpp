@@ -38,7 +38,7 @@ using namespace troen;
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
 m_maxFenceParts(0),
-m_gamePaused(false),
+m_simulationPaused(false),
 m_splitscreen(false),
 m_fullscreen(false),
 m_numberOfBikes(0),
@@ -86,9 +86,19 @@ void TroenGame::toggleFencePartsLimitEvent()
 	}
 }
 
-void TroenGame::pauseGameEvent()
+void TroenGame::pauseEvent()
 {
-	m_gamePaused = !m_gamePaused;
+	m_simulationPaused = !m_simulationPaused;
+}
+
+void TroenGame::pauseSimulation()
+{
+	m_simulationPaused = true;
+}
+
+void TroenGame::unpauseSimulation()
+{
+	m_simulationPaused = false;
 }
 
 void TroenGame::setFovy(float newFovy)
@@ -318,7 +328,7 @@ bool TroenGame::initializeTimer()
 
 bool TroenGame::initializeGameLogic()
 {
-	m_gameLogic = std::make_shared<GameLogic>(m_audioManager);
+	m_gameLogic = std::make_shared<GameLogic>(this, m_audioManager);
 	return true;
 }
 
@@ -381,7 +391,7 @@ void TroenGame::startGameLoop()
 			updateModels() and checkForUserInput()
 			stepSimulation() (Physics) + updateViews()
 			//render();*/
-			if (!m_gamePaused)
+			if (!m_simulationPaused)
 			{
 				for (auto bikeController : m_bikeControllers)
 				{

@@ -5,6 +5,7 @@
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
 //troen
+#include "troengame.h"
 #include "constants.h"
 #include "model/abstractmodel.h"
 #include "controller/bikecontroller.h"
@@ -12,7 +13,8 @@
 
 using namespace troen;
 
-GameLogic::GameLogic(std::shared_ptr<sound::AudioManager>& audioManager) :
+GameLogic::GameLogic(TroenGame* game, std::shared_ptr<sound::AudioManager>& audioManager) :
+m_troenGame(game),
 m_audioManager(audioManager)
 {}
 
@@ -44,24 +46,17 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 		switch (collisionTypes[otherIndex])
 		{
 		case LEVELWALLTYPE:
-		case BIKETYPE:
 		case FENCETYPE:
-			{
-				btScalar impulse = 0;
-				int numContacts = contactManifold->getNumContacts();
-				//std::cout << numContacts << " - ";
-				for (int i = 0; i < numContacts; i++)
-				{
-					btManifoldPoint& pt = contactManifold->getContactPoint(i);
-					impulse = impulse + pt.getAppliedImpulse();
-				}
-				//std::cout << "total impulse: " << impulse << std::endl;
-				if (impulse > BIKE_IMPACT_THRESHOLD_LOW)
-					m_audioManager->PlaySFX("data/sound/explosion.wav",
-											impulse / BIKE_IMPACT_THRESHOLD_HIGH,
-											impulse / (BIKE_IMPACT_THRESHOLD_HIGH-BIKE_IMPACT_THRESHOLD_LOW),
-											1, 1);
-			}
+			handleCollisionOfBikeAndNonmovingObject(
+				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				collisionBodyControllers[otherIndex],
+				contactManifold);
+			break;
+		case BIKETYPE:
+			handleCollisionOfTwoBikes(
+				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				static_cast<BikeController*>(collisionBodyControllers[otherIndex]),
+				contactManifold);
 			break;
 		case LEVELGROUNDTYPE:
 			//std::cout << "collision with ground" << std::endl;
@@ -108,4 +103,38 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 			break;
 		}
 	}
+}
+
+void GameLogic::handleCollisionOfBikeAndNonmovingObject(
+	BikeController* bike,
+	AbstractController* object,
+	btPersistentManifold* contactManifold)
+{
+	btScalar impulse = 0;
+	int numContacts = contactManifold->getNumContacts();
+	//std::cout << numContacts << " - ";
+	for (int i = 0; i < numContacts; i++)
+	{
+		btManifoldPoint& pt = contactManifold->getContactPoint(i);
+		impulse = impulse + pt.getAppliedImpulse();
+	}
+	std::cout << "total impulse: " << impulse << std::endl;
+	if (impulse > BIKE_IMPACT_THRESHOLD_LOW)
+		m_audioManager->PlaySFX("data/sound/explosion.wav",
+		impulse / BIKE_IMPACT_THRESHOLD_HIGH,
+		impulse / (BIKE_IMPACT_THRESHOLD_HIGH - BIKE_IMPACT_THRESHOLD_LOW),
+		1, 1);
+
+	if (impulse > BIKE_IMPACT_THRESHOLD_HIGH)
+	{
+		m_troenGame->pauseSimulation();
+	}
+}
+
+void GameLogic::handleCollisionOfTwoBikes(
+	BikeController* bike1,
+	BikeController* bike2,
+	btPersistentManifold* contactManifold)
+{
+	std::cout << "[GameLogic::handleCollisionOfTwoBikes]" << std::endl;
 }

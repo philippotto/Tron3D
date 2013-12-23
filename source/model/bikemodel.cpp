@@ -105,7 +105,7 @@ float BikeModel::updateState(long double time)
 	// atm it still depends on the framerate
 
 	// accelerate
-	float speedFactor = 1 - clamp(0, 1, currentVelocityVectorXY.length() / (BIKE_VELOCITY_MAX));
+	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
 	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
 	float speed = currentVelocityVectorXY.length() + 1 * ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
 
