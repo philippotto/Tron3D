@@ -336,7 +336,7 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles()
 osg::ref_ptr<osg::MatrixTransform> LevelView::constructSimpleBox(osg::Vec3 position, osg::Vec3 extents, osg::Quat rotation)
 {
 	osg::ref_ptr<osg::Box> box1
-		= new osg::Box(position, extents.x(), extents.y(), extents.z());
+		= new osg::Box(osg::Vec3(0.0,0.0,0.0), extents.x(), extents.y(), extents.z());
 	osg::ref_ptr<osg::ShapeDrawable> boxDrawable1
 		= new osg::ShapeDrawable(box1);
 
@@ -345,9 +345,11 @@ osg::ref_ptr<osg::MatrixTransform> LevelView::constructSimpleBox(osg::Vec3 posit
 
 	osg::Matrixd initialTransform;
 	initialTransform.makeRotate(rotation);
+	initialTransform *= initialTransform.translate(position);
 
 	osg::ref_ptr<osg::MatrixTransform> matrixTransform = new osg::MatrixTransform(initialTransform);
 	matrixTransform->addChild(boxGeode);
+
 
 	return matrixTransform;
 
