@@ -22,7 +22,7 @@ namespace troen
 		void attachWorld(std::weak_ptr<PhysicsWorld> &world);
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
 
-		void updateModel();
+		void updateModel(long double time);
 
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;

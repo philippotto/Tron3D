@@ -36,7 +36,7 @@ float BikeInputState::getAcceleration()
 		m_pollingDevice->refresh();
 	}
 
-	return m_acceleration * BIKE_MOVE_VALUE;
+	return m_acceleration;
 }
 
 void BikeInputState::setAngle(float angle)

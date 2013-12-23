@@ -14,7 +14,8 @@ BikeModel::BikeModel(
 	btTransform initialTransform,
 	osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<FenceController> fenceController,
-	BikeController* bikeController)
+	BikeController* bikeController) :
+m_lastUpdateTime(0)
 {
 	resetState();
 
@@ -76,8 +77,15 @@ float BikeModel::getSteering() {
 	return m_steering;
 }
 
-float BikeModel::updateState()
+float BikeModel::updateState(long double time)
 {
+	long double timeSinceLastUpdate = time - m_lastUpdateTime;
+	float timeFactor = timeSinceLastUpdate/15.f;
+
+	m_lastUpdateTime = time;
+
+	//std::cout << timeSinceLastUpdate << std::endl;
+
 	const btVector3 up = btVector3(0, 0, 1);
 	const btVector3 front = btVector3(0, -1, 0);
 
@@ -85,24 +93,29 @@ float BikeModel::updateState()
 	m_steering = m_bikeInputState->getAngle();
 	float acceleration = m_bikeInputState->getAcceleration();
 
-	
 	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
+
 	btVector3 currentVelocityVectorXY = bikeRigidBody->getLinearVelocity();
 	btScalar zComponent = currentVelocityVectorXY.getZ();
 	currentVelocityVectorXY = btVector3(currentVelocityVectorXY.getX(), currentVelocityVectorXY.getY(), 0);
+	btVector3 currentAngularVelocity = bikeRigidBody->getAngularVelocity();
 
-	// TODO:
-	// acceleration & rotation should both be time dependent
-	// atm they still depend on the framerate
+	// TODO: (jd)
+	// rotation should also be time dependent
+	// atm it still depends on the framerate
 
-	// accelerate	
-	float speed = currentVelocityVectorXY.length() + acceleration * BIKE_ACCELERATION_FACTOR_MAX - BIKE_VELOCITY_DAMPENING_TERM;
+	// accelerate
+	float speedFactor = 1 - clamp(0, 1, currentVelocityVectorXY.length() / (BIKE_VELOCITY_MAX));
+	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
+	float speed = currentVelocityVectorXY.length() + 1 * ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
 
 	// rotate:
 	// turnFactor
 	// -> stronger steering for low velocities
 	// -> weaker steering at high velocities
+	//short int angularSign = sign(currentAngularVelocity.getZ());
 	float turnFactor = clamp(0,1,BIKE_VELOCITY_MIN / (.5f*speed));
+	//float turningRad = ((PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor)) - clamp(0, 1, -angularSign * BIKE_ANGULAR_DAMPENING_TERM)) * timeFactor;
 	float turningRad = PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor);
 
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));

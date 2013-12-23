@@ -182,9 +182,9 @@ float BikeController::computeFovyDelta(float speed, float currentFovy)
 	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, newFovy - currentFovy); 
 }
 
-void BikeController::updateModel()
+void BikeController::updateModel(long double time)
 {
-	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState();
+	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
 
 	if (!m_gameView.valid()) return;
 
