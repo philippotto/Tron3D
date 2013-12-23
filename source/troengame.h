@@ -33,8 +33,6 @@ namespace troen
 		
 		// Events from GameEventHandler
 		void switchSoundVolumeEvent();
-		void removeAllFencesEvent();
-		void toggleFencePartsLimitEvent();
 		void pauseEvent();
 
 		// Logic Events
@@ -95,7 +93,6 @@ namespace troen
 
 		std::vector<int> m_playerInputTypes;
 
-		int m_maxFenceParts;
 		bool m_simulationPaused;
 
 		// Startup Options

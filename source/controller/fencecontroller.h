@@ -19,6 +19,8 @@ namespace troen
 		void removeAllFences();
 		void enforceFencePartsLimit(int maxFenceParts);
 
+		void setLastPosition(const btQuaternion rotation, btVector3 position);
+
 	private:
 		void adjustPositionUsingFenceOffset(const btQuaternion& rotation, btVector3& position);
 

@@ -29,6 +29,9 @@ namespace troen
 		osg::ref_ptr<input::Keyboard> getEventHandler();
 		bool hasEventHandler();
 
+		// logic events
+		void moveBikeToPosition(btTransform position);
+
 		// controlling the FenceController
 		void removeAllFences();
 		void enforceFencePartsLimit(int maxFenceParts);

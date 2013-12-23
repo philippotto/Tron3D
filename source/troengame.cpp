@@ -37,7 +37,6 @@ using namespace troen;
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
-m_maxFenceParts(0),
 m_simulationPaused(false),
 m_splitscreen(false),
 m_fullscreen(false),
@@ -58,32 +57,6 @@ TroenGame::~TroenGame()
 void TroenGame::switchSoundVolumeEvent()
 {
 	m_audioManager->SetMasterVolume(1 - m_audioManager->GetMasterVolume());
-}
-
-void TroenGame::removeAllFencesEvent()
-{
-	for (auto bikeController : m_bikeControllers)
-	{
-		bikeController->removeAllFences();
-	}
-}
-
-void TroenGame::toggleFencePartsLimitEvent()
-{
-	if (m_maxFenceParts == 0){
-		m_maxFenceParts = DEFAULT_MAX_FENCE_PARTS;
-		std::cout << "[TroenGame::toggleFencePartsLimitEvent] turning fenceParsLimit ON ..." << std::endl;
-	}
-	else
-	{
-		m_maxFenceParts = 0;
-		std::cout << "[TroenGame::toggleFencePartsLimitEvent] turning fenceParsLimit OFF ..." << std::endl;
-	}
-
-	for (auto bikeController : m_bikeControllers)
-	{
-		bikeController->enforceFencePartsLimit(m_maxFenceParts);
-	}
 }
 
 void TroenGame::pauseEvent()
@@ -149,6 +122,9 @@ bool TroenGame::initialize()
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 
+	std::cout << "[TroenGame::initialize] timer ..." << std::endl;
+	initializeTimer();
+
 	std::cout << "[TroenGame::initialize] shaders ..." << std::endl;
 	initializeShaders();
 
@@ -158,6 +134,9 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] controllers (models & views) ..." << std::endl;
 	initializeSkyDome();
 	initializeControllers();
+
+	std::cout << "[TroenGame::initialize] gameLogic ..." << std::endl;
+	initializeGameLogic();
 	
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
 	initializeViews();
@@ -168,16 +147,18 @@ bool TroenGame::initialize()
 
 	std::cout << "[TroenGame::initialize] input ..." << std::endl;
 	initializeInput();
-
-	std::cout << "[TroenGame::initialize] timer ..." << std::endl;
-	initializeTimer();
 	
-	std::cout << "[TroenGame::initialize] game logic & physics ..." << std::endl;
-	initializeGameLogic();
+	std::cout << "[TroenGame::initialize] physics ..." << std::endl;
 	initializePhysicsWorld();
 
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
 
+	return true;
+}
+
+bool TroenGame::initializeTimer()
+{
+	m_timer = std::make_shared<util::ChronoTimer>(false, true);
 	return true;
 }
 
@@ -216,6 +197,12 @@ bool TroenGame::initializeControllers()
 	return true;
 }
 
+bool TroenGame::initializeGameLogic()
+{
+	m_gameLogic = std::make_shared<GameLogic>(this, m_audioManager, m_levelController, m_bikeControllers);
+	return true;
+}
+
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
@@ -237,7 +224,7 @@ bool TroenGame::initializeViews()
 	else
 		m_gameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
 
-	m_gameEventHandler = new GameEventHandler(this);
+	m_gameEventHandler = new GameEventHandler(this,m_gameLogic);
 	m_gameView->addEventHandler(m_gameEventHandler);
 
 	m_bikeControllers[0]->attachGameView(m_gameView);
@@ -320,18 +307,6 @@ bool TroenGame::initializeInput()
 	return true;
 }
 
-bool TroenGame::initializeTimer()
-{
-	m_timer = std::make_shared<util::ChronoTimer>(false, true);
-	return true;
-}
-
-bool TroenGame::initializeGameLogic()
-{
-	m_gameLogic = std::make_shared<GameLogic>(this, m_audioManager);
-	return true;
-}
-
 bool TroenGame::initializePhysicsWorld()
 {
 	m_physicsWorld = std::make_shared<PhysicsWorld>(m_gameLogic, m_useDebugView);
@@ -341,6 +316,7 @@ bool TroenGame::initializePhysicsWorld()
 	{
 		bikeController->attachWorld(std::weak_ptr<PhysicsWorld>(m_physicsWorld));
 	}
+	m_gameLogic->attachPhysicsWorld(m_physicsWorld);
 	return true;
 }
 
