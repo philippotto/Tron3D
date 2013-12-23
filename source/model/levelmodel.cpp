@@ -7,85 +7,76 @@ using namespace troen;
 
 LevelModel::LevelModel(const LevelController* levelController)
 {
+	m_levelController = levelController;
 	m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();
 
 	btScalar levelSize = btScalar(getLevelSize());
-	std::shared_ptr<btBoxShape> groundShape = std::make_shared<btBoxShape>(btVector3(levelSize / 2, levelSize / 2, 10));
-	std::shared_ptr<btDefaultMotionState> groundMotionState = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, -10)));
-	btRigidBody::btRigidBodyConstructionInfo
-		groundRigidBodyCI(btScalar(0), groundMotionState.get(), groundShape.get(), btVector3(0, 0, 0));
-	std::shared_ptr<btRigidBody> groundRigidBody = std::make_shared<btRigidBody>(groundRigidBodyCI);
-	groundRigidBody->setUserPointer((void *)levelController);
-	groundRigidBody->setUserIndex(LEVELGROUNDTYPE);
 
-	m_collisionShapes.push_back(groundShape);
-	m_motionStates.push_back(groundMotionState);
-	m_rigidBodies.push_back(groundRigidBody);
+	addFloor(levelSize, -10);
+	addFloor(levelSize * 2, -100);
 
-	addWalls(levelController);
+	addWalls(levelSize, -10);
+	addWalls(levelSize * 2, -100);
 }
-void LevelModel::addWalls(const LevelController* levelController)
+
+void LevelModel::addFloor(float size, float yPosition)
 {
-	// walls
+	m_floors.push_back({
+		btVector3(0, 0, yPosition),
+		btVector3(size, size, 20)
+	});
+	
+	addBoxes(m_floors);
+}
 
-	// TODO
-	// get data from levelView ? or the other way round?
-	// in levelView: wallRight = new osg::Box(osg::Vec3(levelSize / 2, 0, 50), 1, levelSize, 100);
-	// center: levelSize/2, 0, 50
-	// width: 1
-	// length: levelSize
-	// height: 100
+void LevelModel::addWalls(float levelSize, float yPosition)
+{
 
-	// TODO grab the value from origin
-	btScalar levelSize = btScalar(getLevelSize());
-	 
-	std::shared_ptr<btBoxShape> wallShape1 = std::make_shared<btBoxShape>(btVector3(1, levelSize/2, 20));
-	std::shared_ptr<btDefaultMotionState> wallMotionState1 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(levelSize / 2, 0, 0)));
-	btRigidBody::btRigidBodyConstructionInfo
-		wallRigidBodyCI1(btScalar(0), wallMotionState1.get(), wallShape1.get(), btVector3(0, 0, 0));
-	std::shared_ptr<btRigidBody> wallRigidBody1 = std::make_shared<btRigidBody>(wallRigidBodyCI1);
-	wallRigidBody1->setUserPointer((void *)levelController);
-	wallRigidBody1->setUserIndex(LEVELWALLTYPE);
+	int wallHeight = 40;
 
-	std::shared_ptr<btBoxShape> wallShape2 = std::make_shared<btBoxShape>(btVector3(1, levelSize / 2, 20));
-	std::shared_ptr<btDefaultMotionState> wallMotionState2 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-levelSize / 2, 0, 0)));
-	btRigidBody::btRigidBodyConstructionInfo
-		wallRigidBodyCI2(btScalar(0), wallMotionState2.get(), wallShape2.get(), btVector3(0, 0, 0));
-	std::shared_ptr<btRigidBody> wallRigidBody2 = std::make_shared<btRigidBody>(wallRigidBodyCI2);
-	wallRigidBody2->setUserPointer((void *)levelController);
-	wallRigidBody2->setUserIndex(LEVELWALLTYPE);
+	std::vector<BoxModel> newWalls = {
+		{
+			btVector3(levelSize / 2, 1, yPosition + wallHeight/2),
+			btVector3(2, levelSize, wallHeight)
+		},
+		{
+			btVector3(-levelSize / 2, 0, yPosition + wallHeight / 2),
+			btVector3(2, levelSize, wallHeight)
+		},
+		{
+			btVector3(0, levelSize / 2, yPosition + wallHeight / 2),
+			btVector3(levelSize, 2, wallHeight)
+		},
+		{
+			btVector3(0, -levelSize / 2, yPosition + wallHeight / 2),
+			btVector3(levelSize, 2, wallHeight)
+		}
+	};
 
-	std::shared_ptr<btBoxShape> wallShape3 = std::make_shared<btBoxShape>(btVector3(levelSize / 2, 1, 20));
-	std::shared_ptr<btDefaultMotionState> wallMotionState3 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, levelSize / 2, 0)));
-	btRigidBody::btRigidBodyConstructionInfo
-		wallRigidBodyCI3(btScalar(0), wallMotionState3.get(), wallShape3.get(), btVector3(0, 0, 0));
-	std::shared_ptr<btRigidBody> wallRigidBody3 = std::make_shared<btRigidBody>(wallRigidBodyCI3);
-	wallRigidBody3->setUserPointer((void *)levelController);
-	wallRigidBody3->setUserIndex(LEVELWALLTYPE);
+	m_walls.insert(m_walls.end(), newWalls.begin(), newWalls.end());
 
+	addBoxes(m_walls);
+}
 
-	std::shared_ptr<btBoxShape> wallShape4 = std::make_shared<btBoxShape>(btVector3(levelSize / 2, 1, 20));
-	std::shared_ptr<btDefaultMotionState> wallMotionState4 = std::make_shared<btDefaultMotionState>(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -levelSize / 2, 0)));
-	btRigidBody::btRigidBodyConstructionInfo
-		wallRigidBodyCI4(btScalar(0), wallMotionState4.get(), wallShape4.get(), btVector3(0, 0, 0));
-	std::shared_ptr<btRigidBody> wallRigidBody4 = std::make_shared<btRigidBody>(wallRigidBodyCI4);
-	wallRigidBody4->setUserPointer((void *)levelController);
-	wallRigidBody4->setUserIndex(LEVELWALLTYPE);
-
-	m_collisionShapes.push_back(wallShape1);
-	m_collisionShapes.push_back(wallShape2);
-	m_collisionShapes.push_back(wallShape3);
-	m_collisionShapes.push_back(wallShape4);
-
-	m_motionStates.push_back(wallMotionState1);
-	m_motionStates.push_back(wallMotionState2);
-	m_motionStates.push_back(wallMotionState3);
-	m_motionStates.push_back(wallMotionState4); 
-
-	m_rigidBodies.push_back(wallRigidBody1);
-	m_rigidBodies.push_back(wallRigidBody2);
-	m_rigidBodies.push_back(wallRigidBody3);
-	m_rigidBodies.push_back(wallRigidBody4);
+void LevelModel::addBoxes(std::vector<BoxModel> &boxes)
+{
+	for (int i = 0; i < boxes.size(); ++i)
+	{
+		std::shared_ptr<btBoxShape> wallShape = std::make_shared<btBoxShape>(boxes[i].dimensions / 2);
+		std::shared_ptr<btDefaultMotionState> wallMotionState
+			= std::make_shared<btDefaultMotionState>(btTransform(boxes[i].rotation, boxes[i].center));
+		
+		btRigidBody::btRigidBodyConstructionInfo
+			wallRigidBodyCI(btScalar(0), wallMotionState.get(), wallShape.get(), btVector3(0, 0, 0));
+		
+		std::shared_ptr<btRigidBody> wallRigidBody = std::make_shared<btRigidBody>(wallRigidBodyCI);
+		wallRigidBody->setUserPointer((void *) m_levelController);
+		wallRigidBody->setUserIndex(LEVELWALLTYPE);
+		
+		m_collisionShapes.push_back(wallShape);	
+		m_motionStates.push_back(wallMotionState);
+		m_rigidBodies.push_back(wallRigidBody);
+	}
 }
 
 int LevelModel::getLevelSize() {

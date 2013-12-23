@@ -12,6 +12,7 @@
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
 
+#include <btBulletDynamicsCommon.h>
 
 #include "../model/levelmodel.h"
 #include "shaders.h"
@@ -22,146 +23,56 @@ using namespace troen;
 LevelView::LevelView(std::shared_ptr<LevelModel> model)
 {
 	m_model = model;
-	initialize();
-}
-
-void LevelView::initialize()
-{
 
 	int levelSize = m_model->getLevelSize();
 
 	m_node = new osg::Group();
-
-	osg::ref_ptr<osg::Group> levelGroup = new osg::Group();
-	osg::ref_ptr<osg::Geode> outerWallsGeode = new osg::Geode();
-
-	// wall right
-	osg::ref_ptr<osg::Box> wallRight
-		= new osg::Box(osg::Vec3(levelSize / 2, 0, 10), 1, levelSize, 20);
-	osg::ref_ptr<osg::ShapeDrawable> wallDrawableRight
-		= new osg::ShapeDrawable(wallRight);
-
-	// wall left
-	osg::ref_ptr<osg::Box> wallLeft
-		= new osg::Box(osg::Vec3(-levelSize / 2, 0, 10),1, levelSize, 20);
-	osg::ref_ptr<osg::ShapeDrawable> wallDrawableLeft
-		= new osg::ShapeDrawable(wallLeft);
-
-
-	// wall back
-	osg::ref_ptr<osg::Box> wallBack
-		= new osg::Box(osg::Vec3(0, -levelSize / 2, 10), levelSize, 1, 20);
-	osg::ref_ptr<osg::ShapeDrawable> wallDrawableBack
-		= new osg::ShapeDrawable(wallBack);
-
-	// wall front
-	osg::ref_ptr<osg::Box> wallFront
-		= new osg::Box(osg::Vec3(0, levelSize / 2, 10), levelSize, 1, 20);
-	osg::ref_ptr<osg::ShapeDrawable> wallDrawableFront
-		= new osg::ShapeDrawable(wallFront);
-
-	outerWallsGeode->addDrawable(wallDrawableLeft);
-	outerWallsGeode->addDrawable(wallDrawableRight);
-	outerWallsGeode->addDrawable(wallDrawableFront);
-	outerWallsGeode->addDrawable(wallDrawableBack);
-
-	osg::StateSet *wallStateSet = outerWallsGeode->getOrCreateStateSet();
-	wallStateSet->ref();
-
-
-	wallStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OUTER_WALL], osg::StateAttribute::ON);
-	osg::Uniform* levelSizeUniform = new osg::Uniform("levelSize", levelSize);
-	wallStateSet->addUniform(levelSizeUniform);
-
-	osg::Uniform* modelIDU = new osg::Uniform("modelID", DEFAULT);
-	wallStateSet->addUniform(modelIDU);
-
-	m_node->addChild(outerWallsGeode);
-	//m_node->addChild(constructBox());
-	m_node->addChild(constructGround());
+	m_node->addChild(constructWalls(levelSize));
+	m_node->addChild(constructFloors(levelSize));
 }
 
-osg::ref_ptr<osg::Geode>  LevelView::constructGround()
+osg::ref_ptr<osg::Geode> LevelView::constructWalls(int levelSize)
 {
-	int levelSize = m_model->getLevelSize();
+	osg::ref_ptr<osg::Geode> walls = constructGeodeForBoxes(m_model->getWalls());		
+	addShaderAndUniforms(walls, shaders::OUTER_WALL, levelSize);
 
-	osg::Vec3Array *vertexArray = new osg::Vec3Array();
+	return walls;
+}
 
-	vertexArray->push_back(osg::Vec3(-levelSize / 2, -levelSize / 2, 0));
-	vertexArray->push_back(osg::Vec3(levelSize / 2, -levelSize / 2, 0));
-	vertexArray->push_back(osg::Vec3(levelSize / 2, levelSize / 2, 0));
-	vertexArray->push_back(osg::Vec3(-levelSize / 2, levelSize / 2, 0));
+osg::ref_ptr<osg::Geode> LevelView::constructFloors(int levelSize)
+{
+	osg::ref_ptr<osg::Geode> floors = constructGeodeForBoxes(m_model->getFloors());
+	addShaderAndUniforms(floors, shaders::GRID, levelSize);
 
-	// face array
-	osg::DrawElementsUInt *faceArray = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+	return floors;
+}
 
-	faceArray->push_back(0); // face 1
-	faceArray->push_back(1);
-	faceArray->push_back(2);
-	faceArray->push_back(2); // face 2
-	faceArray->push_back(3);
-	faceArray->push_back(0);
+void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Geode>& geode, int shaderIndex, int levelSize)
+{
+	osg::StateSet *stateSet = geode->getOrCreateStateSet();
+	stateSet->ref();
 
-	// normal array
-	osg::Vec3Array *normalArray = new osg::Vec3Array();
-	normalArray->push_back(osg::Vec3(0, 0, 1));
+	stateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaderIndex], osg::StateAttribute::ON);
+	stateSet->addUniform(new osg::Uniform("levelSize", levelSize));
+	stateSet->addUniform(new osg::Uniform("modelID", DEFAULT));
+}
 
-	// texture coordinates
-	osg::Vec2Array *texCoords = new osg::Vec2Array();
-	texCoords->push_back(osg::Vec2(0.0, 0.0));
-	texCoords->push_back(osg::Vec2(18.0, 0.0));
-	texCoords->push_back(osg::Vec2(18.0, 18.0));
-	texCoords->push_back(osg::Vec2(0.0, 18.0));
+osg::ref_ptr<osg::Geode> LevelView::constructGeodeForBoxes(std::vector<BoxModel> &boxes)
+{
+	osg::ref_ptr<osg::Geode> geode = new osg::Geode();
 
-	osg::Geometry *geometry = new osg::Geometry();
-	geometry->setVertexArray(vertexArray);
-	geometry->setNormalArray(normalArray);
-	geometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-	geometry->setTexCoordArray(0, texCoords);
-	geometry->addPrimitiveSet(faceArray);
+	for (int i = 0; i < boxes.size(); ++i)
+	{
+		btVector3 dimensions = boxes[i].dimensions;
 
+		osg::ref_ptr<osg::Box> box
+			= new osg::Box(asOsgVec3(boxes[i].center), dimensions.x(), dimensions.y(), dimensions.z());
 
+		osg::ref_ptr<osg::ShapeDrawable> wallDrawable
+			= new osg::ShapeDrawable(box);
 
-	osg::ref_ptr<osg::Geode> plane = new osg::Geode();
-	plane->addDrawable(geometry);
-
-	// create a simple material
-	// osg::Material *material = new osg::Material();
-	// material->setEmission(osg::Material::FRONT, osg::Vec4(0.8, 0.8, 0.8, 1.0));
-
-	// create a texture
-	// load image for texture
-	//osg::Image *image = osgDB::readImageFile("data/models/Images/grid.tga");
-	/*if (!image) {
-		std::cout << "[LevelView::constructGround] Couldn't load texture." << std::endl;
-		return NULL;
+		geode->addDrawable(wallDrawable);
 	}
-	osg::Texture2D *texture = new osg::Texture2D;
-	texture->setDataVariance(osg::Object::DYNAMIC);
-	texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
-	texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
-	texture->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
-	texture->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
-	texture->setImage(image);
 
-	// assign the material and texture to the sphere
-	*/
-	osg::StateSet *groundStateSet = plane->getOrCreateStateSet();
-	groundStateSet->ref();
-
-
-	//groundStateSet->setAttribute(material);
-	//groundStateSet->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
-	
-	
-	groundStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
-	osg::Uniform* levelSizeUniform = new osg::Uniform("levelSize", levelSize);
-	groundStateSet->addUniform(levelSizeUniform);
-
-
-	osg::Uniform* modelIDU = new osg::Uniform("modelID", DEFAULT);
-	groundStateSet->addUniform(modelIDU);
-	//setTexture(groundStateSet, specularTexturePath, SPECULAR);
-
-	return  plane;
+	return geode;
 }
