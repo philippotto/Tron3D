@@ -14,7 +14,7 @@ namespace troen
 	public:
 		FenceController(osg::Vec3 color, int maxFenceParts = 0);
 		void update(btVector3 position);
-		void attachWorld(std::weak_ptr<PhysicsWorld>& world);
+		void attachWorld(std::shared_ptr<PhysicsWorld>& world);
 
 		void removeAllFences();
 		void enforceFencePartsLimit(int maxFenceParts);

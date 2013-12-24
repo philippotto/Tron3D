@@ -75,7 +75,8 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 			osgGA::GUIEventAdapter::KEY_Right
 		});
 		break;
-	}	
+	}
+#ifdef _WINDOWS
 	case input::BikeInputState::GAMEPAD:
 	{
 		std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
@@ -91,6 +92,7 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 		bikeInputState->setPollingDevice(gamepad);
 		break;
 	}
+#endif
 	case input::BikeInputState::GAMEPADPS4:
 	{
 		std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState);
@@ -112,6 +114,8 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 		bikeInputState->setPollingDevice(ai);
 		break;
 	}
+    default:
+        break;
 	}
 }
 
@@ -171,8 +175,8 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	return group;
 };
 
-void BikeController::attachWorld(std::weak_ptr<PhysicsWorld> &world) {
-	world.lock()->addRigidBodies(getRigidBodies());
+void BikeController::attachWorld(std::shared_ptr<PhysicsWorld>& world) {
+	world->addRigidBodies(getRigidBodies());
 	m_fenceController->attachWorld(world);
 }
 

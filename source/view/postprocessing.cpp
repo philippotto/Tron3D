@@ -23,7 +23,7 @@ using namespace troen;
 static osg::ref_ptr<osg::Uniform> g_nearFarUniform;
 
 PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height)
-:m_root(rootNode), m_width(width), m_height(height), m_sceneNode(new osg::Group())
+:m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height)
 {
 	// init textures, will be recreated when screen size changes
 	setupTextures(m_width, m_height);

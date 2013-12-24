@@ -77,7 +77,7 @@ float BikeModel::getSteering() {
 
 void BikeModel::updateState()
 {
-	const btVector3 up = btVector3(0, 0, 1);
+	//const btVector3 up = btVector3(0, 0, 1);
 	const btVector3 front = btVector3(0, -1, 0);
 
 	// call this exactly once per frame

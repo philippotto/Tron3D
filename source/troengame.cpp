@@ -5,8 +5,10 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
 #include <osgViewer/ViewerEventHandlers>
+#ifdef _WINDOWS
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>
+#endif
 // troen
 #include "sampleosgviewer.h"
 #include "gameeventhandler.h"
@@ -48,8 +50,8 @@ m_maxFenceParts(0),
 m_gamePaused(false),
 m_splitscreen(false),
 m_fullscreen(false),
-m_numberOfBikes(0),
-m_usePostProcessing(false)
+m_usePostProcessing(false),
+m_numberOfBikes(0)
 {
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
@@ -261,10 +263,17 @@ bool TroenGame::initializeViews()
 	m_gameView->addEventHandler(m_statsHandler);
 
 	m_gameView->setSceneData(m_rootNode);
+#ifdef _WINDOWS
 	if (m_fullscreen)
 		m_gameView->apply(new osgViewer::SingleScreen(0));
 	else
 		m_gameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
+#else
+    if (m_fullscreen)
+		m_gameView->setUpViewOnSingleScreen(0);
+	else
+		m_gameView->setUpViewInWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+#endif
 
 	m_gameEventHandler = new GameEventHandler(this);
 	m_gameView->addEventHandler(m_gameEventHandler);
@@ -323,7 +332,7 @@ bool TroenGame::initializePhysicsWorld()
 
 	for (auto bikeController : m_bikeControllers)
 	{
-		bikeController->attachWorld(std::weak_ptr<PhysicsWorld>(m_physicsWorld));
+		bikeController->attachWorld(m_physicsWorld);
 	}
 	return true;
 }

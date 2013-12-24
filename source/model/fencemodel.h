@@ -9,7 +9,7 @@ namespace troen
 	{
 	public:
 		FenceModel(FenceController* fenceController, int maxFenceParts);
-		void attachWorld(std::weak_ptr<PhysicsWorld>& world);
+		void attachWorld(std::shared_ptr<PhysicsWorld>& world);
 
 		float getFenceHeight();
 

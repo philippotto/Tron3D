@@ -10,7 +10,7 @@ FenceModel::FenceModel(FenceController* fenceController, int maxFenceParts) : m_
 	m_rigidBodyDeque = std::deque<std::shared_ptr<btRigidBody>>();
 }
 
-void FenceModel::attachWorld(std::weak_ptr<PhysicsWorld>& world)
+void FenceModel::attachWorld(std::shared_ptr<PhysicsWorld>& world)
 {
 	m_world = world;
 }
@@ -21,7 +21,6 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 	
 	std::shared_ptr<btBoxShape> fenceShape = std::make_shared<btBoxShape>(btVector3(1, fenceVector.length() / 2, getFenceHeight() / 2));
 	
-	const btVector3 up = btVector3(0, 0, 1);
 	const btVector3 forward = btVector3(0, 1, 0);
 	const btScalar angle = fenceVector.angle(forward);
 	const btScalar inverseAngle = fenceVector.angle(-1 * forward);

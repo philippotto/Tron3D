@@ -10,10 +10,10 @@
 
 using namespace troen;
 
-FenceView::FenceView(osg::Vec3 color, std::shared_ptr<FenceModel>& model, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
+FenceView::FenceView(osg::Vec3 color, std::shared_ptr<AbstractModel>& model, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
 {
 	m_playerColor = color;
-	m_model = model;
+	m_model = std::static_pointer_cast<FenceModel>(model);
 	m_node = new osg::Group();
 
 	initializeFence();

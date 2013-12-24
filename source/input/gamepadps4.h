@@ -1,4 +1,5 @@
 #pragma once
+
 // troen
 #include "pollingdevice.h"
 #include "../forwarddeclarations.h"

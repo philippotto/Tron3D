@@ -17,8 +17,8 @@ namespace troen
 			std::shared_ptr<FenceController> fenceController,
 			BikeModel *bikeModel,
 			btVector3 bikeDimensions) :
-				m_position(initialpos),
 				m_visibleObj(pat),
+                m_position(initialpos),
 				m_fenceController(fenceController),
 				m_bikeModel(bikeModel),
 				m_bikeDimensions(bikeDimensions),

@@ -1,4 +1,7 @@
 #pragma once
+
+#ifdef _WINDOWS
+
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -34,3 +37,5 @@ namespace input
 	};
 }
 }
+
+#endif

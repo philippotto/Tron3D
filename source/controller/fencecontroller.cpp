@@ -12,7 +12,8 @@ FenceController::FenceController(osg::Vec3 color, int maxFenceParts) : m_maxFenc
 {
 	m_playerColor = color;
 	m_model = std::make_shared<FenceModel>(this, m_maxFenceParts);
-	m_view = std::make_shared<FenceView>(m_playerColor, std::dynamic_pointer_cast<FenceModel>(m_model), m_maxFenceParts);
+	//m_view = std::make_shared<FenceView>(m_playerColor, std::static_pointer_cast<FenceModel>(m_model), m_maxFenceParts);
+    m_view = std::shared_ptr<FenceView>(new FenceView(m_playerColor, m_model,m_maxFenceParts));
 }
 
 void FenceController::update(btVector3 position)
@@ -42,7 +43,7 @@ void FenceController::update(btVector3 position)
 }
 
 
-void FenceController::attachWorld(std::weak_ptr<PhysicsWorld> &world)
+void FenceController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 {
 	m_world = world;
 	std::static_pointer_cast<FenceModel>(m_model)->attachWorld(world);

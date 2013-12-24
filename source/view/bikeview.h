@@ -20,7 +20,7 @@ namespace troen
 	public:
 		BikeView(osg::Vec3 color);
 		void setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit);
-		osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::string specularTexturePath, std::string diffuseTexturePath, std::string normalTexturePath,
+		osg::ref_ptr<osg::Node> createCyclePart(std::string objFilePath, std::string specularTexturePath, std::string diffuseTexturePath, std::string normalTexturePath,
 			int modelIndex, float glowIntensity = 1.f);
 		osg::ref_ptr<osg::PositionAttitudeTransform> pat;
 		osg::ref_ptr<osg::Node> MovieCycle_Body;

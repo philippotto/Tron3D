@@ -299,6 +299,6 @@ target_link_libraries( ${target}
     ${OPENSCENEGRAPH_LIBRARIES}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
-	${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
+	#${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
 	${HIDAPI_LIBRARIES}
 )

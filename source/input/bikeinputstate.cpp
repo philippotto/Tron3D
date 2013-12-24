@@ -1,6 +1,6 @@
 #include "bikeinputstate.h"
 // troen
-#include "gamepad.h"
+#include "pollingdevice.h"
 
 using namespace troen::input;
 

@@ -22,12 +22,12 @@ namespace troen
 		osg::ref_ptr<osg::Geode> constructFloors(int levelSize);
 		osg::ref_ptr<osg::Geode> constructGeodeForBoxes(std::vector<BoxModel> &boxes);
 
-		void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Geode>& geode, int shaderIndex, int levelSize);
+		void addShaderAndUniforms(osg::ref_ptr<osg::Geode>& geode, int shaderIndex, int levelSize);
 
 		std::shared_ptr<LevelModel> m_model;
 		
 		// TODO find a better place
-		osg::Vec3 LevelView::asOsgVec3(const btVector3& v)
+		osg::Vec3 asOsgVec3(const btVector3& v)
 		{
 			return osg::Vec3(v.x(), v.y(), v.z());
 		};

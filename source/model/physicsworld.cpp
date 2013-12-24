@@ -17,7 +17,7 @@
 using namespace troen;
 
 PhysicsWorld::PhysicsWorld(std::shared_ptr<sound::AudioManager>& audioManager) :
-m_lastSimulationTime(0), m_audioManager(audioManager)
+m_audioManager(audioManager), m_lastSimulationTime(0)
 {
 	initializeWorld();
 
