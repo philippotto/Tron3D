@@ -1,7 +1,8 @@
 #include "nodefollowcameramanipulator.h"
-
+// OSG
 #include <osg/PositionAttitudeTransform>
-
+// troen
+#include "../constants.h"
 using namespace troen;
 
 
@@ -40,27 +41,36 @@ void NodeFollowCameraManipulator::setByInverseMatrix(const osg::Matrixd& matrix)
 
 void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeCenter, osg::Quat& nodeRotation) const
 {
-	osg::Vec3 positionOffset = osg::Vec3(0, 0, 25);
-	float rotationOffset = .05;
-
 	osg::Matrixd localToWorld, worldToLocal;
 	computeNodeLocalToWorld(localToWorld);
 	computeNodeWorldToLocal(worldToLocal);
 
+	// center
 	osg::NodePath nodePath;
 	if (_trackNodePath.getNodePath(nodePath) && !nodePath.empty())
 	{
-		nodeCenter = osg::Vec3d(nodePath.back()->getBound().center())*localToWorld + positionOffset;
+		nodeCenter = osg::Vec3d(nodePath.back()->getBound().center())*localToWorld + CAMERA_POSITION_OFFSET;
 	}
 	else
 		nodeCenter = osg::Vec3d(0.0f, 0.0f, 0.0f)*localToWorld;
 
+	// rotation
 	osg::Matrixd coordinateFrame = getCoordinateFrame(nodeCenter);
 	osg::Matrixd localToFrame(localToWorld*osg::Matrixd::inverse(coordinateFrame));
 
-	double azim = atan2(-localToFrame(0, 1), localToFrame(0, 0));
-	osg::Quat nodeRotationRelToFrame, rotationOfFrame;
-	nodeRotationRelToFrame.makeRotate(-azim + rotationOffset, 0.0, 0.0, 1.0);
+	osg::Quat nodeYawRelToFrame, nodePitchRelToFrame, nodeRollRelToFrame;
+	osg::Quat rotationOfFrame;
+
+	double yaw = atan2(-localToFrame(0, 1), localToFrame(0, 0));
+	nodeYawRelToFrame.makeRotate(-yaw + CAMERA_ROTATION_OFFSET, osg::Z_AXIS);
+	
+	double roll = atan2(-localToFrame(0, 2), sqrt(pow(localToFrame(1, 2), 2) + pow(localToFrame(2, 2), 2)));
+	nodeRollRelToFrame.makeRotate(roll / CAMERA_TILT_FACTOR,osg::Y_AXIS);
+
+	// jd: camera pitch rotation not wanted so far, maybe useful for later
+	//double pitch = atan2(localToFrame(1, 2), localToFrame(2, 2));
+	//nodePitchRelToFrame.makeRotate(pitch, osg::X_AXIS);
+	
 	rotationOfFrame = coordinateFrame.getRotate();
-	nodeRotation = nodeRotationRelToFrame*rotationOfFrame;
+	nodeRotation = nodeRollRelToFrame*nodeYawRelToFrame*rotationOfFrame;
 }

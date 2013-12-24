@@ -1,7 +1,9 @@
 #include "bikecontroller.h"
 // OSG
 #include <osg/PositionAttitudeTransform>
+#include <osgViewer/View>
 //troen
+#include "../constants.h"
 #include "../view/bikeview.h"
 #include "../view/nodefollowcameramanipulator.h"
 #include "../model/bikemodel.h"
@@ -14,28 +16,28 @@
 #include "../input/gamepadps4.h"
 #include "../input/ai.h"
 
-#include <cstdlib>
-
 using namespace troen;
 
-BikeController::BikeController(input::BikeInputState::InputDevice inputDevice)
+BikeController::BikeController(
+	input::BikeInputState::InputDevice inputDevice,
+	btTransform initialTransform) :
+m_initialTransform(initialTransform)
 {
 	// TODO change random generation of player color here (and remove generateRandomColor-Function)
 	m_playerColor = generateRandomColor();
 
 	m_view = std::make_shared<BikeView>(m_playerColor);
-	m_fenceController = std::make_shared<FenceController>(m_playerColor);
+	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
-	m_model = std::make_shared<BikeModel>(viewNode, m_fenceController, this);
+	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
 
 	initializeInput(inputDevice);
 }
 
-
 osg::Vec3 BikeController::generateRandomColor() {
 	// initialize rand
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	int r, g, b;
 	r = rand() > RAND_MAX / 2 ? 1 : 0;
@@ -138,11 +140,6 @@ void BikeController::attachTrackingCamera
 //  (osg::ref_ptr<osgGA::NodeTrackerManipulator>& manipulator)
   (osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
 {
-	int debugNormalizer = 1;
-#ifdef _DEBUG
-	debugNormalizer = -1;
-#endif
-
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
 
@@ -151,22 +148,56 @@ void BikeController::attachTrackingCamera
 
 	// set camera position
 	manipulator->setHomePosition(
-		osg::Vec3f(0.f, debugNormalizer * -135.f, 20.f), // homeEye
+		CAMERA_EYE_POSITION, // homeEye
 		osg::Vec3f(), // homeCenter
 		osg::Z_AXIS, // up
 		false
 		);
 }
 
-void BikeController::updateModel()
+void BikeController::attachGameView(osg::ref_ptr<osgViewer::View> gameView)
 {
-	std::static_pointer_cast<BikeModel>(m_model)->updateState();
+	m_gameView = gameView;
+}
 
+
+void BikeController::setFovy(float newFovy)
+{
+	if (!m_gameView.valid()) return;
+	double fovy, aspect, znear, zfar;
+	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
+}
+
+float BikeController::getFovy()
+{
+	if (!m_gameView.valid())
+		return 0;
+	double fovy, aspect, znear, zfar;
+	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	return fovy;
+}
+
+float BikeController::computeFovyDelta(float speed, float currentFovy)
+{
+	float fovyFactor = (speed - BIKE_VELOCITY_MIN) / (BIKE_VELOCITY_MAX - BIKE_VELOCITY_MIN);
+	fovyFactor = fovyFactor > 0 ? fovyFactor : 0;
+	float newFovy = FOVY_INITIAL + interpolate(fovyFactor, InterpolateCubed) * FOVY_ADDITION_MAX;
+	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, newFovy - currentFovy); 
+}
+
+void BikeController::updateModel(long double time)
+{
+	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
+
+	if (!m_gameView.valid()) return;
+
+	float currentFovy = getFovy();
+	setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 }
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
 {
-
 	osg::ref_ptr<osg::Group> group = new osg::Group();
 	// TODO (dw) try not to disable culling, by resizing the childrens bounding boxes
 	group->setCullingActive(false);
@@ -175,8 +206,8 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	return group;
 };
 
-void BikeController::attachWorld(std::shared_ptr<PhysicsWorld>& world) {
-	world->addRigidBodies(getRigidBodies());
+void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
+	world->addRigidBodies(getRigidBodies(),COLGROUP_BIKE, COLMASK_BIKE);
 	m_fenceController->attachWorld(world);
 }
 

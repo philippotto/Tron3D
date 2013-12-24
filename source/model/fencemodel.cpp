@@ -1,5 +1,6 @@
 #include "fencemodel.h"
 // troen
+#include "../constants.h"
 #include "../model/physicsworld.h"
 
 using namespace troen;
@@ -18,8 +19,7 @@ void FenceModel::attachWorld(std::shared_ptr<PhysicsWorld>& world)
 void FenceModel::addFencePart(btVector3 a, btVector3 b)
 {
 	btVector3 fenceVector = b - a;
-	
-	std::shared_ptr<btBoxShape> fenceShape = std::make_shared<btBoxShape>(btVector3(1, fenceVector.length() / 2, getFenceHeight() / 2));
+	std::shared_ptr<btBoxShape> fenceShape = std::make_shared<btBoxShape>(btVector3(FENCE_PART_WIDTH / 2, fenceVector.length() / 2, FENCE_HEIGHT_MODEL / 2));
 	
 	const btVector3 forward = btVector3(0, 1, 0);
 	const btScalar angle = fenceVector.angle(forward);
@@ -34,7 +34,7 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 		rotationQuat = btQuaternion(0, 0, 0, 1);
 	}
 
-	std::shared_ptr<btDefaultMotionState> fenceMotionState = std::make_shared<btDefaultMotionState>(btTransform(rotationQuat, (a + b) / 2 + btVector3(0, 0, getFenceHeight() / 2)));
+	std::shared_ptr<btDefaultMotionState> fenceMotionState = std::make_shared<btDefaultMotionState>(btTransform(rotationQuat, (a + b) / 2 + btVector3(0, 0, FENCE_HEIGHT_MODEL / 2)));
 
 	const btScalar mass = 0;
 	const btVector3 fenceInertia(0, 0, 0);
@@ -49,14 +49,9 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 	m_motionStateDeque.push_back(fenceMotionState);
 	m_rigidBodyDeque.push_back(fenceRigidBody);
 
-	m_world.lock()->addRigidBody(fenceRigidBody.get());
+	m_world.lock()->addRigidBody(fenceRigidBody.get(),COLGROUP_FENCE, COLMASK_FENCE);
 
 	enforceFencePartsLimit(m_maxFenceParts);
-}
-
-float FenceModel::getFenceHeight()
-{
-	return 15;
 }
 
 void FenceModel::removeAllFences()

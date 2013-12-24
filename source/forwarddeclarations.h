@@ -30,6 +30,7 @@ namespace osg
 	class Geode;
 	class GraphicsContext;
 	class ShapeDrawable;
+	class Vec3f;
 }
 
 namespace osgGA
@@ -46,7 +47,8 @@ class btBroadphaseInterface;
 class btRigidBody;
 class btCollisionShape;
 class btPersistentManifold;
-
+class btVector3;
+class btTransform;
 
 
 // own classes
@@ -55,6 +57,7 @@ namespace troen
 	class TroenGame;
 	class SampleOSGViewer;
 	class GameEventHandler;
+	class GameLogic;
 
 	class BikeModel;
 	class LevelModel;

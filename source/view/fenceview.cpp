@@ -5,6 +5,7 @@
 #include <osg/Vec4>
 #include <osg/PositionAttitudeTransform>
 // troen
+#include "../constants.h"
 #include "shaders.h"
 #include "../model/fencemodel.h"
 
@@ -22,7 +23,7 @@ FenceView::FenceView(osg::Vec3 color, std::shared_ptr<AbstractModel>& model, int
 
 void FenceView::initializeFence()
 {
-	m_fenceHeight = m_model.lock()->getFenceHeight() - 3;
+	m_fenceHeight = FENCE_HEIGHT_VIEW;
 
 	m_coordinates = new osg::Vec3Array;
 	m_coordinates->setDataVariance(osg::Object::DYNAMIC);
@@ -52,8 +53,6 @@ void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
 		m_coordinates->at(m_coordinates->size() - 1) = osg::Vec3(position.x(), position.y(), position.z() + m_fenceHeight);
 	}
 }
-
-
 
 void FenceView::initializeShader()
 {

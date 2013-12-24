@@ -11,5 +11,11 @@ namespace troen
 	{
 	public:
 		LevelController();
+
+		virtual btTransform initialPositionTransformForBikeWithIndex(int index);
+
+	private:
+		std::vector<btTransform> m_initialBikePositionTransforms;
+		virtual void initializeinitialBikePositionTransforms();
 	};
 }

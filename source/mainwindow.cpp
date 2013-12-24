@@ -3,6 +3,8 @@
 #include <QThread>
 #include <QBoxLayout>
 #include <QLabel>
+#include <QKeyEvent>
+#include <QCoreApplication>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -89,10 +91,15 @@ MainWindow::MainWindow(QWidget * parent)
 	m_fullscreenCheckBox = new QCheckBox("Fullscreen");
 	vBoxLayout->addWidget(m_fullscreenCheckBox, 0, Qt::AlignHCenter);
 
-	// splitscreenCheckBox
+	// postProcessingCheckBox
 	m_postProcessingCheckBox = new QCheckBox("PostProcessing");
 	vBoxLayout->addWidget(m_postProcessingCheckBox, 0, Qt::AlignHCenter);
 	m_postProcessingCheckBox->setChecked(false);
+
+	// debugViewCheckBox
+	m_debugViewCheckBox = new QCheckBox("DebugView");
+	vBoxLayout->addWidget(m_debugViewCheckBox, 0, Qt::AlignHCenter);
+	m_debugViewCheckBox->setChecked(false);
 
 	// gameStartButton
 	m_gameStartButton = new QPushButton(QString("start Game"));
@@ -147,6 +154,7 @@ void MainWindow::prepareGameStart()
 	config.splitscreen = m_splitscreenCheckBox->isChecked();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
+	config.useDebugView = m_debugViewCheckBox->isChecked();
 	emit startGame(config);
 }
 
@@ -175,4 +183,37 @@ void MainWindow::bikeNumberChanged(int newBikeNumber)
 		m_splitscreenCheckBox->setCheckable(true);
 		m_splitscreenCheckBox->setDisabled(false);
 	}
+}
+
+bool MainWindow::eventFilter(QObject* object, QEvent* event)
+{
+	if (event->type() == QEvent::KeyPress) {
+		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+		if (keyEvent->key() == Qt::Key_Return) {
+			this->prepareGameStart();
+			keyEvent->accept();
+			return true;
+		}
+		else if (keyEvent->key() == Qt::Key_Escape)
+		{
+			this->close();
+			keyEvent->accept();
+			return true;
+		}
+	}
+	return QMainWindow::eventFilter(object, event);
+}
+
+void MainWindow::childEvent(QChildEvent* e)
+{
+	if (e->child()->isWidgetType()) {
+		if (e->type() == QEvent::ChildAdded) {
+			e->child()->installEventFilter(this);
+		}
+		else if (e->type() == QEvent::ChildRemoved) {
+			e->child()->removeEventFilter(this);
+		}
+	}
+
+	QWidget::childEvent(e);
 }

@@ -71,7 +71,16 @@ osg::ref_ptr<osg::Geode> LevelView::constructGeodeForBoxes(std::vector<BoxModel>
 		osg::ref_ptr<osg::ShapeDrawable> wallDrawable
 			= new osg::ShapeDrawable(box);
 
+<<<<<<< HEAD
 		geode->addDrawable(wallDrawable);
+=======
+	// create a texture
+	// load image for texture
+	//osg::Image *image = osgDB::readImageFile("data/models/Images/grid.tga");
+	/*if (!image) {
+		std::cout << "[LevelView::constructGround] Couldn't load texture." << std::endl;
+		return nullptr;
+>>>>>>> 15350f5ac17d9974e463e4e3e1bf2fbba0df57f6
 	}
 
 	return geode;

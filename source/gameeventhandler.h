@@ -9,9 +9,7 @@ namespace troen
 	public:
 		GameEventHandler(TroenGame* game) : osgGA::GUIEventHandler(), m_troenGame(game) {}
 	protected:
-		GameEventHandler() :
-			m_troenGame(NULL) {
-		}
+		//GameEventHandler() : m_troenGame(nullptr) {}
 		virtual ~GameEventHandler() {}
 
 		virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa, osg::Object*, osg::NodeVisitor*) {
