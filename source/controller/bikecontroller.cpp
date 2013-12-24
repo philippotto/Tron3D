@@ -220,3 +220,9 @@ void BikeController::enforceFencePartsLimit(int maxFenceParts)
 {
 	m_fenceController->enforceFencePartsLimit(maxFenceParts);
 }
+
+void BikeController::moveBikeToPosition(btTransform transform)
+{
+	std::static_pointer_cast<BikeModel>(m_model)->moveBikeToPosition(transform);
+	m_fenceController->setLastPosition(transform.getRotation(), transform.getOrigin());
+}

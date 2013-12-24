@@ -71,3 +71,9 @@ void FenceController::adjustPositionUsingFenceOffset(const btQuaternion& rotatio
 
 	position = position - fenceOffset;
 }
+
+void FenceController::setLastPosition(const btQuaternion rotation, btVector3 position)
+{
+	adjustPositionUsingFenceOffset(rotation, position);
+	m_lastPosition = position;
+}

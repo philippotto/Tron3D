@@ -104,7 +104,7 @@ float BikeModel::updateState(long double time)
 	// atm it still depends on the framerate
 
 	// accelerate
-	float speedFactor = 1 - clamp(0, 1, currentVelocityVectorXY.length() / (BIKE_VELOCITY_MAX));
+	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
 	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
 	float speed = currentVelocityVectorXY.length() + 1 * ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
 
@@ -113,7 +113,7 @@ float BikeModel::updateState(long double time)
 	// -> stronger steering for low velocities
 	// -> weaker steering at high velocities
 	//short int angularSign = sign(currentAngularVelocity.getZ());
-	float turnFactor = clamp(0,1,BIKE_VELOCITY_MIN / (.5f*speed));
+	float turnFactor = clamp(.1,1,BIKE_VELOCITY_MIN / (.5f*speed));
 	//float turningRad = ((PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor)) - clamp(0, 1, -angularSign * BIKE_ANGULAR_DAMPENING_TERM)) * timeFactor;
 	float turningRad = PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor);
 
@@ -161,4 +161,12 @@ btVector3 BikeModel::getPositionBt()
 	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
 
 	return trans.getOrigin();
+}
+
+void BikeModel::moveBikeToPosition(btTransform position)
+{
+	m_rigidBodies[0]->setWorldTransform(position);
+	m_rigidBodies[0]->setAngularVelocity(btVector3(0, 0, 0));
+	m_rigidBodies[0]->setLinearVelocity(btVector3(0, 0, 0));
+
 }
