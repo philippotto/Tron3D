@@ -15,11 +15,10 @@ namespace troen
 	};
 }
 
+#ifdef WIN32
 #include <osg/GL>
 
-#ifdef WIN32
 #include <windows.h>
-#endif
 
 class RealizeOperation : public osg::GraphicsOperation
 {
@@ -48,3 +47,4 @@ public:
 	}
 
 };
+#endif

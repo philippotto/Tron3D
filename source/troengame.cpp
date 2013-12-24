@@ -210,7 +210,7 @@ bool TroenGame::initializeGameLogic()
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
-
+    
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 		= new NodeFollowCameraManipulator();
 	m_bikeControllers[0]->attachTrackingCamera(manipulator);
@@ -269,10 +269,12 @@ bool TroenGame::initializeViewer()
 	m_sampleOSGViewer->getWindows(windows);
 	windows.at(0)->add(new MotionBlurOperation(persistence));
 
+#ifdef WIN32
 	// turn of vSync (we implement an adaptive gameLoop that syncs itself)
 	osg::ref_ptr<RealizeOperation> operation = new RealizeOperation;
 	m_sampleOSGViewer->setRealizeOperation(operation);
 	m_sampleOSGViewer->realize();
+#endif
 
 	if (m_splitscreen)
 	{
@@ -282,8 +284,10 @@ bool TroenGame::initializeViewer()
 		m_sampleOSGViewer2->getWindows(windows);
 		windows.at(0)->add(new MotionBlurOperation(persistence));
 
+#ifdef WIN32
 		m_sampleOSGViewer2->setRealizeOperation(operation);
 		m_sampleOSGViewer2->realize();
+#endif
 	}
 
 	return true;
