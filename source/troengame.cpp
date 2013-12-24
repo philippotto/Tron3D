@@ -43,7 +43,8 @@ m_simulationPaused(false),
 m_numberOfBikes(0),
 m_splitscreen(false),
 m_fullscreen(false),
-m_usePostProcessing(false)
+m_usePostProcessing(false),
+m_testPerformance(false)
 {
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
@@ -107,6 +108,7 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 	m_fullscreen = config.fullscreen;
 	m_usePostProcessing = config.usePostProcessing;
 	m_useDebugView = config.useDebugView;
+	m_testPerformance = config.testPerformance;
 
 	m_playerInputTypes.clear();
 	for (int i = 0; i < m_numberOfBikes; i++)
@@ -266,7 +268,11 @@ bool TroenGame::initializeViewer()
 
 	m_sampleOSGViewer->getWindows(windows);
 	windows.at(0)->add(new MotionBlurOperation(persistence));
-    m_sampleOSGViewer->setRunFrameScheme( osgViewer::Viewer::ON_DEMAND );
+
+	// turn of vSync (we implement an adaptive gameLoop that syncs itself)
+	osg::ref_ptr<RealizeOperation> operation = new RealizeOperation;
+	m_sampleOSGViewer->setRealizeOperation(operation);
+	m_sampleOSGViewer->realize();
 
 	if (m_splitscreen)
 	{
@@ -275,6 +281,9 @@ bool TroenGame::initializeViewer()
 
 		m_sampleOSGViewer2->getWindows(windows);
 		windows.at(0)->add(new MotionBlurOperation(persistence));
+
+		m_sampleOSGViewer2->setRealizeOperation(operation);
+		m_sampleOSGViewer2->realize();
 	}
 
 	return true;
@@ -348,15 +357,13 @@ void TroenGame::startGameLoop()
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();
-	const long double minMillisecondsBetweenFrames = 10;
-	const long double maxMillisecondsBetweenFrames = 50;
+	const double minMillisecondsBetweenFrames = 16.7; // vSync to 60 fps
+	const double maxMillisecondsBetweenFrames = 4* minMillisecondsBetweenFrames + 1;
 	int skippedFrames = 0;
-	int maxSkippedFrames = 4;
+	const int maxSkippedFrames = 4;
 
 	bool nearPlaneAdapted = false;
     
-    bool testPerformance = true;
-
 	// GAME LOOP
 	while (!m_sampleOSGViewer->done())
 	{
@@ -365,7 +372,7 @@ void TroenGame::startGameLoop()
 		if ((currTime - nextTime) > maxMillisecondsBetweenFrames)
 			nextTime = currTime;
 		// is it time to render the next frame?
-		if (testPerformance || currTime >= nextTime)
+		if (m_testPerformance || currTime >= nextTime)
 		{
 			//std::cout << "difference: " << currTime - nextTime << std::endl;
 			// assign the time for the next update
@@ -393,6 +400,7 @@ void TroenGame::startGameLoop()
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
 				m_sampleOSGViewer->frame();
+				if (m_splitscreen) m_sampleOSGViewer2->frame();
 				
 				if (!nearPlaneAdapted) {
 					// doesn't work if it's executed earlier
@@ -402,9 +410,15 @@ void TroenGame::startGameLoop()
 					m_gameView->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 					znear = 1.0;
 					m_gameView->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+					if (m_splitscreen)
+					{
+						m_gameView2->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+						m_gameView2->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+						znear = 1.0;
+						m_gameView2->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+					}
 				}
 
-				if(m_splitscreen) m_sampleOSGViewer2->frame();
 				skippedFrames = 0;
 			}
 			else
@@ -421,7 +435,7 @@ void TroenGame::startGameLoop()
 			{
 				// sleep until nextTime
 				//std::cout << "sleep for: " << sleepTime << std::endl;
-				if (!testPerformance) m_gameThread->msleep(sleepTime);
+				if (!m_testPerformance) m_gameThread->msleep(sleepTime);
 			}
 		}
 	}

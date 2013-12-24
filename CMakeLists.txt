@@ -303,6 +303,11 @@ target_link_libraries( ${target}
     ${OPENSCENEGRAPH_LIBRARIES}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
-	#${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
 	${HIDAPI_LIBRARIES}
 )
+
+if (WIN32)
+target_link_libraries( ${target}
+	${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
+)
+endif (WIN32)

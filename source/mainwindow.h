@@ -47,9 +47,8 @@ namespace troen
 		QCheckBox*		m_splitscreenCheckBox;
 		QCheckBox*		m_fullscreenCheckBox;
 		QCheckBox*		m_postProcessingCheckBox;
+		QCheckBox*		m_testPerformanceCheckBox;
 		QCheckBox*		m_debugViewCheckBox;
-
-
 
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;

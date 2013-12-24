@@ -132,7 +132,7 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 		btManifoldPoint& pt = contactManifold->getContactPoint(i);
 		impulse = impulse + pt.getAppliedImpulse();
 	}
-	std::cout << "total impulse: " << impulse << std::endl;
+	//std::cout << "total impulse: " << impulse << std::endl;
 	if (impulse > BIKE_IMPACT_THRESHOLD_LOW)
 		m_audioManager->PlaySFX("data/sound/explosion.wav",
 		impulse / BIKE_IMPACT_THRESHOLD_HIGH,
