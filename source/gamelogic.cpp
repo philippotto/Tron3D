@@ -20,10 +20,10 @@ GameLogic::GameLogic(
 	std::shared_ptr<LevelController> levelController,
 	std::vector<std::shared_ptr<BikeController>> bikeControllers) :
 m_troenGame(game),
+m_maxFenceParts(0),
 m_audioManager(audioManager),
 m_levelController(levelController),
-m_bikeControllers(bikeControllers),
-m_maxFenceParts(0)
+m_bikeControllers(bikeControllers)
 {}
 
 void GameLogic::attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld)

@@ -5,7 +5,7 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
 #include <osgViewer/ViewerEventHandlers>
-#ifdef _WINDOWS
+#ifdef WIN32
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>
 #endif
@@ -40,10 +40,10 @@ using namespace troen;
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
 m_simulationPaused(false),
+m_numberOfBikes(0),
 m_splitscreen(false),
 m_fullscreen(false),
-m_usePostProcessing(false),
-m_numberOfBikes(0)
+m_usePostProcessing(false)
 {
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
@@ -221,7 +221,7 @@ bool TroenGame::initializeViews()
 	m_gameView->addEventHandler(m_statsHandler);
 
 	m_gameView->setSceneData(m_rootNode);
-#ifdef _WINDOWS
+#ifdef WIN32
 	if (m_fullscreen)
 		m_gameView->apply(new osgViewer::SingleScreen(0));
 	else
@@ -266,6 +266,7 @@ bool TroenGame::initializeViewer()
 
 	m_sampleOSGViewer->getWindows(windows);
 	windows.at(0)->add(new MotionBlurOperation(persistence));
+    m_sampleOSGViewer->setRunFrameScheme( osgViewer::Viewer::ON_DEMAND );
 
 	if (m_splitscreen)
 	{
@@ -353,7 +354,8 @@ void TroenGame::startGameLoop()
 	int maxSkippedFrames = 4;
 
 	bool nearPlaneAdapted = false;
-
+    
+    bool testPerformance = true;
 
 	// GAME LOOP
 	while (!m_sampleOSGViewer->done())
@@ -363,7 +365,7 @@ void TroenGame::startGameLoop()
 		if ((currTime - nextTime) > maxMillisecondsBetweenFrames)
 			nextTime = currTime;
 		// is it time to render the next frame?
-		if (currTime >= nextTime)
+		if (testPerformance || currTime >= nextTime)
 		{
 			//std::cout << "difference: " << currTime - nextTime << std::endl;
 			// assign the time for the next update
@@ -419,7 +421,7 @@ void TroenGame::startGameLoop()
 			{
 				// sleep until nextTime
 				//std::cout << "sleep for: " << sleepTime << std::endl;
-				m_gameThread->msleep(sleepTime);
+				if (!testPerformance) m_gameThread->msleep(sleepTime);
 			}
 		}
 	}

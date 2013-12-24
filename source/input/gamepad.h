@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef _WINDOWS
+#ifdef WIN32
 
 // OSG
 #include <osg/ref_ptr>

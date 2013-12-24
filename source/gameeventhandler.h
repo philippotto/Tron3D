@@ -34,6 +34,7 @@ namespace troen
 					m_gameLogic.lock()->toggleFencePartsLimit();
 					return true;
 				case osgGA::GUIEventAdapter::KEY_Shift_R:
+                case osgGA::GUIEventAdapter::KEY_Shift_L:
 					m_troenGame->pauseEvent();
 					return true;
 				default:

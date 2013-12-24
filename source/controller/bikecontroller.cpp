@@ -78,7 +78,7 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 		});
 		break;
 	}
-#ifdef _WINDOWS
+#ifdef WIN32
 	case input::BikeInputState::GAMEPAD:
 	{
 		std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);

@@ -42,13 +42,12 @@ namespace troen
 			BikeController* bike2,
 			btPersistentManifold* contactManifold);
 
-		int m_maxFenceParts;
-
 		std::shared_ptr<LevelController>			 m_levelController;
 		std::vector<std::shared_ptr<BikeController>> m_bikeControllers;
 
+        TroenGame*							m_troenGame;
 		std::shared_ptr<sound::AudioManager>m_audioManager;
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
-		TroenGame*							m_troenGame;
+        int m_maxFenceParts;
 	};
 }
