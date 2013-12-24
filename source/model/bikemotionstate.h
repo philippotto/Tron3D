@@ -16,15 +16,9 @@ namespace troen
 			const btTransform &initialTransform,
 			osg::PositionAttitudeTransform* pat,
 			std::shared_ptr<FenceController> fenceController,
-<<<<<<< HEAD
-			BikeModel *bikeModel,
-			btVector3 bikeDimensions) :
-=======
 			BikeModel *bikeModel) :
-				m_positionTransform(initialTransform),
->>>>>>> 15350f5ac17d9974e463e4e3e1bf2fbba0df57f6
 				m_visibleObj(pat),
-                m_position(initialpos),
+                m_positionTransform(initialTransform),
 				m_fenceController(fenceController),
 				m_bikeModel(bikeModel),
 				m_currentTilt(0) {}

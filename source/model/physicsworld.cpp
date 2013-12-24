@@ -14,17 +14,13 @@
 
 using namespace troen;
 
-<<<<<<< HEAD
-PhysicsWorld::PhysicsWorld(std::shared_ptr<sound::AudioManager>& audioManager) :
-m_audioManager(audioManager), m_lastSimulationTime(0)
-=======
+
 PhysicsWorld::PhysicsWorld(
 	std::shared_ptr<GameLogic>& gameLogic, 
 	bool useDebugView) :
-m_gameLogic(gameLogic),
 m_lastSimulationTime(0),
-m_useDebugView(useDebugView)
->>>>>>> 15350f5ac17d9974e463e4e3e1bf2fbba0df57f6
+m_useDebugView(useDebugView),
+m_gameLogic(gameLogic)
 {
 	initializeWorld();
 
@@ -58,11 +54,7 @@ void PhysicsWorld::initializeWorld()
 
 	m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 
-<<<<<<< HEAD
-	m_world->setGravity(btVector3(0, 0, -100));
-=======
 	m_world->setGravity(DEFAULT_GRAVITY);
->>>>>>> 15350f5ac17d9974e463e4e3e1bf2fbba0df57f6
 }
 
 void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies, const short group/*=0*/, const short mask/*=0*/)
