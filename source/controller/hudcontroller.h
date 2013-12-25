@@ -9,5 +9,8 @@ namespace troen
 	{
 	public:
 		HUDController();
+
+		void attachSceneToRadarCamera(osg::Group* scene);
+		void resize(int width, int height);
 	};
 }

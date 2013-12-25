@@ -10,8 +10,8 @@ namespace troen
 	// GENERAL
 
 	// GAME
-	const int DEFAULT_WINDOW_WIDTH(1280);
-	const int DEFAULT_WINDOW_HEIGHT(720);
+	const int DEFAULT_WINDOW_WIDTH(1024);
+	const int DEFAULT_WINDOW_HEIGHT(768);
 	const float DEFAULT_SOUND_VOLUME(1.f);
 
 	const float FOVY_INITIAL(29.1484f);
@@ -63,6 +63,9 @@ namespace troen
 #endif
 	const osg::Vec3 CAMERA_EYE_POSITION(0.f,debugNormalizer * -BIKE_DIMENSIONS.y()*5.5f,BIKE_DIMENSIONS.z()*.8f);
 	const float CAMERA_TILT_FACTOR(16.f);
+
+	const unsigned int CAMERA_MASK_MAIN(0x1);
+	const unsigned int CAMERA_MASK_RADAR(0x2);
 
 	// PHYSICS
 	const float BIKE_IMPACT_THRESHOLD_LOW(BIKE_MASS*BIKE_VELOCITY_MIN);

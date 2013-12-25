@@ -32,7 +32,7 @@ void LevelModel::addFloor(float size, float yPosition)
 void LevelModel::addWalls(float levelSize, float yPosition)
 {
 
-	int wallHeight = 40;
+	btScalar wallHeight = 40;
 
 	std::vector<BoxModel> newWalls = {
 		{

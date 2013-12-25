@@ -11,7 +11,7 @@
 #include <osg/CullFace>
 #include <osg/TexGenNode>
 #include <osgUtil/CullVisitor>
-#include <stdio.h>
+#include <osg/ShapeDrawable>
 // troen
 #include "../constants.h"
 #include "shaders.h"
@@ -37,7 +37,16 @@ BikeView::BikeView(osg::Vec3 color)
 	initialTransform *= initialTransform.translate(BIKE_VIEW_TRANSLATE_VALUES);
 	
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
+	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
+
+	osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable;
+	mark_shape->setShape(new osg::Box(osg::Vec3(), 5.f));
+	osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
+	mark_node->addDrawable(mark_shape.get());
+	mark_node->setNodeMask(CAMERA_MASK_RADAR);
+
 	pat->addChild(matrixTransform);
+	pat->addChild(mark_node);
 	
 	MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
 		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",

@@ -75,7 +75,6 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		if (!m_fboTextures[i])  
 			m_fboTextures[i] = new osg::Texture2D();
 		
-		
 		if (i == PING || i == PONG) {
 			m_fboTextures[i]->setTextureWidth(halfedWidth);
 			m_fboTextures[i]->setTextureHeight(halfedHeight);
@@ -109,11 +108,9 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 			if (i != 0 && i != iEnd - 1)
 				// only draw with halfed resolution, if we process the gbuffer + postprocessing pass
 				m_allCameras[i]->setViewport(new osg::Viewport(0, 0, halfedWidth, halfedHeight));
-
 		}
 	}
 }
-
 
 class NearFarCallback : public osg::NodeCallback
 {

@@ -14,3 +14,14 @@ HUDController::HUDController()
 
 
 }
+
+void HUDController::resize(int width, int height)
+{
+	std::static_pointer_cast<HUDView>(m_view)->resize(width, height);
+}
+
+void HUDController::attachSceneToRadarCamera(osg::Group* scene)
+{
+	std::static_pointer_cast<HUDView>(m_view)->attachSceneToRadarCamera(scene);
+
+}

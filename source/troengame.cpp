@@ -94,10 +94,11 @@ float TroenGame::getFovy()
 }
 
 
-void TroenGame::refreshTextures(int width, int height){
+void TroenGame::resize(int width, int height){
 	if (m_postProcessing){
 		m_postProcessing->setupTextures(width, height);
 	}
+	m_HUDController->resize(width, height);
 }
 
 
@@ -138,6 +139,7 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] controllers (models & views) ..." << std::endl;
 	initializeSkyDome();
 	initializeControllers();
+	initializeHud();
 
 	std::cout << "[TroenGame::initialize] gameLogic ..." << std::endl;
 	initializeGameLogic();
@@ -197,9 +199,21 @@ bool TroenGame::initializeControllers()
 		m_bikeControllers.push_back(std::make_shared<BikeController>((
 			input::BikeInputState::InputDevice)m_playerInputTypes[i],m_levelController->initialPositionTransformForBikeWithIndex(i)));
 	}
-	//m_HUDController = std::make_shared<HUDController>();
+	m_HUDController = std::make_shared<HUDController>();
 	return true;
 }
+
+bool TroenGame::initializeHud()
+{
+	m_hudSwitch = new osg::Switch();
+	m_hudSwitch->setNewChildDefaultValue(false);
+	m_hudSwitch->addChild(m_HUDController->getViewNode());
+	unsigned int childIndex = m_hudSwitch->getChildIndex(m_HUDController->getViewNode());
+	m_hudSwitch->setSingleChildOn(childIndex);
+
+	return true;
+}
+
 
 bool TroenGame::initializeGameLogic()
 {
@@ -210,6 +224,7 @@ bool TroenGame::initializeGameLogic()
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
+	m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
     
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 		= new NodeFollowCameraManipulator();
@@ -222,6 +237,7 @@ bool TroenGame::initializeViews()
 	m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
 	m_gameView->addEventHandler(m_statsHandler);
 
+	m_HUDController->attachSceneToRadarCamera(m_sceneNode);
 	m_gameView->setSceneData(m_rootNode);
 #ifdef WIN32
 	if (m_fullscreen)
@@ -243,6 +259,7 @@ bool TroenGame::initializeViews()
 	if (m_splitscreen)
 	{
 		m_gameView2 = new osgViewer::View;
+		m_gameView2->getCamera()->setCullMask(CAMERA_MASK_MAIN);
 
 		osg::ref_ptr<NodeFollowCameraManipulator> manipulator2
 			= new NodeFollowCameraManipulator();
@@ -295,6 +312,22 @@ bool TroenGame::initializeViewer()
 
 bool TroenGame::composeSceneGraph()
 {
+	/* Scene graph 
+							  m_hudSwitch - HUDController
+							/ 
+	GameView#Camera - m_rootNode#Group																		  
+							\																		 
+							 m_postprocessing#Cameras - each camera child node to m_rootNode
+							 - SELECT_GLOW_OBJECTS
+									\
+									m_sceneNode#Group - Bike&LevelView
+							 - HBLUR
+							 - VBLUR
+							 - PostProcesingCamera
+									\		
+									Quad#Geode
+	*/	
+
 	if (m_usePostProcessing)
 	{
 		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
@@ -306,7 +339,7 @@ bool TroenGame::composeSceneGraph()
 
 	m_sceneNode->addChild(m_skyDome.get());
 	m_sceneNode->addChild(m_levelController->getViewNode());
-	//m_sceneNode->addChild(m_HUDController->getViewNode());
+	m_rootNode->addChild(m_hudSwitch);
 
 	for (auto bikeController : m_bikeControllers)
 		m_sceneNode->addChild(bikeController->getViewNode());
@@ -357,7 +390,7 @@ void TroenGame::startGameLoop()
 	m_audioManager->SetMasterVolume(0.f);
 
 	if (m_useDebugView)
-		m_rootNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
+		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();

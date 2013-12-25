@@ -40,7 +40,7 @@ namespace troen
 		void pauseSimulation();
 		void unpauseSimulation();
 
-		void refreshTextures(int width, int height);
+		void resize(int width, int height);
 		void setFovy(float newFovy);
 		float getFovy();
 
@@ -51,6 +51,7 @@ namespace troen
 		bool initialize();
 		bool initializeViews();
 		bool initializeViewer();
+		bool initializeHud();
 		bool initializeControllers();
 		bool initializeInput();
 		bool composeSceneGraph();
@@ -80,6 +81,8 @@ namespace troen
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
+		osg::ref_ptr<osg::Switch>			m_hudSwitch;
+
 
 		// Controllers
 		std::shared_ptr<LevelController>	m_levelController;
