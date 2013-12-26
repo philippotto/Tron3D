@@ -13,6 +13,7 @@
 #include <osgUtil/CullVisitor>
 #include <stdio.h>
 // troen
+#include "../constants.h"
 #include "shaders.h"
 #include "../input/bikeinputstate.h"
 #include <osgDB/ReadFile>
@@ -30,10 +31,10 @@ BikeView::BikeView(osg::Vec3 color)
 	
 #ifndef _DEBUG
 	osg::Matrixd initialTransform;
-	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Vec3d(0.0, 0.0, 1.0));
+	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Z_AXIS);
 	initialTransform.makeRotate(rotationQuat);
-	initialTransform *= initialTransform.scale(osg::Vec3f(5.0f, 5.0f, 5.0f));
-	initialTransform *= initialTransform.translate(0.0, 0.0, -4.9);
+	initialTransform *= initialTransform.scale(BIKE_VIEW_SCALE_FACTORS);
+	initialTransform *= initialTransform.translate(BIKE_VIEW_TRANSLATE_VALUES);
 	
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
 	pat->addChild(matrixTransform);
@@ -89,7 +90,6 @@ BikeView::BikeView(osg::Vec3 color)
 
 #endif
 #ifdef _DEBUG
-	
 	pat->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
 #endif
 	m_node->addChild(pat);
@@ -117,7 +117,7 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::
 	osg::Uniform* glowIntensityU = new osg::Uniform("glowIntensity", glowIntensity);
 	NodeState->addUniform(glowIntensityU);
 
-	if (stateAttributeMaterial != NULL)
+	if (stateAttributeMaterial != nullptr)
 	{
 		osg::Material *objMaterial = dynamic_cast<osg::Material*>(stateAttributeMaterial);
 		

@@ -76,7 +76,7 @@ namespace troen {
 
 			// utils
 
-			osg::Vec3 GLDebugDrawer::asOsgVec3(const btVector3& v)
+			osg::Vec3 asOsgVec3(const btVector3& v)
 			{
 				return osg::Vec3(v.x(), v.y(), v.z());
 			}

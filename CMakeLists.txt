@@ -203,6 +203,10 @@ set(sources
 	source/sampleosgviewer.h
 	source/sampleosgviewer.cpp
 	source/gameeventhandler.h
+	source/constants.h
+	source/constants.cpp
+	source/gamelogic.h
+	source/gamelogic.cpp
 
 	source/input/keyboard.h
 	source/input/keyboard.cpp
@@ -248,7 +252,6 @@ set(sources
 	source/view/bikeview.cpp
 	source/view/levelview.h
 	source/view/levelview.cpp
-	source/view/auto_levelview.cpp
 	source/view/fenceview.h
 	source/view/fenceview.cpp
 	source/view/abstractview.h
@@ -262,6 +265,8 @@ set(sources
 	source/view/postprocessing.cpp
 	source/view/postprocessing.h
 	source/view/motionblur.h
+	source/view/nodefollowcameramanipulator.h
+	source/view/nodefollowcameramanipulator.cpp
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
@@ -299,6 +304,11 @@ target_link_libraries( ${target}
     ${OPENSCENEGRAPH_LIBRARIES}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
-	${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
 	${HIDAPI_LIBRARIES}
 )
+
+if (WIN32)
+target_link_libraries( ${target}
+	${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
+)
+endif (WIN32)

@@ -5,15 +5,16 @@
 #include <osg/Vec4>
 #include <osg/PositionAttitudeTransform>
 // troen
+#include "../constants.h"
 #include "shaders.h"
 #include "../model/fencemodel.h"
 
 using namespace troen;
 
-FenceView::FenceView(osg::Vec3 color, std::shared_ptr<FenceModel>& model, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
+FenceView::FenceView(osg::Vec3 color, std::shared_ptr<AbstractModel>& model, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
 {
 	m_playerColor = color;
-	m_model = model;
+	m_model = std::static_pointer_cast<FenceModel>(model);
 	m_node = new osg::Group();
 
 	initializeFence();
@@ -22,7 +23,7 @@ FenceView::FenceView(osg::Vec3 color, std::shared_ptr<FenceModel>& model, int ma
 
 void FenceView::initializeFence()
 {
-	m_fenceHeight = m_model.lock()->getFenceHeight();
+	m_fenceHeight = FENCE_HEIGHT_VIEW;
 
 	m_coordinates = new osg::Vec3Array;
 	m_coordinates->setDataVariance(osg::Object::DYNAMIC);
@@ -52,8 +53,6 @@ void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
 		m_coordinates->at(m_coordinates->size() - 1) = osg::Vec3(position.x(), position.y(), position.z() + m_fenceHeight);
 	}
 }
-
-
 
 void FenceView::initializeShader()
 {

@@ -1,8 +1,9 @@
 #pragma once
-
+// OSG
 #include <osg/PositionAttitudeTransform>
-
+// bullet
 #include <btBulletDynamicsCommon.h>
+// troen
 #include "../controller/fencecontroller.h"
 #include "../model/bikemodel.h"
 
@@ -12,17 +13,15 @@ namespace troen
 	{
 	public:
 		BikeMotionState(
-			const btTransform &initialpos,
+			const btTransform &initialTransform,
 			osg::PositionAttitudeTransform* pat,
 			std::shared_ptr<FenceController> fenceController,
-			BikeModel *bikeModel,
-			btVector3 bikeDimensions) :
-				m_position(initialpos),
+			BikeModel *bikeModel) :
 				m_visibleObj(pat),
+                m_positionTransform(initialTransform),
 				m_fenceController(fenceController),
 				m_bikeModel(bikeModel),
-				m_bikeDimensions(bikeDimensions),
-				m_currentTilt(0){}
+				m_currentTilt(0) {}
 
 		virtual ~BikeMotionState() {}
 
@@ -36,7 +35,7 @@ namespace troen
 		}
 
 		virtual void getWorldTransform(btTransform &worldTrans) const {
-			worldTrans = m_position;
+			worldTrans = m_positionTransform;
 		}
 
 		virtual void setWorldTransform(const btTransform &worldTrans) {
@@ -52,24 +51,14 @@ namespace troen
 			btVector3 pos = worldTrans.getOrigin();
 			m_visibleObj->setPosition(osg::Vec3(pos.x(), pos.y(), pos.z()));
 			
-			btVector3 fenceOffset = btVector3(
-				0,
-				-m_bikeDimensions.y() / 2,
-				m_bikeDimensions.z() / 2).rotate(rot.getAxis(), rot.getAngle()
-			);
-			
 			// update fence accordingly
-			m_fenceController.lock()->update(pos - fenceOffset);
+			m_fenceController.lock()->update(pos, rot);
 		}
 
-		osg::Quat getTilt() {
-			// tiltDampening = 1 would lead to immediate/unsmooth tilt
-			// 1 / maximumTilt specifies angle in radiant
-			static const float tiltDampening = 20.f;
-			static const float maximumTilt = 8.f;
-
-			float desiredTilt = m_bikeModel->getSteering() / maximumTilt;
-			m_currentTilt = m_currentTilt + (desiredTilt - m_currentTilt) / tiltDampening;
+		osg::Quat getTilt()
+		{
+			float desiredTilt = m_bikeModel->getSteering() / BIKE_TILT_MAX;
+			m_currentTilt = m_currentTilt + (desiredTilt - m_currentTilt) / BIKE_TILT_DAMPENING;
 			
 			osg::Quat tiltingQuat;
 			tiltingQuat.makeRotate(m_currentTilt, osg::Vec3(0, 1, 0));
@@ -79,11 +68,10 @@ namespace troen
 
 	protected:
 		osg::PositionAttitudeTransform* m_visibleObj;
-		btTransform m_position;
+		btTransform m_positionTransform;
 		std::weak_ptr<FenceController> m_fenceController;
 		BikeModel* m_bikeModel;
 		std::weak_ptr<btRigidBody> m_rigidBody;
-		btVector3 m_bikeDimensions;
 		float m_currentTilt;
 	};
 }

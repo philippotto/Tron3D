@@ -19,7 +19,7 @@ namespace troen
 		Q_OBJECT
 
 	public:
-		MainWindow (QWidget * parent = NULL);
+		MainWindow (QWidget * parent = nullptr);
 		virtual ~MainWindow();
 
 	signals:
@@ -27,6 +27,10 @@ namespace troen
 
 	public slots:
 		void updatePlayerInputBoxes();
+
+	protected:
+		virtual bool eventFilter(QObject* object, QEvent* event);
+		virtual void childEvent(QChildEvent* e);
 
 	private slots:
 		void prepareGameStart();
@@ -43,7 +47,8 @@ namespace troen
 		QCheckBox*		m_splitscreenCheckBox;
 		QCheckBox*		m_fullscreenCheckBox;
 		QCheckBox*		m_postProcessingCheckBox;
-
+		QCheckBox*		m_testPerformanceCheckBox;
+		QCheckBox*		m_debugViewCheckBox;
 
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;

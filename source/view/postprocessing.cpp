@@ -23,10 +23,9 @@ using namespace troen;
 static osg::ref_ptr<osg::Uniform> g_nearFarUniform;
 
 PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height)
-:m_root(rootNode), m_width(width), m_height(height), m_sceneNode(new osg::Group())
+:m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height)
 {
 	// init textures, will be recreated when screen size changes
-	
 	setupTextures(m_width, m_height);
 
 	// create shaders
@@ -65,6 +64,9 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 	// 2D textures as render targets
 	//////////////////////////////////////////////////////////////////////////
 
+	int halfedWidth = width / 2;
+	int halfedHeight = height / 2;
+
 	// store color, normal & Depth, id in textures
 	m_fboTextures.resize(TEXTURE_CONTENT_SIZE);
 	for (int i = 0; i<m_fboTextures.size(); i++)
@@ -74,9 +76,9 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 			m_fboTextures[i] = new osg::Texture2D();
 		
 		
-		if (false && (i == PING || i == PONG)) {
-			m_fboTextures[i]->setTextureWidth(width / 2);
-			m_fboTextures[i]->setTextureHeight(height / 2);
+		if (i == PING || i == PONG) {
+			m_fboTextures[i]->setTextureWidth(halfedWidth);
+			m_fboTextures[i]->setTextureHeight(halfedHeight);
 		} else {
 			m_fboTextures[i]->setTextureWidth(width);
 			m_fboTextures[i]->setTextureHeight(height);
@@ -104,6 +106,10 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		for (size_t i = 0, iEnd = m_allCameras.size(); i<iEnd; i++)
 		{
 			m_allCameras[i]->setRenderingCache(0);
+			if (i != 0 && i != iEnd - 1)
+				// only draw with halfed resolution, if we process the gbuffer + postprocessing pass
+				m_allCameras[i]->setViewport(new osg::Viewport(0, 0, halfedWidth, halfedHeight));
+
 		}
 	}
 }

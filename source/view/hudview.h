@@ -14,6 +14,6 @@ namespace troen
 	public:
 		HUDView();
 	private:
-		osg::Camera* HUDView::createHUD();
+		osg::Camera* createHUD();
 	};
 }

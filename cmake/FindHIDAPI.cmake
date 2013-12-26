@@ -27,12 +27,14 @@ FIND_PATH(HIDAPI_INCLUDE_DIR
   NAMES hidapi.h
   PATHS
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/hidapi/include
+    /usr/local/include/hidapi/
 )
 
 FIND_LIBRARY(HIDAPI_LIBRARY
   NAMES hidapi
   PATHS
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/hidapi/lib
+    /usr/local/lib
 )
 
 include(FindPackageHandleStandardArgs)

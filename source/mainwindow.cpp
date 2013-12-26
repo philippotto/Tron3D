@@ -3,6 +3,8 @@
 #include <QThread>
 #include <QBoxLayout>
 #include <QLabel>
+#include <QKeyEvent>
+#include <QCoreApplication>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -35,7 +37,7 @@ MainWindow::MainWindow(QWidget * parent)
 		m_bikeNumberSpinBox = new QSpinBox;
 		m_bikeNumberSpinBox->setMinimum(1);
 		m_bikeNumberSpinBox->setMaximum(6);
-		m_bikeNumberSpinBox->setValue(2);
+		m_bikeNumberSpinBox->setValue(1);
 		bikeNumberLayout->addWidget(m_bikeNumberSpinBox);
 
 		vBoxLayout->addWidget(bikeNumberWidget);
@@ -81,16 +83,28 @@ MainWindow::MainWindow(QWidget * parent)
 
 	// splitscreenCheckBox
 	m_splitscreenCheckBox = new QCheckBox("Splitscreen");
-	vBoxLayout->addWidget(m_splitscreenCheckBox, 0, Qt::AlignHCenter);
+	m_splitscreenCheckBox->setChecked(false);
+	m_splitscreenCheckBox->setDisabled(true);
+	vBoxLayout->addWidget(m_splitscreenCheckBox, 0, Qt::AlignLeft);
 
 	//fullscreenCheckBox
 	m_fullscreenCheckBox = new QCheckBox("Fullscreen");
-	vBoxLayout->addWidget(m_fullscreenCheckBox, 0, Qt::AlignHCenter);
+	vBoxLayout->addWidget(m_fullscreenCheckBox, 0, Qt::AlignLeft);
 
-	// splitscreenCheckBox
+	// postProcessingCheckBox
 	m_postProcessingCheckBox = new QCheckBox("PostProcessing");
-	vBoxLayout->addWidget(m_postProcessingCheckBox, 0, Qt::AlignHCenter);
-	m_postProcessingCheckBox->setChecked(true);
+	vBoxLayout->addWidget(m_postProcessingCheckBox, 0, Qt::AlignLeft);
+	m_postProcessingCheckBox->setChecked(false);
+
+	// postProcessingCheckBox
+	m_testPerformanceCheckBox = new QCheckBox("TestPerformance - vSync OFF");
+	vBoxLayout->addWidget(m_testPerformanceCheckBox, 0, Qt::AlignLeft);
+	m_testPerformanceCheckBox->setChecked(false);
+
+	// debugViewCheckBox
+	m_debugViewCheckBox = new QCheckBox("DebugView");
+	vBoxLayout->addWidget(m_debugViewCheckBox, 0, Qt::AlignLeft);
+	m_debugViewCheckBox->setChecked(false);
 
 	// gameStartButton
 	m_gameStartButton = new QPushButton(QString("start Game"));
@@ -145,6 +159,8 @@ void MainWindow::prepareGameStart()
 	config.splitscreen = m_splitscreenCheckBox->isChecked();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
+	config.useDebugView = m_debugViewCheckBox->isChecked();
+	config.testPerformance = m_testPerformanceCheckBox->isChecked();
 	emit startGame(config);
 }
 
@@ -173,4 +189,37 @@ void MainWindow::bikeNumberChanged(int newBikeNumber)
 		m_splitscreenCheckBox->setCheckable(true);
 		m_splitscreenCheckBox->setDisabled(false);
 	}
+}
+
+bool MainWindow::eventFilter(QObject* object, QEvent* event)
+{
+	if (event->type() == QEvent::KeyPress) {
+		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+		if (keyEvent->key() == Qt::Key_Return) {
+			this->prepareGameStart();
+			keyEvent->accept();
+			return true;
+		}
+		else if (keyEvent->key() == Qt::Key_Escape)
+		{
+			this->close();
+			keyEvent->accept();
+			return true;
+		}
+	}
+	return QMainWindow::eventFilter(object, event);
+}
+
+void MainWindow::childEvent(QChildEvent* e)
+{
+	if (e->child()->isWidgetType()) {
+		if (e->type() == QEvent::ChildAdded) {
+			e->child()->installEventFilter(this);
+		}
+		else if (e->type() == QEvent::ChildRemoved) {
+			e->child()->removeEventFilter(this);
+		}
+	}
+
+	QWidget::childEvent(e);
 }

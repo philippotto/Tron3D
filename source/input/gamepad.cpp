@@ -1,3 +1,5 @@
+#ifdef WIN32
+
 #include "gamepad.h"
 // troen
 #include "bikeinputstate.h"
@@ -81,3 +83,6 @@ bool Gamepad::isPressed(unsigned short button)
 {
 	return (m_state.Gamepad.wButtons & button) != 0;
 }
+
+
+#endif

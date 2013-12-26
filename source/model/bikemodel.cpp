@@ -4,48 +4,50 @@
 // STD
 #include <math.h>
 // troen
+#include "../constants.h"
 #include "../input/bikeinputstate.h"
 #include "bikemotionstate.h"
 
 using namespace troen;
 
-#define VMAX 800
-#define FRICTION 10
-#define PI 3.14159265359
-
-BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
+BikeModel::BikeModel(
+	btTransform initialTransform,
+	osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<FenceController> fenceController,
-	BikeController* bikeController)
+	BikeController* bikeController) :
+m_lastUpdateTime(0)
 {
 	resetState();
 
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
 
-	btVector3 bikeDimensions = btVector3( 12.5, 25, 12.5 );
-
-	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(bikeDimensions / 2);
+	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(BIKE_DIMENSIONS / 2);
 
 	// todo deliver "this" as a shared_ptr ?
+	// jd: i tried this, this class would have to inherit from std::enable_shared_from_this<>,
+	// so i thought it to complicated.
 	std::shared_ptr<BikeMotionState> bikeMotionState = std::make_shared<BikeMotionState>(
-		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, bikeDimensions.z()/2)),
+		initialTransform,
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
 		fenceController,
-		this,
-		bikeDimensions
+		this
 	);
 	
-	btScalar mass = 10;
+	// TODO
+	// make friction & ineartia work without wrong behaviour of bike (left turn)
 	btVector3 bikeInertia(0, 0, 0);
-	bikeShape->calculateLocalInertia(mass, bikeInertia);
+	bikeShape->calculateLocalInertia(BIKE_MASS, bikeInertia);
+	//std::cout << bikeInertia.getX() << ".." << bikeInertia.getY() << ".." << bikeInertia.getZ() << std::endl;
 
-	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(mass, bikeMotionState.get(), bikeShape.get(), bikeInertia);
-	m_bikeRigidBodyCI.m_friction = 0;
+	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(BIKE_MASS, bikeMotionState.get(), bikeShape.get(), bikeInertia);
+	m_bikeRigidBodyCI.m_friction = 0.f;
+	//std::cout << m_bikeRigidBodyCI.m_friction << std::endl;
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
-	bikeRigidBody->setCcdMotionThreshold(1 / bikeDimensions.y());
-	bikeRigidBody->setCcdSweptSphereRadius(bikeDimensions.x() / 2.0 - 0.5);
+	bikeRigidBody->setCcdMotionThreshold(1 / BIKE_DIMENSIONS.y());
+	bikeRigidBody->setCcdSweptSphereRadius(BIKE_DIMENSIONS.x() * .5f - BIKE_DIMENSIONS.x() * 0.01);
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
@@ -75,36 +77,52 @@ float BikeModel::getSteering() {
 	return m_steering;
 }
 
-void BikeModel::updateState()
+float BikeModel::updateState(long double time)
 {
-	const btVector3 up = btVector3(0, 0, 1);
+	long double timeSinceLastUpdate = time - m_lastUpdateTime;
+	float timeFactor = timeSinceLastUpdate/15.f;
+
+	m_lastUpdateTime = time;
+
+	//std::cout << timeSinceLastUpdate << std::endl;
+
 	const btVector3 front = btVector3(0, -1, 0);
 
 	// call this exactly once per frame
 	m_steering = m_bikeInputState->getAngle();
-	float velocity = m_bikeInputState->getAcceleration();
+	float acceleration = m_bikeInputState->getAcceleration();
 
-	
 	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
+
 	btVector3 currentVelocityVectorXY = bikeRigidBody->getLinearVelocity();
 	btScalar zComponent = currentVelocityVectorXY.getZ();
 	currentVelocityVectorXY = btVector3(currentVelocityVectorXY.getX(), currentVelocityVectorXY.getY(), 0);
+	btVector3 currentAngularVelocity = bikeRigidBody->getAngularVelocity();
 
+	// TODO: (jd)
+	// rotation should also be time dependent
+	// atm it still depends on the framerate
 
-	// initiate rotation
-	const float maximumTurn = 20;
-	const float turningRad = PI / 180 * m_steering * maximumTurn;
-	
+	// accelerate
+	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
+	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
+	float speed = currentVelocityVectorXY.length() + 1 * ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
+
+	// rotate:
+	// turnFactor
+	// -> stronger steering for low velocities
+	// -> weaker steering at high velocities
+	//short int angularSign = sign(currentAngularVelocity.getZ());
+	float turnFactor = clamp(.1,1,BIKE_VELOCITY_MIN / (.5f*speed));
+	//float turningRad = ((PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor)) - clamp(0, 1, -angularSign * BIKE_ANGULAR_DAMPENING_TERM)) * timeFactor;
+	float turningRad = PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor);
+
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
-	// accelerate	
-	const int maximumAcceleration = 5;
-	// const int dampFactor = 1;
-	
-	int speed = currentVelocityVectorXY.length() + velocity * maximumAcceleration;
-
-	if (speed > VMAX)
-		speed = VMAX;
+	if (speed > BIKE_VELOCITY_MAX)
+		speed = BIKE_VELOCITY_MAX;
+	else if (speed < BIKE_VELOCITY_MIN)
+		speed = BIKE_VELOCITY_MIN;
 
 	// adapt velocity vector to real direction
 
@@ -116,6 +134,7 @@ void BikeModel::updateState()
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
+	return speed;
 }
 
 float BikeModel::getRotation()
@@ -142,4 +161,12 @@ btVector3 BikeModel::getPositionBt()
 	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
 
 	return trans.getOrigin();
+}
+
+void BikeModel::moveBikeToPosition(btTransform position)
+{
+	m_rigidBodies[0]->setWorldTransform(position);
+	m_rigidBodies[0]->setAngularVelocity(btVector3(0, 0, 0));
+	m_rigidBodies[0]->setLinearVelocity(btVector3(0, 0, 0));
+
 }

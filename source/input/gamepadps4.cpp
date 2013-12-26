@@ -1,6 +1,7 @@
 #include "gamepadps4.h"
 // troen
 #include "bikeinputstate.h"
+#include <cmath>
 
 // VID and PID values of the specific device
 #define VID		0x054c
@@ -69,7 +70,7 @@ int GamepadPS4::calcDecimalFromBinar(unsigned char *binar, int i, int jMax){
 	long n = ulBytes | binar[i];
 	for (int j = 0; j < jMax; j++)
 	{
-		int index = i * jMax + j;
+		//int index = i * jMax + j;
 		if (n & 1)
 			tmp += pow(2, j);
 
@@ -133,7 +134,7 @@ bool GamepadPS4::refresh()
 bool GamepadPS4::checkConnection(){
 	// Open the device using the vendor_id, product_id,
 	// and optionally the Serial number.
-	if ((_controller = hid_open(VID, PID, NULL)) != NULL)
+	if ((_controller = hid_open(VID, PID, nullptr)) != nullptr)
 		return true;
 
 	return false;
