@@ -12,7 +12,7 @@ namespace troen
 		{
 		public:
 			AI(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState) {};
-			bool refresh() override;
+			void run() override;
 		};
 	}
 }

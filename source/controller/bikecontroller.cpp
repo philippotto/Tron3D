@@ -15,6 +15,7 @@
 #include "../input/gamepad.h"
 #include "../input/gamepadps4.h"
 #include "../input/ai.h"
+#include "../input/pollingdevice.h"
 
 using namespace troen;
 
@@ -33,6 +34,15 @@ m_initialTransform(initialTransform)
 	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
 
 	initializeInput(inputDevice);
+}
+
+BikeController::~BikeController()
+{
+	if (m_pollingThread != nullptr)
+	{
+		m_pollingThread->stop();
+		m_pollingThread->wait();
+	}
 }
 
 osg::Vec3 BikeController::generateRandomColor() {
@@ -91,7 +101,8 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 		{
 			std::cout << "[TroenGame::initializeInput] No gamepad connected!" << std::endl;
 		}
-		bikeInputState->setPollingDevice(gamepad);
+		m_pollingThread = gamepad;
+		m_pollingThread->start();
 		break;
 	}
 #endif
@@ -107,13 +118,15 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 		{
 			std::cout << "[TroenGame::initializeInput] No PS4 Controller connected!" << std::endl;
 		}
-		bikeInputState->setPollingDevice(gamepad);
+		m_pollingThread = gamepad;
+		m_pollingThread->start();
 		break;
 	}
 	case input::BikeInputState::AI:
 	{
 		std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(bikeInputState);
-		bikeInputState->setPollingDevice(ai);
+		m_pollingThread = ai;
+		m_pollingThread->start();
 		break;
 	}
     default:

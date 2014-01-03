@@ -1,15 +1,21 @@
 #include "ai.h"
 // troen
 #include "bikeinputstate.h"
+#include "../constants.h"
 // other
 #include <cmath>
 
 using namespace troen::input;
 
-bool AI::refresh()
+void AI::run()
 {
-	m_bikeInputState->setAcceleration(fmod(rand() / 100.0, 1.0));
-	m_bikeInputState->setAngle(fmod(rand() / 100.0, 1.0));
+	m_pollingEnabled = true;
 
-	return true;
+	while (m_pollingEnabled)
+	{
+		m_bikeInputState->setAcceleration(fmod(rand() / 100.0, 1.0));
+		m_bikeInputState->setAngle(fmod(rand() / 100.0, 1.0));
+
+		this->msleep(POLLING_DELAY_MS * 2);
+	}
 }

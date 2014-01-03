@@ -25,7 +25,7 @@ namespace input
 		int getPort();
 		XINPUT_GAMEPAD* getState();
 		bool checkConnection();
-		bool refresh() override;
+		void run() override;
 		bool isPressed(unsigned short button);
 
 	private:

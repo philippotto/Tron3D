@@ -44,6 +44,8 @@ namespace troen
 
 	//INPUT
 	const float BIKE_ROTATION_VALUE(10.0);
+	// this should always be less than 1000/60FPS - the smaller, the more responsive is the input
+	const int POLLING_DELAY_MS(8);
 
 	// FENCE
 	// determines how accurate the fence will be

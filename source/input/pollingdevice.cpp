@@ -9,8 +9,11 @@ PollingDevice::PollingDevice(osg::ref_ptr<BikeInputState> bikeInputState)
 	m_bikeInputState = bikeInputState;
 }
 
-bool PollingDevice::refresh()
+void PollingDevice::run()
 {
 	// subclass responsibility
-	return false;
+}
+
+void PollingDevice::stop(){
+	m_pollingEnabled = false;
 }
