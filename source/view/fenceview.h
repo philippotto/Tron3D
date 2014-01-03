@@ -27,6 +27,7 @@ namespace troen
 		void initializeShader();
 		osg::ref_ptr<osg::Geometry>		m_geometry;
 		osg::ref_ptr<osg::Vec3Array>	m_coordinates;
+		osg::ref_ptr<osg::FloatArray>	m_relativeHeights;
 		osg::ref_ptr<osg::DrawArrays>	m_drawArrays;
 		osg::ref_ptr<osg::Geode>		m_geode;
 
