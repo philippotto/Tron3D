@@ -108,7 +108,6 @@ void GamepadPS4::run()
 	while (m_pollingEnabled)
 	{
 		unsigned char buf[64];
-		std::cout << "run" << std::endl;
 		// check whether controller is available, if not search for controller
 		// if it is still not available do nothing
 		if (!_controller || hid_read(_controller, buf, 64) == -1){
