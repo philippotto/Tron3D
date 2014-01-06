@@ -121,8 +121,7 @@ void GamepadPS4::run()
 			};
 		}
 
-		// offset, as the first 16 bytes are garbage
-		unsigned char *buffer = &buf[2];
+		unsigned char *buffer = buf;
 
 		// get angle value from LEFT_HAT
 		float normLX = (getValueFromKey(GamepadPS4::PS4KEY::LEFT_HAT_X, buffer) - 128) / 128.f;
