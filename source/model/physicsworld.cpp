@@ -146,7 +146,7 @@ void PhysicsWorld::checkForCollisionEvents()
 			// from the previous update, it is a new
 			// pair and we must send a collision event
 			if (m_pairsLastUpdate.find(thisPair) == m_pairsLastUpdate.end())
-					m_gameLogic->collisionEvent((btRigidBody*)pBody0, (btRigidBody*)pBody1, contactManifold);			
+					m_gameLogic.lock()->collisionEvent((btRigidBody*)pBody0, (btRigidBody*)pBody1, contactManifold);
 		}	
 	}
 	
@@ -161,7 +161,7 @@ void PhysicsWorld::checkForCollisionEvents()
 	
 	// iterate through all of the removed pairs sending separation events for them
 	for (CollisionPairSet::const_iterator iter = removedPairs.begin(); iter != removedPairs.end(); ++iter)
-		m_gameLogic->separationEvent((btRigidBody*)iter->first, (btRigidBody*)iter->second);
+		m_gameLogic.lock()->separationEvent((btRigidBody*)iter->first, (btRigidBody*)iter->second);
 	
 	// in the next iteration we'll want to compare against
 	// the pairs we found in this iteration

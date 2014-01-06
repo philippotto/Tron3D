@@ -45,6 +45,7 @@ namespace troen
 	//INPUT
 	extern const float BIKE_MOVE_VALUE;
 	extern const float BIKE_ROTATION_VALUE;
+	extern const int POLLING_DELAY_MS;
 
 	// FENCE
 	// determines how accurate the fence will be

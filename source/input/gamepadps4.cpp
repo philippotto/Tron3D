@@ -1,6 +1,7 @@
 #include "gamepadps4.h"
 // troen
 #include "bikeinputstate.h"
+#include "../constants.h"
 #include <cmath>
 
 // VID and PID values of the specific device
@@ -57,6 +58,8 @@ int GamepadPS4::getValueFromKey(GamepadPS4::PS4KEY type, unsigned char *buffer){
 											 else return 0;
 	case GamepadPS4::PS4KEY::LEFT_PRESSED: if (cross == 5 || cross == 6 || cross == 7) return 1;
 											 else return 0;
+	case GamepadPS4::PS4KEY::LEFT_2: return calcDecimalFromBinar(buffer, 8, 8);
+	case GamepadPS4::PS4KEY::RIGHT_2: return calcDecimalFromBinar(buffer, 9, 8);
 	default: return -1;
 	}
 }
@@ -100,35 +103,38 @@ int GamepadPS4::getBitAt(int k, unsigned char * buffer){
 }
 
 //check for events and handle them
-bool GamepadPS4::refresh()
+void GamepadPS4::run()
 {
-	unsigned char buf[64];
+	m_pollingEnabled = true;
 
-	// check whether controller is available, if not search for controller
-	// if it is still not available do nothing
-	if (!_controller || hid_read(_controller, buf, 64) == -1){
-		if (!checkConnection())
-		{
-			m_bikeInputState->setAngle(0);
-			m_bikeInputState->setAcceleration(0);
-			return false;
-		};
+	while (m_pollingEnabled)
+	{
+		unsigned char buf[96];
+		// check whether controller is available, if not search for controller
+		// if it is still not available do nothing
+		if (!_controller || hid_read(_controller, buf, 96) == -1){
+			if (!checkConnection())
+			{
+				m_bikeInputState->setAngle(0);
+				m_bikeInputState->setAcceleration(0);
+				return;
+			};
+		}
+
+		unsigned char *buffer = buf;
+
+		// get angle value from LEFT_HAT
+		float normLX = (getValueFromKey(GamepadPS4::PS4KEY::LEFT_HAT_X, buffer) - 128) / 128.f;
+		float leftStickX = (abs(normLX) < m_deadzoneX ? 0 : (abs(normLX) - m_deadzoneX) * (normLX / abs(normLX)));
+		m_bikeInputState->setAngle(-leftStickX);
+
+		// get acceleration from RIGHT_2 and LEFT_2
+		float rightTrigger = getValueFromKey(GamepadPS4::PS4KEY::RIGHT_2, buffer) / 255.f;
+		float leftTrigger = getValueFromKey(GamepadPS4::PS4KEY::LEFT_2, buffer) / 255.f;
+		m_bikeInputState->setAcceleration(rightTrigger - leftTrigger);
+
+		this->msleep(POLLING_DELAY_MS);
 	}
-
-	unsigned char *buffer = buf;
-
-	// get angle value from LEFT_HAT
-	float normLX = (getValueFromKey(GamepadPS4::PS4KEY::LEFT_HAT_X, buffer) - 128) / 128.f;
-	float leftStickX = (abs(normLX) < m_deadzoneX ? 0 : (abs(normLX) - m_deadzoneX) * (normLX / abs(normLX)));
-	m_bikeInputState->setAngle(-leftStickX);
-
-	// TODO (dw) receive continous values from right_2 and left_2
-	// get acceleration from RIGHT_2 and LEFT_2
-	float rightTrigger = getValueFromKey(GamepadPS4::PS4KEY::RIGHT_2_PRESSED, buffer);// / 255.f;
-	float leftTrigger = getValueFromKey(GamepadPS4::PS4KEY::LEFT_2_PRESSED, buffer);// / 255.f;
-	m_bikeInputState->setAcceleration(rightTrigger - leftTrigger);
-
-	return true;
 }
 
 bool GamepadPS4::checkConnection(){

@@ -28,8 +28,15 @@ void FenceView::initializeFence()
 	m_coordinates = new osg::Vec3Array;
 	m_coordinates->setDataVariance(osg::Object::DYNAMIC);
 
+	m_relativeHeights = new osg::FloatArray;
+	m_relativeHeights->setDataVariance(osg::Object::DYNAMIC);
+
 	m_geometry = new osg::Geometry();
 	m_geometry->setVertexArray(m_coordinates);
+
+	// set the relative height between 0 and 1 as an additional vertex attribute
+	m_geometry->setVertexAttribArray(5, m_relativeHeights);
+	m_geometry->setVertexAttribBinding(5, osg::Geometry::BIND_PER_VERTEX);
 
 	// seems to be important so that we won't crash after 683 fence parts
 	m_geometry->setUseDisplayList(false);
@@ -51,6 +58,8 @@ void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
 	if (m_coordinates->size() > 1) {
 		m_coordinates->at(m_coordinates->size() - 2) = osg::Vec3(position.x(), position.y(), position.z());
 		m_coordinates->at(m_coordinates->size() - 1) = osg::Vec3(position.x(), position.y(), position.z() + m_fenceHeight);
+		m_relativeHeights->at(m_relativeHeights->size() - 2) = 0.f;
+		m_relativeHeights->at(m_relativeHeights->size() - 1) = 1.f;
 	}
 }
 
@@ -60,15 +69,14 @@ void FenceView::initializeShader()
 	osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", m_playerColor);
 	NodeState->addUniform(fenceColorU);
 
-	osg::Uniform* fenceHeightU = new osg::Uniform("fenceHeight", m_fenceHeight);
-	NodeState->addUniform(fenceHeightU);
-
 	osg::Uniform* modelIDU = new osg::Uniform("modelID", GLOW);
 	NodeState->addUniform(modelIDU);
 
 	NodeState->setMode(GL_BLEND, osg::StateAttribute::ON);
 	NodeState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::FENCE], osg::StateAttribute::ON);
+
+	shaders::m_allShaderPrograms[shaders::FENCE]->addBindAttribLocation("a_relHeight", 5);
 }
 
 void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
@@ -77,10 +85,14 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 	{
 		m_coordinates->push_back(lastPosition);
 		m_coordinates->push_back(osg::Vec3(lastPosition.x(), lastPosition.y(), lastPosition.z() + m_fenceHeight));
+		m_relativeHeights->push_back(0.f);
+		m_relativeHeights->push_back(1.f);
 	}
 
 	m_coordinates->push_back(currentPosition);
 	m_coordinates->push_back(osg::Vec3(currentPosition.x(), currentPosition.y(), currentPosition.z() + m_fenceHeight));
+	m_relativeHeights->push_back(0.f);
+	m_relativeHeights->push_back(1.f);
 	
 	enforceFencePartsLimit(m_maxFenceParts);
 
@@ -114,4 +126,5 @@ void FenceView::enforceFencePartsLimit(int maxFenceParts)
 void FenceView::removeFirstFencePart()
 {
 	m_coordinates->erase(m_coordinates->begin(), m_coordinates->begin() + 2);
+	m_relativeHeights->erase(m_relativeHeights->begin(), m_relativeHeights->begin() + 2);
 }
