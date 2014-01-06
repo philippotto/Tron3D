@@ -74,7 +74,8 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 				osgGA::GUIEventAdapter::KEY_W,
 				osgGA::GUIEventAdapter::KEY_A,
 				osgGA::GUIEventAdapter::KEY_S,
-				osgGA::GUIEventAdapter::KEY_D
+				osgGA::GUIEventAdapter::KEY_D,
+				osgGA::GUIEventAdapter::KEY_Space
 			});
 		break;
 	}
@@ -84,7 +85,8 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 			osgGA::GUIEventAdapter::KEY_Up,
 			osgGA::GUIEventAdapter::KEY_Left,
 			osgGA::GUIEventAdapter::KEY_Down,
-			osgGA::GUIEventAdapter::KEY_Right
+			osgGA::GUIEventAdapter::KEY_Right,
+			osgGA::GUIEventAdapter::KEY_Control_R
 		});
 		break;
 	}

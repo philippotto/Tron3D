@@ -2,6 +2,7 @@
 // troen
 #include "bikeinputstate.h"
 #include "../view/shaders.h"
+#include "../constants.h"
 
 using namespace troen::input;
 
@@ -25,7 +26,7 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 		}
 		else if (key == m_keys[1]) // left
 		{
-			m_bikeInputState->setAngle(1.0);
+			m_bikeInputState->setAngle(1.0 + m_handbrakePressed * BIKE_HANDBRAKE_FACTOR);
 			return false;
 		}
 		else if (key == m_keys[2]) // backwards
@@ -35,7 +36,12 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 		}
 		else if (key == m_keys[3])
 		{
-			m_bikeInputState->setAngle(-1.0);
+			m_bikeInputState->setAngle(-1.0 - m_handbrakePressed * BIKE_HANDBRAKE_FACTOR);
+			return false;
+		}
+		else if (key == m_keys[4])
+		{
+			m_handbrakePressed = 1.0;
 			return false;
 		}
 		// todo, move to gameeventhandler
@@ -67,6 +73,11 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 		else if (key == m_keys[3])
 		{
 			m_bikeInputState->setAngle(-0.0);
+			return false;
+		}
+		else if (key == m_keys[4])
+		{
+			m_handbrakePressed = 0.0;
 			return false;
 		}
 		return false;
