@@ -11,6 +11,11 @@
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
+#include <osg/Texture2D>
+#include <osg/TexEnv>
+#include <osg/TexGen>
+#include <osg/TexGenNode>
 
 #include <btBulletDynamicsCommon.h>
 
@@ -27,29 +32,49 @@ LevelView::LevelView(std::shared_ptr<LevelModel> model)
 	int levelSize = m_model->getLevelSize();
 
 	m_node = new osg::Group();
+
+	m_node->addChild(constructObstacles(levelSize));
 	m_node->addChild(constructWalls(levelSize));
 	m_node->addChild(constructFloors(levelSize));
 }
 
-osg::ref_ptr<osg::Geode> LevelView::constructWalls(int levelSize)
-{
-	osg::ref_ptr<osg::Geode> walls = constructGeodeForBoxes(m_model->getWalls());		
-	addShaderAndUniforms(walls, shaders::OUTER_WALL, levelSize);
 
-	return walls;
+osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
+{
+        osg::ref_ptr<osg::Group> walls = constructGroupForBoxes(m_model->getWalls());                
+        addShaderAndUniforms(walls, shaders::OUTER_WALL, levelSize);
+
+        return walls;
 }
 
-osg::ref_ptr<osg::Geode> LevelView::constructFloors(int levelSize)
+osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
-	osg::ref_ptr<osg::Geode> floors = constructGeodeForBoxes(m_model->getFloors());
-	addShaderAndUniforms(floors, shaders::GRID, levelSize);
+        osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
+        addShaderAndUniforms(floors, shaders::GRID, levelSize);
 
-	return floors;
+        return floors;
 }
 
-void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Geode>& geode, int shaderIndex, int levelSize)
+osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 {
-	osg::StateSet *stateSet = geode->getOrCreateStateSet();
+	osg::ref_ptr<osg::Group> obstacleGroup = constructGroupForBoxes(m_model->getObstacles()); 
+
+	osg::StateSet *obstaclesStateSet = obstacleGroup->getOrCreateStateSet();
+	obstaclesStateSet->ref();
+
+	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
+	obstaclesStateSet->addUniform(textureMapU);
+
+	setTexture(obstaclesStateSet, "data/textures/troen_box_tex.tga", 0);
+
+	addShaderAndUniforms(obstacleGroup, shaders::DEFAULT, levelSize);
+
+	return obstacleGroup;
+}
+
+void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Group>& group, int shaderIndex, int levelSize)
+{
+	osg::StateSet *stateSet = group->getOrCreateStateSet();
 	stateSet->ref();
 
 	stateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaderIndex], osg::StateAttribute::ON);
@@ -57,22 +82,51 @@ void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Geode>& geode, int shader
 	stateSet->addUniform(new osg::Uniform("modelID", DEFAULT));
 }
 
-osg::ref_ptr<osg::Geode> LevelView::constructGeodeForBoxes(std::vector<BoxModel> &boxes)
+osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel> &boxes)
 {
-	osg::ref_ptr<osg::Geode> geode = new osg::Geode();
+	osg::ref_ptr<osg::Group> boxGroup = new osg::Group();
 
 	for (int i = 0; i < boxes.size(); ++i)
 	{
 		btVector3 dimensions = boxes[i].dimensions;
+		btVector3 position = boxes[i].center;
+		btQuaternion rotation = boxes[i].rotation;
 
 		osg::ref_ptr<osg::Box> box
-			= new osg::Box(asOsgVec3(boxes[i].center), dimensions.x(), dimensions.y(), dimensions.z());
+				= new osg::Box(osg::Vec3(0.0,0.0,0.0), dimensions.x(), dimensions.y(), dimensions.z());
 
-		osg::ref_ptr<osg::ShapeDrawable> wallDrawable
-			= new osg::ShapeDrawable(box);
+		osg::ref_ptr<osg::ShapeDrawable> boxDrawable
+				= new osg::ShapeDrawable(box);
 
-		geode->addDrawable(wallDrawable);
+		osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
+		boxGeode->addDrawable(boxDrawable);
+
+		osg::Matrixd initialTransform;
+		initialTransform.makeRotate(btToOSGQuat(rotation));
+		initialTransform *= initialTransform.translate(btToOSGVec3(position));
+
+		osg::ref_ptr<osg::MatrixTransform> matrixTransform = new osg::MatrixTransform(initialTransform);
+		matrixTransform->addChild(boxGeode);
+		boxGroup->addChild(matrixTransform);
 	}
 
-	return geode;
+	return boxGroup;
 }
+
+void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit)
+{
+
+	osg::Image* image = osgDB::readImageFile(filePath);
+	if (!image)
+		std::cout << "[TroenGame::levelView]  File \"" << filePath << "\" not found." << std::endl;
+	else
+	{
+		osg::Texture2D* texture = new osg::Texture2D;
+		texture->setImage(image);
+		texture->setResizeNonPowerOfTwoHint(false);
+		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
+
+	}
+}
+
+

@@ -3,6 +3,7 @@
 #include "gamepad.h"
 // troen
 #include "bikeinputstate.h"
+#include "../constants.h"
 // other
 #include <WinBase.h>
 
@@ -36,47 +37,54 @@ bool Gamepad::checkConnection()
 }
 
 // Returns false if the controller has been disconnected
-bool Gamepad::refresh()
+void Gamepad::run()
 {
-	if (m_controllerId == -1)
-		checkConnection();
-	
-	if (m_controllerId != -1)
+	m_pollingEnabled = true;
+
+	while (m_pollingEnabled)
 	{
-		ZeroMemory(&m_state, sizeof(XINPUT_STATE));
-		if (XInputGetState(m_controllerId, &m_state) != ERROR_SUCCESS)
+
+		if (m_controllerId == -1)
+			checkConnection();
+	
+		if (m_controllerId != -1)
 		{
-			m_controllerId = -1;
-			return false;
+			ZeroMemory(&m_state, sizeof(XINPUT_STATE));
+			if (XInputGetState(m_controllerId, &m_state) != ERROR_SUCCESS)
+			{
+				m_bikeInputState->setAngle(0);
+				m_bikeInputState->setAcceleration(0);
+				m_controllerId = -1;
+				return;
+			}
+
+			float normLX = fmaxf(-1, (float)m_state.Gamepad.sThumbLX / 32767);
+			float normLY = fmaxf(-1, (float)m_state.Gamepad.sThumbLY / 32767);
+
+			m_leftStickX = (abs(normLX) < m_deadzoneX ? 0 : (abs(normLX) - m_deadzoneX) * (normLX / abs(normLX)));
+			m_leftStickY = (abs(normLY) < m_deadzoneY ? 0 : (abs(normLY) - m_deadzoneY) * (normLY / abs(normLY)));
+
+			if (m_deadzoneX > 0) m_leftStickX *= 1 / (1 - m_deadzoneX);
+			if (m_deadzoneY > 0) m_leftStickY *= 1 / (1 - m_deadzoneY);
+
+			float normRX = fmaxf(-1, (float)m_state.Gamepad.sThumbRX / 32767);
+			float normRY = fmaxf(-1, (float)m_state.Gamepad.sThumbRY / 32767);
+
+			m_rightStickX = (abs(normRX) < m_deadzoneX ? 0 : (abs(normRX) - m_deadzoneX) * (normRX / abs(normRX)));
+			m_rightStickY = (abs(normRY) < m_deadzoneY ? 0 : (abs(normRY) - m_deadzoneY) * (normRY / abs(normRY)));
+
+			if (m_deadzoneX > 0) m_rightStickX *= 1 / (1 - m_deadzoneX);
+			if (m_deadzoneY > 0) m_rightStickY *= 1 / (1 - m_deadzoneY);
+
+			m_leftTrigger = (float)m_state.Gamepad.bLeftTrigger / 255;
+			m_rightTrigger = (float)m_state.Gamepad.bRightTrigger / 255;
+
+			m_bikeInputState->setAcceleration(m_rightTrigger - m_leftTrigger);
+			m_bikeInputState->setAngle(-m_leftStickX);
 		}
 
-		float normLX = fmaxf(-1, (float) m_state.Gamepad.sThumbLX / 32767);
-		float normLY = fmaxf(-1, (float) m_state.Gamepad.sThumbLY / 32767);
-
-		m_leftStickX = (abs(normLX) < m_deadzoneX ? 0 : (abs(normLX) - m_deadzoneX) * (normLX / abs(normLX)));
-		m_leftStickY = (abs(normLY) < m_deadzoneY ? 0 : (abs(normLY) - m_deadzoneY) * (normLY / abs(normLY)));
-
-		if (m_deadzoneX > 0) m_leftStickX *= 1 / (1 - m_deadzoneX);
-		if (m_deadzoneY > 0) m_leftStickY *= 1 / (1 - m_deadzoneY);
-
-		float normRX = fmaxf(-1, (float) m_state.Gamepad.sThumbRX / 32767);
-		float normRY = fmaxf(-1, (float) m_state.Gamepad.sThumbRY / 32767);
-
-		m_rightStickX = (abs(normRX) < m_deadzoneX ? 0 : (abs(normRX) - m_deadzoneX) * (normRX / abs(normRX)));
-		m_rightStickY = (abs(normRY) < m_deadzoneY ? 0 : (abs(normRY) - m_deadzoneY) * (normRY / abs(normRY)));
-
-		if (m_deadzoneX > 0) m_rightStickX *= 1 / (1 - m_deadzoneX);
-		if (m_deadzoneY > 0) m_rightStickY *= 1 / (1 - m_deadzoneY);
-
-		m_leftTrigger = (float) m_state.Gamepad.bLeftTrigger / 255;
-		m_rightTrigger = (float) m_state.Gamepad.bRightTrigger / 255;
-
-		m_bikeInputState->setAcceleration(m_rightTrigger - m_leftTrigger);
-		m_bikeInputState->setAngle(-m_leftStickX);
-
-		return true;
+		this->msleep(POLLING_DELAY_MS);
 	}
-	return false;
 }
 
 bool Gamepad::isPressed(unsigned short button)

@@ -36,16 +36,21 @@ namespace troen
 
 		std::vector<BoxModel>& getWalls() { return m_walls; };
 		std::vector<BoxModel>& getFloors() { return m_floors; };
+		std::vector<BoxModel>& getObstacles() { return m_obstacles; };
 
 	private:
+		
 		void addWalls(float levelSize, float yPosition);
 		void addFloor(float size, float yPosition);
 		void addBoxes(std::vector<BoxModel> &boxes);
+
+		void auto_addObstacles();
 
 		const LevelController* m_levelController;
 
 		std::vector<BoxModel> m_walls;
 		std::vector<BoxModel> m_floors;
+		std::vector<BoxModel> m_obstacles;
 	};
 
 }

@@ -18,6 +18,7 @@ namespace troen
 		BikeController(
 			input::BikeInputState::InputDevice inputDevice,
 			btTransform initialPosition);
+		~BikeController();
 		void attachTrackingCamera
 			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
@@ -50,6 +51,7 @@ namespace troen
 
 		std::shared_ptr<FenceController> m_fenceController;
 		osg::ref_ptr<input::Keyboard> m_keyboardHandler = nullptr;
+		std::shared_ptr<input::PollingDevice> m_pollingThread = nullptr;
 
 		osg::ref_ptr<osgViewer::View> m_gameView;
 		osg::Vec3 m_playerColor;

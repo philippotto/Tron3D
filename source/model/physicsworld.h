@@ -46,6 +46,6 @@ namespace troen
 		long double m_lastSimulationTime;
 
 		bool m_useDebugView;
-		std::shared_ptr<GameLogic> m_gameLogic;
+		std::weak_ptr<GameLogic> m_gameLogic;
 	};
 }

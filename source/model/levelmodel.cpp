@@ -12,11 +12,14 @@ LevelModel::LevelModel(const LevelController* levelController)
 
 	btScalar levelSize = btScalar(getLevelSize());
 
+	addWalls(levelSize, -10);
+	addWalls(levelSize * 2, -100);
+
 	addFloor(levelSize, -10);
 	addFloor(levelSize * 2, -100);
 
-	addWalls(levelSize, -10);
-	addWalls(levelSize * 2, -100);
+
+	auto_addObstacles();
 }
 
 void LevelModel::addFloor(float size, float yPosition)
@@ -82,3 +85,4 @@ void LevelModel::addBoxes(std::vector<BoxModel> &boxes)
 int LevelModel::getLevelSize() {
 	return 6000;
 }
+

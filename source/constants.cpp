@@ -21,7 +21,7 @@ namespace troen
 	const int NUM_MULTISAMPLES(8);
 
 	//PHYSIS
-	const btVector3 DEFAULT_GRAVITY(0,0,-10);
+	const btVector3 DEFAULT_GRAVITY(0,0,-98);
 
 	// BIKE
 	const btVector3 BIKE_DIMENSIONS(2, 4, 2);
@@ -44,6 +44,8 @@ namespace troen
 
 	//INPUT
 	const float BIKE_ROTATION_VALUE(10.0);
+	// this should always be less than 1000/60FPS - the smaller, the more responsive is the input
+	const int POLLING_DELAY_MS(8);
 
 	// FENCE
 	// determines how accurate the fence will be
