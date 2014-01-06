@@ -19,11 +19,20 @@ using namespace troen;
 
 HUDView::HUDView()
 {
+	m_speedText = new osgText::Text();
+	
 	m_node = new osg::Group();
 	
 	m_node->addChild(createHUD());
 	m_node->addChild(createRadar());
 }
+
+//HUDView::~HUDView()
+// {
+	// TODO: destructor cannot be accessed ?
+	// delete m_speedText;
+// }
+
 
 osg::Camera* HUDView::createHUD()
 {
@@ -48,16 +57,16 @@ osg::Camera* HUDView::createHUD()
 		osg::StateSet* stateset = geode->getOrCreateStateSet();
 		stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
-		osg::Vec3 position(0, 0, 0);
+		osg::Vec3 position(500.f, 0, 0);
 		osg::Vec3 delta(0.0f, -100.0f, 0.0f);
 
 		{
-			osgText::Text* text = new  osgText::Text;
-			geode->addDrawable(text);
+			geode->addDrawable(m_speedText);
 
-			text->setFont(timesFont);
-			text->setPosition(position);
-			text->setText("Player 1 - This is your Head Up Display");
+			m_speedText->setFont(timesFont);
+			m_speedText->setPosition(position);
+			m_speedText->setText("Speed: 20 km/h");
+			// m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
 
 			position += delta;
 		}
@@ -119,7 +128,7 @@ osg::Camera* HUDView::createHUD()
 void HUDView::resize(int width, int height)
 {
 	m_camera->setViewport(new osg::Viewport(0, 0, width, height));
-	//m_camera->setProjectionMatrix(osg::Matrix::ortho2D(0, height, 0, width));
+	m_camera->setProjectionMatrix(osg::Matrix::ortho2D(0, height, 0, width));
 
 }
 
@@ -143,4 +152,10 @@ osg::Camera* HUDView::createRadar()
 void HUDView::attachSceneToRadarCamera(osg::Group* scene)
 {
 	m_radarCamera->addChild(scene);
+}
+
+void HUDView::setSpeedText(float speed)
+{
+	std::string speedString = std::to_string((int) speed);
+	m_speedText->setText("Speed: " + speedString + " km/h");
 }

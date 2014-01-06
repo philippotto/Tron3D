@@ -19,7 +19,7 @@
 
 using namespace troen;
 
-// ugly but convenient global statics for shaders    
+// ugly but convenient global statics for shaders
 static osg::ref_ptr<osg::Uniform> g_nearFarUniform;
 
 PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height)
@@ -35,7 +35,7 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 	// Multi pass rendering and Ping Pong //
 	////////////////////////////////////////
 
-	// 1. gBuffer pass: render color, normal&depth, id buffer
+	// 1. gBuffer pass: render color, normal & depth, id buffer
 	unsigned int pass = 0;
 	m_allCameras.push_back(gBufferPass()); 
 	m_root->addChild(m_allCameras[pass++]);
@@ -157,7 +157,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	cam->setReferenceFrame(osg::Camera::RELATIVE_RF);
-	cam->setRenderOrder(osg::Camera::PRE_RENDER, 0);
+	cam->setRenderOrder(osg::Camera::POST_RENDER, 0);
 
 	// need to know about near far changes for correct depth 
 	cam->setCullCallback(new NearFarCallback());
@@ -202,7 +202,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	camera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	camera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
-	camera->setRenderOrder(osg::Camera::PRE_RENDER, order);
+	camera->setRenderOrder(osg::Camera::POST_RENDER, order);
 
 	// geometry
 	osg::Geode* geode(new osg::Geode());

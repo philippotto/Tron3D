@@ -199,7 +199,7 @@ bool TroenGame::initializeControllers()
 		m_bikeControllers.push_back(std::make_shared<BikeController>((
 			input::BikeInputState::InputDevice)m_playerInputTypes[i],m_levelController->initialPositionTransformForBikeWithIndex(i)));
 	}
-	m_HUDController = std::make_shared<HUDController>();
+	m_HUDController = std::make_shared<HUDController>(m_bikeControllers[0]);
 	return true;
 }
 
@@ -224,7 +224,7 @@ bool TroenGame::initializeGameLogic()
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
-	m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
+	m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
     
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 		= new NodeFollowCameraManipulator();
@@ -251,7 +251,7 @@ bool TroenGame::initializeViews()
 		m_gameView->setUpViewInWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
 #endif
 
-	m_gameEventHandler = new GameEventHandler(this,m_gameLogic);
+	m_gameEventHandler = new GameEventHandler(this, m_gameLogic);
 	m_gameView->addEventHandler(m_gameEventHandler);
 
 	m_bikeControllers[0]->attachGameView(m_gameView);
@@ -339,6 +339,7 @@ bool TroenGame::composeSceneGraph()
 
 	m_sceneNode->addChild(m_skyDome.get());
 	m_sceneNode->addChild(m_levelController->getViewNode());
+	// HUD needs to be separate from post processing
 	m_rootNode->addChild(m_hudSwitch);
 
 	for (auto bikeController : m_bikeControllers)
@@ -436,6 +437,7 @@ void TroenGame::startGameLoop()
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
+				m_HUDController->update();
 				m_sampleOSGViewer->frame();
 				if (m_splitscreen) m_sampleOSGViewer2->frame();
 				
