@@ -79,8 +79,10 @@ void Gamepad::run()
 			m_leftTrigger = (float)m_state.Gamepad.bLeftTrigger / 255;
 			m_rightTrigger = (float)m_state.Gamepad.bRightTrigger / 255;
 
+			float handbrakePressed = isPressed(XINPUT_GAMEPAD_X);
+
 			m_bikeInputState->setAcceleration(m_rightTrigger - m_leftTrigger);
-			m_bikeInputState->setAngle(-m_leftStickX);
+			m_bikeInputState->setAngle(-m_leftStickX - m_leftStickX * handbrakePressed * BIKE_HANDBRAKE_FACTOR);
 		}
 
 		this->msleep(POLLING_DELAY_MS);

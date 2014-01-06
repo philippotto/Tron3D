@@ -2,7 +2,7 @@
 // OSG
 #include <osg/BoundingBox>
 // STD
-#include <math.h>
+#include <cmath>
 // troen
 #include "../constants.h"
 #include "../input/bikeinputstate.h"
@@ -71,6 +71,7 @@ void BikeModel::resetState()
 {
 	m_velocity = 0.0;
 	m_rotation = 0.0;
+	m_bikeFriction = 1.0;
 }
 
 float BikeModel::getSteering() {
@@ -80,7 +81,7 @@ float BikeModel::getSteering() {
 float BikeModel::updateState(long double time)
 {
 	long double timeSinceLastUpdate = time - m_lastUpdateTime;
-	float timeFactor = timeSinceLastUpdate/15.f;
+	float timeFactor = timeSinceLastUpdate / 16.6f;
 
 	m_lastUpdateTime = time;
 
@@ -92,16 +93,15 @@ float BikeModel::updateState(long double time)
 	m_steering = m_bikeInputState->getAngle();
 	float acceleration = m_bikeInputState->getAcceleration();
 
+	// if the handbrake is pulled, reduce friction to allow drifting
+	m_bikeFriction = (abs(m_steering) > BIKE_ROTATION_VALUE) ? 0.03 : fmin(1.13 * m_bikeFriction, 1.0);
+
 	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
 
 	btVector3 currentVelocityVectorXY = bikeRigidBody->getLinearVelocity();
 	btScalar zComponent = currentVelocityVectorXY.getZ();
 	currentVelocityVectorXY = btVector3(currentVelocityVectorXY.getX(), currentVelocityVectorXY.getY(), 0);
 	btVector3 currentAngularVelocity = bikeRigidBody->getAngularVelocity();
-
-	// TODO: (jd)
-	// rotation should also be time dependent
-	// atm it still depends on the framerate
 
 	// accelerate
 	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
@@ -112,9 +112,7 @@ float BikeModel::updateState(long double time)
 	// turnFactor
 	// -> stronger steering for low velocities
 	// -> weaker steering at high velocities
-	//short int angularSign = sign(currentAngularVelocity.getZ());
-	float turnFactor = clamp(.1,1,BIKE_VELOCITY_MIN / (.5f*speed));
-	//float turningRad = ((PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor)) - clamp(0, 1, -angularSign * BIKE_ANGULAR_DAMPENING_TERM)) * timeFactor;
+	float turnFactor = clamp(.1,1, BIKE_VELOCITY_MIN / (.5f * speed));
 	float turningRad = PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor);
 
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
@@ -129,8 +127,8 @@ float BikeModel::updateState(long double time)
 	float quat =  bikeRigidBody->getOrientation().getAngle();
 	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
 	
-	currentVelocityVectorXY = front.rotate(axis, quat) * speed;
-	
+	// let the bike drift, if the friction is low
+	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, quat) * speed).normalized() * speed;
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
@@ -168,5 +166,4 @@ void BikeModel::moveBikeToPosition(btTransform position)
 	m_rigidBodies[0]->setWorldTransform(position);
 	m_rigidBodies[0]->setAngularVelocity(btVector3(0, 0, 0));
 	m_rigidBodies[0]->setLinearVelocity(btVector3(0, 0, 0));
-
 }
