@@ -167,3 +167,21 @@ void PhysicsWorld::checkForCollisionEvents()
 	// the pairs we found in this iteration
 	m_pairsLastUpdate = pairsThisUpdate;
 }
+
+
+float PhysicsWorld::RayTest(btVector3 start, btVector3 end)
+{
+
+	btCollisionWorld::ClosestRayResultCallback RayCallback(start, end);
+	m_world->rayTest(start, end, RayCallback);
+
+	if (RayCallback.hasHit()) {
+		btVector3 newEnd = RayCallback.m_hitPointWorld;
+		return RayCallback.m_collisionObject->getHitFraction();;
+		//Normal = RayCallback.m_hitNormalWorld;
+	}
+
+	return 1.0;
+}
+
+

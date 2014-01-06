@@ -73,6 +73,7 @@ namespace troen
 		osg::ref_ptr<SampleOSGViewer>		m_sampleOSGViewer2;
 		osg::ref_ptr<osgViewer::View>		m_gameView;
 		osg::ref_ptr<osgViewer::View>		m_gameView2;
+		osg::ref_ptr<NodeFollowCameraManipulator> m_cameraManipulator;
 
 		osg::ref_ptr<GameEventHandler>		m_gameEventHandler;
 		osg::ref_ptr<osg::Group>			m_rootNode;
@@ -91,6 +92,7 @@ namespace troen
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 		std::shared_ptr<GameLogic>			m_gameLogic;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
+		
 
 		std::vector<int> m_playerInputTypes;
 

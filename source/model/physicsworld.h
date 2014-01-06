@@ -27,6 +27,9 @@ namespace troen
 		void addRigidBody(btRigidBody *body, const short group = 0, const short mask = 0);
 		void removeRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies);
 		void removeRigidBody(btRigidBody* body);
+		float RayTest(btVector3 Start, btVector3 End);
+		btVector3 HandleCollisionZoom(btVector3 camPos, btVector3 targetPos,
+			float minOffsetDist, std::shared_ptr<std::vector<btVector3>> frustumNearCorners);
 
 		// debugview
 		util::GLDebugDrawer* m_debug;

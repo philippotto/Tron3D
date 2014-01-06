@@ -211,10 +211,10 @@ bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
     
-	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
-		= new NodeFollowCameraManipulator();
-	m_bikeControllers[0]->attachTrackingCamera(manipulator);
-	m_gameView->setCameraManipulator(manipulator.get());
+	m_cameraManipulator = new NodeFollowCameraManipulator(m_gameView->getCamera());
+	m_bikeControllers[0]->attachTrackingCamera(m_cameraManipulator);
+	m_gameView->setCameraManipulator(m_cameraManipulator.get());
+	//m_gameView->getCamera()->get
 
 	m_statsHandler = new osgViewer::StatsHandler;
 	m_statsHandler->setKeyEventTogglesOnScreenStats(osgGA::GUIEventAdapter::KEY_T);
@@ -245,7 +245,7 @@ bool TroenGame::initializeViews()
 		m_gameView2 = new osgViewer::View;
 
 		osg::ref_ptr<NodeFollowCameraManipulator> manipulator2
-			= new NodeFollowCameraManipulator();
+			= new NodeFollowCameraManipulator(m_gameView->getCamera());
 		m_bikeControllers[1]->attachTrackingCamera(manipulator2);
 		m_gameView2->setCameraManipulator(manipulator2.get());
 
@@ -340,6 +340,8 @@ bool TroenGame::initializePhysicsWorld()
 		bikeController->attachWorld(m_physicsWorld);
 	}
 	m_gameLogic->attachPhysicsWorld(m_physicsWorld);
+
+	m_cameraManipulator->setPhysicsWord(m_physicsWorld);
 	return true;
 }
 

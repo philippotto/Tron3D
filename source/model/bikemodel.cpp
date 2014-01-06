@@ -50,7 +50,7 @@ m_lastUpdateTime(0)
 	bikeRigidBody->setCcdSweptSphereRadius(BIKE_DIMENSIONS.x() * .5f - BIKE_DIMENSIONS.x() * 0.01);
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
-	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
+	bikeRigidBody->setAngularFactor(btVector3(1, 0, 1));
 	// for collision event handling
 	bikeRigidBody->setUserPointer(bikeController);
 	bikeRigidBody->setUserIndex(BIKETYPE);

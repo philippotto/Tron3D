@@ -2,6 +2,7 @@
 //bullet
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
+#include <cmath>
 
 using namespace troen;
 

@@ -21,7 +21,7 @@ namespace troen
 	const int NUM_MULTISAMPLES(8);
 
 	//PHYSIS
-	const btVector3 DEFAULT_GRAVITY(0,0,-10);
+	const btVector3 DEFAULT_GRAVITY(0,0,-98.1);
 
 	// BIKE
 	const btVector3 BIKE_DIMENSIONS(2, 4, 2);
