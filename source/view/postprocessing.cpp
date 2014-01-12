@@ -17,7 +17,7 @@
 // troen
 #include "shaders.h"
 
-#define HALF_PINGPONGTEXTURE_WIDTH false //for performance improvement, set to true
+#define HALF_PINGPONGTEXTURE_WIDTH true //for performance improvement, set to true
 using namespace troen;
 
 // ugly but convenient global statics for shaders    
