@@ -17,8 +17,6 @@ void main(void)
     }
 	gl_FragData[0] = texColor; // sceneColor
 
-	gl_FragData[1] = vec4(normalize(theNormal), linearDepth); // normal and depth
-	
-    // change this to use other attributes for the object id, e.g., texcoords
-    gl_FragData[2] = vec4(objectID,0,0,0); // id
+	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
+	gl_FragData[1] = vec4(objectID, 0,0,0);
 }

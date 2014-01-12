@@ -1,7 +1,6 @@
 #version 120
 
 uniform sampler2D sceneLayer;
-uniform sampler2D normalDepthLayer;
 uniform sampler2D idLayer;
 
 uniform sampler2D pongLayer;

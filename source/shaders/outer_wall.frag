@@ -25,9 +25,8 @@ void main()
 		//+ 	mix(vec4(0.0,0.5,0.5,0.0),vec4(0.0),1.0 -smoothingFactorY); //
 	
 
-	gl_FragData[1] = vec4(normalize(theNormal), linearDepth); // normal and depth
-	
-  // change this to use other attributes for the object id, e.g., texcoords
-  gl_FragData[2] = vec4(modelID, glowIntensity,0,0); // id
 
+	int glowIntesity_int = int(clamp(0.0,100.0,glowIntensity*100.0));
+	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
+	gl_FragData[1] = vec4(modelID, glowIntensity,0,0);
 }

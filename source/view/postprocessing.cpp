@@ -17,6 +17,7 @@
 // troen
 #include "shaders.h"
 
+#define HALF_PINGPONGTEXTURE_WIDTH false //for performance improvement, set to true
 using namespace troen;
 
 // ugly but convenient global statics for shaders    
@@ -76,7 +77,7 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 			m_fboTextures[i] = new osg::Texture2D();
 		
 		
-		if (i == PING || i == PONG) {
+		if ((i == PING || i == PONG) && HALF_PINGPONGTEXTURE_WIDTH) {
 			m_fboTextures[i]->setTextureWidth(halfedWidth);
 			m_fboTextures[i]->setTextureHeight(halfedHeight);
 		} else {
@@ -85,9 +86,19 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		}
 
 		// higher resolution
-		m_fboTextures[i]->setInternalFormat(GL_RGBA32F_ARB);
-		m_fboTextures[i]->setSourceFormat(GL_RGBA);
-		m_fboTextures[i]->setSourceType(GL_FLOAT);
+		if (i == ID)
+		{
+			m_fboTextures[i]->setInternalFormat(GL_RG);
+			m_fboTextures[i]->setSourceFormat(GL_RG);
+			m_fboTextures[i]->setSourceType(GL_FLOAT);
+		}
+		else
+		{
+			m_fboTextures[i]->setInternalFormat(GL_RGBA);
+			m_fboTextures[i]->setSourceFormat(GL_RGBA);
+			m_fboTextures[i]->setSourceType(GL_FLOAT);
+		}
+
 		m_fboTextures[i]->setBorderWidth(0);
 		m_fboTextures[i]->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
 		m_fboTextures[i]->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
@@ -106,7 +117,7 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		for (size_t i = 0, iEnd = m_allCameras.size(); i<iEnd; i++)
 		{
 			m_allCameras[i]->setRenderingCache(0);
-			if (i != 0 && i != iEnd - 1)
+			if (i != 0 && i != iEnd - 1 && HALF_PINGPONGTEXTURE_WIDTH)
 				// only draw with halfed resolution, if we process the gbuffer + postprocessing pass
 				m_allCameras[i]->setViewport(new osg::Viewport(0, 0, halfedWidth, halfedHeight));
 
@@ -151,7 +162,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	osg::ref_ptr<osg::Camera> cam = new osg::Camera();
 	// output textures
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
-	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
+	//cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
 
 	// Configure fboCamera to draw fullscreen textured quad
@@ -171,7 +182,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	cam->getOrCreateStateSet()->addUniform(new osg::Uniform("colorTex", COLOR));
 	cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
 	cam->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
-	cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
 	cam->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 
 	g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
@@ -244,7 +255,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 
 	// input textures
 	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
-	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
+	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
 	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
 	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + PONG), m_fboTextures[PONG]);
 
@@ -271,12 +282,12 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 
 	// add samplers	
 	state->addUniform(new osg::Uniform("sceneLayer", COLOR));
-	state->addUniform(new osg::Uniform("normalDepthLayer", NORMALDEPTH));
+	//state->addUniform(new osg::Uniform("normalDepthLayer", NORMALDEPTH));
 	state->addUniform(new osg::Uniform("idLayer", ID));
 	state->addUniform(new osg::Uniform("pongLayer", PONG));
 
 	state->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
-	state->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
+	//state->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(PONG, m_fboTextures[PONG], osg::StateAttribute::ON);
 
