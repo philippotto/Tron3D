@@ -157,7 +157,7 @@ void BikeController::attachTrackingCamera
 	osg::ref_ptr<osg::PositionAttitudeTransform> pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
 
 	// set the actual node as the track node, not the pat
-	manipulator->setTrackNode(pat->getChild(0));
+	manipulator->setTrackNode(pat->getChild(0),pat);
 	
 
 	// set camera position
@@ -230,6 +230,11 @@ void BikeController::removeAllFences()
 	m_fenceController->removeAllFences();
 }
 
+osg::Vec3 BikeController::getPosition()
+{
+	return std::static_pointer_cast<BikeModel>(m_model)->getPositionOSG();
+}
+
 void BikeController::enforceFencePartsLimit(int maxFenceParts)
 {
 	m_fenceController->enforceFencePartsLimit(maxFenceParts);
@@ -240,3 +245,5 @@ void BikeController::moveBikeToPosition(btTransform transform)
 	std::static_pointer_cast<BikeModel>(m_model)->moveBikeToPosition(transform);
 	m_fenceController->setLastPosition(transform.getRotation(), transform.getOrigin());
 }
+
+

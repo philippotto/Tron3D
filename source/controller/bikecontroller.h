@@ -30,6 +30,7 @@ namespace troen
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
 		osg::ref_ptr<input::Keyboard> getEventHandler();
 		bool hasEventHandler();
+		osg::Vec3 BikeController::getPosition();
 
 		// logic events
 		void moveBikeToPosition(btTransform position);

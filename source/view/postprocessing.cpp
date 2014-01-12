@@ -85,7 +85,7 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		}
 
 		// higher resolution
-		m_fboTextures[i]->setInternalFormat(GL_RGBA32F_ARB);
+		m_fboTextures[i]->setInternalFormat(GL_RGBA);
 		m_fboTextures[i]->setSourceFormat(GL_RGBA);
 		m_fboTextures[i]->setSourceType(GL_FLOAT);
 		m_fboTextures[i]->setBorderWidth(0);

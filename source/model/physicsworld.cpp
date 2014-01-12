@@ -169,14 +169,14 @@ void PhysicsWorld::checkForCollisionEvents()
 }
 
 
-float PhysicsWorld::RayTest(btVector3 start, btVector3 end)
+float PhysicsWorld::RayTest_GetHitFraction(btVector3 start, btVector3 end)
 {
 
 	btCollisionWorld::ClosestRayResultCallback RayCallback(start, end);
 	m_world->rayTest(start, end, RayCallback);
 
 	if (RayCallback.hasHit()) {
-		btVector3 newEnd = RayCallback.m_hitPointWorld;
+ 	btVector3 newEnd = RayCallback.m_hitPointWorld;
 		return RayCallback.m_collisionObject->getHitFraction();;
 		//Normal = RayCallback.m_hitNormalWorld;
 	}
@@ -185,3 +185,19 @@ float PhysicsWorld::RayTest(btVector3 start, btVector3 end)
 }
 
 
+
+
+btVector3 PhysicsWorld::RayTest_GetHitPoint(btVector3 start, btVector3 end)
+{
+
+	btCollisionWorld::ClosestRayResultCallback RayCallback(start, end);
+	m_world->rayTest(start, end, RayCallback);
+
+	if (RayCallback.hasHit()) {
+		btVector3 newEnd = RayCallback.m_hitPointWorld;
+		return newEnd;
+		//Normal = RayCallback.m_hitNormalWorld;
+	}
+
+	return end;
+}
