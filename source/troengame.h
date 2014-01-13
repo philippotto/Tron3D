@@ -2,6 +2,7 @@
 // Qt
 #include <QThread>
 #include <QMetaType>
+#include <QColor>
 // OSG
 #include <osg/ref_ptr>
 #include <osg/PositionAttitudeTransform>
@@ -14,6 +15,7 @@ typedef struct s_GameConfig
 {
 	int numberOfBikes;
 	int* playerInputTypes;
+	QColor* playerColors;
 	bool splitscreen;
 	bool fullscreen;
 	bool usePostProcessing;
@@ -93,6 +95,7 @@ namespace troen
 		std::shared_ptr<sound::AudioManager> m_audioManager;
 
 		std::vector<int> m_playerInputTypes;
+		std::vector<osg::Vec3> m_playerColors;
 
 		bool m_simulationPaused;
 
