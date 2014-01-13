@@ -99,13 +99,11 @@ BikeView::BikeView(osg::Vec3 color)
 
 	// create box for radar
 	osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable;
-	mark_shape->setShape(new osg::Box(osg::Vec3(), 100, 200, 100));
+	mark_shape->setShape(new osg::Cone(osg::Vec3(), 100, 200));
 	osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
 	mark_node->addDrawable(mark_shape.get());
-	mark_node->setNodeMask(CAMERA_MASK_RADAR);
 
 	osg::Vec4 color4 = osg::Vec4(color , 1.0);
-
 	osg::ref_ptr<osg::Material> material = new osg::Material;
 	material->setColorMode(osg::Material::AMBIENT);
 	material->setAmbient(osg::Material::FRONT_AND_BACK,
@@ -115,11 +113,17 @@ BikeView::BikeView(osg::Vec3 color)
 	material->setSpecular(osg::Material::FRONT_AND_BACK, color4);
 	material->setShininess(osg::Material::FRONT_AND_BACK, 1.0f);
 
-	pat->addChild(mark_node);
+	osg::Matrixd radarMatrix;
+	osg::Quat radarMarkRotationQuat(osg::DegreesToRadians(90.0f), osg::X_AXIS);
+	radarMatrix.makeRotate(radarMarkRotationQuat);
 
-	pat->getOrCreateStateSet()->setAttributeAndModes(
-		material.get(),
-		osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+	osg::MatrixTransform* radarMatrixTransform = new osg::MatrixTransform(radarMatrix);
+	radarMatrixTransform->addChild(mark_node);
+	radarMatrixTransform->setNodeMask(CAMERA_MASK_RADAR);
+	radarMatrixTransform->getOrCreateStateSet()->setAttributeAndModes(
+		material.get(), osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+
+	pat->addChild(radarMatrixTransform);
 
 	m_node->addChild(pat);
 }
