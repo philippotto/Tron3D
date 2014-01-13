@@ -26,12 +26,13 @@ namespace troen
 	class FadeInOutCallback : public osg::NodeCallback
 	{
 		public:
-			FadeInOutCallback( osg::Material* mat );
+			FadeInOutCallback(osg::Material* mat, osg::MatrixTransform *markerTransform);
 			
 			virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
 		
 		protected:
 			osg::ref_ptr<osgAnimation::InOutCubicMotion> _motion;
+			osg::ref_ptr<osg::MatrixTransform> _markerTransform;
 			osg::observer_ptr<osg::Material> _material;
 			float _lastDistance;
 			int _fadingState;

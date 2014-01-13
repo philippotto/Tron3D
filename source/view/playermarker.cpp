@@ -25,6 +25,9 @@
 
 using namespace troen;
 
+#define NEAR_TRANSPARENCY_DISTANCE 50.0f
+#define START_FADING_DISTANCE 300.0f
+
 PlayerMarker::PlayerMarker(osg::Vec3 color)
 {
 	AbstractView();
@@ -36,9 +39,15 @@ PlayerMarker::PlayerMarker(osg::Vec3 color)
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
 	
 
+	std::cout << "[TroenGame::playerMarker] Loading Arrow " << std::endl;
 	osg::Group* arrowNode = dynamic_cast<osg::Group*>(osgDB::readNodeFile("data/models/arrow.obj"));
 
-	std::cout << "[TroenGame::playerMarker] Loading Arrow " << std::endl;
+	if (arrowNode==NULL)
+	{
+		std::cout  << "data/models/arrow.obj could not be loaded" << std::endl;
+		return;
+	}
+
 	matrixTransform->addChild(arrowNode);
 	m_node->addChild(matrixTransform);
 
@@ -57,7 +66,7 @@ PlayerMarker::PlayerMarker(osg::Vec3 color)
 
 		childState->setAttributeAndModes(new osg::BlendFunc);
 		childState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-		arrowNode->addCullCallback(new FadeInOutCallback(objMaterial));
+		arrowNode->addCullCallback(new FadeInOutCallback(objMaterial,matrixTransform));
 	
 	}
 }
@@ -68,14 +77,20 @@ osg::ref_ptr<osg::Group> PlayerMarker::getNode()
 	return m_node;
 }
 
-FadeInOutCallback::FadeInOutCallback( osg::Material* mat )
+FadeInOutCallback::FadeInOutCallback( osg::Material* mat, osg::MatrixTransform *markerTransform )
 : _material(mat), _lastDistance(-1.0f), _fadingState(0)
 {
 	_motion = new osgAnimation::InOutCubicMotion;
+	_markerTransform = markerTransform;
 }
 
 void FadeInOutCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
 {
+
+	osgUtil::CullVisitor* cv = static_cast<osgUtil::CullVisitor*>( nv );
+	if (!cv)
+		return;
+
 	if (_fadingState!=0)
 	{
 		_motion->update(0.01);
@@ -85,30 +100,40 @@ void FadeInOutCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
 
 		if (value>= 1.0)
 			_fadingState = 0;
+
 		traverse(node,nv);
 		return;
 	}
-	osgUtil::CullVisitor* cv = static_cast<osgUtil::CullVisitor*>( nv );
-	if ( cv )
+
+	float distance = cv->getDistanceFromEyePoint(
+	node->getBound().center(), true );
+	if ( _lastDistance>0.0f )
 	{
-		float distance = cv->getDistanceFromEyePoint(
-		node->getBound().center(), true );
-		if ( _lastDistance>0.0f )
+		if ( _lastDistance<START_FADING_DISTANCE && distance>=START_FADING_DISTANCE )
 		{
-			if ( _lastDistance<200.0f && distance>=200.0f )
-			{
-				_fadingState = 1; _motion->reset();
-			}
-			else if ( _lastDistance>200.0f && distance<=200.0f )
-			{
-				_fadingState =-1; _motion->reset();
-			}
-			else if (_lastDistance < 50 && distance < 50)
-			{
-				_material->setAlpha(osg::Material::FRONT_AND_BACK, 0.0);
-			}
+			_fadingState = 1; _motion->reset();
+
 		}
-		_lastDistance = distance;
+		else if ( _lastDistance>START_FADING_DISTANCE && distance<=START_FADING_DISTANCE )
+		{
+			_fadingState =-1; _motion->reset();
+		}
+		else if (_lastDistance < NEAR_TRANSPARENCY_DISTANCE && distance < NEAR_TRANSPARENCY_DISTANCE)
+		{
+			_material->setAlpha(osg::Material::FRONT_AND_BACK, 0.0);
+		}
+		else if (_lastDistance > START_FADING_DISTANCE && distance > START_FADING_DISTANCE)
+		{
+
+			float scaling_fac = std::min(std::max(distance, NEAR_TRANSPARENCY_DISTANCE), 1000.0f) / (NEAR_TRANSPARENCY_DISTANCE*2.0);
+			osg::Matrixd distance_scale;
+			distance_scale.makeScale(osg::Vec3(scaling_fac, scaling_fac, scaling_fac));
+			osg::Vec3 translate = _markerTransform->getMatrix().getTrans();
+			distance_scale.translate(translate);
+			//osg::Quat rotate = _markerTransform->getMatrix().getRotate();
+			_markerTransform->setMatrix(distance_scale);
+		}
 	}
+	_lastDistance = distance;
 	traverse( node, nv );
 }
