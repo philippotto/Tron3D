@@ -40,13 +40,32 @@ BikeView::BikeView(osg::Vec3 color)
 	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
 
 	osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable;
-	mark_shape->setShape(new osg::Box(osg::Vec3(), 5.f));
+	mark_shape->setShape(new osg::Box(osg::Vec3(), 100.f));
 	osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
 	mark_node->addDrawable(mark_shape.get());
 	mark_node->setNodeMask(CAMERA_MASK_RADAR);
 
+	osg::Vec4 color4 = osg::Vec4(color, 1.0);
+
+	osg::ref_ptr<osg::Material> material = new osg::Material;
+	material->setColorMode(osg::Material::AMBIENT);
+	material->setAmbient(osg::Material::FRONT_AND_BACK,
+		osg::Vec4(0.8f, 0.8f, 0.8f, 1.0f));
+	material->setDiffuse(osg::Material::FRONT_AND_BACK,
+		color4*0.8f);
+	material->setSpecular(osg::Material::FRONT_AND_BACK, color4);
+	material->setShininess(osg::Material::FRONT_AND_BACK, 1.0f);
+	
+
+
+
 	pat->addChild(matrixTransform);
 	pat->addChild(mark_node);
+
+	pat->getOrCreateStateSet()->setAttributeAndModes(
+		material.get(),
+		osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+
 	
 	MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
 		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",

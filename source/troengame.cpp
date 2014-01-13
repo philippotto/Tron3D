@@ -143,7 +143,7 @@ bool TroenGame::initialize()
 
 	std::cout << "[TroenGame::initialize] gameLogic ..." << std::endl;
 	initializeGameLogic();
-	
+
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
 	initializeViews();
 	initializeViewer();
@@ -151,9 +151,11 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] postprocessing & scenegraph ..." << std::endl;
 	composeSceneGraph();
 
+
+
 	std::cout << "[TroenGame::initialize] input ..." << std::endl;
 	initializeInput();
-	
+
 	std::cout << "[TroenGame::initialize] physics ..." << std::endl;
 	initializePhysicsWorld();
 
@@ -224,8 +226,8 @@ bool TroenGame::initializeGameLogic()
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
-	m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
-    
+	m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
+
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 		= new NodeFollowCameraManipulator();
 	m_bikeControllers[0]->attachTrackingCamera(manipulator);
@@ -237,7 +239,7 @@ bool TroenGame::initializeViews()
 	m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
 	m_gameView->addEventHandler(m_statsHandler);
 
-	m_HUDController->attachSceneToRadarCamera(m_sceneNode);
+
 	m_gameView->setSceneData(m_rootNode);
 #ifdef WIN32
 	if (m_fullscreen)
@@ -312,11 +314,11 @@ bool TroenGame::initializeViewer()
 
 bool TroenGame::composeSceneGraph()
 {
-	/* Scene graph 
+	/* Scene graph
 							  m_hudSwitch - HUDController
-							/ 
-	GameView#Camera - m_rootNode#Group																		  
-							\																		 
+							/
+	GameView#Camera - m_rootNode#Group
+							\
 							 m_postprocessing#Cameras - each camera child node to m_rootNode
 							 - SELECT_GLOW_OBJECTS
 									\
@@ -324,10 +326,10 @@ bool TroenGame::composeSceneGraph()
 							 - HBLUR
 							 - VBLUR
 							 - PostProcesingCamera
-									\		
+									\
 									Quad#Geode
-	*/	
-
+	*/
+	
 	if (m_usePostProcessing)
 	{
 		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
@@ -337,9 +339,12 @@ bool TroenGame::composeSceneGraph()
 	else
 		m_sceneNode = m_rootNode;
 
-	m_sceneNode->addChild(m_skyDome.get());
-	m_sceneNode->addChild(m_levelController->getViewNode());
+	// skydome fucks hud up?
+	// m_sceneNode->addChild(m_skyDome.get());
+	// m_sceneNode->addChild(m_levelController->getViewNode());
 	// HUD needs to be separate from post processing
+	
+	
 	m_rootNode->addChild(m_hudSwitch);
 
 	for (auto bikeController : m_bikeControllers)
@@ -347,6 +352,9 @@ bool TroenGame::composeSceneGraph()
 
 	if (m_usePostProcessing)
 		m_rootNode->addChild(m_sceneNode);
+
+	m_HUDController->attachSceneToRadarCamera(m_sceneNode);
+
 
 	return true;
 }
@@ -401,7 +409,7 @@ void TroenGame::startGameLoop()
 	const int maxSkippedFrames = 4;
 
 	bool nearPlaneAdapted = false;
-    
+
 	// GAME LOOP
 	while (!m_sampleOSGViewer->done())
 	{
@@ -440,7 +448,7 @@ void TroenGame::startGameLoop()
 				m_HUDController->update();
 				m_sampleOSGViewer->frame();
 				if (m_splitscreen) m_sampleOSGViewer2->frame();
-				
+
 				if (!nearPlaneAdapted) {
 					// doesn't work if it's executed earlier
 					// TODO should be done for m_gameView2 and other possible views
