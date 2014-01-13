@@ -268,6 +268,9 @@ set(sources
 	source/view/timeupdate.h
 	source/view/nodefollowcameramanipulator.h
 	source/view/nodefollowcameramanipulator.cpp
+	source/view/playermarker.h
+	source/view/playermarker.cpp
+	source/view/easemotion.h
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
