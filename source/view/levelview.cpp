@@ -146,6 +146,11 @@ osg::ref_ptr<osg::Group> LevelView::constructRadarElementsForBoxes(std::vector<B
 		btVector3 position = boxes[i].center;
 		btQuaternion rotation = boxes[i].rotation;
 
+		int threshold = 50;
+		if (dimensions.x() < threshold) dimensions.setX(dimensions.x() + threshold);
+		if (dimensions.y() < threshold) dimensions.setY(dimensions.y() + threshold);
+		if (dimensions.y() < threshold) dimensions.setZ(dimensions.z() + threshold);
+
 		osg::ref_ptr<osg::Box> box
 			= new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z());
 		osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable(box);
