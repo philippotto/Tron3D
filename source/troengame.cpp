@@ -301,7 +301,7 @@ bool TroenGame::composeSceneGraph()
 		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
 		m_sceneNode = m_postProcessing->getSceneNode();
 
-		//explicit call, top enable glow from start
+		//explicit call, to enable glow from start
 		refreshTextures(viewport->width(), viewport->height());
 	}
 	else
