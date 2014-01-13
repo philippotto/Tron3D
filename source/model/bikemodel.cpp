@@ -7,6 +7,8 @@
 #include "../constants.h"
 #include "../input/bikeinputstate.h"
 #include "bikemotionstate.h"
+#include "objectinfo.h"
+#include "../controller/bikecontroller.h"
 
 using namespace troen;
 
@@ -19,6 +21,8 @@ m_lastUpdateTime(0)
 {
 	AbstractModel();
 	resetState();
+
+	m_bikeController = bikeController;
 
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
@@ -34,7 +38,7 @@ m_lastUpdateTime(0)
 		fenceController,
 		this
 	);
-	
+
 	// TODO
 	// make friction & ineartia work without wrong behaviour of bike (left turn)
 	btVector3 bikeInertia(0, 0, 0);
@@ -53,8 +57,9 @@ m_lastUpdateTime(0)
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
 	// for collision event handling
-	bikeRigidBody->setUserPointer(bikeController);
-	bikeRigidBody->setUserIndex(BIKETYPE);
+
+	ObjectInfo* info = new ObjectInfo(bikeController, BIKETYPE);
+	bikeRigidBody->setUserPointer(info);
 
 	bikeMotionState->setRigidBody(bikeRigidBody);
 
@@ -107,7 +112,8 @@ float BikeModel::updateState(long double time)
 	// accelerate
 	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
 	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
-	float speed = currentVelocityVectorXY.length() + 1 * ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
+	float speed = currentVelocityVectorXY.length() + ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
+	
 
 	// rotate:
 	// turnFactor
@@ -127,7 +133,7 @@ float BikeModel::updateState(long double time)
 
 	float quat =  bikeRigidBody->getOrientation().getAngle();
 	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
-	
+
 	// let the bike drift, if the friction is low
 	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, quat) * speed).normalized() * speed;
 	currentVelocityVectorXY.setZ(zComponent);

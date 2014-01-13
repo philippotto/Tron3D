@@ -202,4 +202,25 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 	}
 }
 
+void LevelView::addItemBox(osg::Vec3 position)
+{
 
+	btVector3 dimensions = btVector3(10, 10, 10);
+
+	osg::ref_ptr<osg::Box> box
+		= new osg::Box(osg::Vec3(0.0, 0.0, 0.0), dimensions.x(), dimensions.y(), dimensions.z());
+
+	osg::ref_ptr<osg::ShapeDrawable> boxDrawable
+		= new osg::ShapeDrawable(box);
+
+	osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
+	boxGeode->addDrawable(boxDrawable);
+
+	osg::Matrixd initialTransform;
+	initialTransform = initialTransform.translate(position);
+
+	osg::ref_ptr<osg::MatrixTransform> matrixTransform = new osg::MatrixTransform(initialTransform);
+	matrixTransform->addChild(boxGeode);
+
+	m_node->addChild(matrixTransform);
+}

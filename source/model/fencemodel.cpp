@@ -1,7 +1,8 @@
 #include "fencemodel.h"
 // troen
 #include "../constants.h"
-#include "../model/physicsworld.h"
+#include "physicsworld.h"
+#include "objectinfo.h"
 
 using namespace troen;
 
@@ -21,7 +22,7 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 {
 	btVector3 fenceVector = b - a;
 	std::shared_ptr<btBoxShape> fenceShape = std::make_shared<btBoxShape>(btVector3(FENCE_PART_WIDTH / 2, fenceVector.length() / 2, FENCE_HEIGHT_MODEL / 2));
-	
+
 	const btVector3 forward = btVector3(0, 1, 0);
 	const btScalar angle = fenceVector.angle(forward);
 	const btScalar inverseAngle = fenceVector.angle(-1 * forward);
@@ -39,12 +40,13 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 
 	const btScalar mass = 0;
 	const btVector3 fenceInertia(0, 0, 0);
-	
+
 	btRigidBody::btRigidBodyConstructionInfo m_fenceRigidBodyCI(mass, fenceMotionState.get(), fenceShape.get(), fenceInertia);
 
 	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
-	fenceRigidBody->setUserPointer(m_fenceController);
-	fenceRigidBody->setUserIndex(FENCETYPE);
+
+	ObjectInfo* info = new ObjectInfo(m_fenceController, FENCETYPE);
+	fenceRigidBody->setUserPointer(info);
 
 	m_collisionShapeDeque.push_back(fenceShape);
 	m_motionStateDeque.push_back(fenceMotionState);

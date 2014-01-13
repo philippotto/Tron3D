@@ -38,5 +38,6 @@ namespace troen
 		float m_steering;
 		float m_bikeFriction;
 		long double m_lastUpdateTime;
+		BikeController* m_bikeController;
 	};
 }

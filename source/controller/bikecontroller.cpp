@@ -197,19 +197,35 @@ float BikeController::getFovy()
 float BikeController::computeFovyDelta(float speed, float currentFovy)
 {
 	m_speed = speed;
+	
+
 	float fovyFactor = (speed - BIKE_VELOCITY_MIN) / (BIKE_VELOCITY_MAX - BIKE_VELOCITY_MIN);
 	fovyFactor = fovyFactor > 0 ? fovyFactor : 0;
 	float newFovy = FOVY_INITIAL + interpolate(fovyFactor, InterpolateCubed) * FOVY_ADDITION_MAX;
 	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, newFovy - currentFovy); 
 }
 
-float BikeController::getSpeed() {
+float BikeController::getSpeed()
+{
 	return m_speed;
+}
+
+void BikeController::activateTurbo()
+{
+	m_additionalSpeed = BIKE_VELOCITY_MAX / 2;
+}
+
+float BikeController::getTurbo()
+{
+	return m_additionalSpeed;
 }
 
 void BikeController::updateModel(long double time)
 {
 	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
+	
+	if (m_additionalSpeed > 1)
+		m_additionalSpeed =		0;
 
 	if (!m_gameView.valid()) return;
 

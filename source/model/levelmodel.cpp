@@ -3,6 +3,9 @@
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
 
+#include "../controller/itemcontroller.h"
+#include "objectinfo.h"
+
 using namespace troen;
 
 LevelModel::LevelModel(const LevelController* levelController)
@@ -29,7 +32,7 @@ void LevelModel::addFloor(float size, float yPosition)
 		btVector3(0, 0, yPosition),
 		btVector3(size, size, 20)
 	});
-	
+
 	addBoxes(m_floors, LEVELGROUNDTYPE);
 }
 
@@ -69,18 +72,42 @@ void LevelModel::addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type)
 		std::shared_ptr<btBoxShape> wallShape = std::make_shared<btBoxShape>(boxes[i].dimensions / 2);
 		std::shared_ptr<btDefaultMotionState> wallMotionState
 			= std::make_shared<btDefaultMotionState>(btTransform(boxes[i].rotation, boxes[i].center));
-		
+
 		btRigidBody::btRigidBodyConstructionInfo
 			wallRigidBodyCI(btScalar(0), wallMotionState.get(), wallShape.get(), btVector3(0, 0, 0));
-		
+
 		std::shared_ptr<btRigidBody> wallRigidBody = std::make_shared<btRigidBody>(wallRigidBodyCI);
-		wallRigidBody->setUserPointer((void *) m_levelController);
-		wallRigidBody->setUserIndex(type);
-		
-		m_collisionShapes.push_back(wallShape);	
+
+		ObjectInfo* info = new ObjectInfo((void *) m_levelController, type);
+		wallRigidBody->setUserPointer(info);
+
+		m_collisionShapes.push_back(wallShape);
 		m_motionStates.push_back(wallMotionState);
 		m_rigidBodies.push_back(wallRigidBody);
 	}
+}
+
+btCollisionObject* LevelModel::createItemBox(btVector3 &position)
+{
+	// create a trigger volume
+	btCollisionObject *m_pTrigger = new btCollisionObject();
+	
+	ItemController *itemController = new ItemController();
+
+	ObjectInfo* info = new ObjectInfo(itemController, ITEMTYPE);
+	m_pTrigger->setUserPointer(info);
+
+	// create a box for the trigger's shape
+	m_pTrigger->setCollisionShape(new btBoxShape(btVector3(10, 10, 10)));
+	// set the trigger's position
+	btTransform triggerTrans;
+	triggerTrans.setIdentity();
+	triggerTrans.setOrigin(position);
+	m_pTrigger->setWorldTransform(triggerTrans);
+	// flag the trigger to ignore contact responses
+	m_pTrigger->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	// add the trigger to our world
+	return m_pTrigger;
 }
 
 int LevelModel::getLevelSize() {

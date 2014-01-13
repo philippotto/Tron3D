@@ -373,10 +373,14 @@ bool TroenGame::initializePhysicsWorld()
 	m_physicsWorld = std::make_shared<PhysicsWorld>(m_gameLogic, m_useDebugView);
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies(),COLGROUP_LEVEL,COLMASK_LEVEL);
 
+	// attach world
 	for (auto bikeController : m_bikeControllers)
 	{
 		bikeController->attachWorld(m_physicsWorld);
 	}
+	m_levelController->attachWorld(m_physicsWorld);
+
+
 	m_gameLogic->attachPhysicsWorld(m_physicsWorld);
 	return true;
 }
@@ -396,6 +400,8 @@ void TroenGame::startGameLoop()
 
 	if (m_useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
+
+	m_levelController->addItemBox(btVector3(50, 50, 0));
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();

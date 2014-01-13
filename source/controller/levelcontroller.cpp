@@ -7,6 +7,7 @@
 #include "../constants.h"
 #include "../model/LevelModel.h"
 #include "../view/LevelView.h"
+#include "../model/physicsworld.h"
 
 using namespace troen;
 
@@ -33,4 +34,17 @@ void LevelController::initializeinitialBikePositionTransforms()
 	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS, (float)-PI * 3.f / 4.f), btVector3(-20, 20, BIKE_DIMENSIONS.z() / 2)));
 	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS,0), btVector3(100, 100, BIKE_DIMENSIONS.z() / 2)));
 	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS,0), btVector3(-100, -100, BIKE_DIMENSIONS.z() / 2)));
+}
+
+void LevelController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
+{
+	m_world = world;
+}
+
+void LevelController::addItemBox(btVector3 &position)
+{
+	btCollisionObject *item = std::static_pointer_cast<LevelModel>(m_model)->createItemBox(position);
+	m_world.lock()->addCollisionObject(item);
+
+	std::static_pointer_cast<LevelView>(m_view)->addItemBox(btToOSGVec3(position));
 }

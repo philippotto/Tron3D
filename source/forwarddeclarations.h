@@ -45,6 +45,7 @@ class btDefaultCollisionConfiguration;
 class btCollisionDispatcher;
 class btBroadphaseInterface;
 class btRigidBody;
+class btCollisionObject;
 class btCollisionShape;
 class btPersistentManifold;
 class btVector3;
@@ -70,6 +71,7 @@ namespace troen
 	class FenceController;
 	class AbstractController;
 	class HUDController;
+	class ItemController;
 
 
 	class BikeView;

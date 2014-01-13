@@ -38,6 +38,8 @@ namespace troen
 		// controlling the FenceController
 		void removeAllFences();
 		void enforceFencePartsLimit(int maxFenceParts);
+		void activateTurbo();
+		float getTurbo();
 
 	private:
 		osg::Vec3 generateRandomColor();
@@ -58,5 +60,7 @@ namespace troen
 		btTransform m_initialTransform;
 
 		float m_speed;
+		float m_additionalSpeed = 0;
+
 	};
 }

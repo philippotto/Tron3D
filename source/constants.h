@@ -205,6 +205,13 @@ namespace troen
 #define smoothstep_ext(t, l, r) \
 	((t) < (l) ? 0 : (r) < (t) ? 1 : smoothstep(((t)-(l)) / ((r)-(l))))
 
+#define btToOSGVec3(v) \
+	osg::Vec3(v.x(), v.y(), v.z())
+
+#define btToOSGQuat(q) \
+	osg::Quat(q.x(), q.y(), q.z(), q.w())
+
+
 // Several interpolation methods in action: http://sol.gfxile.net/interpolation/
 
 enum InterpolationMethod
