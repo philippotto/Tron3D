@@ -17,6 +17,7 @@ BikeModel::BikeModel(
 	BikeController* bikeController) :
 m_lastUpdateTime(0)
 {
+	AbstractModel();
 	resetState();
 
 	osg::BoundingBox bb;

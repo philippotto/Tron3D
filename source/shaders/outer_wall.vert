@@ -18,7 +18,6 @@ void main()
 
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex  ;
 
-    linearDepth = (-(gl_ModelViewMatrix * gl_Vertex).z-nearFar.x)/(nearFar.y-nearFar.x);
+	linearDepth = (-(gl_ModelViewMatrix * gl_Vertex).z-nearFar.x)/(nearFar.y-nearFar.x);
 	gl_TexCoord[1] = vec4(objectID);
 }
-

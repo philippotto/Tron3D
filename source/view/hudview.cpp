@@ -19,6 +19,7 @@ using namespace troen;
 
 HUDView::HUDView()
 {
+	AbstractView();
 	m_speedText = new osgText::Text();	
 	
 	m_node = new osg::Group();

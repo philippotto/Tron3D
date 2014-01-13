@@ -8,6 +8,7 @@ using namespace troen;
 
 osg::Matrixd NodeFollowCameraManipulator::getMatrix() const
 {
+	NodeTrackerManipulator();
 	osg::Vec3d nodeCenter;
 	osg::Quat nodeRotation;
 	computeNodeCenterAndRotation(nodeCenter, nodeRotation);

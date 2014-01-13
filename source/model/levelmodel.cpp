@@ -7,6 +7,7 @@ using namespace troen;
 
 LevelModel::LevelModel(const LevelController* levelController)
 {
+	AbstractModel();
 	m_levelController = levelController;
 	m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();
 

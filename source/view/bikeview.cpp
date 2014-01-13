@@ -25,6 +25,7 @@ using namespace troen;
 
 BikeView::BikeView(osg::Vec3 color)
 {
+	AbstractView();
 	m_node = new osg::Group();
 	m_playerColor = color;
 	pat = new osg::PositionAttitudeTransform();

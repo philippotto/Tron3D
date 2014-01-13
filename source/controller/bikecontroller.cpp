@@ -24,6 +24,7 @@ BikeController::BikeController(
 	btTransform initialTransform) :
 m_initialTransform(initialTransform)
 {
+	AbstractController();
 	// TODO change random generation of player color here (and remove generateRandomColor-Function)
 	m_playerColor = generateRandomColor();
 

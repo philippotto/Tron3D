@@ -11,6 +11,7 @@ using namespace troen;
 
 FenceController::FenceController(osg::Vec3 color, btTransform initialTransform, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
 {
+	AbstractController();
 	m_playerColor = color;
 	m_model = std::make_shared<FenceModel>(this, m_maxFenceParts);
     m_view = std::shared_ptr<FenceView>(new FenceView(m_playerColor, m_model,m_maxFenceParts));

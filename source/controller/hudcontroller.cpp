@@ -9,6 +9,7 @@ using namespace troen;
 
 HUDController::HUDController(std::shared_ptr<BikeController> bikeController)
 {
+	AbstractController();
 	m_view = std::static_pointer_cast<HUDView>(std::make_shared<HUDView>());
 	m_bikeController = bikeController;
 	// TODO: is a model really necessary?
