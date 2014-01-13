@@ -189,7 +189,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
 	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 
-
 	//g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
 	//cam->getOrCreateStateSet()->addUniform(g_nearFarUniform);
 
