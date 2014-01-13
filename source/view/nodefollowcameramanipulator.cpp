@@ -15,7 +15,7 @@ NodeFollowCameraManipulator::NodeFollowCameraManipulator(osg::ref_ptr<osg::Camer
 	m_physicsWorld = NULL;
 	m_trackBike = NULL;
 	m_camera = camera;
-	m_rotationMode = TRACKBALL;
+	m_rotationMode = FIXEDCAMERA;
 	fixedRotation = _rotation;
 }
 
@@ -23,8 +23,12 @@ osg::Matrixd NodeFollowCameraManipulator::getMatrix() const
 {
 	osg::Vec3d nodeCenter;
 	osg::Quat nodeRotation;
+	osg::Matrixd  transform;
 	computeNodeCenterAndRotation(nodeCenter, nodeRotation);
-	osg::Matrixd  transform = osg::Matrixd::translate(0.0, 0.0, _distance)*osg::Matrixd::rotate(_rotation)*osg::Matrixd::rotate(nodeRotation)*osg::Matrix::translate(nodeCenter);
+	if (m_rotationMode==TRACKBALL)
+		transform = osg::Matrixd::translate(0.0, 0.0, _distance)*osg::Matrixd::rotate(_rotation)*osg::Matrixd::rotate(nodeRotation)*osg::Matrix::translate(nodeCenter);
+	else
+		transform = osg::Matrixd::translate(0.0, 0.0, _distance) *osg::Matrixd::rotate(fixedRotation)*osg::Matrixd::rotate(nodeRotation)*osg::Matrix::translate(nodeCenter);
 	//osg::Matrixd  transform = osg::Matrixd::translate(0.0, 0.0, _distance)*osg::Matrixd::rotate(_rotation);
 
 	return transform;
@@ -36,16 +40,12 @@ osg::Matrixd NodeFollowCameraManipulator::getInverseMatrix() const
 	osg::Quat nodeRotation;
 	osg::Matrixd transform;
 	computeNodeCenterAndRotation(nodeCenter, nodeRotation);
+	
 	if (m_rotationMode == TRACKBALL)
 		transform = osg::Matrixd::translate(-nodeCenter)*osg::Matrixd::rotate(nodeRotation.inverse())*osg::Matrixd::rotate(_rotation.inverse())*osg::Matrixd::translate(0.0, 0.0, -_distance);
 	else
 		transform = osg::Matrixd::translate(-nodeCenter)*osg::Matrixd::rotate(nodeRotation.inverse())*osg::Matrixd::rotate(fixedRotation.inverse())*osg::Matrixd::translate(0.0, 0.0, -_distance);
-
-	//osg::Camera tmpCam = osg::Camera(*m_camera.get());
-
-
 	return transform;
-	//return osg::Matrixd::rotate(_rotation.inverse())*osg::Matrixd::translate(0.0, 0.0, -_distance);
 }
 void NodeFollowCameraManipulator::setTrackNode(osg::Node* node, osg::ref_ptr<osg::PositionAttitudeTransform> trackBike)
 {
@@ -53,12 +53,11 @@ void NodeFollowCameraManipulator::setTrackNode(osg::Node* node, osg::ref_ptr<osg
 	m_trackBike = trackBike;
 }
 
-
-
-//void NodeFollowCameraManipulator::setTrackPositionAttiduteTransform(osg::ref_ptr<osg::PositionAttitudeTransform> pat)
-//{
-//	m_trackPAT = pat;
-//}
+void NodeFollowCameraManipulator::setHomePosition(const osg::Vec3d& eye, const osg::Vec3d& center, const osg::Vec3d& up, bool autoComputeHomePosition)
+{
+	NodeTrackerManipulator::setHomePosition(eye, center, up, autoComputeHomePosition);
+	fixedRotation = _rotation;
+}
 
 void NodeFollowCameraManipulator::setByMatrix(const osg::Matrixd& matrix)
 {
@@ -101,6 +100,10 @@ void NodeFollowCameraManipulator::computePosition(const osg::Vec3d& eye, const o
 	lookat.makeLookAt(eye, center, up);
 
 	_rotation = lookat.getRotate().inverse();
+
+	fixedRotation = _rotation;
+
+	
 }
 
 

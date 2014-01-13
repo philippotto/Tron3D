@@ -28,6 +28,8 @@ namespace troen
 		void computePosition(const osg::Vec3d& eye, const osg::Vec3d& center, const osg::Vec3d& up);
 		/*void setTrackPositionAttiduteTransform(osg::ref_ptr<osg::PositionAttitudeTransform> pat);*/
 
+		void setHomePosition(const osg::Vec3d& eye, const osg::Vec3d& center, const osg::Vec3d& up, bool autoComputeHomePosition = false);
+
 		int m_rotationMode;
 		osg::Quat fixedRotation;
 
