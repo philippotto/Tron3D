@@ -62,6 +62,9 @@ namespace troen
 	extern const osg::Vec3 CAMERA_EYE_POSITION;
 	extern const float CAMERA_TILT_FACTOR;
 
+	extern const unsigned int CAMERA_MASK_MAIN;
+	extern const unsigned int CAMERA_MASK_RADAR;
+
 	// PHYSICS
 	extern const float BIKE_IMPACT_THRESHOLD_LOW;
 	extern const float BIKE_IMPACT_THRESHOLD_HIGH;

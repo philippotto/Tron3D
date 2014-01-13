@@ -1,6 +1,8 @@
 #pragma once
 // OSG
 #include <osg/Referenced>
+#include <osg/Camera>
+#include <osgText/Text>
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
@@ -13,7 +15,18 @@ namespace troen
 	{
 	public:
 		HUDView();
+		void resize(int width, int height);
+		void attachSceneToRadarCamera(osg::Group* scene);
+		void setSpeedText(float speed);
+
 	private:
 		osg::Camera* createHUD();
+		osg::Camera* createRadar();
+
+		osg::ref_ptr<osg::Camera> m_camera;
+		osg::ref_ptr<osg::Camera> m_radarCamera;
+		osgText::Text* m_speedText;
+
+		osg::Geode* m_savedGeode;
 	};
 }

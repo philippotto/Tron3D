@@ -100,27 +100,27 @@ MainWindow::MainWindow(QWidget * parent)
 	updatePlayerInputBoxes();
 
 	// splitscreenCheckBox
-	m_splitscreenCheckBox = new QCheckBox("Splitscreen");
+	m_splitscreenCheckBox = new QCheckBox("&Splitscreen");
 	m_splitscreenCheckBox->setChecked(false);
 	m_splitscreenCheckBox->setDisabled(true);
 	vBoxLayout->addWidget(m_splitscreenCheckBox, 0, Qt::AlignLeft);
 
 	//fullscreenCheckBox
-	m_fullscreenCheckBox = new QCheckBox("Fullscreen");
+	m_fullscreenCheckBox = new QCheckBox("&Fullscreen");
 	vBoxLayout->addWidget(m_fullscreenCheckBox, 0, Qt::AlignLeft);
 
 	// postProcessingCheckBox
-	m_postProcessingCheckBox = new QCheckBox("PostProcessing");
+	m_postProcessingCheckBox = new QCheckBox("&PostProcessing");
 	vBoxLayout->addWidget(m_postProcessingCheckBox, 0, Qt::AlignLeft);
 	m_postProcessingCheckBox->setChecked(false);
 
 	// postProcessingCheckBox
-	m_testPerformanceCheckBox = new QCheckBox("TestPerformance - vSync OFF");
+	m_testPerformanceCheckBox = new QCheckBox("&TestPerformance - vSync OFF");
 	vBoxLayout->addWidget(m_testPerformanceCheckBox, 0, Qt::AlignLeft);
 	m_testPerformanceCheckBox->setChecked(false);
 
 	// debugViewCheckBox
-	m_debugViewCheckBox = new QCheckBox("DebugView");
+	m_debugViewCheckBox = new QCheckBox("&DebugView");
 	vBoxLayout->addWidget(m_debugViewCheckBox, 0, Qt::AlignLeft);
 	m_debugViewCheckBox->setChecked(false);
 

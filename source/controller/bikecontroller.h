@@ -31,6 +31,7 @@ namespace troen
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
 		osg::ref_ptr<input::Keyboard> getEventHandler();
 		bool hasEventHandler();
+		float getSpeed();
 
 		// logic events
 		void moveBikeToPosition(btTransform position);
@@ -54,5 +55,7 @@ namespace troen
 		osg::ref_ptr<osgViewer::View> m_gameView;
 		osg::Vec3 m_playerColor;
 		btTransform m_initialTransform;
+
+		float m_speed;
 	};
 }
