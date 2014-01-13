@@ -28,6 +28,6 @@ void HUDController::attachSceneToRadarCamera(osg::Group* scene)
 }
 
 void HUDController::update() {
-	float speed = m_bikeController->getSpeed();
+	float speed = m_bikeController.lock()->getSpeed();
 	std::static_pointer_cast<HUDView>(m_view)->setSpeedText(speed);
 }

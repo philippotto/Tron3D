@@ -15,6 +15,6 @@ namespace troen
 		void update();
 
 	private:
-		std::shared_ptr<BikeController> m_bikeController;
+		std::weak_ptr<BikeController> m_bikeController;
 	};
 }

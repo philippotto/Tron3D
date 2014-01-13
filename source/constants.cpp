@@ -43,8 +43,8 @@ namespace troen
 	const float BIKE_TILT_MAX(16.f);
 
 	//INPUT
-	const float BIKE_ROTATION_VALUE(10.0);
-	const float BIKE_HANDBRAKE_FACTOR(0.8);
+	const float BIKE_ROTATION_VALUE(10.0f);
+	const float BIKE_HANDBRAKE_FACTOR(0.8f);
 	// this should always be less than 1000/60FPS - the smaller, the more responsive is the input
 	const int POLLING_DELAY_MS(8);
 

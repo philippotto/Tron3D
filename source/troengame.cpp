@@ -339,11 +339,8 @@ bool TroenGame::composeSceneGraph()
 	else
 		m_sceneNode = m_rootNode;
 
-	// skydome fucks hud up?
-	// m_sceneNode->addChild(m_skyDome.get());
-	// m_sceneNode->addChild(m_levelController->getViewNode());
-	// HUD needs to be separate from post processing
-	
+	m_sceneNode->addChild(m_skyDome.get());
+	m_sceneNode->addChild(m_levelController->getViewNode());	
 	
 	m_rootNode->addChild(m_hudSwitch);
 
@@ -352,9 +349,12 @@ bool TroenGame::composeSceneGraph()
 
 	if (m_usePostProcessing)
 		m_rootNode->addChild(m_sceneNode);
+	
+	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
+	for (auto bikeController : m_bikeControllers)
+		radarScene->addChild(bikeController->getViewNode());
 
-	m_HUDController->attachSceneToRadarCamera(m_sceneNode);
-
+	m_HUDController->attachSceneToRadarCamera(radarScene);
 
 	return true;
 }
@@ -516,6 +516,7 @@ bool TroenGame::shutdown()
 	m_levelController.reset();
 	m_bikeControllers.clear();
 	m_HUDController.reset();
+	m_hudSwitch = nullptr;
 
 	// sound
 	m_audioManager->StopSFXs();
