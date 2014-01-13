@@ -31,7 +31,8 @@ PlayerMarker::PlayerMarker(osg::Vec3 color)
 	m_playerColor = color;
 	m_node = new osg::Group();
 	osg::Matrixd initialTransform;
-	initialTransform.makeTranslate(osg::Vec3(-1.0, 0.0, 10.0));
+	initialTransform.makeScale(osg::Vec3(3.0, 3.0, 3.0));
+	initialTransform *= initialTransform.translate(osg::Vec3(5.0, 0.0, 30.0));
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
 	
 
@@ -80,8 +81,7 @@ void FadeInOutCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
 		_motion->update(0.01);
 		float value = _motion->getValue();
 		float alpha = (_fadingState>0 ? value : 1.0f - value);
-		_material->setDiffuse(osg::Material::FRONT_AND_BACK,
-			osg::Vec4(1.0,1.0,1.0,alpha));
+		_material->setAlpha( osg::Material::FRONT_AND_BACK,alpha);
 
 		if (value>= 1.0)
 			_fadingState = 0;
@@ -95,13 +95,17 @@ void FadeInOutCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
 		node->getBound().center(), true );
 		if ( _lastDistance>0.0f )
 		{
-			if ( _lastDistance>200.0f && distance<=200.0f )
+			if ( _lastDistance<200.0f && distance>=200.0f )
 			{
 				_fadingState = 1; _motion->reset();
 			}
-			else if ( _lastDistance<200.0f && distance>=200.0f )
+			else if ( _lastDistance>200.0f && distance<=200.0f )
 			{
 				_fadingState =-1; _motion->reset();
+			}
+			else if (_lastDistance < 50 && distance < 50)
+			{
+				_material->setAlpha(osg::Material::FRONT_AND_BACK, 0.0);
 			}
 		}
 		_lastDistance = distance;
