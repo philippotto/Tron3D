@@ -6,7 +6,7 @@ in vec2 uv;
 
 void main() {
 	gl_FragData[0] = texture(diffuseTexture, uv);
-
-	gl_FragData[1] = vec4(1.0f); // normal and depth
-	gl_FragData[2] = vec4(modelID, 1.f, 0, 0); // id
+	
+	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
+	gl_FragData[1] = vec4(modelID, 100,0,0);
 }

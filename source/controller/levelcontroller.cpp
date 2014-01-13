@@ -12,6 +12,7 @@ using namespace troen;
 
 LevelController::LevelController()
 {
+	AbstractController();
 	m_model = std::make_shared<LevelModel>(this);
 	m_view = std::make_shared<LevelView>(std::static_pointer_cast<LevelModel>(m_model));
 

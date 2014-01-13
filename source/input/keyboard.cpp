@@ -8,6 +8,7 @@ using namespace troen::input;
 
 Keyboard::Keyboard(osg::ref_ptr<BikeInputState> bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol> keys)
 {
+	GUIEventHandler();
 	m_bikeInputState = bikeInputState;
 	m_keys = keys;
 }

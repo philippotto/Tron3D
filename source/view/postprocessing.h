@@ -25,7 +25,7 @@ namespace troen
 		PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height);
 		
 		
-		enum TEXTURE_CONTENT { COLOR, NORMALDEPTH, ID, PING, PONG, TEXTURE_CONTENT_SIZE };
+		enum TEXTURE_CONTENT { COLOR, ID, PING, PONG, OLDCOLOR, TEXTURE_CONTENT_SIZE };
 
 		osg::ref_ptr<osg::Group> getSceneNode() { return m_sceneNode; };
 		osg::ref_ptr<osg::Camera> pingPongPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, int type, int step);
@@ -52,5 +52,6 @@ namespace troen
 
 		int m_width;
 		int m_height;
+		std::vector<int> pingpongPasses;
 	};
 }

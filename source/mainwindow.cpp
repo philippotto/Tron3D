@@ -16,6 +16,7 @@ using namespace troen;
 
 MainWindow::MainWindow(QWidget * parent)
 {
+	QMainWindow();
     // configure window
     this->setWindowTitle("Troen");
 
