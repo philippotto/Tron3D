@@ -37,6 +37,9 @@ namespace troen
 		//void attachSkeletonShaderProgram(osg::ref_ptr<osg::StateSet> state);
 		//void attachDistanceTransformShaderProgram(osg::ref_ptr<osg::StateSet> state, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, SHADER_PROGRAM_TYPES type, int step);
 
+		osg::Uniform* m_timeSinceLastBeat;
+		void setBeat(float beat);
+
 	protected:
 		osg::ref_ptr<osg::Camera> gBufferPass();
 		osg::ref_ptr<osg::Camera> postProcessingPass();

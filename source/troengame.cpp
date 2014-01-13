@@ -394,6 +394,9 @@ void TroenGame::startGameLoop()
 
 			m_audioManager->Update(currTime/1000);
 
+			if (m_postProcessing)
+				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());		
+
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
@@ -402,7 +405,6 @@ void TroenGame::startGameLoop()
 				
 				if (!nearPlaneAdapted) {
 					// doesn't work if it's executed earlier
-					// TODO should be done for m_gameView2 and other possible views
 					double fovy, aspect, znear, zfar;
 					m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
 					m_gameView->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);

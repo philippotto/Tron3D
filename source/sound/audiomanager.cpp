@@ -1,5 +1,6 @@
 #include "AudioManager.h"
 #include <math.h>
+#include <algorithm>
 #include <stdlib.h>
 #include <time.h>
 #include <iostream>
@@ -21,7 +22,7 @@ AudioManager::AudioManager() : currentSong(0), fade(FADE_NONE) {
 	// Initialize system
 	FMOD::System_Create(&system);
 	system->init(100, FMOD_INIT_NORMAL, 0);
-	
+
 	// Create channels groups for each category
 	system->getMasterChannelGroup(&master);
 	for(int i = 0; i < CATEGORY_COUNT; ++i) {
@@ -30,8 +31,10 @@ AudioManager::AudioManager() : currentSong(0), fade(FADE_NONE) {
 	}
 	// Set up modes for each category
 	modes[CATEGORY_SFX] = FMOD_DEFAULT;
-	modes[CATEGORY_SONG] = FMOD_DEFAULT | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL;
-	
+	// modes[CATEGORY_SONG] = FMOD_DEFAULT | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL;
+	// TODO check if FMOD_SOFTWARE | ... would also work
+	modes[CATEGORY_SONG] = FMOD_DEFAULT | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL |FMOD_SOFTWARE;
+
 	// Seed random number generator for SFXs
 	srand((unsigned int) time(0));
 }
@@ -44,7 +47,7 @@ AudioManager::~AudioManager() {
 			iter->second->release();
 		sounds[i].clear();
 	}
-	
+
 	// Release system
 	system->release();
 }
@@ -64,24 +67,24 @@ void AudioManager::Load(Category type, const std::string& path) {
 	sounds[type].insert(std::make_pair(path, sound));
 }
 
-void AudioManager::PlaySFX(const std::string& path, float minVolume, float maxVolume, float minPitch, float maxPitch) {
+void AudioManager::PlaySFX(const std::string& path, float minVolume, float maxVolume, float minPitch, float maxPitch)
+{
 	// Try to find sound effect and return if not found
 	SoundMap::iterator sound = sounds[CATEGORY_SFX].find(path);
 	if (sound == sounds[CATEGORY_SFX].end()) return;
-	
+
 	// Calculate random volume and pitch in selected range
 	float volume = RandomBetween(minVolume, maxVolume);
 	float pitch = RandomBetween(minPitch, maxPitch);
-	
+
 	// Play the sound effect with these initial values
-	FMOD::Channel* channel;
-	system->playSound(FMOD_CHANNEL_FREE, sound->second,	true, &channel);
-	channel->setChannelGroup(groups[CATEGORY_SFX]);
-	channel->setVolume(volume);
+	system->playSound(FMOD_CHANNEL_FREE, sound->second,	true, &m_channel);
+	m_channel->setChannelGroup(groups[CATEGORY_SFX]);
+	m_channel->setVolume(volume);
 	float frequency;
-	channel->getFrequency(&frequency);
-	channel->setFrequency(ChangeSemitone(frequency, pitch));
-	channel->setPaused(false);
+	m_channel->getFrequency(&frequency);
+	m_channel->setFrequency(ChangeSemitone(frequency, pitch));
+	m_channel->setPaused(false);
 }
 
 void AudioManager::StopSFXs() {
@@ -102,7 +105,7 @@ void AudioManager::PlaySong(const std::string& path) {
 	// Search for a matching sound in the map
 	SoundMap::iterator sound = sounds[CATEGORY_SONG].find(path);
 	if (sound == sounds[CATEGORY_SONG].end()) return;
-	
+
 	// Start playing song with volume set to 0 and fade in
 	currentSongPath = path;
 	system->playSound(FMOD_CHANNEL_FREE, sound->second, true, &currentSong);
@@ -113,14 +116,87 @@ void AudioManager::PlaySong(const std::string& path) {
 }
 
 void AudioManager::StopSongs() {
-	if(currentSong != 0) 
+	if(currentSong != 0)
 		fade = FADE_OUT;
 	nextSongPath.clear();
 }
 
-void AudioManager::Update(float elapsed) {
-	const float fadeTime = 1.0f; // in seconds
+float AudioManager::getTimeSinceLastBeat()
+{
+	return m_timeSinceLastBeat;
+}
+
+void AudioManager::detectBeat(float tickCount)
+{
+	// getSpectrum() performs the frequency analysis, see explanation below
+	int sampleSize = 64;
+
+	float *specLeft, *specRight;
+
+	specLeft = new float[sampleSize];
+	specRight = new float[sampleSize];
+
+	// Get spectrum for left and right stereo channels
+	currentSong->getSpectrum(specLeft, sampleSize, 0, FMOD_DSP_FFT_WINDOW_RECT);
+	currentSong->getSpectrum(specRight, sampleSize, 1, FMOD_DSP_FFT_WINDOW_RECT);
 	
+
+	// get average volume distribution
+	float *spec;
+
+	spec = new float[sampleSize];
+
+	for (int i = 0; i < sampleSize; i++)
+		spec[i] = (specLeft[i] + specRight[i]) / 2;
+
+	// Find max volume
+	auto maxIterator = std::max_element(&spec[0], &spec[sampleSize]);
+	float maxVol = *maxIterator;
+
+	// Normalize
+	// doesn't give good values? maybe sampleSize should be increased?
+	// beatThresholdVolume could need tuning if soundtrack will be changed.
+	// if (maxVol != 0)
+	//	std::transform(&spec[0], &spec[sampleSize], &spec[0], [maxVol](float dB) -> float { return dB / maxVol; });
+	
+	// configuration
+	float beatThresholdVolume = 0.6f;    // The threshold over which to recognize a beat
+	int beatThresholdBar = 0;            // The bar in the volume distribution to examine
+	float beatPostIgnore = 0.250f;		 // Number of ms to ignore track for after a beat is recognized
+
+	static float beatLastTick = 0;                // Time when last beat occurred
+
+	// detect beat
+	bool beatDetected = false;
+
+	// Test for threshold volume being exceeded (if not currently ignoring track)
+	if (spec[beatThresholdBar] >= beatThresholdVolume && beatLastTick == 0)
+	{
+		beatLastTick = tickCount;
+		beatDetected = true;
+	}
+
+	// If the ignore time has expired, allow testing for a beat again
+	if (tickCount - beatLastTick >= beatPostIgnore)
+		beatLastTick = 0;
+
+	
+	if (beatDetected)
+		m_timeSinceLastBeat = 0.f;
+	else
+		m_timeSinceLastBeat += tickCount;
+
+	delete[] spec;
+	delete[] specLeft;
+	delete[] specRight;
+}
+
+void AudioManager::Update(float elapsed)
+{
+	detectBeat(elapsed);
+
+	const float fadeTime = 1.0f; // in seconds
+
 	if(currentSong != 0 && fade == FADE_IN) {
 		float volume;
 		currentSong->getVolume(&volume);

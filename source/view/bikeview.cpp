@@ -40,6 +40,7 @@ BikeView::BikeView(osg::Vec3 color)
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
 	pat->addChild(matrixTransform);
 	
+
 	MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
 		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",
 		"data/models/cycle/MG_MovieCycle_BodyHeadLight_EMSS.tga",
@@ -48,17 +49,17 @@ BikeView::BikeView(osg::Vec3 color)
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBody_MI.obj",
 		"data/models/cycle/MG_Player_Body_SPEC.tga",
 		"data/models/cycle/MG_Player_Body_EMSS.tga",
-		"data/models/cycle/MG_Player_Body_NORM.tga", GLOW, 0.1);
+		"data/models/cycle/MG_Player_Body_NORM.tga", GLOW, 0.1f);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart("data/models/cycle/MG_MovieCycle_Tire_MI.obj",
 		"data/models/cycle/MG_MovieCycle_Tire_DIFF.tga",
 		"data/models/cycle/MG_MovieCycle_Tire_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Tire_NORM.tga", GLOW, 0.5);
+		"data/models/cycle/MG_MovieCycle_Tire_NORM.tga", GLOW, 0.5f);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerHelmet_MI.obj",
 		"data/models/cycle/MG_Player_Helmet_SPEC.tga",
 		"data/models/cycle/MG_Player_Helmet_EMSS.tga",
-		"data/models/cycle/MG_Player_Helmet_NORM.tga", GLOW, 0.3);
+		"data/models/cycle/MG_Player_Helmet_NORM.tga", GLOW, 0.3f);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerDisc_MI.obj",
 		"data/models/cycle/MG_Player_Disc_SPEC.tga",

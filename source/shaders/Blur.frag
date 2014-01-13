@@ -1,6 +1,7 @@
 #version 130
 
 uniform float time;
+uniform float timeSinceLastBeat;
 uniform sampler2D inputLayer;
 uniform sampler2D idLayer;
 
@@ -8,10 +9,14 @@ in vec2 v_texCoord;
 
 in float doHorizontalBlur;
 
-// The sigma value for the gaussian function: higher value means more blur 
+// The sigma value for the gaussian function: higher value means more blur
 // good values are:
 // 9x9: 3 to 5; 7x7: 2.5 to 4, 5x5: 2 to 3.5
-float sigma = 4 + 8 * (sin(time*2.f)+ 1.f)/2.f;
+// should be between 4 and 12
+float sigma =
+	4
+	+ 4 * (sin(time*2.f)+ 1.f)/2.f
+	+ 4 * max(10, 1000 - timeSinceLastBeat) / 1000;
 
 const float pi = 3.14159265f;
 
@@ -53,10 +58,10 @@ void main() {
 	// Go through the remaining 8 vertical samples (4 on each side of the center)
 	for (float i = 1.0f; i <= numBlurPixelsPerSide; i++)
 	{
-		avgValue += texture2D(inputLayer, v_texCoord.xy - i * blurSize * 
-						  blurMultiplyVec) * incrementalGaussian.x;         
-		avgValue += texture2D(inputLayer, v_texCoord.xy + i * blurSize * 
-						  blurMultiplyVec) * incrementalGaussian.x;         
+		avgValue += texture2D(inputLayer, v_texCoord.xy - i * blurSize *
+						  blurMultiplyVec) * incrementalGaussian.x;
+		avgValue += texture2D(inputLayer, v_texCoord.xy + i * blurSize *
+						  blurMultiplyVec) * incrementalGaussian.x;
 		coefficientSum += 2 * incrementalGaussian.x;
 		incrementalGaussian.xy *= incrementalGaussian.yz;
 	}

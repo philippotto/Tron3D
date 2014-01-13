@@ -25,7 +25,9 @@ namespace sound
 		float GetMasterVolume();
 		void SetSFXsVolume(float volume);
 		void SetSongsVolume(float volume);
+		void detectBeat(float tickCount);
 
+		float getTimeSinceLastBeat();
 	private:
 		typedef std::map<std::string, FMOD::Sound*> SoundMap;
 		enum Category { CATEGORY_SFX, CATEGORY_SONG, CATEGORY_COUNT };
@@ -38,11 +40,15 @@ namespace sound
 		SoundMap sounds[CATEGORY_COUNT];
 		FMOD_MODE modes[CATEGORY_COUNT];
 
+		float m_timeSinceLastBeat = 0.f;
+
 		FMOD::Channel* currentSong;
 		std::string currentSongPath;
 		std::string nextSongPath;
 		enum FadeState { FADE_NONE, FADE_IN, FADE_OUT };
 		FadeState fade;
+
+		FMOD::Channel* m_channel;
 	};
 
 }
