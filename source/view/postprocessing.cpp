@@ -10,18 +10,20 @@
 #include <osgDB/WriteFile>
 #include <osg/CullFace>
 #include <osg/TexGenNode>
-#include <osgUtil/CullVisitor>
 #include <osgGA/StateSetManipulator>
 #include <osgDB/FileNameUtils>
 #include <stdio.h>
 // troen
+
 #include "shaders.h"
-
-#define HALF_PINGPONGTEXTURE_WIDTH true //for performance improvement, set to true
-using namespace troen;
-
 // ugly but convenient global statics for shaders    
 static osg::ref_ptr<osg::Uniform> g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
+#include "nearfarcallback.h"
+#include "timeupdate.h"
+
+#define HALF_PINGPONGTEXTURE_WIDTH true //for performance improvement, set to true
+
+using namespace troen;
 
 PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height)
 :m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height)
@@ -128,36 +130,6 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 }
 
 
-class NearFarCallback : public osg::NodeCallback
-{
-	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
-	{
-
-		traverse(node, nv);
-
-		osgUtil::CullVisitor * cv = dynamic_cast<osgUtil::CullVisitor*> (nv);
-		if (cv)
-		{
-			double n = cv->getCalculatedNearPlane();
-			double f = cv->getCalculatedFarPlane();
-
-			osg::Matrixd m = *cv->getProjectionMatrix();
-			cv->clampProjectionMatrix(m, n, f);
-
-			if (n != m_oldNear || f != m_oldFar)
-			{
-				m_oldNear = n;
-				m_oldFar = f;
-				g_nearFarUniform->set(osg::Vec2(n, f));
-				
-			}
-		}
-	}
-
-private:
-	double m_oldNear;
-	double m_oldFar;
-};
 
 // create gbuffer creation camera
 osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
@@ -195,18 +167,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	return cam;
 }
 
-class timeUpdate : public osg::Uniform::Callback
-{
-public:
-	virtual void operator()
-		(osg::Uniform* uniform, osg::NodeVisitor* nv)
-	{
-		float time = nv->getFrameStamp()->getReferenceTime();
-		uniform->set(time);
-	}
-};
-
-
 // create skeleton creation camera 
 osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, int shader, int step)
 {
@@ -243,7 +203,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	// add time uniform
 	osg::Uniform* timeU = new osg::Uniform("time", 0.f);
 	state->addUniform(timeU);
-	timeU->setUpdateCallback(new timeUpdate());
+	timeU->setUpdateCallback(new TimeUpdate());
 
 	state->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);

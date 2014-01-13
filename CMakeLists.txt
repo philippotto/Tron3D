@@ -223,7 +223,7 @@ set(sources
 
 	source/sound/audiomanager.h
 	source/sound/audiomanager.cpp
-	
+
 	source/model/bikemodel.h
 	source/model/bikemodel.cpp
 	source/model/auto_levelmodel.cpp
@@ -264,6 +264,8 @@ set(sources
 	source/view/skydome.cpp
 	source/view/postprocessing.cpp
 	source/view/postprocessing.h
+	source/view/nearfarcallback.h
+	source/view/timeupdate.h
 	source/view/motionblur.h
 	source/view/nodefollowcameramanipulator.h
 	source/view/nodefollowcameramanipulator.cpp
@@ -277,7 +279,7 @@ set(sources
 
 )
 
-source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" 
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source"
 	"\\\\.h$|\\\\.hpp$|\\\\.cpp$|\\\\.c$|\\\\.ui$|\\\\.qrc$" "Source Files" ${sources})
 
 #################################################
