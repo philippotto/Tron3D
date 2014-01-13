@@ -19,7 +19,7 @@ using namespace troen;
 
 HUDView::HUDView()
 {
-	m_speedText = new osgText::Text();
+	m_speedText = new osgText::Text();	
 	
 	m_node = new osg::Group();
 	
@@ -136,16 +136,16 @@ void HUDView::resize(int width, int height)
 osg::Camera* HUDView::createRadar()
 {
 	m_radarCamera = new osg::Camera;
-	m_radarCamera->setClearColor(osg::Vec4(0.0f, 0.2f, 0.0f, 0.5f));
+	m_radarCamera->setClearColor(osg::Vec4(0.0f, 1.f, 0.0f, .5f));
 	m_radarCamera->setRenderOrder(osg::Camera::POST_RENDER);
 	m_radarCamera->setAllowEventFocus(false);
-	m_radarCamera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_radarCamera->setClearMask(/**/GL_COLOR_BUFFER_BIT|/**/GL_DEPTH_BUFFER_BIT);
 	m_radarCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	m_radarCamera->setViewport(0.0, 0.0, 400.0, 400.0);
 
 	m_radarCamera->setViewMatrix(osg::Matrixd::lookAt(osg::Vec3(0.0f, 0.0f, 500.0f), osg::Vec3(0.f, 0.f, 0.f), osg::Y_AXIS));
-	m_radarCamera->setProjectionMatrix(osg::Matrixd::ortho2D(-6000.0, 6000.0, -6000.0, 6000.0));
-	m_radarCamera->setCullMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
+	m_radarCamera->setProjectionMatrix(osg::Matrixd::ortho(3020, 3020, -3020, 3020.,1.f,600));
+	//m_radarCamera->setCullMask(CAMERA_MASK_RADAR);
 	
 	return m_radarCamera;
 }

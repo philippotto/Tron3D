@@ -353,6 +353,7 @@ bool TroenGame::composeSceneGraph()
 	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
 	for (auto bikeController : m_bikeControllers)
 		radarScene->addChild(bikeController->getViewNode());
+	radarScene->addChild(m_levelController->getViewNode());
 
 	m_HUDController->attachSceneToRadarCamera(radarScene);
 
