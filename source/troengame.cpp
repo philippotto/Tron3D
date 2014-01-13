@@ -226,7 +226,7 @@ bool TroenGame::initializeGameLogic()
 bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
-	m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
+	m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
 
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 		= new NodeFollowCameraManipulator();
