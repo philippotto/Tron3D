@@ -21,7 +21,7 @@
 using namespace troen;
 
 // ugly but convenient global statics for shaders    
-static osg::ref_ptr<osg::Uniform> g_nearFarUniform;
+static osg::ref_ptr<osg::Uniform> g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
 
 PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height)
 :m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height)
@@ -73,9 +73,11 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 	for (int i = 0; i<m_fboTextures.size(); i++)
 	{
 		// only create textures on first run
-		if (!m_fboTextures[i])  
+
+		if (!m_fboTextures[i].get()) {
 			m_fboTextures[i] = new osg::Texture2D();
-		
+		}
+				
 		
 		if ((i == PING || i == PONG) && HALF_PINGPONGTEXTURE_WIDTH) {
 			m_fboTextures[i]->setTextureWidth(halfedWidth);
@@ -184,8 +186,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	cam->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
 	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
 	cam->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
-
-	g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
 	cam->getOrCreateStateSet()->addUniform(g_nearFarUniform);
 
 	return cam;
