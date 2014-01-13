@@ -46,6 +46,7 @@ m_fullscreen(false),
 m_usePostProcessing(false),
 m_testPerformance(false)
 {
+	QObject();
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
 	}

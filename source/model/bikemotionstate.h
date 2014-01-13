@@ -21,7 +21,7 @@ namespace troen
                 m_positionTransform(initialTransform),
 				m_fenceController(fenceController),
 				m_bikeModel(bikeModel),
-				m_currentTilt(0) {}
+				m_currentTilt(0), btMotionState() {	}
 
 		virtual ~BikeMotionState() {}
 

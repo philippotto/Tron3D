@@ -17,6 +17,7 @@ using namespace troen;
 
 HUDView::HUDView()
 {
+	AbstractView();
 	m_node = new osg::Group();
 	
 	m_node->addChild(createHUD());

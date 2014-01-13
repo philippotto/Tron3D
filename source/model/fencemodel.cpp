@@ -7,6 +7,7 @@ using namespace troen;
 
 FenceModel::FenceModel(FenceController* fenceController, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
 {
+	AbstractModel();
 	m_fenceController = fenceController;
 	m_rigidBodyDeque = std::deque<std::shared_ptr<btRigidBody>>();
 }
