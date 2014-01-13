@@ -219,7 +219,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	osg::ref_ptr<osg::Camera> postRenderCamera(new osg::Camera());
 
 	// input textures
-	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
+	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + OLDCOLOR), m_fboTextures[OLDCOLOR]);
 	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
 	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
 	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + PONG), m_fboTextures[PONG]);
@@ -250,11 +250,13 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	//state->addUniform(new osg::Uniform("normalDepthLayer", NORMALDEPTH));
 	state->addUniform(new osg::Uniform("idLayer", ID));
 	state->addUniform(new osg::Uniform("pongLayer", PONG));
+	state->addUniform(new osg::Uniform("oldLayer", OLDCOLOR));
 
 	state->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
 	//state->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(PONG, m_fboTextures[PONG], osg::StateAttribute::ON);
+	state->setTextureAttributeAndModes(OLDCOLOR, m_fboTextures[OLDCOLOR], osg::StateAttribute::ON);
 
 	return postRenderCamera;
 }

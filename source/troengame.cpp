@@ -31,7 +31,6 @@
 #include "view/shaders.h"
 #include "view/skydome.h"
 #include "view/postprocessing.h"
-#include "view/motionblur.h"
 #include "view/nodefollowcameramanipulator.h"
 
 
@@ -261,14 +260,8 @@ bool TroenGame::initializeViews()
 
 bool TroenGame::initializeViewer()
 {
-	double persistence = 0.06;
-	osgViewer::Viewer::Windows windows;
-
 	m_sampleOSGViewer = new SampleOSGViewer();
 	m_sampleOSGViewer.get()->addView(m_gameView);
-
-	m_sampleOSGViewer->getWindows(windows);
-	windows.at(0)->add(new MotionBlurOperation(persistence));
 
 #ifdef WIN32
 	// turn of vSync (we implement an adaptive gameLoop that syncs itself)
@@ -281,9 +274,6 @@ bool TroenGame::initializeViewer()
 	{
 		m_sampleOSGViewer2 = new SampleOSGViewer();
 		m_sampleOSGViewer2.get()->addView(m_gameView2);
-
-		m_sampleOSGViewer2->getWindows(windows);
-		windows.at(0)->add(new MotionBlurOperation(persistence));
 
 #ifdef WIN32
 		m_sampleOSGViewer2->setRealizeOperation(operation);

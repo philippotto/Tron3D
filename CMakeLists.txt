@@ -266,7 +266,6 @@ set(sources
 	source/view/postprocessing.h
 	source/view/nearfarcallback.h
 	source/view/timeupdate.h
-	source/view/motionblur.h
 	source/view/nodefollowcameramanipulator.h
 	source/view/nodefollowcameramanipulator.cpp
 
