@@ -328,7 +328,7 @@ bool TroenGame::composeSceneGraph()
 		m_sceneNode = m_postProcessing->getSceneNode();
 
 		//explicit call, to enable glow from start
-		refreshTextures(viewport->width(), viewport->height());
+		resize(viewport->width(), viewport->height());
 	}
 	else
 		m_sceneNode = m_rootNode;

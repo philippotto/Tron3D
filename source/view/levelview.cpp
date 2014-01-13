@@ -16,11 +16,12 @@
 #include <osg/TexEnv>
 #include <osg/TexGen>
 #include <osg/TexGenNode>
-
+// bullet
 #include <btBulletDynamicsCommon.h>
-
+// troen
 #include "../model/levelmodel.h"
 #include "shaders.h"
+#include "../constants.h"
 
 using namespace troen;
 
@@ -42,7 +43,8 @@ LevelView::LevelView(std::shared_ptr<LevelModel> model)
 
 osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
 {
-        osg::ref_ptr<osg::Group> walls = constructGroupForBoxes(m_model->getWalls());                
+        osg::ref_ptr<osg::Group> walls = constructGroupForBoxes(m_model->getWalls());
+		walls->setNodeMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
         addShaderAndUniforms(walls, shaders::OUTER_WALL, levelSize);
 
         return walls;
@@ -51,6 +53,7 @@ osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
 osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
         osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
+		floors->setNodeMask(CAMERA_MASK_MAIN);
         addShaderAndUniforms(floors, shaders::GRID, levelSize);
 
         return floors;
@@ -59,6 +62,7 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 {
 	osg::ref_ptr<osg::Group> obstacleGroup = constructGroupForBoxes(m_model->getObstacles()); 
+	obstacleGroup->setNodeMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
 
 	osg::StateSet *obstaclesStateSet = obstacleGroup->getOrCreateStateSet();
 	obstaclesStateSet->ref();
