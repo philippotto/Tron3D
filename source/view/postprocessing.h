@@ -52,5 +52,6 @@ namespace troen
 
 		int m_width;
 		int m_height;
+		std::vector<int> pingpongPasses;
 	};
 }

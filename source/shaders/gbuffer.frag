@@ -1,10 +1,6 @@
 uniform sampler2D colorTex;
 uniform float objectID;
 
-
-varying vec3 theNormal;
-varying float linearDepth;
-
 void main(void)
 {		
     // has texture? 

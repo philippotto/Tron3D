@@ -117,7 +117,7 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		for (size_t i = 0, iEnd = m_allCameras.size(); i<iEnd; i++)
 		{
 			m_allCameras[i]->setRenderingCache(0);
-			if (i != 0 && i != iEnd - 1 && HALF_PINGPONGTEXTURE_WIDTH)
+			if (i  != 0 && i != iEnd - 1 && HALF_PINGPONGTEXTURE_WIDTH)
 				// only draw with halfed resolution, if we process the gbuffer + postprocessing pass
 				m_allCameras[i]->setViewport(new osg::Viewport(0, 0, halfedWidth, halfedHeight));
 
@@ -130,6 +130,7 @@ class NearFarCallback : public osg::NodeCallback
 {
 	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
 	{
+
 		traverse(node, nv);
 
 		osgUtil::CullVisitor * cv = dynamic_cast<osgUtil::CullVisitor*> (nv);
@@ -146,6 +147,7 @@ class NearFarCallback : public osg::NodeCallback
 				m_oldNear = n;
 				m_oldFar = f;
 				g_nearFarUniform->set(osg::Vec2(n, f));
+				
 			}
 		}
 	}
@@ -178,12 +180,12 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	cam->addChild(m_sceneNode);
 
 	// attach shader program
-	cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-	cam->getOrCreateStateSet()->addUniform(new osg::Uniform("colorTex", COLOR));
-	cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
-	cam->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->addUniform(new osg::Uniform("colorTex", COLOR));
+	//cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
 	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
-	cam->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 
 	g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
 	cam->getOrCreateStateSet()->addUniform(g_nearFarUniform);
@@ -254,10 +256,10 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	osg::ref_ptr<osg::Camera> postRenderCamera(new osg::Camera());
 
 	// input textures
-	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
+	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
 	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
-	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
-	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + PONG), m_fboTextures[PONG]);
+	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
+	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + PONG), m_fboTextures[PONG]);
 
 	// configure postRenderCamera to draw fullscreen textured quad
 	postRenderCamera->setClearColor(osg::Vec4(0.0, 0.5, 0.0, 1)); // should never see this.
@@ -267,9 +269,9 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	// geometry
 	osg::Geode* geode(new osg::Geode());
 	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
-	/*geode->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
-	geode->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
-	geode->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
+	//geode->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
+	//geode->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
+	/*geode->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 	geode->getOrCreateStateSet()->setTextureAttributeAndModes(PONG, m_fboTextures[PONG], osg::StateAttribute::ON);*/
 	geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 	postRenderCamera->addChild(geode);
