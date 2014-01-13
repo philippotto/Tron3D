@@ -203,12 +203,20 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	state->addUniform(timeU);
 	timeU->setUpdateCallback(new TimeUpdate());
 
+	// add beat uniform
+	m_timeSinceLastBeat = new osg::Uniform("timeSinceLastBeat", 0.5f);
+	state->addUniform(m_timeSinceLastBeat);
+
 	state->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 
 	return camera.release();
 }
 
+void PostProcessing::setBeat(float beat)
+{
+	m_timeSinceLastBeat->set(beat);
+}
 
 // create post processing pass to put it all together
 osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()

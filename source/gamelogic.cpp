@@ -135,9 +135,9 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	//std::cout << "total impulse: " << impulse << std::endl;
 	if (impulse > BIKE_IMPACT_THRESHOLD_LOW)
 		m_audioManager->PlaySFX("data/sound/explosion.wav",
-		impulse / BIKE_IMPACT_THRESHOLD_HIGH,
-		impulse / (BIKE_IMPACT_THRESHOLD_HIGH - BIKE_IMPACT_THRESHOLD_LOW),
-		1, 1);
+			impulse / BIKE_IMPACT_THRESHOLD_HIGH,
+			impulse / (BIKE_IMPACT_THRESHOLD_HIGH - BIKE_IMPACT_THRESHOLD_LOW),
+			1, 1);
 
 	if (impulse > BIKE_IMPACT_THRESHOLD_HIGH)
 	{

@@ -16,7 +16,7 @@ void main(void)
 	vec4 pongColor = texture2D(pongLayer, st);
 	vec4 oldColor = texture2D(oldLayer, st);
 
-	float oldFrameWeight = 0.8;
+	float oldFrameWeight = 0.5;
 	float newFrameWeight = 1 - oldFrameWeight;
 	gl_FragColor = newFrameWeight * (pongColor * 3 + sceneColor) + oldFrameWeight * oldColor;
 }

@@ -28,5 +28,7 @@ namespace troen
 
 	private:
 		osg::Vec3 m_playerColor;
+
+		
 	};
 }
