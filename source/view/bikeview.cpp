@@ -12,14 +12,14 @@
 #include <osg/TexGenNode>
 #include <osgUtil/CullVisitor>
 #include <stdio.h>
+#include <osgDB/ReadFile>
+#include <osg/PositionAttitudeTransform>
 // troen
 #include "../constants.h"
 #include "shaders.h"
 #include "../input/bikeinputstate.h"
-#include <osgDB/ReadFile>
-#include <osg/PositionAttitudeTransform>
-
 #include "../model/bikemodel.h"
+#include "playermarker.h"
 
 using namespace troen;
 
@@ -93,6 +93,7 @@ BikeView::BikeView(osg::Vec3 color)
 #ifdef _DEBUG
 	pat->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
 #endif
+	pat->addChild(PlayerMarker(color).getNode());
 	m_node->addChild(pat);
 }
 
@@ -204,4 +205,12 @@ void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string file
 void BikeView::update()
 {
 	MovieCycle_Body->getStateSet()->addUniform(new osg::Uniform("transform", pat->asMatrixTransform()->getMatrix()));
+}
+
+
+void BikeView::createPlayerMarker(osg::Vec3 color)
+{
+	//PlayerMarker *marker = new PlayerMarker(color)
+	m_playermarkerNode = PlayerMarker(color).getNode();
+	pat->addChild(m_playermarkerNode);
 }

@@ -25,8 +25,10 @@ namespace troen
 		osg::ref_ptr<osg::PositionAttitudeTransform> pat;
 		osg::ref_ptr<osg::Node> MovieCycle_Body;
 		void update();
+		void createPlayerMarker(osg::Vec3 color);
 
 	private:
 		osg::Vec3 m_playerColor;
+		osg::ref_ptr<osg::Node> m_playermarkerNode;
 	};
 }
