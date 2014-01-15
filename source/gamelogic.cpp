@@ -83,15 +83,12 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 			break;
 		case LEVELGROUNDTYPE:
 			//std::cout << "collision with ground" << std::endl;
+			break;
 		case ITEMTYPE:
 		{
-			std::cout << "collision with item!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-
 			ItemController* itemController = static_cast<ItemController *>(collisionBodyControllers[otherIndex]);
 			if (itemController) {
-				std::cout << "!!!!!!!!!!!! calling triggerOn !!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
 				itemController->triggerOn(static_cast<BikeController*>(collisionBodyControllers[bikeIndex]));
-				static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->removeAllFences();
 			}
 			break;
 		}

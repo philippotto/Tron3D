@@ -108,9 +108,10 @@ float BikeModel::updateState(long double time)
 
 	// accelerate
 	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
+	// invsquared(t)   (1 - (1 - (t)) * (1 - (t)))
 	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
-	float speed = currentVelocityVectorXY.length() + ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
-	
+	float speed = currentVelocityVectorXY.length() +  m_bikeController->getTurbo() + ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
+
 
 	// rotate:
 	// turnFactor
@@ -121,10 +122,12 @@ float BikeModel::updateState(long double time)
 
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
+	const float timeToSlowDown = 1000;
 	if (speed > BIKE_VELOCITY_MAX)
-		speed = BIKE_VELOCITY_MAX;
-	else if (speed < BIKE_VELOCITY_MIN)
-		speed = BIKE_VELOCITY_MIN;
+	 	speed -= (speed - BIKE_VELOCITY_MAX) * timeSinceLastUpdate / timeToSlowDown;
+	
+	if (speed < BIKE_VELOCITY_MIN)
+	 	speed = BIKE_VELOCITY_MIN;
 
 	// adapt velocity vector to real direction
 
