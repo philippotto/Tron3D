@@ -19,4 +19,12 @@ void main(void)
 	float oldFrameWeight = 0.5;
 	float newFrameWeight = 1 - oldFrameWeight;
 	gl_FragColor = newFrameWeight * (pongColor * 3 + sceneColor) + oldFrameWeight * oldColor;
+
+
+	st = 1*(st - vec2(0.5));
+	float transparency = st.x * st.x + st.y * st.y;
+
+	vec4 red = vec4(1.0, 0.0, 0.0, 1.f);
+
+	gl_FragColor = mix(gl_FragColor, red, 0.6 * pow(transparency, 1.5));
 }
