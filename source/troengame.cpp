@@ -250,7 +250,6 @@ bool TroenGame::initializeViews()
 	m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
 	m_gameView->addEventHandler(m_statsHandler);
 
-
 	m_gameView->setSceneData(m_rootNode);
 #ifdef WIN32
 	if (m_fullscreen)
@@ -458,6 +457,7 @@ void TroenGame::startGameLoop()
 				m_sampleOSGViewer->frame();
 				if (m_splitscreen) m_sampleOSGViewer2->frame();
 
+				// TODO: find a way to eleminate this workaround
 				if (!nearPlaneAdapted) {
 					// doesn't work if it's executed earlier
 					double fovy, aspect, znear, zfar;
