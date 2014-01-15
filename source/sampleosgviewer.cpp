@@ -5,7 +5,7 @@ using namespace troen;
 
 SampleOSGViewer::SampleOSGViewer(osg::GraphicsContext* context /*= nullptr*/)
 {
-	setThreadingModel(osgViewer::ViewerBase::ThreadingModel::ThreadPerCamera);
+	setThreadingModel(osgViewer::ViewerBase::ThreadingModel::SingleThreaded);
 }
 
 SampleOSGViewer::~SampleOSGViewer()
