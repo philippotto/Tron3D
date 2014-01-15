@@ -6,12 +6,12 @@
 
 using namespace troen::input;
 
-Keyboard::Keyboard(osg::ref_ptr<BikeInputState> bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol> keys)
-{
-	GUIEventHandler();
-	m_bikeInputState = bikeInputState;
-	m_keys = keys;
-}
+Keyboard::Keyboard(osg::ref_ptr<BikeInputState> bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol> keys) :
+GUIEventHandler(),
+m_bikeInputState(bikeInputState),
+m_keys(keys),
+m_handbrakePressed(false)
+{}
 
 bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActionAdapter& actionAdapter)
 {
@@ -44,12 +44,6 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 		{
 			m_handbrakePressed = 1.0;
 			return false;
-		}
-		// todo, move to gameeventhandler
-		else if (key == osgGA::GUIEventAdapter::KEY_R)
-		{
-			std::cout << "Reloading shaders" << std::endl;
-			shaders::reloadShaders();
 		}
 		return false;
 	}

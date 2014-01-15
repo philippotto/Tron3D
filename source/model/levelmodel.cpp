@@ -14,11 +14,8 @@ LevelModel::LevelModel(const LevelController* levelController)
 	btScalar levelSize = btScalar(getLevelSize());
 
 	addWalls(levelSize, -10);
-	addWalls(levelSize * 2, -100);
 
 	addFloor(levelSize, -10);
-	addFloor(levelSize * 2, -100);
-
 
 	auto_addObstacles();
 }

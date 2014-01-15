@@ -15,7 +15,7 @@ namespace troen
 	const float DEFAULT_SOUND_VOLUME(1.f);
 
 	const float FOVY_INITIAL(29.1484f);
-	const float FOVY_ADDITION_MAX(20.f);
+	const float FOVY_ADDITION_MAX(25.f);
 	const float FOVY_DELTA_MAX(.7f);
 	
 	const int NUM_MULTISAMPLES(8);
@@ -30,11 +30,11 @@ namespace troen
 	const osg::Vec3f BIKE_VIEW_TRANSLATE_VALUES(0,0,-BIKE_DIMENSIONS.z() * 4.9f / 12.5);
 
 	const float BIKE_MASS(300);
-	const int BIKE_VELOCITY_MAX(BIKE_DIMENSIONS.y() * 60);
-	const int BIKE_VELOCITY_MIN(BIKE_DIMENSIONS.y() * 20);
+	const int BIKE_VELOCITY_MAX(BIKE_DIMENSIONS.y() * 90);
+	const int BIKE_VELOCITY_MIN(BIKE_DIMENSIONS.y() * 30);
 	const float BIKE_VELOCITY_DAMPENING_TERM(.1f);
-	const float BIKE_ACCELERATION_FACTOR_MAX(1.f);
-	const float BIKE_TURN_FACTOR_MAX(20);
+	const float BIKE_ACCELERATION_FACTOR_MAX(1.5f);
+	const float BIKE_TURN_FACTOR_MAX(15);
 	const float BIKE_ANGULAR_DAMPENING_TERM(0.001f);
 
 	// BIKE_TILT_DAMPENING = 1 would lead to immediate/unsmooth tilt
@@ -54,7 +54,7 @@ namespace troen
 	const float FENCE_HEIGHT_VIEW(FENCE_HEIGHT_MODEL * .7f);
 	const float FENCE_PART_LENGTH(BIKE_DIMENSIONS.y() / 2);
 	const float FENCE_PART_WIDTH(BIKE_DIMENSIONS.x() * .3f);
-	const int DEFAULT_MAX_FENCE_PARTS(150);
+	const int DEFAULT_MAX_FENCE_PARTS(400);
 
 	// CAMERA
 	const osg::Vec3 CAMERA_POSITION_OFFSET(0, 0, BIKE_DIMENSIONS.y());
