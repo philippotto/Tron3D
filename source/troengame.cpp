@@ -115,6 +115,13 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 	for (int i = 0; i < m_numberOfBikes; i++)
 		m_playerInputTypes.push_back(config.playerInputTypes[i]);
 
+	m_playerColors.clear();
+	for (int j = 0; j < m_numberOfBikes; j++)
+	{
+		osg::Vec3 col = osg::Vec3(config.playerColors[j].red(), config.playerColors[j].green(), config.playerColors[j].blue());
+		m_playerColors.push_back(col);
+	}
+
 	startGameLoop();
 }
 
@@ -199,7 +206,10 @@ bool TroenGame::initializeControllers()
 	for (int i = 0; i < m_numberOfBikes; i++)
 	{
 		m_bikeControllers.push_back(std::make_shared<BikeController>((
-			input::BikeInputState::InputDevice)m_playerInputTypes[i],m_levelController->initialPositionTransformForBikeWithIndex(i)));
+			input::BikeInputState::InputDevice)m_playerInputTypes[i],
+			m_levelController->initialPositionTransformForBikeWithIndex(i),
+			m_playerColors[i])
+		);
 	}
 	m_HUDController = std::make_shared<HUDController>(m_bikeControllers[0]);
 	return true;
