@@ -279,6 +279,26 @@ set(sources
 	source/util/gldebugdrawer.cpp
 
 
+	BendedViews/src/DeformationRendering.cpp
+	BendedViews/src/DeformationRendering.h
+	BendedViews/src/GlobalDeformationsExample.cpp
+	BendedViews/src/GlobalDeformationsExample.h
+	BendedViews/src/PreRenderCallback.cpp
+	BendedViews/src/PreRenderCallback.h
+	BendedViews/src/SplineDeformationRendering.cpp
+	BendedViews/src/SplineDeformationRendering.h
+
+	BendedViews/src/deformentities/bsplinedeformationfunction.cpp
+	BendedViews/src/deformentities/bsplinedeformationfunction.h
+	BendedViews/src/deformentities/curve.cpp
+	BendedViews/src/deformentities/curve.h
+	BendedViews/src/deformentities/curvestylingpreset.cpp
+	BendedViews/src/deformentities/curvestylingpreset.h
+	BendedViews/src/deformentities/preset.cpp
+	BendedViews/src/deformentities/preset.h
+	BendedViews/src/deformentities/tagpoint.cpp
+	BendedViews/src/deformentities/tagpoint.h
+
 )
 
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source"
