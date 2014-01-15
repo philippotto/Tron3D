@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QKeyEvent>
 #include <QCoreApplication>
+#include <QSignalMapper>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -44,6 +45,10 @@ MainWindow::MainWindow(QWidget * parent)
 		vBoxLayout->addWidget(bikeNumberWidget);
 	}
 
+	QSignalMapper* signalMapper = new QSignalMapper(this);
+	std::vector<QColor> initialColors{ QColor(255.0, 0.0, 0.0), QColor(0.0, 255.0, 0.0), QColor(0.0, 0.0, 255.0),
+		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) };
+
 	// bikeInputs
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
@@ -65,6 +70,17 @@ MainWindow::MainWindow(QWidget * parent)
 		playerInputLayout->addWidget(playerComboBox);
 		m_playerComboBoxes.push_back(playerComboBox);
 
+		QColor initialColor = initialColors[i];
+		QString colorString = QString("background-color: %1").arg(initialColor.name());
+		QPushButton* colorButton = new QPushButton();
+		colorButton->setContentsMargins(0, 5, 0, 5);
+		colorButton->setStyleSheet(colorString);
+		signalMapper->setMapping(colorButton, i);
+		connect(colorButton, SIGNAL(clicked()), signalMapper, SLOT(map()));
+		playerInputLayout->addWidget(colorButton);
+		m_playerColors.push_back(initialColor);
+		m_colorButtons.push_back(colorButton);
+
 		switch (i)
 		{
 		case 0:
@@ -80,6 +96,7 @@ MainWindow::MainWindow(QWidget * parent)
 
 		vBoxLayout->addWidget(playerInputWidget);
 	}
+	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(chooseColor(int)));
 	updatePlayerInputBoxes();
 
 	// splitscreenCheckBox
@@ -137,14 +154,27 @@ MainWindow::~MainWindow()
 	m_gameThread->terminate();
 }
 
+void MainWindow::chooseColor(int i)
+{
+	m_playerColors[i] = QColorDialog::getColor(m_playerColors[i]);
+	QString colorString = QString("background-color: %1").arg(m_playerColors[i].name());
+	m_colorButtons[i]->setStyleSheet(colorString);
+}
+
 void MainWindow::updatePlayerInputBoxes()
 {
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
 		if (i < m_bikeNumberSpinBox->value())
+		{
 			m_playerComboBoxes.at(i)->setDisabled(false);
+			m_colorButtons.at(i)->setDisabled(false);
+		}
 		else
+		{
 			m_playerComboBoxes.at(i)->setDisabled(true);
+			m_colorButtons.at(i)->setDisabled(true);
+		}
 	}
 }
 
@@ -153,9 +183,14 @@ void MainWindow::prepareGameStart()
 	GameConfig config;
 	config.numberOfBikes = m_bikeNumberSpinBox->value();
 	config.playerInputTypes = new int[config.numberOfBikes];
+	config.playerColors = new QColor[config.numberOfBikes];
 	for (int i = 0; i < config.numberOfBikes; i++)
 	{
 		config.playerInputTypes[i] = m_playerComboBoxes.at(i)->currentIndex();
+	}
+	for (int j = 0; j < config.numberOfBikes; j++)
+	{
+		config.playerColors[j] = m_playerColors[j];
 	}
 	config.splitscreen = m_splitscreenCheckBox->isChecked();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();

@@ -17,7 +17,8 @@ namespace troen
 	public:
 		BikeController(
 			input::BikeInputState::InputDevice inputDevice,
-			btTransform initialPosition);
+			btTransform initialPosition,
+			osg::Vec3 playerColor);
 		~BikeController();
 		void attachTrackingCamera
 			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
@@ -42,8 +43,6 @@ namespace troen
 		float getTurbo();
 
 	private:
-		osg::Vec3 generateRandomColor();
-
 		void setFovy(float newFovy);
 		float getFovy();
 		float computeFovyDelta(float speed, float currentFovy);

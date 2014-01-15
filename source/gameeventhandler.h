@@ -3,6 +3,7 @@
 // troen
 #include "troengame.h"
 #include "gamelogic.h"
+#include "view\shaders.h"
 
 namespace troen
 {
@@ -33,6 +34,11 @@ namespace troen
 				case osgGA::GUIEventAdapter::KEY_F:
 					m_gameLogic.lock()->toggleFencePartsLimit();
 					return true;
+				case osgGA::GUIEventAdapter::KEY_R:
+				{
+					std::cout << "Reloading shaders" << std::endl;
+					shaders::reloadShaders();
+				}
 				case osgGA::GUIEventAdapter::KEY_Shift_R:
                 case osgGA::GUIEventAdapter::KEY_Shift_L:
 					m_troenGame->pauseEvent();

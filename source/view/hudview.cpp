@@ -11,6 +11,7 @@
 #include <osg/Camera>
 #include <osg/RenderInfo>
 #include <osgText/Text>
+#include <osgViewer/ViewerEventHandlers>
 // troen
 #include "../constants.h"
 
@@ -140,7 +141,7 @@ osg::Camera* HUDView::createRadar()
 	m_radarCamera->setClearColor(osg::Vec4(0.0f, 1.f, 0.0f, .5f));
 	m_radarCamera->setRenderOrder(osg::Camera::POST_RENDER);
 	m_radarCamera->setAllowEventFocus(false);
-	m_radarCamera->setClearMask(/*GL_COLOR_BUFFER_BIT|/**/GL_DEPTH_BUFFER_BIT);
+	m_radarCamera->setClearMask(GL_DEPTH_BUFFER_BIT);
 	m_radarCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	m_radarCamera->setViewport(0.0, 0.0, 400.0, 400.0);
 
@@ -153,8 +154,15 @@ osg::Camera* HUDView::createRadar()
 
 void HUDView::attachSceneToRadarCamera(osg::Group* scene)
 {
+	osg::ref_ptr<osg::Group> hudGroup = new osg::Group;
 
-	m_radarCamera->addChild(scene);
+	osg::StateSet* stateset = hudGroup->getOrCreateStateSet();
+	stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+	stateset->setMode(GL_BLEND, osg::StateAttribute::ON);
+	stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+
+	hudGroup->addChild(scene);
+	m_radarCamera->addChild(hudGroup);
 }
 
 void HUDView::setSpeedText(float speed)

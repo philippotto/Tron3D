@@ -65,9 +65,9 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
 
-	//osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());
-	//radarFloors->setNodeMask(CAMERA_MASK_RADAR);
-	//floorsGroup->addChild(radarFloors);
+	osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());
+	radarFloors->setNodeMask(CAMERA_MASK_RADAR);
+	floorsGroup->addChild(radarFloors);
 
     return floorsGroup;
 }
@@ -154,21 +154,12 @@ osg::ref_ptr<osg::Group> LevelView::constructRadarElementsForBoxes(std::vector<B
 		osg::ref_ptr<osg::Box> box
 			= new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z());
 		osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable(box);
+		mark_shape->setColor(osg::Vec4f(1, 1, 1, .3));
 		osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
 		mark_node->addDrawable(mark_shape.get());
 		mark_node->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 
 		// radar material
-		float alpha = 0.5f;
-		osg::Vec4 color(1, 1, 1, alpha);
-		osg::ref_ptr<osg::Material> material = new osg::Material;
-		material->setColorMode(osg::Material::AMBIENT);
-		material->setAmbient(osg::Material::FRONT_AND_BACK,
-			osg::Vec4(0.8f, 0.8f, 0.8f, alpha));
-		material->setDiffuse(osg::Material::FRONT_AND_BACK,
-			color * 0.8f);
-		material->setSpecular(osg::Material::FRONT_AND_BACK, color);
-		material->setShininess(osg::Material::FRONT_AND_BACK, 1.0f);
 
 		// place objects in world space
 		osg::Matrixd initialTransform;
@@ -177,8 +168,6 @@ osg::ref_ptr<osg::Group> LevelView::constructRadarElementsForBoxes(std::vector<B
 
 		osg::ref_ptr<osg::MatrixTransform> matrixTransformRadar = new osg::MatrixTransform(initialTransform);
 		matrixTransformRadar->addChild(mark_node);
-		matrixTransformRadar->getOrCreateStateSet()->setAttributeAndModes(
-			material.get(), osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
 
 		radarBoxGroup->addChild(matrixTransformRadar);
 	}
