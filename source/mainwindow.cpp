@@ -117,7 +117,7 @@ MainWindow::MainWindow(QWidget * parent)
 	// postProcessingCheckBox
 	m_testPerformanceCheckBox = new QCheckBox("&TestPerformance - vSync OFF");
 	vBoxLayout->addWidget(m_testPerformanceCheckBox, 0, Qt::AlignLeft);
-	m_testPerformanceCheckBox->setChecked(false);
+	m_testPerformanceCheckBox->setChecked(true);
 
 	// debugViewCheckBox
 	m_debugViewCheckBox = new QCheckBox("&DebugView");

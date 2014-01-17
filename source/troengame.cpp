@@ -38,7 +38,7 @@ using namespace troen;
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
-m_simulationPaused(false),
+m_simulationPaused(true),
 m_numberOfBikes(0),
 m_splitscreen(false),
 m_fullscreen(false),
@@ -147,6 +147,7 @@ bool TroenGame::initialize()
 	initializeSkyDome();
 	initializeControllers();
 	initializeHud();
+	initializeLighting();
 
 	std::cout << "[TroenGame::initialize] gameLogic ..." << std::endl;
 	initializeGameLogic();
@@ -226,6 +227,18 @@ bool TroenGame::initializeHud()
 	return true;
 }
 
+bool TroenGame::initializeLighting()
+{
+	osg::ref_ptr<osg::Light> sunLight = new osg::Light(0);
+	sunLight->setPosition(osg::Vec4f(0.0f, 0.0f, 1000.0f, 1.0f));
+	sunLight->setAmbient(osg::Vec4f(0.05f, 0.05f, 0.04f, 1.0f));
+	sunLight->setDiffuse(osg::Vec4f(1.0f, 1.0f, 0.95f, 1.0f));
+	sunLight->setSpecular(osg::Vec4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+	osg::ref_ptr<osg::LightSource> m_sunLightSource = new osg::LightSource;
+	m_sunLightSource->setLight(sunLight.get());
+	return true;
+}
 
 bool TroenGame::initializeGameLogic()
 {
@@ -343,14 +356,20 @@ bool TroenGame::composeSceneGraph()
 	else
 		m_sceneNode = m_rootNode;
 
+	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
 	m_sceneNode->addChild(m_skyDome.get());
-	m_sceneNode->addChild(m_levelController->getViewNode());	
+
+	m_sceneNode->addChild(m_levelController->getViewNode());
+	m_sceneNode->addChild(m_sunLightSource.get());
 	
-	m_rootNode->addChild(m_hudSwitch);
-
 	for (auto bikeController : m_bikeControllers)
+	{
 		m_sceneNode->addChild(bikeController->getViewNode());
+	}
 
+	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
+
+	m_rootNode->addChild(m_hudSwitch);
 	if (m_usePostProcessing)
 		m_rootNode->addChild(m_sceneNode);
 	
