@@ -52,6 +52,7 @@ void FenceView::initializeFence()
 	m_geode->addDrawable(m_geometry);
 
 	m_node->addChild(m_geode);
+	m_node->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
 }
 
 void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)

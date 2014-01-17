@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QStatusBar>
 #include <QPushButton>
+#include <QColorDialog>
 #include <QSpinBox>
 #include <QComboBox>
 #include <QCheckBox>
@@ -37,6 +38,7 @@ namespace troen
 		void splitscreenToggled();
 		void fullscreenToggled();
 		void bikeNumberChanged(int newBikeNumber);
+		void chooseColor(int i);
 
 
 	private:
@@ -44,6 +46,8 @@ namespace troen
 		QPushButton*	m_gameStartButton;
 		QSpinBox*		m_bikeNumberSpinBox;
 		QVector<QComboBox*>	m_playerComboBoxes;
+		QVector<QColor> m_playerColors;
+		QVector<QPushButton*> m_colorButtons;
 		QCheckBox*		m_splitscreenCheckBox;
 		QCheckBox*		m_fullscreenCheckBox;
 		QCheckBox*		m_postProcessingCheckBox;

@@ -17,7 +17,8 @@ namespace troen
 	public:
 		BikeController(
 			input::BikeInputState::InputDevice inputDevice,
-			btTransform initialPosition);
+			btTransform initialPosition,
+			osg::Vec3 playerColor);
 		~BikeController();
 		void attachTrackingCamera
 			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
@@ -30,6 +31,7 @@ namespace troen
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
 		osg::ref_ptr<input::Keyboard> getEventHandler();
 		bool hasEventHandler();
+		float getSpeed();
 
 		// logic events
 		void moveBikeToPosition(btTransform position);
@@ -39,8 +41,6 @@ namespace troen
 		void enforceFencePartsLimit(int maxFenceParts);
 
 	private:
-		osg::Vec3 generateRandomColor();
-
 		void setFovy(float newFovy);
 		float getFovy();
 		float computeFovyDelta(float speed, float currentFovy);
@@ -55,5 +55,7 @@ namespace troen
 		osg::ref_ptr<osgViewer::View> m_gameView;
 		osg::Vec3 m_playerColor;
 		btTransform m_initialTransform;
+
+		float m_speed;
 	};
 }

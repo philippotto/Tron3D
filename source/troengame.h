@@ -2,6 +2,7 @@
 // Qt
 #include <QThread>
 #include <QMetaType>
+#include <QColor>
 // OSG
 #include <osg/ref_ptr>
 #include <osg/PositionAttitudeTransform>
@@ -14,6 +15,7 @@ typedef struct s_GameConfig
 {
 	int numberOfBikes;
 	int* playerInputTypes;
+	QColor* playerColors;
 	bool splitscreen;
 	bool fullscreen;
 	bool usePostProcessing;
@@ -40,7 +42,7 @@ namespace troen
 		void pauseSimulation();
 		void unpauseSimulation();
 
-		void refreshTextures(int width, int height);
+		void resize(int width, int height);
 		void setFovy(float newFovy);
 		float getFovy();
 
@@ -51,6 +53,7 @@ namespace troen
 		bool initialize();
 		bool initializeViews();
 		bool initializeViewer();
+		bool initializeHud();
 		bool initializeControllers();
 		bool initializeInput();
 		bool composeSceneGraph();
@@ -60,6 +63,7 @@ namespace troen
 		bool initializePhysicsWorld();
 		bool initializeSound();
 		bool initializeSkyDome();
+		bool initializeLighting();
 
 		bool shutdown();
 		void startGameLoop();
@@ -80,6 +84,9 @@ namespace troen
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
+		osg::ref_ptr<osg::Switch>			m_hudSwitch;
+		osg::ref_ptr<osg::LightSource>		m_sunLightSource;
+
 
 		// Controllers
 		std::shared_ptr<LevelController>	m_levelController;
@@ -93,6 +100,7 @@ namespace troen
 		std::shared_ptr<sound::AudioManager> m_audioManager;
 
 		std::vector<int> m_playerInputTypes;
+		std::vector<osg::Vec3> m_playerColors;
 
 		bool m_simulationPaused;
 

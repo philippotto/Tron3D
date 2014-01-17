@@ -656,6 +656,6 @@
 			};
 			m_obstacles.insert(m_obstacles.end(), newObstacles.begin(), newObstacles.end());
 		
-			addBoxes(m_obstacles);
+			addBoxes(m_obstacles, LEVELOBSTACLETYPE);
 		}
 	

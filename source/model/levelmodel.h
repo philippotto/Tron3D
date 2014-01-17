@@ -42,7 +42,7 @@ namespace troen
 		
 		void addWalls(float levelSize, float yPosition);
 		void addFloor(float size, float yPosition);
-		void addBoxes(std::vector<BoxModel> &boxes);
+		void addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type);
 
 		void auto_addObstacles();
 

@@ -11,6 +11,7 @@
 #include <osg/CullFace>
 #include <osg/TexGenNode>
 #include <osgUtil/CullVisitor>
+#include <osg/ShapeDrawable>
 #include <stdio.h>
 #include <osgDB/ReadFile>
 #include <osg/PositionAttitudeTransform>
@@ -29,17 +30,31 @@ BikeView::BikeView(osg::Vec3 color)
 	m_node = new osg::Group();
 	m_playerColor = color;
 	pat = new osg::PositionAttitudeTransform();
-	
-#ifndef _DEBUG
+
+	osg::Vec4 color4 = osg::Vec4(color, 1.0);
+	osg::ref_ptr<osg::Material> material = new osg::Material;
+	material->setColorMode(osg::Material::AMBIENT);
+	material->setAmbient(osg::Material::FRONT_AND_BACK,
+		osg::Vec4(0.8f, 0.8f, 0.8f, 1.0f));
+	material->setDiffuse(osg::Material::FRONT_AND_BACK,
+		color4*0.8f);
+	material->setSpecular(osg::Material::FRONT_AND_BACK, color4);
+	material->setShininess(osg::Material::FRONT_AND_BACK, 1.0f);
+
 	osg::Matrixd initialTransform;
 	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Z_AXIS);
 	initialTransform.makeRotate(rotationQuat);
+	
+#ifndef _DEBUG
 	initialTransform *= initialTransform.scale(BIKE_VIEW_SCALE_FACTORS);
 	initialTransform *= initialTransform.translate(BIKE_VIEW_TRANSLATE_VALUES);
 	
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
+	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
+
 	pat->addChild(matrixTransform);
 	
+
 	MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
 		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",
 		"data/models/cycle/MG_MovieCycle_BodyHeadLight_EMSS.tga",
@@ -48,17 +63,17 @@ BikeView::BikeView(osg::Vec3 color)
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBody_MI.obj",
 		"data/models/cycle/MG_Player_Body_SPEC.tga",
 		"data/models/cycle/MG_Player_Body_EMSS.tga",
-		"data/models/cycle/MG_Player_Body_NORM.tga", GLOW, 0.1);
+		"data/models/cycle/MG_Player_Body_NORM.tga", GLOW, 0.1f);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart("data/models/cycle/MG_MovieCycle_Tire_MI.obj",
 		"data/models/cycle/MG_MovieCycle_Tire_DIFF.tga",
 		"data/models/cycle/MG_MovieCycle_Tire_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Tire_NORM.tga", GLOW, 0.5);
+		"data/models/cycle/MG_MovieCycle_Tire_NORM.tga", GLOW, 0.5f);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerHelmet_MI.obj",
 		"data/models/cycle/MG_Player_Helmet_SPEC.tga",
 		"data/models/cycle/MG_Player_Helmet_EMSS.tga",
-		"data/models/cycle/MG_Player_Helmet_NORM.tga", GLOW, 0.3);
+		"data/models/cycle/MG_Player_Helmet_NORM.tga", GLOW, 0.3f);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerDisc_MI.obj",
 		"data/models/cycle/MG_Player_Disc_SPEC.tga",
@@ -91,8 +106,36 @@ BikeView::BikeView(osg::Vec3 color)
 
 #endif
 #ifdef _DEBUG
-	pat->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
+	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
+	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
+
+	osg::ref_ptr<osg::ShapeDrawable> debugShape = new osg::ShapeDrawable;
+	debugShape->setShape(new osg::Box(osg::Vec3(), 2 ,4, 2));
+	debugShape->setColor(osg::Vec4f(1,1,1,1));
+	osg::ref_ptr<osg::Geode> debugNode = new osg::Geode;
+	debugNode->addDrawable(debugShape.get());
+
+	matrixTransform->addChild(debugNode);
+
+	pat->addChild(matrixTransform);
 #endif
+
+	// create box for radar
+	osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable;
+	mark_shape->setShape(new osg::Cone(osg::Vec3(), 120, 300));
+	mark_shape->setColor(color4);
+	osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
+	mark_node->addDrawable(mark_shape.get());
+
+	osg::Matrixd radarMatrix;
+	osg::Quat radarMarkRotationQuat(osg::DegreesToRadians(90.0f), osg::X_AXIS);
+	radarMatrix.makeRotate(radarMarkRotationQuat);
+
+	osg::MatrixTransform* radarMatrixTransform = new osg::MatrixTransform(radarMatrix);
+	radarMatrixTransform->addChild(mark_node);
+	radarMatrixTransform->setNodeMask(CAMERA_MASK_RADAR);
+
+	pat->addChild(radarMatrixTransform);
 	pat->addChild(PlayerMarker(color).getNode());
 	m_node->addChild(pat);
 }

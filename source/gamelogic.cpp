@@ -60,6 +60,7 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 		switch (collisionTypes[otherIndex])
 		{
 		case LEVELWALLTYPE:
+		case LEVELOBSTACLETYPE:
 		case FENCETYPE:
 			handleCollisionOfBikeAndNonmovingObject(
 				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
@@ -109,6 +110,7 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 		{
 		case FENCETYPE:
 		case LEVELTYPE:
+		case LEVELOBSTACLETYPE:
 		case LEVELGROUNDTYPE:
 		case LEVELWALLTYPE:
 		case BIKETYPE:
@@ -133,13 +135,13 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 		impulse = impulse + pt.getAppliedImpulse();
 	}
 	//std::cout << "total impulse: " << impulse << std::endl;
-	if (impulse > BIKE_IMPACT_THRESHOLD_LOW)
+	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_LOW)
 		m_audioManager->PlaySFX("data/sound/explosion.wav",
-		impulse / BIKE_IMPACT_THRESHOLD_HIGH,
-		impulse / (BIKE_IMPACT_THRESHOLD_HIGH - BIKE_IMPACT_THRESHOLD_LOW),
-		1, 1);
+			impulse / BIKE_FENCE_IMPACT_THRESHOLD_HIGH,
+			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
+			1, 1);
 
-	if (impulse > BIKE_IMPACT_THRESHOLD_HIGH)
+	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_HIGH)
 	{
 		m_troenGame->pauseSimulation();
 		restartLevel();

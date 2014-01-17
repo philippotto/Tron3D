@@ -25,9 +25,6 @@ m_lastUpdateTime(0)
 
 	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(BIKE_DIMENSIONS / 2);
 
-	// todo deliver "this" as a shared_ptr ?
-	// jd: i tried this, this class would have to inherit from std::enable_shared_from_this<>,
-	// so i thought it to complicated.
 	std::shared_ptr<BikeMotionState> bikeMotionState = std::make_shared<BikeMotionState>(
 		initialTransform,
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),

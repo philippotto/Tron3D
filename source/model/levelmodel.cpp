@@ -14,11 +14,8 @@ LevelModel::LevelModel(const LevelController* levelController)
 	btScalar levelSize = btScalar(getLevelSize());
 
 	addWalls(levelSize, -10);
-	addWalls(levelSize * 2, -100);
 
 	addFloor(levelSize, -10);
-	addFloor(levelSize * 2, -100);
-
 
 	auto_addObstacles();
 }
@@ -30,13 +27,13 @@ void LevelModel::addFloor(float size, float yPosition)
 		btVector3(size, size, 20)
 	});
 	
-	addBoxes(m_floors);
+	addBoxes(m_floors, LEVELGROUNDTYPE);
 }
 
 void LevelModel::addWalls(float levelSize, float yPosition)
 {
 
-	int wallHeight = 40;
+	btScalar wallHeight = 40;
 
 	std::vector<BoxModel> newWalls = {
 		{
@@ -59,10 +56,10 @@ void LevelModel::addWalls(float levelSize, float yPosition)
 
 	m_walls.insert(m_walls.end(), newWalls.begin(), newWalls.end());
 
-	addBoxes(m_walls);
+	addBoxes(m_walls, LEVELWALLTYPE);
 }
 
-void LevelModel::addBoxes(std::vector<BoxModel> &boxes)
+void LevelModel::addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type)
 {
 	for (int i = 0; i < boxes.size(); ++i)
 	{
@@ -75,7 +72,7 @@ void LevelModel::addBoxes(std::vector<BoxModel> &boxes)
 		
 		std::shared_ptr<btRigidBody> wallRigidBody = std::make_shared<btRigidBody>(wallRigidBodyCI);
 		wallRigidBody->setUserPointer((void *) m_levelController);
-		wallRigidBody->setUserIndex(LEVELWALLTYPE);
+		wallRigidBody->setUserIndex(type);
 		
 		m_collisionShapes.push_back(wallShape);	
 		m_motionStates.push_back(wallMotionState);

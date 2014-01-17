@@ -21,12 +21,12 @@ using namespace troen;
 
 BikeController::BikeController(
 	input::BikeInputState::InputDevice inputDevice,
-	btTransform initialTransform) :
+	btTransform initialTransform,
+	osg::Vec3 playerColor) :
 m_initialTransform(initialTransform)
 {
 	AbstractController();
-	// TODO change random generation of player color here (and remove generateRandomColor-Function)
-	m_playerColor = generateRandomColor();
+	m_playerColor = playerColor;
 
 	m_view = std::make_shared<BikeView>(m_playerColor);
 	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
@@ -44,22 +44,6 @@ BikeController::~BikeController()
 		m_pollingThread->stop();
 		m_pollingThread->wait();
 	}
-}
-
-osg::Vec3 BikeController::generateRandomColor() {
-	// initialize rand
-	srand(time(nullptr));
-
-	int r, g, b;
-	r = rand() > RAND_MAX / 2 ? 1 : 0;
-	g = rand() > RAND_MAX / 2 ? 1 : 0;
-
-	if (r + g == 0)
-		b = 1.f;
-	else
-		b = rand() > RAND_MAX / 2 ? 1 : 0;
-
-	return osg::Vec3(r, g, b);
 }
 
 void BikeController::initializeInput(input::BikeInputState::InputDevice inputDevice)
@@ -196,10 +180,15 @@ float BikeController::getFovy()
 
 float BikeController::computeFovyDelta(float speed, float currentFovy)
 {
+	m_speed = speed;
 	float fovyFactor = (speed - BIKE_VELOCITY_MIN) / (BIKE_VELOCITY_MAX - BIKE_VELOCITY_MIN);
 	fovyFactor = fovyFactor > 0 ? fovyFactor : 0;
 	float newFovy = FOVY_INITIAL + interpolate(fovyFactor, InterpolateCubed) * FOVY_ADDITION_MAX;
 	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, newFovy - currentFovy); 
+}
+
+float BikeController::getSpeed() {
+	return m_speed;
 }
 
 void BikeController::updateModel(long double time)

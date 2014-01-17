@@ -39,7 +39,7 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 	// Multi pass rendering and Ping Pong //
 	////////////////////////////////////////
 
-	// 1. gBuffer pass: render color, normal&depth, id buffer
+	// 1. gBuffer pass: render color, normal & depth, id buffer
 	unsigned int pass = 0;
 	m_allCameras.push_back(gBufferPass()); 
 	m_root->addChild(m_allCameras[pass++]);
@@ -81,7 +81,6 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 			m_fboTextures[i] = new osg::Texture2D();
 		}
 				
-		
 		if ((i == PING || i == PONG) && HALF_PINGPONGTEXTURE_WIDTH) {
 			m_fboTextures[i]->setTextureWidth(halfedWidth);
 			m_fboTextures[i]->setTextureHeight(halfedHeight);
@@ -125,11 +124,9 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 			if (i  != 0 && i != iEnd - 1 && HALF_PINGPONGTEXTURE_WIDTH)
 				// only draw with halfed resolution, if we process the gbuffer + postprocessing pass
 				m_allCameras[i]->setViewport(new osg::Viewport(0, 0, halfedWidth, halfedHeight));
-
 		}
 	}
 }
-
 
 
 // create gbuffer creation camera
@@ -148,7 +145,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	cam->setReferenceFrame(osg::Camera::RELATIVE_RF);
-	cam->setRenderOrder(osg::Camera::PRE_RENDER, 0);
+	cam->setRenderOrder(osg::Camera::POST_RENDER, 0);
 
 	// need to know about near far changes for correct depth 
 	//cam->setCullCallback(new NearFarCallback());
@@ -181,7 +178,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	camera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	camera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
-	camera->setRenderOrder(osg::Camera::PRE_RENDER, order);
+	camera->setRenderOrder(osg::Camera::POST_RENDER, order);
 
 	// geometry
 	osg::Geode* geode(new osg::Geode());
@@ -206,12 +203,20 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	state->addUniform(timeU);
 	timeU->setUpdateCallback(new TimeUpdate());
 
+	// add beat uniform
+	m_timeSinceLastBeat = new osg::Uniform("timeSinceLastBeat", 0.5f);
+	state->addUniform(m_timeSinceLastBeat);
+
 	state->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 
 	return camera.release();
 }
 
+void PostProcessing::setBeat(float beat)
+{
+	m_timeSinceLastBeat->set(beat);
+}
 
 // create post processing pass to put it all together
 osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
