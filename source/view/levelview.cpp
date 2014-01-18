@@ -154,7 +154,7 @@ osg::ref_ptr<osg::Group> LevelView::constructRadarElementsForBoxes(std::vector<B
 		osg::ref_ptr<osg::Box> box
 			= new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z());
 		osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable(box);
-		mark_shape->setColor(osg::Vec4f(1, 1, 1, .3));
+		mark_shape->setColor(osg::Vec4f(1, 1, 1, .1));
 		osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
 		mark_node->addDrawable(mark_shape.get());
 		mark_node->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);

@@ -44,9 +44,9 @@ BikeView::BikeView(osg::Vec3 color)
 	osg::Matrixd initialTransform;
 	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Z_AXIS);
 	initialTransform.makeRotate(rotationQuat);
-	initialTransform *= initialTransform.scale(BIKE_VIEW_SCALE_FACTORS);
 	
 #ifndef _DEBUG
+	initialTransform *= initialTransform.scale(BIKE_VIEW_SCALE_FACTORS);
 	initialTransform *= initialTransform.translate(BIKE_VIEW_TRANSLATE_VALUES);
 	
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
@@ -110,8 +110,8 @@ BikeView::BikeView(osg::Vec3 color)
 	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
 
 	osg::ref_ptr<osg::ShapeDrawable> debugShape = new osg::ShapeDrawable;
-	debugShape->setShape(new osg::Box(osg::Vec3(), 2,4, 2));
-	debugShape->setColor(color4);
+	debugShape->setShape(new osg::Box(osg::Vec3(), 2 ,4, 2));
+	debugShape->setColor(osg::Vec4f(1,1,1,1));
 	osg::ref_ptr<osg::Geode> debugNode = new osg::Geode;
 	debugNode->addDrawable(debugShape.get());
 
@@ -122,7 +122,7 @@ BikeView::BikeView(osg::Vec3 color)
 
 	// create box for radar
 	osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable;
-	mark_shape->setShape(new osg::Cone(osg::Vec3(), 100, 200));
+	mark_shape->setShape(new osg::Cone(osg::Vec3(), 120, 300));
 	mark_shape->setColor(color4);
 	osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
 	mark_node->addDrawable(mark_shape.get());

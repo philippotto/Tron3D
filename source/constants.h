@@ -67,8 +67,8 @@ namespace troen
 	extern const unsigned int CAMERA_MASK_RADAR;
 
 	// PHYSICS
-	extern const float BIKE_IMPACT_THRESHOLD_LOW;
-	extern const float BIKE_IMPACT_THRESHOLD_HIGH;
+	extern const float BIKE_FENCE_IMPACT_THRESHOLD_LOW;
+	extern const float BIKE_FENCE_IMPACT_THRESHOLD_HIGH;
 }
 
 #endif

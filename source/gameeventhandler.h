@@ -3,7 +3,7 @@
 // troen
 #include "troengame.h"
 #include "gamelogic.h"
-#include "view\shaders.h"
+#include "view/shaders.h"
 
 namespace troen
 {
