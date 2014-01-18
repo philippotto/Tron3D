@@ -1,4 +1,6 @@
 #include "hudcontroller.h"
+// osg
+#include <osg/PositionAttitudeTransform>
 // troen
 #include "../view/hudview.h"
 //#include "../model/hudmodel.h"
@@ -23,12 +25,18 @@ void HUDController::resize(int width, int height)
 	std::static_pointer_cast<HUDView>(m_view)->resize(width, height);
 }
 
-void HUDController::attachSceneToRadarCamera(osg::Group* scene, osg::Node* bikeView)
+void HUDController::attachSceneToRadarCamera(osg::Group* scene)
 {
-	std::static_pointer_cast<HUDView>(m_view)->attachSceneToRadarCamera(scene, bikeView);
+	std::static_pointer_cast<HUDView>(m_view)->attachSceneToRadarCamera(scene);
 }
 
 void HUDController::update() {
 	float speed = m_bikeController.lock()->getSpeed();
 	std::static_pointer_cast<HUDView>(m_view)->setSpeedText(speed);
+    std::static_pointer_cast<HUDView>(m_view)->updateRadarCamera();
+}
+
+void HUDController::setTrackNode(osg::Node* trackNode)
+{
+    std::static_pointer_cast<HUDView>(m_view)->setTrackNode(trackNode);
 }

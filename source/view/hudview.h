@@ -14,8 +14,10 @@ namespace troen
 	public:
 		HUDView();
 		void resize(int width, int height);
-		void attachSceneToRadarCamera(osg::Group* scene, osg::Node* bikeView);
+		void attachSceneToRadarCamera(osg::Group* scene);
 		void setSpeedText(float speed);
+        void updateRadarCamera();
+        void setTrackNode(osg::Node* trackNode);
 
 	private:
 		osg::Camera* createHUD();
@@ -23,10 +25,10 @@ namespace troen
 
 		osg::ref_ptr<osg::Camera> m_camera;
 		osg::ref_ptr<osg::Camera> m_radarCamera;
-		osg::ref_ptr<osgViewer::View> m_radarView;
 		osg::ref_ptr<osgGA::NodeTrackerManipulator> m_radarManipulator;
 		osg::ref_ptr<osgText::Text> m_speedText;
 
 		osg::Geode* m_savedGeode;
+        osg::Node* m_trackNode;
 	};
 }

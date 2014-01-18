@@ -254,7 +254,7 @@ bool TroenGame::initializeViews()
 
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 		= new NodeFollowCameraManipulator();
-	m_bikeControllers[0]->attachTrackingCamera(manipulator);
+	m_bikeControllers[0]->attachTrackingCameras(manipulator,m_HUDController);
 	m_gameView->setCameraManipulator(manipulator.get());
 
 	m_statsHandler = new osgViewer::StatsHandler;
@@ -378,7 +378,7 @@ bool TroenGame::composeSceneGraph()
 		radarScene->addChild(bikeController->getViewNode());
 	radarScene->addChild(m_levelController->getViewNode());
 
-	m_HUDController->attachSceneToRadarCamera(radarScene, m_bikeControllers[0]->getViewNode());
+	m_HUDController->attachSceneToRadarCamera(radarScene);
 
 	return true;
 }

@@ -18,11 +18,12 @@ namespace troen
 			osg::PositionAttitudeTransform* pat,
 			std::shared_ptr<FenceController> fenceController,
 			BikeModel *bikeModel) :
+                btMotionState(),
 				m_visibleObj(pat),
                 m_positionTransform(initialTransform),
 				m_fenceController(fenceController),
 				m_bikeModel(bikeModel),
-				m_currentTilt(0), btMotionState() {	}
+                m_currentTilt(0) {}
 
 		virtual ~BikeMotionState() {}
 

@@ -15,13 +15,14 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/View>
 #include <osgGA/NodeTrackerManipulator>
+#include <osg/Quat>
 // troen
 #include "../constants.h"
 
 
 using namespace troen;
 
-HUDView::HUDView()
+HUDView::HUDView(): m_trackNode(nullptr)
 {
 	AbstractView();
 	m_speedText = new osgText::Text();	
@@ -132,9 +133,8 @@ void HUDView::resize(int width, int height)
 
 osg::Camera* HUDView::createRadar()
 {
-	m_radarView = new osgViewer::View;
 
-	m_radarCamera = m_radarView->getCamera();
+	m_radarCamera = new osg::Camera;
 	m_radarCamera->setClearColor(osg::Vec4(0.0f, 1.f, 0.0f, .5f));
 	m_radarCamera->setRenderOrder(osg::Camera::POST_RENDER);
 	m_radarCamera->setAllowEventFocus(false);
@@ -149,7 +149,7 @@ osg::Camera* HUDView::createRadar()
 	return m_radarCamera;
 }
 
-void HUDView::attachSceneToRadarCamera(osg::Group* scene, osg::Node* bikeView)
+void HUDView::attachSceneToRadarCamera(osg::Group* scene)
 {
 	osg::ref_ptr<osg::Group> hudGroup = new osg::Group;
 
@@ -160,13 +160,70 @@ void HUDView::attachSceneToRadarCamera(osg::Group* scene, osg::Node* bikeView)
 
 	hudGroup->addChild(scene);
 	m_radarCamera->addChild(hudGroup);
-
-	m_radarManipulator = new osgGA::NodeTrackerManipulator;
-	m_radarManipulator->setTrackerMode(osgGA::NodeTrackerManipulator::TrackerMode::NODE_CENTER);
-
-	m_radarView->setCameraManipulator(m_radarManipulator);
-	m_radarManipulator->setTrackNode(bikeView);
 }
+
+class getWorldCoordOfNodeVisitor : public osg::NodeVisitor
+{
+public:
+    getWorldCoordOfNodeVisitor():
+    osg::NodeVisitor(NodeVisitor::TRAVERSE_PARENTS), done(false)
+    {
+        wcMatrix= new osg::Matrixd();
+    }
+    virtual void apply(osg::Node &node)
+    {
+        if (!done)
+        {
+            if ( 0 == node.getNumParents() ) // no parents
+            {
+                wcMatrix->set( osg::computeLocalToWorld(this->getNodePath()) );
+                done = true;
+            }
+            traverse(node);
+        }
+    }
+    osg::Matrixd* worldCoordinatesMatrix()
+    {
+        return wcMatrix;
+    }
+private:
+    bool done;
+    osg::Matrix* wcMatrix;
+};
+
+void HUDView::updateRadarCamera()
+{
+    if (m_trackNode) {
+        osg::Matrixd* worldCoordinateMatrix = nullptr;
+        
+        getWorldCoordOfNodeVisitor* ncv = new getWorldCoordOfNodeVisitor();
+        
+        if (m_trackNode && ncv)
+        {
+            ((osg::Group *)m_trackNode)->accept(*ncv);
+//            ((osg::Group *)m_trackNode)->getChild(0)->accept(*ncv);
+            worldCoordinateMatrix = ncv->worldCoordinatesMatrix();
+            
+            osg::Vec3d position = worldCoordinateMatrix->getTrans();
+            osg::Quat rotationQuat = worldCoordinateMatrix->getRotate();
+            float x = rotationQuat.x(),y = rotationQuat.y(),z = rotationQuat.z(),w = rotationQuat.w();
+            float mag = sqrt(w*w + z*z);
+            rotationQuat.set(0, 0, z/mag, w/mag);
+            
+            osg::Vec3 up = rotationQuat * osg::Vec3d(1,0,0);
+            
+            osg::Matrixd viewMatrix = osg::Matrixd::lookAt(osg::Vec3(position.x(), position.y(), 500.0f), osg::Vec3(position.x(), position.y(), 0.f), up);
+            m_radarCamera->setViewMatrix(viewMatrix);
+        }
+    }
+
+}
+
+void HUDView::setTrackNode(osg::Node* trackNode)
+{
+    m_trackNode = trackNode;
+}
+
 
 void HUDView::setSpeedText(float speed)
 {

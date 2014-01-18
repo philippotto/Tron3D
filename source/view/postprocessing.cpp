@@ -45,7 +45,7 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 	m_root->addChild(m_allCameras[pass++]);
 	
 	// 2. prepare pass: render id buffer as seeds into PONG texture
-	TEXTURE_CONTENT pingPong[] = { PING, PONG };
+	//TEXTURE_CONTENT pingPong[] = { PING, PONG };
 	// start writing into PONG buffer (pass == 1 )
 
 	m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::SELECT_GLOW_OBJECTS, -1.0));
