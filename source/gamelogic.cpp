@@ -52,12 +52,14 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 	collisionBodyControllers[0] = static_cast<AbstractController *>(objectInfos[0]->getUserPointer());
 	collisionBodyControllers[1] = static_cast<AbstractController *>(objectInfos[1]->getUserPointer());
 
+
 	// exit either controlles was not found
 	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
 
 	std::array<COLLISIONTYPE,2> collisionTypes;
 	collisionTypes[0] = static_cast<COLLISIONTYPE>(objectInfos[0]->getUserIndex());
 	collisionTypes[1] = static_cast<COLLISIONTYPE>(objectInfos[1]->getUserIndex());
+
 
 	// handle colision events object specific
 	auto bikeIterator = std::find(collisionTypes.cbegin(), collisionTypes.cend(), BIKETYPE);
@@ -163,7 +165,9 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
 			1, 1);
 
-	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_HIGH)
+	float newHealth = bike->increaseHealth(-1 * impulse);
+
+	if (newHealth <= 0)
 	{
 		m_troenGame->pauseSimulation();
 		restartLevel();

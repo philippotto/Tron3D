@@ -28,6 +28,8 @@ m_initialTransform(initialTransform)
 	AbstractController();
 	m_playerColor = playerColor;
 
+	m_health = 2 * BIKE_FENCE_IMPACT_THRESHOLD_HIGH;
+
 	m_view = std::make_shared<BikeView>(m_playerColor);
 	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
 
@@ -35,6 +37,12 @@ m_initialTransform(initialTransform)
 	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
 
 	initializeInput(inputDevice);
+}
+
+float BikeController::increaseHealth(float diff)
+{
+	m_health += diff;
+	return m_health;
 }
 
 BikeController::~BikeController()
@@ -139,7 +147,6 @@ void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInput
 }
 
 void BikeController::attachTrackingCamera
-//  (osg::ref_ptr<osgGA::NodeTrackerManipulator>& manipulator)
   (osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
 {
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();

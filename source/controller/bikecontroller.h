@@ -42,6 +42,8 @@ namespace troen
 		void activateTurbo();
 		float getTurboInitiation();
 
+		float increaseHealth(float diff);
+
 	private:
 		void setFovy(float newFovy);
 		float getFovy();
@@ -58,6 +60,7 @@ namespace troen
 		osg::Vec3 m_playerColor;
 		btTransform m_initialTransform;
 
+		float m_health;
 		float m_speed;
 		bool m_turboInitiated = false;
 
