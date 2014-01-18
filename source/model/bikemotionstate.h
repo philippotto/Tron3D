@@ -60,7 +60,7 @@ namespace troen
 		{
 
 			float desiredSteeringTilt = m_bikeModel->getSteering() / BIKE_TILT_MAX;
-
+			
 			// timeFactor is 1 for 60 frames, 0.5 for 30 frames etc..
 			long double timeFactor = 16.7f / m_bikeModel->getTimeSinceLastUpdate();
 			// sanity check for very large delays

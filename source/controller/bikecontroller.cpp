@@ -195,12 +195,19 @@ float BikeController::getFovy()
 
 float BikeController::computeFovyDelta(float speed, float currentFovy)
 {
+	long double timeSinceLastUpdate = std::static_pointer_cast<BikeModel>(m_model)->getTimeSinceLastUpdate();
+	long double timeFactor = timeSinceLastUpdate / 16.7f;
+	
+
 	m_speed = speed;
 
 	float fovyFactor = (speed - BIKE_VELOCITY_MIN) / (BIKE_VELOCITY_MAX - BIKE_VELOCITY_MIN);
 	fovyFactor = fovyFactor > 0 ? fovyFactor : 0;
 	float newFovy = FOVY_INITIAL + interpolate(fovyFactor, InterpolateCubed) * FOVY_ADDITION_MAX;
-	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, newFovy - currentFovy);
+
+	const float fovyDampening = 20.f;
+	float fovyDelta = (newFovy - currentFovy) / fovyDampening * timeFactor;
+	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, fovyDelta);
 }
 
 float BikeController::getSpeed()
@@ -226,7 +233,7 @@ float BikeController::getTurboInitiation()
 void BikeController::updateModel(long double time)
 {
 	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
-
+	
 	// turbo should be only applied in one frame
 	if (m_turboInitiated)
 		m_turboInitiated = false;

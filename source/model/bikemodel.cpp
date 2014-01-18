@@ -148,14 +148,11 @@ float BikeModel::updateState(long double time)
 	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
 
 	// TODO: merge turboInitiation and turboPressed (Philipp)
-	float turboSpeed;
-	if (getTurboFactor() == 0)
+	float turboSpeed = 0;
+	// only initiate turbo, if no other turbo is active
+	if (getTurboFactor() == 0 && (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()))
 	{
-		// only initiate turbo, if no other turbo is active
-		turboSpeed = (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()) ? BIKE_VELOCITY_MAX / 2 : 0;
-	}
-	else {
-		turboSpeed = 0;
+		turboSpeed =  BIKE_VELOCITY_MAX / 2;
 	}
 
 	float speed = currentVelocityVectorXY.length() + turboSpeed + ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
