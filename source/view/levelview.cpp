@@ -159,8 +159,6 @@ osg::ref_ptr<osg::Group> LevelView::constructRadarElementsForBoxes(std::vector<B
 		mark_node->addDrawable(mark_shape.get());
 		mark_node->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 
-		// radar material
-
 		// place objects in world space
 		osg::Matrixd initialTransform;
 		initialTransform.makeRotate(btToOSGQuat(rotation));

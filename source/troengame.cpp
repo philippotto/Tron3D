@@ -166,6 +166,7 @@ bool TroenGame::initialize()
 
 	std::cout << "[TroenGame::initialize] physics ..." << std::endl;
 	initializePhysicsWorld();
+	m_physicsWorld->stepSimulation(0);
 
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
 
@@ -230,9 +231,9 @@ bool TroenGame::initializeHud()
 bool TroenGame::initializeLighting()
 {
 	osg::ref_ptr<osg::Light> sunLight = new osg::Light(0);
-	sunLight->setPosition(osg::Vec4f(0.0f, 0.0f, 1000.0f, 1.0f));
+	sunLight->setPosition(osg::Vec4f(0.0f, 0.0f, 300.0f, 1.0f));
 	sunLight->setAmbient(osg::Vec4f(0.05f, 0.05f, 0.04f, 1.0f));
-	sunLight->setDiffuse(osg::Vec4f(1.0f, 1.0f, 0.95f, 1.0f));
+	sunLight->setDiffuse(osg::Vec4f(1.0f, 1.0f, 0.0f, 1.0f));
 	sunLight->setSpecular(osg::Vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 	osg::ref_ptr<osg::LightSource> m_sunLightSource = new osg::LightSource;
