@@ -53,8 +53,8 @@ m_lastUpdateTime(0)
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
+	
 	// for collision event handling
-
 	ObjectInfo* info = new ObjectInfo(bikeController, BIKETYPE);
 	bikeRigidBody->setUserPointer(info);
 
@@ -73,12 +73,44 @@ void BikeModel::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState
 void BikeModel::resetState()
 {
 	m_velocity = 0.0;
+	m_oldVelocity = 0.0;
 	m_rotation = 0.0;
 	m_bikeFriction = 1.0;
 }
 
-float BikeModel::getSteering() {
+float BikeModel::getSteering()
+{
 	return m_steering;
+}
+
+float BikeModel::getTurboFactor()
+{
+	// return value will either be between 0 and 1 or it is -1
+	// it indicates if the "turbo phase" has just started or if it is already over or if it was ended abruptly
+	// this can be used to compute the wheelyTilt of the bike
+	return m_turboFactor;
+}
+
+void BikeModel::updateTurboFactor(float newVelocity, float time)
+{
+	m_turboFactor = std::max(0.f, m_turboFactor);
+
+	if (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()) {
+		m_turboFactor = 1.f;
+		m_timeOfLastTurboInitiation = time;
+	}
+	else if (m_turboFactor > 0){
+		if (m_oldVelocity - newVelocity > THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE) {
+			// deactivate turbo phase if the bike speed was decreased abruptly (e.g. collision)
+			m_turboFactor = -1.f;
+		}
+		else {
+			const float turboPhaseLength = 2000;
+			m_turboFactor = 1 - (time - m_timeOfLastTurboInitiation) / turboPhaseLength;
+			m_turboFactor = std::max(0.f, m_turboFactor);
+		}
+	}
+	
 }
 
 float BikeModel::updateState(long double time)
@@ -87,8 +119,6 @@ float BikeModel::updateState(long double time)
 	float timeFactor = timeSinceLastUpdate / 16.6f;
 
 	m_lastUpdateTime = time;
-
-	//std::cout << timeSinceLastUpdate << std::endl;
 
 	const btVector3 front = btVector3(0, -1, 0);
 
@@ -110,8 +140,21 @@ float BikeModel::updateState(long double time)
 	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
 	// invsquared(t)   (1 - (1 - (t)) * (1 - (t)))
 	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
-	float speed = currentVelocityVectorXY.length() +  m_bikeController->getTurbo() + ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
+	
+	// TODO: merge turboInitiation and turboPressed (Philipp)
+	float turboSpeed;
+	if (getTurboFactor() == 0)
+	{
+		// only initiate turbo, if no other turbo is active
+		turboSpeed = (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()) ? BIKE_VELOCITY_MAX / 2 : 0;
+	}
+	else {
+		turboSpeed = 0;
+	}
 
+	float speed = currentVelocityVectorXY.length() + turboSpeed + ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
+
+	updateTurboFactor(speed, time);
 
 	// rotate:
 	// turnFactor
@@ -121,13 +164,18 @@ float BikeModel::updateState(long double time)
 	float turningRad = PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor);
 
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
-
-	const float timeToSlowDown = 1000;
-	if (speed > BIKE_VELOCITY_MAX)
-	 	speed -= (speed - BIKE_VELOCITY_MAX) * timeSinceLastUpdate / timeToSlowDown;
+	
+	if (speed > BIKE_VELOCITY_MAX) {
+		const float timeToSlowDown = 1000;
+		// decrease speed so that the user will reach the maximum speed within timeToSlowDown milli seconds
+		// this is done so that the turbo won't be resetted instantly
+		speed -= (speed - BIKE_VELOCITY_MAX) * timeSinceLastUpdate / timeToSlowDown;
+	}
 	
 	if (speed < BIKE_VELOCITY_MIN)
 	 	speed = BIKE_VELOCITY_MIN;
+
+	m_oldVelocity = speed;
 
 	// adapt velocity vector to real direction
 

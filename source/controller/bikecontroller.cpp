@@ -60,7 +60,8 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 				osgGA::GUIEventAdapter::KEY_A,
 				osgGA::GUIEventAdapter::KEY_S,
 				osgGA::GUIEventAdapter::KEY_D,
-				osgGA::GUIEventAdapter::KEY_Space
+				osgGA::GUIEventAdapter::KEY_Space,
+				osgGA::GUIEventAdapter::KEY_G
 			});
 		break;
 	}
@@ -71,7 +72,8 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 			osgGA::GUIEventAdapter::KEY_Left,
 			osgGA::GUIEventAdapter::KEY_Down,
 			osgGA::GUIEventAdapter::KEY_Right,
-			osgGA::GUIEventAdapter::KEY_Control_R
+			osgGA::GUIEventAdapter::KEY_Control_R,
+			osgGA::GUIEventAdapter::KEY_M,
 		});
 		break;
 	}
@@ -181,12 +183,11 @@ float BikeController::getFovy()
 float BikeController::computeFovyDelta(float speed, float currentFovy)
 {
 	m_speed = speed;
-	
 
 	float fovyFactor = (speed - BIKE_VELOCITY_MIN) / (BIKE_VELOCITY_MAX - BIKE_VELOCITY_MIN);
 	fovyFactor = fovyFactor > 0 ? fovyFactor : 0;
 	float newFovy = FOVY_INITIAL + interpolate(fovyFactor, InterpolateCubed) * FOVY_ADDITION_MAX;
-	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, newFovy - currentFovy); 
+	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, newFovy - currentFovy);
 }
 
 float BikeController::getSpeed()
@@ -196,20 +197,21 @@ float BikeController::getSpeed()
 
 void BikeController::activateTurbo()
 {
-	m_additionalSpeed = BIKE_VELOCITY_MAX / 2;
+	m_turboInitiated = true;
 }
 
-float BikeController::getTurbo()
+float BikeController::getTurboInitiation()
 {
-	return m_additionalSpeed;
+	return m_turboInitiated;
 }
 
 void BikeController::updateModel(long double time)
 {
 	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
-	
-	if (m_additionalSpeed > 1)
-		m_additionalSpeed =		0;
+
+	// turbo should be only applied in one frame
+	if (m_turboInitiated)
+		m_turboInitiated = false;
 
 	if (!m_gameView.valid()) return;
 

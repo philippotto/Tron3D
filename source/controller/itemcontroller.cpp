@@ -4,7 +4,6 @@
 using namespace troen;
 
 
-
 ItemController::ItemController()
 {
 	AbstractController();
@@ -12,6 +11,5 @@ ItemController::ItemController()
 
 void ItemController::triggerOn(BikeController* bikeController)
 {
-	std::cout << "!!!!!!!!!!!!collision with item!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
 	bikeController->activateTurbo();
 }

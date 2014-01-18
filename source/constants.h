@@ -37,10 +37,11 @@ namespace troen
 	extern const float BIKE_ACCELERATION_FACTOR_MAX;
 	extern const float BIKE_TURN_FACTOR_MAX;
 	extern const float BIKE_ANGULAR_DAMPENING_TERM;
-
+	extern const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE;
 
 	extern const float BIKE_TILT_DAMPENING;
 	extern const float BIKE_TILT_MAX;
+	extern const float BIKE_WHEELY_TILT_MAX;
 
 	//INPUT
 	extern const float BIKE_MOVE_VALUE;

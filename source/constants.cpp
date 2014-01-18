@@ -41,6 +41,8 @@ namespace troen
 	// 1 / BIKE_TILT_MAX specifies angle in radiant
 	const float BIKE_TILT_DAMPENING(20.f);
 	const float BIKE_TILT_MAX(16.f);
+	const float BIKE_WHEELY_TILT_MAX(2.f);
+	const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE(20.f);
 
 	//INPUT
 	const float BIKE_ROTATION_VALUE(10.0f);

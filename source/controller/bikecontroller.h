@@ -40,7 +40,7 @@ namespace troen
 		void removeAllFences();
 		void enforceFencePartsLimit(int maxFenceParts);
 		void activateTurbo();
-		float getTurbo();
+		float getTurboInitiation();
 
 	private:
 		void setFovy(float newFovy);
@@ -59,7 +59,7 @@ namespace troen
 		btTransform m_initialTransform;
 
 		float m_speed;
-		float m_additionalSpeed = 0;
+		bool m_turboInitiated = false;
 
 	};
 }

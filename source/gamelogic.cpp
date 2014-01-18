@@ -82,7 +82,6 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 				contactManifold);
 			break;
 		case LEVELGROUNDTYPE:
-			//std::cout << "collision with ground" << std::endl;
 			break;
 		case ITEMTYPE:
 		{

@@ -21,7 +21,7 @@ namespace troen
                 m_positionTransform(initialTransform),
 				m_fenceController(fenceController),
 				m_bikeModel(bikeModel),
-				m_currentTilt(0), btMotionState() {	}
+				m_currentSteeringTilt(0), btMotionState() {	}
 
 		virtual ~BikeMotionState() {}
 
@@ -57,13 +57,26 @@ namespace troen
 
 		osg::Quat getTilt()
 		{
-			float desiredTilt = m_bikeModel->getSteering() / BIKE_TILT_MAX;
-			m_currentTilt = m_currentTilt + (desiredTilt - m_currentTilt) / BIKE_TILT_DAMPENING;
+			float desiredSteeringTilt = m_bikeModel->getSteering() / BIKE_TILT_MAX;
+			m_currentSteeringTilt = m_currentSteeringTilt + (desiredSteeringTilt - m_currentSteeringTilt) / BIKE_TILT_DAMPENING;
 			
-			osg::Quat tiltingQuat;
-			tiltingQuat.makeRotate(m_currentTilt, osg::Vec3(0, 1, 0));
+			float turboFactor = m_bikeModel->getTurboFactor();
+			
+			if (turboFactor < 0) {
+				// no interpolation on abrupt speed change
+				m_currentWheelyTilt = 0;
+			}
+			else{
+				const float desiredWheelyTilt = m_bikeModel->getTurboFactor() / BIKE_WHEELY_TILT_MAX;
+				const float tiltDifference = desiredWheelyTilt - m_currentWheelyTilt;
+				m_currentWheelyTilt = m_currentWheelyTilt + tiltDifference / BIKE_TILT_DAMPENING;
+			}
 
-			return tiltingQuat;
+			osg::Quat tiltSteeringQuat, tiltWheelyQuat;
+			tiltSteeringQuat.makeRotate(m_currentSteeringTilt, osg::Vec3(0, 1, 0));
+			tiltWheelyQuat.makeRotate(m_currentWheelyTilt, osg::Vec3(-1, 0, 0));
+			
+			return tiltSteeringQuat * tiltWheelyQuat;
 		}
 
 	protected:
@@ -72,6 +85,7 @@ namespace troen
 		std::weak_ptr<FenceController> m_fenceController;
 		BikeModel* m_bikeModel;
 		std::weak_ptr<btRigidBody> m_rigidBody;
-		float m_currentTilt;
+		float m_currentSteeringTilt;
+		float m_currentWheelyTilt;
 	};
 }
