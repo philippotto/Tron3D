@@ -41,11 +41,31 @@ namespace troen
 			None
 		};
 
-		osg::Image* ResourcePool::getImage(TextureResource texture);
+		enum ModelResource
+		{
+			MG_MovieCycle_Body_MI,
+			MG_MovieCycle_PlayerBody_MI,
+			MG_MovieCycle_Tire_MI,
+			MG_MovieCycle_PlayerHelmet_MI,
+			MG_MovieCycle_PlayerDisc_MI,
+			MG_MovieCycle_Glass_MI,
+			MG_MovieCycle_Engine_MI,
+			MG_MovieCycle_PlayerBaton_MI,
+		};
 
-		
+		void readData();
+
+		osg::Image* ResourcePool::getImage(TextureResource texture);
+		osg::Node* ResourcePool::getNode(ModelResource model);
+
 	private:
-		osg::Image *m_images[22];
-		
+		static const int m_textureCount = 21;
+		osg::Image *m_images[m_textureCount];
+
+		static const int m_objectCount = 8;
+		osg::Node *m_objects[m_objectCount];
+
+		bool m_dataAlreadyRead = false;
+
 	};
 }

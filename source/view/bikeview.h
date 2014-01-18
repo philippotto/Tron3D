@@ -22,7 +22,7 @@ namespace troen
 		void setTexture(osg::ref_ptr<osg::StateSet> stateset, ResourcePool::TextureResource textureName, int unit);
 
 		osg::ref_ptr<osg::Node> createCyclePart(
-			std::string objFilePath,
+			ResourcePool::ModelResource objName,
 			ResourcePool::TextureResource specularTexturePath,
 			ResourcePool::TextureResource diffuseTexturePath,
 			ResourcePool::TextureResource normalTexturePath,

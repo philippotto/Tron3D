@@ -47,7 +47,7 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool)
 	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Z_AXIS);
 	initialTransform.makeRotate(rotationQuat);
 
-#ifndef _DEBUG
+#ifndef true
 	initialTransform *= initialTransform.scale(BIKE_VIEW_SCALE_FACTORS);
 	initialTransform *= initialTransform.translate(BIKE_VIEW_TRANSLATE_VALUES);
 
@@ -57,43 +57,43 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool)
 	pat->addChild(matrixTransform);
 
 
-	MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
+	MovieCycle_Body = createCyclePart(ResourcePool::MG_MovieCycle_Body_MI,
 		ResourcePool::MG_MovieCycle_Body_SPEC,
 		ResourcePool::MG_MovieCycle_BodyHeadLight_EMSS,
 		ResourcePool::MG_MovieCycle_Body_NORM, DEFAULT);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBody_MI.obj",
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart(ResourcePool::MG_MovieCycle_PlayerBody_MI,
 		ResourcePool::MG_Player_Body_SPEC,
 		ResourcePool::MG_Player_Body_EMSS,
 		ResourcePool::MG_Player_Body_NORM, GLOW, 0.1f);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart("data/models/cycle/MG_MovieCycle_Tire_MI.obj",
+	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart(ResourcePool::MG_MovieCycle_Tire_MI,
 		ResourcePool::MG_MovieCycle_Tire_DIFF,
 		ResourcePool::MG_MovieCycle_Tire_EMSS,
 		ResourcePool::MG_MovieCycle_Tire_NORM, GLOW, 0.5f);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerHelmet_MI.obj",
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart(ResourcePool::MG_MovieCycle_PlayerHelmet_MI,
 		ResourcePool::MG_Player_Helmet_SPEC,
 		ResourcePool::MG_Player_Helmet_EMSS,
 		ResourcePool::MG_Player_Helmet_NORM, GLOW, 0.3f);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerDisc_MI.obj",
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart(ResourcePool::MG_MovieCycle_PlayerDisc_MI,
 		ResourcePool::MG_Player_Disc_SPEC,
 		ResourcePool::MG_Player_Disc_EMSS,
 		ResourcePool::MG_Player_Disc_NORM, GLOW);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Glass_MI = createCyclePart("data/models/cycle/MG_MovieCycle_Glass_MI.obj",
+	osg::ref_ptr<osg::Node> MovieCycle_Glass_MI = createCyclePart(ResourcePool::MG_MovieCycle_Glass_MI,
 		ResourcePool::Glass,
 		ResourcePool::Glass,
 		ResourcePool::None,
 		DEFAULT);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Engine = createCyclePart("data/models/cycle/MG_MovieCycle_Engine_MI.obj",
+	osg::ref_ptr<osg::Node> MovieCycle_Engine = createCyclePart(ResourcePool::MG_MovieCycle_Engine_MI,
 		ResourcePool::None,
 		ResourcePool::MG_MovieCycle_Engine_EMSS,
 		ResourcePool::MG_MovieCycle_Engine_NORM, DEFAULT);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Baton = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBaton_MI.obj",
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Baton = createCyclePart(ResourcePool::MG_MovieCycle_PlayerBaton_MI,
 		ResourcePool::MG_Player_Baton_SPEC,
 		ResourcePool::MG_Player_Baton_EMSS,
 		ResourcePool::MG_Player_Baton_NORM, GLOW);
@@ -108,7 +108,7 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool)
 	matrixTransform->addChild(MovieCycle_Body);
 
 #endif
-#ifdef _DEBUG
+#ifdef false
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
 	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
 
@@ -143,14 +143,13 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool)
 	m_node->addChild(pat);
 }
 
-osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, ResourcePool::TextureResource specularTexturePath,
+osg::ref_ptr<osg::Node> BikeView::createCyclePart(ResourcePool::ModelResource objName, ResourcePool::TextureResource specularTexturePath,
 	ResourcePool::TextureResource diffuseTexturePath, ResourcePool::TextureResource normalTexturePath,
 	int modelIndex, float glowIntensity)
 {
 	enum BIKE_TEXTURES { DIFFUSE, SPECULAR, NORMAL };
 
-	std::cout << "[TroenGame::bikeView] Loading Model \"" << objFilePath << "\"" << std::endl;
-	osg::Node* Node = osgDB::readNodeFile(objFilePath);
+	osg::Node* Node = m_resourcePool->getNode(objName);
 
 	//osgDB::writeNodeFile(*Node, std::string("file.osg")); //to look at the scenegraph
 	osg::ref_ptr<osg::StateSet> NodeState = Node->getOrCreateStateSet();
@@ -230,14 +229,14 @@ void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, ResourcePool::Te
 
 	//osg::Image* image = osgDB::readImageFile(filePath);
 	osg::Image* image = m_resourcePool->getImage(textureName);
-	
+
 	osg::Texture2D* texture = new osg::Texture2D;
 	texture->setImage(image);
 	texture->setResizeNonPowerOfTwoHint(false);
 
 	stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
 
-	
+
 }
 
 void BikeView::update()
