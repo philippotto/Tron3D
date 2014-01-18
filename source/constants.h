@@ -69,6 +69,8 @@ namespace troen
 	// PHYSICS
 	extern const float BIKE_FENCE_IMPACT_THRESHOLD_LOW;
 	extern const float BIKE_FENCE_IMPACT_THRESHOLD_HIGH;
+
+	extern const float BIKE_DEFAULT_HEALTH;
 }
 
 #endif

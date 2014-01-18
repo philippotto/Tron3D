@@ -1,6 +1,7 @@
 #include "hudcontroller.h"
 // troen
 #include "../view/hudview.h"
+#include "../constants.h"
 //#include "../model/hudmodel.h"
 
 #include "../controller/bikecontroller.h"
@@ -31,4 +32,7 @@ void HUDController::attachSceneToRadarCamera(osg::Group* scene)
 void HUDController::update() {
 	float speed = m_bikeController.lock()->getSpeed();
 	std::static_pointer_cast<HUDView>(m_view)->setSpeedText(speed);
+
+	float health = m_bikeController.lock()->getHealth();
+	std::static_pointer_cast<HUDView>(m_view)->setHealthText(100 * health / BIKE_DEFAULT_HEALTH);
 }

@@ -165,12 +165,14 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
 			1, 1);
 
+
 	float newHealth = bike->increaseHealth(-1 * impulse);
 
 	if (newHealth <= 0)
 	{
+		resetBike(bike);
 		m_troenGame->pauseSimulation();
-		restartLevel();
+		restartLevel();		
 	}
 }
 
@@ -212,11 +214,20 @@ void GameLogic::toggleFencePartsLimit()
 	}
 }
 
+void GameLogic::resetBike(BikeController *bikeController)
+{
+	bikeController->reset();
+
+	// TODO should happen in reset()
+	btTransform position = m_levelController->getRandomSpawnPoint();
+	bikeController->moveBikeToPosition(position);
+}
+
 void GameLogic::resetBikePositions()
 {
 	for (int i = 0; i < m_bikeControllers.size(); i++)
 	{
-		btTransform position = m_levelController->initialPositionTransformForBikeWithIndex(i);
+		btTransform position = m_levelController->getSpawnPointForBikeWithIndex(i);
 		m_bikeControllers[i]->moveBikeToPosition(position);
 	}
 }

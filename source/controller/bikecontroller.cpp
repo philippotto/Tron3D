@@ -28,7 +28,7 @@ m_initialTransform(initialTransform)
 	AbstractController();
 	m_playerColor = playerColor;
 
-	m_health = 2 * BIKE_FENCE_IMPACT_THRESHOLD_HIGH;
+	m_health = BIKE_DEFAULT_HEALTH;
 
 	m_view = std::make_shared<BikeView>(m_playerColor);
 	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
@@ -37,6 +37,12 @@ m_initialTransform(initialTransform)
 	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
 
 	initializeInput(inputDevice);
+}
+
+void BikeController::reset()
+{
+	removeAllFences();
+	m_health = BIKE_DEFAULT_HEALTH;
 }
 
 float BikeController::increaseHealth(float diff)
@@ -200,6 +206,11 @@ float BikeController::computeFovyDelta(float speed, float currentFovy)
 float BikeController::getSpeed()
 {
 	return m_speed;
+}
+
+float BikeController::getHealth()
+{
+	return m_health;
 }
 
 void BikeController::activateTurbo()

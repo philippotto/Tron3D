@@ -12,13 +12,14 @@ namespace troen
 	public:
 		LevelController();
 
-		virtual btTransform initialPositionTransformForBikeWithIndex(int index);
+		virtual btTransform getSpawnPointForBikeWithIndex(int index);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 		void addItemBox(btVector3 &position);
+		btTransform LevelController::getRandomSpawnPoint();
 
 	private:
 		std::vector<btTransform> m_initialBikePositionTransforms;
-		virtual void initializeinitialBikePositionTransforms();
+		virtual void initializeSpawnPoints();
 		std::weak_ptr<PhysicsWorld> m_world;
 	};
 }

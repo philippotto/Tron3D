@@ -21,10 +21,11 @@ using namespace troen;
 HUDView::HUDView()
 {
 	AbstractView();
-	m_speedText = new osgText::Text();	
-	
+	m_speedText = new osgText::Text();
+	m_healthText = new osgText::Text();
+
 	m_node = new osg::Group();
-	
+
 	m_node->addChild(createHUD());
 	m_node->addChild(createRadar());
 }
@@ -68,21 +69,21 @@ osg::Camera* HUDView::createHUD()
 
 			m_speedText->setFont(timesFont);
 			m_speedText->setPosition(position);
-			m_speedText->setText("Speed: 20 km/h");
+			setSpeedText(80);
 			// m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
 
 			position += delta;
 		}
-		/*{
-			osgText::Text* text = new  osgText::Text;
-			geode->addDrawable(text);
+		{
+			geode->addDrawable(m_healthText);
 
-			text->setFont(timesFont);
-			text->setPosition(position);
-			text->setText("All you need to do is create your text in a subgraph.");
+			m_healthText->setFont(timesFont);
+			m_healthText->setPosition(osg::Vec3(0.f, 0.f, 0.f));
+			setHealthText(100);
+			// m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
 
 			position += delta;
-		}*/
+		}
 
 		{
 			osg::BoundingBox bb;
@@ -100,7 +101,7 @@ osg::Camera* HUDView::createHUD()
 			vertices->push_back(osg::Vec3(bb.xMax(), bb.yMin(), depth));
 			vertices->push_back(osg::Vec3(bb.xMax(), bb.yMax(), depth));
 			geom->setVertexArray(vertices);
-		
+
 			osg::Vec3Array* normals = new osg::Vec3Array;
 			normals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
 			geom->setNormalArray(normals);
@@ -148,7 +149,7 @@ osg::Camera* HUDView::createRadar()
 	m_radarCamera->setViewMatrix(osg::Matrixd::lookAt(osg::Vec3(0.0f, 0.0f, 500.0f), osg::Vec3(0.f, 0.f, 0.f), osg::Y_AXIS));
 	m_radarCamera->setProjectionMatrix(osg::Matrixd::ortho(-3500, 3500, -3500, 3500.,1.f,600));
 	m_radarCamera->setCullMask(CAMERA_MASK_RADAR);
-	
+
 	return m_radarCamera;
 }
 
@@ -169,4 +170,10 @@ void HUDView::setSpeedText(float speed)
 {
 	std::string speedString = std::to_string((int) speed);
 	m_speedText->setText("Speed: " + speedString + " km/h");
+}
+
+void HUDView::setHealthText(float health)
+{
+	std::string healthString = std::to_string((int)health);
+	m_healthText->setText("Health: " + healthString);
 }

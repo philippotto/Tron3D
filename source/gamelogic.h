@@ -28,7 +28,7 @@ namespace troen
 
 		void removeAllFences();
 		void toggleFencePartsLimit();
-
+		void resetBike(BikeController *bikeController);
 		void resetBikePositions();
 		void restartLevel();
 

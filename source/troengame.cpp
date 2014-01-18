@@ -208,7 +208,7 @@ bool TroenGame::initializeControllers()
 	{
 		m_bikeControllers.push_back(std::make_shared<BikeController>((
 			input::BikeInputState::InputDevice)m_playerInputTypes[i],
-			m_levelController->initialPositionTransformForBikeWithIndex(i),
+			m_levelController->getSpawnPointForBikeWithIndex(i),
 			m_playerColors[i])
 		);
 	}
@@ -429,7 +429,7 @@ void TroenGame::startGameLoop()
 	if (m_useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 
-	m_levelController->addItemBox(btVector3(50, 50, 0));
+	m_levelController->addItemBox(btVector3(500, 255, 0));
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();

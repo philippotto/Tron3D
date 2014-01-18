@@ -32,6 +32,7 @@ namespace troen
 		osg::ref_ptr<input::Keyboard> getEventHandler();
 		bool hasEventHandler();
 		float getSpeed();
+		float getHealth();
 
 		// logic events
 		void moveBikeToPosition(btTransform position);
@@ -43,7 +44,7 @@ namespace troen
 		float getTurboInitiation();
 
 		float increaseHealth(float diff);
-
+		void reset();
 	private:
 		void setFovy(float newFovy);
 		float getFovy();
