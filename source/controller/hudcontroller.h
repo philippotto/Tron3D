@@ -10,7 +10,7 @@ namespace troen
 	public:
 
 		HUDController(std::shared_ptr<BikeController> bikeController);
-		void attachSceneToRadarCamera(osg::Group* scene);
+		void attachSceneToRadarCamera(osg::Group* scene, osg::Node* bikeView);
 		void resize(int width, int height);
 		void update();
 

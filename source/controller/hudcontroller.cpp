@@ -3,6 +3,7 @@
 #include "../view/hudview.h"
 //#include "../model/hudmodel.h"
 
+
 #include "../controller/bikecontroller.h"
 
 using namespace troen;
@@ -22,10 +23,9 @@ void HUDController::resize(int width, int height)
 	std::static_pointer_cast<HUDView>(m_view)->resize(width, height);
 }
 
-void HUDController::attachSceneToRadarCamera(osg::Group* scene)
+void HUDController::attachSceneToRadarCamera(osg::Group* scene, osg::Node* bikeView)
 {
-	std::static_pointer_cast<HUDView>(m_view)->attachSceneToRadarCamera(scene);
-
+	std::static_pointer_cast<HUDView>(m_view)->attachSceneToRadarCamera(scene, bikeView);
 }
 
 void HUDController::update() {

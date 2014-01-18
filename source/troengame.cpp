@@ -4,7 +4,6 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
-#include <osgViewer/ViewerEventHandlers>
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>
@@ -379,7 +378,7 @@ bool TroenGame::composeSceneGraph()
 		radarScene->addChild(bikeController->getViewNode());
 	radarScene->addChild(m_levelController->getViewNode());
 
-	m_HUDController->attachSceneToRadarCamera(radarScene);
+	m_HUDController->attachSceneToRadarCamera(radarScene, m_bikeControllers[0]->getViewNode());
 
 	return true;
 }

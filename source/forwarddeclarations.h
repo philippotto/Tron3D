@@ -33,9 +33,16 @@ namespace osg
 	class Vec3f;
 }
 
+namespace osgText
+{
+	class Text;
+}
+
+
 namespace osgGA
 {
 	class CameraManipulator;
+	class NodeTrackerManipulator;
 }
 
 // Bullet

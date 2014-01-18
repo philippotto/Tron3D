@@ -2,16 +2,19 @@
 
 // osg
 #include <osgUtil/Optimizer>
+#include <osgText/Text>
 #include <osg/Material>
 #include <osg/Geode>
 #include <osg/BlendFunc>
 #include <osg/Depth>
 #include <osg/PolygonOffset>
 #include <osg/MatrixTransform>
-#include <osg/Camera>
+//#include <osg/Camera>
 #include <osg/RenderInfo>
 #include <osgText/Text>
 #include <osgViewer/ViewerEventHandlers>
+#include <osgViewer/View>
+#include <osgGA/NodeTrackerManipulator>
 // troen
 #include "../constants.h"
 
@@ -124,13 +127,14 @@ osg::Camera* HUDView::createHUD()
 void HUDView::resize(int width, int height)
 {
 	m_camera->setViewport(new osg::Viewport(0, 0, width, height));
-	m_camera->setProjectionMatrix(osg::Matrix::ortho2D(0, height, 0, width));
-
+	m_radarCamera->setViewport(new osg::Viewport(0, 0, height / 2, height / 2));
 }
 
 osg::Camera* HUDView::createRadar()
 {
-	m_radarCamera = new osg::Camera;
+	m_radarView = new osgViewer::View;
+
+	m_radarCamera = m_radarView->getCamera();
 	m_radarCamera->setClearColor(osg::Vec4(0.0f, 1.f, 0.0f, .5f));
 	m_radarCamera->setRenderOrder(osg::Camera::POST_RENDER);
 	m_radarCamera->setAllowEventFocus(false);
@@ -145,7 +149,7 @@ osg::Camera* HUDView::createRadar()
 	return m_radarCamera;
 }
 
-void HUDView::attachSceneToRadarCamera(osg::Group* scene)
+void HUDView::attachSceneToRadarCamera(osg::Group* scene, osg::Node* bikeView)
 {
 	osg::ref_ptr<osg::Group> hudGroup = new osg::Group;
 
@@ -156,6 +160,12 @@ void HUDView::attachSceneToRadarCamera(osg::Group* scene)
 
 	hudGroup->addChild(scene);
 	m_radarCamera->addChild(hudGroup);
+
+	m_radarManipulator = new osgGA::NodeTrackerManipulator;
+	m_radarManipulator->setTrackerMode(osgGA::NodeTrackerManipulator::TrackerMode::NODE_CENTER);
+
+	m_radarView->setCameraManipulator(m_radarManipulator);
+	m_radarManipulator->setTrackNode(bikeView);
 }
 
 void HUDView::setSpeedText(float speed)
