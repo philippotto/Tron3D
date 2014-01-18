@@ -1,9 +1,6 @@
 #include "fenceview.h"
 // OSG
 #include <osg/ShapeDrawable>
-#include <osg/Geode>
-#include <osg/Vec4>
-#include <osg/PositionAttitudeTransform>
 // troen
 #include "../constants.h"
 #include "shaders.h"

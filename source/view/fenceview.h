@@ -2,7 +2,6 @@
 // OSG
 #include <osg/Geometry>
 #include <osg/Geode>
-#include <osg/PositionAttitudeTransform>
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"

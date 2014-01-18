@@ -135,7 +135,6 @@ void HUDView::resize(int width, int height)
 
 osg::Camera* HUDView::createRadar()
 {
-
 	m_radarCamera = new osg::Camera;
 	m_radarCamera->setClearColor(osg::Vec4(0.0f, 1.f, 0.0f, .5f));
 	m_radarCamera->setRenderOrder(osg::Camera::POST_RENDER);
@@ -164,6 +163,8 @@ void HUDView::attachSceneToRadarCamera(osg::Group* scene)
 	m_radarCamera->addChild(hudGroup);
 }
 
+// helper class to retrieve the position of a node in world coordinates
+// could potentially be in it's own header file
 class getWorldCoordOfNodeVisitor : public osg::NodeVisitor
 {
 public:
@@ -195,9 +196,6 @@ private:
 
 void HUDView::updateRadarCamera()
 {
-	//if (!m_trackNode) {
-	//	return;
-	//}
         osg::Matrixd* worldCoordinateMatrix = nullptr;
 		getWorldCoordOfNodeVisitor ncv;
         

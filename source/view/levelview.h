@@ -2,9 +2,8 @@
 // OSG
 #include <osg/ref_ptr>
 #include <osg/Geode>
-
+// bullet
 #include <btBulletDynamicsCommon.h>
-
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
