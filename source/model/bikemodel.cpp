@@ -53,7 +53,7 @@ m_lastUpdateTime(0)
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
-	
+
 	// for collision event handling
 	ObjectInfo* info = new ObjectInfo(bikeController, BIKETYPE);
 	bikeRigidBody->setUserPointer(info);
@@ -83,6 +83,7 @@ float BikeModel::getSteering()
 	return m_steering;
 }
 
+
 float BikeModel::getTurboFactor()
 {
 	// return value will either be between 0 and 1 or it is -1
@@ -110,13 +111,18 @@ void BikeModel::updateTurboFactor(float newVelocity, float time)
 			m_turboFactor = std::max(0.f, m_turboFactor);
 		}
 	}
-	
+
+}
+
+long double BikeModel::getTimeSinceLastUpdate()
+{
+	return m_timeSinceLastUpdate;
 }
 
 float BikeModel::updateState(long double time)
 {
-	long double timeSinceLastUpdate = time - m_lastUpdateTime;
-	float timeFactor = timeSinceLastUpdate / 16.6f;
+	m_timeSinceLastUpdate = time - m_lastUpdateTime;
+	float timeFactor = m_timeSinceLastUpdate / 16.6f;
 
 	m_lastUpdateTime = time;
 
@@ -140,7 +146,7 @@ float BikeModel::updateState(long double time)
 	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
 	// invsquared(t)   (1 - (1 - (t)) * (1 - (t)))
 	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
-	
+
 	// TODO: merge turboInitiation and turboPressed (Philipp)
 	float turboSpeed;
 	if (getTurboFactor() == 0)
@@ -164,14 +170,14 @@ float BikeModel::updateState(long double time)
 	float turningRad = PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor);
 
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
-	
+
 	if (speed > BIKE_VELOCITY_MAX) {
 		const float timeToSlowDown = 1000;
 		// decrease speed so that the user will reach the maximum speed within timeToSlowDown milli seconds
 		// this is done so that the turbo won't be resetted instantly
-		speed -= (speed - BIKE_VELOCITY_MAX) * timeSinceLastUpdate / timeToSlowDown;
+		speed -= (speed - BIKE_VELOCITY_MAX) * m_timeSinceLastUpdate / timeToSlowDown;
 	}
-	
+
 	if (speed < BIKE_VELOCITY_MIN)
 	 	speed = BIKE_VELOCITY_MIN;
 
