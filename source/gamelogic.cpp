@@ -166,6 +166,8 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 			1, 1);
 
 
+	bike->registerCollision(impulse);
+	// TODO (Philipp): move increaseHealth and resetBike into registerCollision and trigger a respawn instead of pausing simulation (needs statistics about lifes etc.)
 	float newHealth = bike->increaseHealth(-1 * impulse);
 
 	if (newHealth <= 0)

@@ -14,6 +14,12 @@ int Gamepad::getPort()
 	return m_controllerId + 1;
 }
 
+Gamepad::~Gamepad() {
+	if (m_controllerId > 0) {
+		setVibration(false);
+	}
+}
+
 XINPUT_GAMEPAD* Gamepad::getState()
 {
 	return &m_state.Gamepad;
@@ -85,10 +91,25 @@ void Gamepad::run()
 			m_bikeInputState->setAcceleration(m_rightTrigger - m_leftTrigger);
 			m_bikeInputState->setAngle(-m_leftStickX - m_leftStickX * handbrakePressed * BIKE_HANDBRAKE_FACTOR);
 			m_bikeInputState->setTurboPressed(turboPressed);
+
+			vibrate();
+
 		}
 
 		this->msleep(POLLING_DELAY_MS);
 	}
+}
+
+
+void Gamepad::vibrate() {
+	bool b = m_vibrationEnabled;
+
+	XINPUT_VIBRATION vibration;
+	ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
+
+	vibration.wLeftMotorSpeed = b ? 65535 : 0; // use any value between 0-65535 here
+	vibration.wRightMotorSpeed = b ? 32000 : 0; // use any value between 0-65535 here
+	XInputSetState(m_controllerId, &vibration);
 }
 
 bool Gamepad::isPressed(unsigned short button)

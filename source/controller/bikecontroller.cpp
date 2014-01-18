@@ -29,6 +29,7 @@ m_initialTransform(initialTransform)
 	m_playerColor = playerColor;
 
 	m_health = BIKE_DEFAULT_HEALTH;
+	m_timeOfLastCollision = -1;
 
 	m_view = std::make_shared<BikeView>(m_playerColor);
 	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
@@ -41,8 +42,19 @@ m_initialTransform(initialTransform)
 
 void BikeController::reset()
 {
+	if (m_pollingThread != nullptr)
+		m_pollingThread->setVibration(false);
+
 	removeAllFences();
 	m_health = BIKE_DEFAULT_HEALTH;
+	m_timeOfLastCollision = -1;
+}
+
+void BikeController::registerCollision(btScalar impulse)
+{
+	// TODO: use real time
+	if (impulse > 0)
+		m_timeOfLastCollision = 25;
 }
 
 float BikeController::increaseHealth(float diff)
@@ -238,10 +250,19 @@ void BikeController::updateModel(long double time)
 	if (m_turboInitiated)
 		m_turboInitiated = false;
 
-	if (!m_gameView.valid()) return;
+	if (m_pollingThread != nullptr)
+	{
+		m_pollingThread->setVibration(m_timeOfLastCollision > 0);
+	}
 
-	float currentFovy = getFovy();
-	setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
+	// TODO (Philipp): use real time instead of counter (maybe we could use a global time variable?)
+	m_timeOfLastCollision = max(-1, m_timeOfLastCollision - 1);
+	
+	if (m_gameView.valid()) {
+		float currentFovy = getFovy();
+		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
+	}
+	
 }
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()

@@ -44,6 +44,7 @@ namespace troen
 		float getTurboInitiation();
 
 		float increaseHealth(float diff);
+		void registerCollision(btScalar impulse);
 		void reset();
 	private:
 		void setFovy(float newFovy);
@@ -64,6 +65,7 @@ namespace troen
 		float m_health;
 		float m_speed;
 		bool m_turboInitiated = false;
+		float m_timeOfLastCollision;
 
 	};
 }

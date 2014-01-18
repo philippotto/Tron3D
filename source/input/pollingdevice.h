@@ -16,11 +16,12 @@ namespace troen
 			PollingDevice(osg::ref_ptr<BikeInputState> bikeInputState);
 			virtual void run();
 			void stop();
-
+			void setVibration(bool b) { m_vibrationEnabled = b; };
 		protected:
 			osg::ref_ptr<BikeInputState> m_bikeInputState;
 
 			bool m_pollingEnabled = false;
+			bool m_vibrationEnabled = true;
 		};
 	}
 }
