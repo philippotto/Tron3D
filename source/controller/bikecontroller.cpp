@@ -16,8 +16,11 @@
 #include "../input/gamepadps4.h"
 #include "../input/ai.h"
 #include "../input/pollingdevice.h"
+#include "../globals.h"
 
 using namespace troen;
+
+
 
 BikeController::BikeController(
 	input::BikeInputState::InputDevice inputDevice,
@@ -54,7 +57,7 @@ void BikeController::registerCollision(btScalar impulse)
 {
 	// TODO: use real time
 	if (impulse > 0)
-		m_timeOfLastCollision = 25;
+		m_timeOfLastCollision = g_currentTime;
 }
 
 float BikeController::increaseHealth(float diff)
@@ -252,11 +255,9 @@ void BikeController::updateModel(long double time)
 
 	if (m_pollingThread != nullptr)
 	{
-		m_pollingThread->setVibration(m_timeOfLastCollision > 0);
+		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
 	}
 
-	// TODO (Philipp): use real time instead of counter (maybe we could use a global time variable?)
-	m_timeOfLastCollision = max(-1, m_timeOfLastCollision - 1);
 	
 	if (m_gameView.valid()) {
 		float currentFovy = getFovy();

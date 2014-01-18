@@ -49,6 +49,7 @@ namespace troen
 	const float BIKE_HANDBRAKE_FACTOR(0.8f);
 	// this should always be less than 1000/60FPS - the smaller, the more responsive is the input
 	const int POLLING_DELAY_MS(8);
+	const int VIBRATION_TIME_MS(500);
 
 	// FENCE
 	// determines how accurate the fence will be

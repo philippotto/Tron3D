@@ -33,8 +33,11 @@
 #include "view/postprocessing.h"
 #include "view/nodefollowcameramanipulator.h"
 
+#include "globals.h"
+
 
 using namespace troen;
+extern long double g_currentTime;
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
@@ -445,6 +448,8 @@ void TroenGame::startGameLoop()
 	while (!m_sampleOSGViewer->done())
 	{
 		long double currTime = m_timer->elapsed();
+		g_currentTime = currTime;
+
 		// are we significantly behind? if yes, "resync", force rendering
 		if ((currTime - nextTime) > maxMillisecondsBetweenFrames)
 			nextTime = currTime;

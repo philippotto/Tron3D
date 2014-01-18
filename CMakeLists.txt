@@ -203,6 +203,7 @@ set(sources
 	source/sampleosgviewer.h
 	source/sampleosgviewer.cpp
 	source/gameeventhandler.h
+	source/globals.h
 	source/constants.h
 	source/constants.cpp
 	source/gamelogic.h

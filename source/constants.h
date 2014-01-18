@@ -10,6 +10,7 @@
 namespace troen
 {
 	// GENERAL
+	// extern const long double g_currentTime;
 
 	// GAME
 	extern const int DEFAULT_WINDOW_WIDTH;
@@ -48,6 +49,7 @@ namespace troen
 	extern const float BIKE_ROTATION_VALUE;
 	extern const float BIKE_HANDBRAKE_FACTOR;
 	extern const int POLLING_DELAY_MS;
+	extern const int VIBRATION_TIME_MS;
 
 	// FENCE
 	// determines how accurate the fence will be

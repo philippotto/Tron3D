@@ -5,6 +5,9 @@
 //troen
 #include "MainWindow.h"
 
+#define EXTERN
+#include "globals.h"
+
 int main(int argc, char* argv[])
 {
 	int result = -1;
