@@ -208,6 +208,9 @@ set(sources
 	source/gamelogic.h
 	source/gamelogic.cpp
 
+	source/resourcepool.h
+	source/resourcepool.cpp
+
 	source/input/keyboard.h
 	source/input/keyboard.cpp
 	source/input/gamepad.h

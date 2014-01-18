@@ -17,18 +17,21 @@
 #include "../input/ai.h"
 #include "../input/pollingdevice.h"
 
+#include "../resourcepool.h"
+
 using namespace troen;
 
 BikeController::BikeController(
 	input::BikeInputState::InputDevice inputDevice,
 	btTransform initialTransform,
-	osg::Vec3 playerColor) :
+	osg::Vec3 playerColor,
+	ResourcePool *m_resourcePool) :
 m_initialTransform(initialTransform)
 {
 	AbstractController();
 	m_playerColor = playerColor;
 
-	m_view = std::make_shared<BikeView>(m_playerColor);
+	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
 	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();

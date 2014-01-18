@@ -209,7 +209,8 @@ bool TroenGame::initializeControllers()
 		m_bikeControllers.push_back(std::make_shared<BikeController>((
 			input::BikeInputState::InputDevice)m_playerInputTypes[i],
 			m_levelController->initialPositionTransformForBikeWithIndex(i),
-			m_playerColors[i])
+			m_playerColors[i],
+			&m_resourcePool)
 		);
 	}
 	m_HUDController = std::make_shared<HUDController>(m_bikeControllers[0]);

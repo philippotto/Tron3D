@@ -31,6 +31,7 @@ namespace osg
 	class GraphicsContext;
 	class ShapeDrawable;
 	class Vec3f;
+	class Image;
 }
 
 namespace osgGA
@@ -80,6 +81,8 @@ namespace troen
 	class SkyDome;
 	class PostProcessing;
 	class NodeFollowCameraManipulator;
+	class ResourcePool;
+	
 
 	namespace util
 	{

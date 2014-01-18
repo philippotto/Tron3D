@@ -18,7 +18,8 @@ namespace troen
 		BikeController(
 			input::BikeInputState::InputDevice inputDevice,
 			btTransform initialPosition,
-			osg::Vec3 playerColor);
+			osg::Vec3 playerColor,
+			ResourcePool *resourcePool);
 		~BikeController();
 		void attachTrackingCamera
 			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
