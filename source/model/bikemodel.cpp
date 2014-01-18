@@ -31,7 +31,7 @@ m_lastUpdateTime(0)
 		fenceController,
 		this
 	);
-	
+
 	// TODO
 	// make friction & ineartia work without wrong behaviour of bike (left turn)
 	btVector3 bikeInertia(0, 0, 0);
@@ -76,10 +76,15 @@ float BikeModel::getSteering() {
 	return m_steering;
 }
 
+long double BikeModel::getTimeSinceLastUpdate()
+{
+	return m_timeSinceLastUpdate;
+}
+
 float BikeModel::updateState(long double time)
 {
-	long double timeSinceLastUpdate = time - m_lastUpdateTime;
-	float timeFactor = timeSinceLastUpdate / 16.6f;
+	m_timeSinceLastUpdate = time - m_lastUpdateTime;
+	float timeFactor = m_timeSinceLastUpdate / 16.6f;
 
 	m_lastUpdateTime = time;
 
@@ -124,7 +129,7 @@ float BikeModel::updateState(long double time)
 
 	float quat =  bikeRigidBody->getOrientation().getAngle();
 	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
-	
+
 	// let the bike drift, if the friction is low
 	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, quat) * speed).normalized() * speed;
 	currentVelocityVectorXY.setZ(zComponent);

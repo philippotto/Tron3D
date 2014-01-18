@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 // OSG
 #include <osg/PositionAttitudeTransform>
 // bullet
@@ -9,7 +10,7 @@
 
 namespace troen
 {
-	class BikeMotionState : public btMotionState 
+	class BikeMotionState : public btMotionState
 	{
 	public:
 		BikeMotionState(
@@ -45,12 +46,12 @@ namespace troen
 
 			osg::Vec3 axis = osg::Vec3(rot.getAxis().x(), rot.getAxis().y(), rot.getAxis().z());
 			osg::Quat rotationQuat(rot.getAngle(), axis);
-			
+
 			m_visibleObj->setAttitude(getTilt() * rotationQuat);
 
 			btVector3 pos = worldTrans.getOrigin();
 			m_visibleObj->setPosition(osg::Vec3(pos.x(), pos.y(), pos.z()));
-			
+
 			// update fence accordingly
 			m_fenceController.lock()->update(pos, rot);
 		}
@@ -58,8 +59,15 @@ namespace troen
 		osg::Quat getTilt()
 		{
 			float desiredTilt = m_bikeModel->getSteering() / BIKE_TILT_MAX;
-			m_currentTilt = m_currentTilt + (desiredTilt - m_currentTilt) / BIKE_TILT_DAMPENING;
+
+			// timeFactor is 1 for 60 frames, 0.5 for 30 frames etc..
+			long double timeFactor = 16.7f / m_bikeModel->getTimeSinceLastUpdate();
+			// sanity check for very large delays
+			if (timeFactor < 1 / BIKE_TILT_DAMPENING)
+				timeFactor = 1 / BIKE_TILT_DAMPENING;
 			
+			m_currentTilt = m_currentTilt + (desiredTilt - m_currentTilt) / (BIKE_TILT_DAMPENING * timeFactor);
+
 			osg::Quat tiltingQuat;
 			tiltingQuat.makeRotate(m_currentTilt, osg::Vec3(0, 1, 0));
 
