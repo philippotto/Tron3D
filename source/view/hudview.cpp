@@ -128,7 +128,9 @@ osg::Camera* HUDView::createHUD()
 void HUDView::resize(int width, int height)
 {
 	m_camera->setViewport(new osg::Viewport(0, 0, width, height));
-	m_radarCamera->setViewport(new osg::Viewport(0, 0, height / 2, height / 2));
+	int offset = height / 20;
+	int size = height / 2.5;
+	m_radarCamera->setViewport(new osg::Viewport(offset, offset, size, size));
 }
 
 osg::Camera* HUDView::createRadar()
@@ -140,10 +142,10 @@ osg::Camera* HUDView::createRadar()
 	m_radarCamera->setAllowEventFocus(false);
 	m_radarCamera->setClearMask(GL_DEPTH_BUFFER_BIT);
 	m_radarCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-	m_radarCamera->setViewport(0.0, 0.0, 400.0, 400.0);
+	m_radarCamera->setViewport(DEFAULT_WINDOW_HEIGHT / 20, DEFAULT_WINDOW_HEIGHT / 20, DEFAULT_WINDOW_HEIGHT / 2.5, DEFAULT_WINDOW_HEIGHT / 2.5);
 
 	m_radarCamera->setViewMatrix(osg::Matrixd::lookAt(osg::Vec3(0.0f, 0.0f, 500.0f), osg::Vec3(0.f, 0.f, 0.f), osg::Y_AXIS));
-	m_radarCamera->setProjectionMatrix(osg::Matrixd::ortho(-3500, 3500, -3500, 3500.,1.f,600));
+	m_radarCamera->setProjectionMatrix(osg::Matrixd::ortho(-3000, 3000, -3000, 3000,1.f,600));
 	m_radarCamera->setCullMask(CAMERA_MASK_RADAR);
 	
 	return m_radarCamera;
@@ -193,30 +195,26 @@ private:
 
 void HUDView::updateRadarCamera()
 {
-    if (m_trackNode) {
+	//if (!m_trackNode) {
+	//	return;
+	//}
         osg::Matrixd* worldCoordinateMatrix = nullptr;
+		getWorldCoordOfNodeVisitor ncv;
         
-        getWorldCoordOfNodeVisitor* ncv = new getWorldCoordOfNodeVisitor();
-        
-        if (m_trackNode && ncv)
-        {
-            ((osg::Group *)m_trackNode)->accept(*ncv);
-//            ((osg::Group *)m_trackNode)->getChild(0)->accept(*ncv);
-            worldCoordinateMatrix = ncv->worldCoordinatesMatrix();
+        ((osg::Group *)m_trackNode)->accept(ncv);
+        worldCoordinateMatrix = ncv.worldCoordinatesMatrix();
             
-            osg::Vec3d position = worldCoordinateMatrix->getTrans();
-            osg::Quat rotationQuat = worldCoordinateMatrix->getRotate();
-            float x = rotationQuat.x(),y = rotationQuat.y(),z = rotationQuat.z(),w = rotationQuat.w();
-            float mag = sqrt(w*w + z*z);
-            rotationQuat.set(0, 0, z/mag, w/mag);
+        osg::Vec3d position = worldCoordinateMatrix->getTrans();
+        osg::Quat rotationQuat = worldCoordinateMatrix->getRotate();
+		float z = rotationQuat.z();
+		float w = rotationQuat.w();
+        float mag = sqrt(w*w + z*z);
+        rotationQuat.set(0, 0, z/mag, w/mag);
             
-            osg::Vec3 up = rotationQuat * osg::Vec3d(1,0,0);
+        osg::Vec3 up = rotationQuat * osg::Y_AXIS;
             
-            osg::Matrixd viewMatrix = osg::Matrixd::lookAt(osg::Vec3(position.x(), position.y(), 500.0f), osg::Vec3(position.x(), position.y(), 0.f), up);
-            m_radarCamera->setViewMatrix(viewMatrix);
-        }
-    }
-
+        osg::Matrixd viewMatrix = osg::Matrixd::lookAt(osg::Vec3(position.x(), position.y(), 500.0f), osg::Vec3(position.x(), position.y(), 0.f), up);
+        m_radarCamera->setViewMatrix(viewMatrix);
 }
 
 void HUDView::setTrackNode(osg::Node* trackNode)
