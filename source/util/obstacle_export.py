@@ -78,7 +78,7 @@ class LevelExporter():
 			}};
 			m_obstacles.insert(m_obstacles.end(), newObstacles.begin(), newObstacles.end());
 		
-			addBoxes(m_obstacles);
+			addBoxes(m_obstacles, LEVELOBSTACLETYPE);
 		}}
 	"""
 if __name__ == '__main__':
