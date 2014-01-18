@@ -26,8 +26,8 @@ namespace troen
 
 		osg::ref_ptr<osg::Camera> m_camera;
 		osg::ref_ptr<osg::Camera> m_radarCamera;
-		osgText::Text* m_speedText;
-		osgText::Text* m_healthText;
+		osg::ref_ptr<osgText::Text> m_healthText;
+		osg::ref_ptr<osgText::Text> m_speedText;
 
 		osg::Geode* m_savedGeode;
 	};

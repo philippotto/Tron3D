@@ -30,13 +30,6 @@ HUDView::HUDView()
 	m_node->addChild(createRadar());
 }
 
-//HUDView::~HUDView()
-// {
-	// TODO: destructor cannot be accessed ?
-	// delete m_speedText;
-// }
-
-
 osg::Camera* HUDView::createHUD()
 {
 	// create a camera to set up the projection and model view matrices, and the subgraph to draw in the HUD
