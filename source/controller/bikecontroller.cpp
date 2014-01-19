@@ -18,6 +18,8 @@
 #include "../input/pollingdevice.h"
 #include "../globals.h"
 
+#include "../resourcepool.h"
+
 using namespace troen;
 
 
@@ -25,7 +27,8 @@ using namespace troen;
 BikeController::BikeController(
 	input::BikeInputState::InputDevice inputDevice,
 	btTransform initialTransform,
-	osg::Vec3 playerColor) :
+	osg::Vec3 playerColor,
+	ResourcePool *m_resourcePool) :
 m_initialTransform(initialTransform)
 {
 	AbstractController();
@@ -34,7 +37,8 @@ m_initialTransform(initialTransform)
 	m_health = BIKE_DEFAULT_HEALTH;
 	m_timeOfLastCollision = -1;
 
-	m_view = std::make_shared<BikeView>(m_playerColor);
+	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
+
 	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
@@ -211,7 +215,7 @@ float BikeController::computeFovyDelta(float speed, float currentFovy)
 {
 	long double timeSinceLastUpdate = std::static_pointer_cast<BikeModel>(m_model)->getTimeSinceLastUpdate();
 	long double timeFactor = timeSinceLastUpdate / 16.7f;
-	
+
 
 	m_speed = speed;
 
@@ -247,7 +251,7 @@ float BikeController::getTurboInitiation()
 void BikeController::updateModel(long double time)
 {
 	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
-	
+
 	// turbo should be only applied in one frame
 	if (m_turboInitiated)
 		m_turboInitiated = false;
@@ -257,12 +261,12 @@ void BikeController::updateModel(long double time)
 		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
 	}
 
-	
+
 	if (m_gameView.valid()) {
 		float currentFovy = getFovy();
 		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 	}
-	
+
 }
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()

@@ -11,6 +11,8 @@
 // troen
 #include "forwarddeclarations.h"
 
+#include "resourcepool.h"
+
 typedef struct s_GameConfig
 {
 	int numberOfBikes;
@@ -101,6 +103,8 @@ namespace troen
 
 		std::vector<int> m_playerInputTypes;
 		std::vector<osg::Vec3> m_playerColors;
+
+		ResourcePool m_resourcePool;
 
 		bool m_simulationPaused;
 
