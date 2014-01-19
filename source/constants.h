@@ -73,6 +73,10 @@ namespace troen
 	extern const float BIKE_FENCE_IMPACT_THRESHOLD_HIGH;
 
 	extern const float BIKE_DEFAULT_HEALTH;
+
+	// AUDIO
+	extern const int ENGINE_FREQUENCY_LOW;
+	extern const int ENGINE_FREQUENCY_HIGH;
 }
 
 #endif

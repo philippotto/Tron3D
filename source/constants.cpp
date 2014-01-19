@@ -75,4 +75,8 @@ namespace troen
 
 	const float BIKE_DEFAULT_HEALTH(5 * BIKE_FENCE_IMPACT_THRESHOLD_HIGH);
 	
+	// AUDIO
+	const int ENGINE_FREQUENCY_LOW(50000);
+	const int ENGINE_FREQUENCY_HIGH(120000);
+
 }

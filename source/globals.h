@@ -1,4 +1,3 @@
-
 #pragma once
 #ifndef EXTERN
 #define EXTERN extern

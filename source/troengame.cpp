@@ -84,9 +84,7 @@ void TroenGame::setFovy(float newFovy)
 {
 	double fovy, aspect, znear, zfar;
 	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-	std::cout << "old: " << fovy;
 	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
-	std::cout << "   new: " << newFovy << std::endl;
 }
 
 float TroenGame::getFovy()
@@ -193,6 +191,7 @@ bool TroenGame::initializeSound()
 	m_audioManager = std::shared_ptr<sound::AudioManager>(new sound::AudioManager);
 	m_audioManager->LoadSFX("data/sound/explosion.wav");
 	m_audioManager->LoadSong("data/sound/theGameHasChanged.mp3");
+	m_audioManager->LoadEngineSound();
 	m_audioManager->SetSongsVolume(0.5);
 	return true;
 }
@@ -428,6 +427,8 @@ void TroenGame::startGameLoop()
 	m_timer->start();
 
 	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
+	m_audioManager->PlayEngineSound();
+	
 	m_audioManager->SetMasterVolume(0.f);
 
 	if (m_useDebugView)
@@ -477,6 +478,7 @@ void TroenGame::startGameLoop()
 			}
 
 			m_audioManager->Update(currTime/1000);
+			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
 
 			if (m_postProcessing)
 				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());		

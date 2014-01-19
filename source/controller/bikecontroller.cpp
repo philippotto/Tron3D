@@ -55,7 +55,6 @@ void BikeController::reset()
 
 void BikeController::registerCollision(btScalar impulse)
 {
-	// TODO: use real time
 	if (impulse > 0)
 		m_timeOfLastCollision = g_currentTime;
 }
