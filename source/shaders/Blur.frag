@@ -15,16 +15,20 @@ in float doHorizontalBlur;
 // should be between 4 and 12
 float sigma =
 	4
-	+ 4 * (sin(time*2.f)+ 1.f)/2.f
-	+ 4 * max(10, 1000 - timeSinceLastBeat) / 1000;
+	+ 3 * (sin(time*2.f) + 1.f)/2.f
+	+ 8 * max(10, 1000 - timeSinceLastBeat) / 1000;
 
 const float pi = 3.14159265f;
 
 void main() {
 
+	// gl_FragColor = texture2D(inputLayer, v_texCoord.xy);
+	// return;
 	float blurSize;
 	float numBlurPixelsPerSide;
 	float glowIntensity = texture2D(idLayer, v_texCoord).y;
+
+	const vec2 textureSize = textureSize(inputLayer, 0);
 
 	vec2 blurMultiplyVec;
 	if (doHorizontalBlur == 0.0f)
@@ -34,11 +38,11 @@ void main() {
 
 		// This should usually be equal to
 		// 1.0f / texture_pixel_width (or _height) for a horizontal (vertical) blur
-		blurSize = 1.f / 700.f * glowIntensity;
+		blurSize = 1.f / textureSize.y * glowIntensity;
 	} else {
 		numBlurPixelsPerSide = 16.0f;
 		blurMultiplyVec      = vec2(0.0f, 1.0f);
-		blurSize = 1.f / 700.f * glowIntensity;
+		blurSize = 1.f / textureSize.x * glowIntensity;
 	}
 
 	// Incremental Gaussian Coefficent Calculation (See GPU Gems 3 pp. 877 - 889)

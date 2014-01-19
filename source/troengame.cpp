@@ -5,6 +5,7 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
 #include <osgViewer/ViewerEventHandlers>
+
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>
@@ -111,6 +112,7 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 	m_usePostProcessing = config.usePostProcessing;
 	m_useDebugView = config.useDebugView;
 	m_testPerformance = config.testPerformance;
+	m_useHalvedTextures = config.useHalvedTextures;
 
 	m_playerInputTypes.clear();
 	for (int i = 0; i < m_numberOfBikes; i++)
@@ -351,7 +353,7 @@ bool TroenGame::composeSceneGraph()
 	if (m_usePostProcessing)
 	{
 		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
-		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
+		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height(), m_useHalvedTextures);
 		m_sceneNode = m_postProcessing->getSceneNode();
 
 		//explicit call, to enable glow from start
@@ -359,6 +361,10 @@ bool TroenGame::composeSceneGraph()
 	}
 	else
 		m_sceneNode = m_rootNode;
+
+
+
+
 
 	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
 	m_sceneNode->addChild(m_skyDome.get());

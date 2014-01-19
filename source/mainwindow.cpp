@@ -124,6 +124,11 @@ MainWindow::MainWindow(QWidget * parent)
 	vBoxLayout->addWidget(m_debugViewCheckBox, 0, Qt::AlignLeft);
 	m_debugViewCheckBox->setChecked(false);
 
+	// debugViewCheckBox
+	m_halvedTexturesCheckBox = new QCheckBox("&Halved post processing texture sizes");
+	vBoxLayout->addWidget(m_halvedTexturesCheckBox, 0, Qt::AlignLeft);
+	m_halvedTexturesCheckBox->setChecked(false);
+
 	// gameStartButton
 	m_gameStartButton = new QPushButton(QString("start Game"));
 	m_gameStartButton->setContentsMargins(0, 5, 0, 5);
@@ -197,6 +202,7 @@ void MainWindow::prepareGameStart()
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	config.useDebugView = m_debugViewCheckBox->isChecked();
 	config.testPerformance = m_testPerformanceCheckBox->isChecked();
+	config.useHalvedTextures = m_halvedTexturesCheckBox->isChecked();
 	emit startGame(config);
 }
 

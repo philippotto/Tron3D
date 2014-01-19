@@ -7,7 +7,9 @@ void main(void)
 {
 	vec2 st = gl_TexCoord[0].st;
 	float objectID = texture2D(idLayer, st).x;
-	
+
+// gl_FragColor = objectID;
+// return;
 	if (objectID != 1.f){
 		gl_FragColor = vec4(0.f);
 		return;

@@ -53,6 +53,7 @@ namespace troen
 		QCheckBox*		m_postProcessingCheckBox;
 		QCheckBox*		m_testPerformanceCheckBox;
 		QCheckBox*		m_debugViewCheckBox;
+		QCheckBox*		m_halvedTexturesCheckBox;
 
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;

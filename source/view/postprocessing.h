@@ -22,7 +22,7 @@ namespace troen
 	class PostProcessing : public AbstractView //, public osg::Referenced
 	{
 	public:
-		PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height);
+		PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height, bool useHalvedTextures);
 		
 		
 		enum TEXTURE_CONTENT { COLOR, ID, PING, PONG, OLDCOLOR, TEXTURE_CONTENT_SIZE };
@@ -55,6 +55,7 @@ namespace troen
 
 		int m_width;
 		int m_height;
+		bool m_useHalvedTextures;
 		std::vector<int> pingpongPasses;
 	};
 }
