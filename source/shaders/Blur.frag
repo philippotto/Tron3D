@@ -14,9 +14,9 @@ in float doHorizontalBlur;
 // 9x9: 3 to 5; 7x7: 2.5 to 4, 5x5: 2 to 3.5
 // should be between 4 and 12
 float sigma =
-	4
-	+ 3 * (sin(time*2.f) + 1.f)/2.f
-	+ 8 * max(10, 1000 - timeSinceLastBeat) / 1000;
+		+ 4
+		+ 3 * (sin(time*2.f) + 1.f)/2.f
+		+ 4 * max(10, 1000 - timeSinceLastBeat) / 1000;
 
 const float pi = 3.14159265f;
 

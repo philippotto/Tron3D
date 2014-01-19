@@ -11,7 +11,7 @@ void main(void)
 // gl_FragColor = objectID;
 // return;
 	if (objectID != 1.f){
-		gl_FragColor = vec4(0.f);
+		gl_FragColor = vec4(0.f, 0.f, 0.f, 0.f);
 		return;
 	}
 

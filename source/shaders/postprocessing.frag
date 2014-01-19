@@ -127,7 +127,19 @@ void main(void)
 	vec2 st = gl_TexCoord[0].st;
 
 	vec4 sceneColor = texture2D(sceneLayer, st);
-	vec4 pongColor = texture2D(pongLayer, st);
+
+
+	// blur again to eliminate pixelation which is caused by implicit upscaling
+	const float diff = 0.001;
+	vec4 pongColor =  (4 * texture2D(pongLayer, st)
+		+ texture2D(pongLayer, st + vec2(diff))
+		+ texture2D(pongLayer, st + vec2(-diff))
+		+ texture2D(pongLayer, st + vec2(diff, -diff))
+		+ texture2D(pongLayer, st + vec2(-diff, diff))
+	) / 8;
+
+
+
 	vec4 oldColor = texture2D(oldLayer, st);
 
 	const float oldFrameWeight = 0.5;
@@ -150,5 +162,4 @@ void main(void)
 
 	gl_FragColor = newFrameWeight * newColor + oldFrameWeight * oldColor;
 	// gl_FragColor = pongColor;
-
 }
