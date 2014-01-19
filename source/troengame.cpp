@@ -435,7 +435,8 @@ void TroenGame::startGameLoop()
 	if (m_useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 
-	m_levelController->addItemBox(btVector3(500, 255, 0));
+	
+	m_levelController->addItemBox(btVector3(500, 255, +0.5));
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();
