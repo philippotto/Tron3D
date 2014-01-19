@@ -11,6 +11,8 @@
 // troen
 #include "forwarddeclarations.h"
 
+#include "resourcepool.h"
+
 typedef struct s_GameConfig
 {
 	int numberOfBikes;
@@ -63,6 +65,7 @@ namespace troen
 		bool initializePhysicsWorld();
 		bool initializeSound();
 		bool initializeSkyDome();
+		bool initializeLighting();
 
 		bool shutdown();
 		void startGameLoop();
@@ -84,6 +87,7 @@ namespace troen
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
 		osg::ref_ptr<osg::Switch>			m_hudSwitch;
+		osg::ref_ptr<osg::LightSource>		m_sunLightSource;
 
 
 		// Controllers
@@ -99,6 +103,8 @@ namespace troen
 
 		std::vector<int> m_playerInputTypes;
 		std::vector<osg::Vec3> m_playerColors;
+
+		ResourcePool m_resourcePool;
 
 		bool m_simulationPaused;
 

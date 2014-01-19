@@ -33,12 +33,15 @@
 #include "view/postprocessing.h"
 #include "view/nodefollowcameramanipulator.h"
 
+#include "globals.h"
+
 
 using namespace troen;
+extern long double g_currentTime;
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
-m_simulationPaused(false),
+m_simulationPaused(true),
 m_numberOfBikes(0),
 m_splitscreen(false),
 m_fullscreen(false),
@@ -81,9 +84,7 @@ void TroenGame::setFovy(float newFovy)
 {
 	double fovy, aspect, znear, zfar;
 	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-	std::cout << "old: " << fovy;
 	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
-	std::cout << "   new: " << newFovy << std::endl;
 }
 
 float TroenGame::getFovy()
@@ -147,6 +148,7 @@ bool TroenGame::initialize()
 	initializeSkyDome();
 	initializeControllers();
 	initializeHud();
+	initializeLighting();
 
 	std::cout << "[TroenGame::initialize] gameLogic ..." << std::endl;
 	initializeGameLogic();
@@ -165,6 +167,7 @@ bool TroenGame::initialize()
 
 	std::cout << "[TroenGame::initialize] physics ..." << std::endl;
 	initializePhysicsWorld();
+	m_physicsWorld->stepSimulation(0);
 
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
 
@@ -188,6 +191,7 @@ bool TroenGame::initializeSound()
 	m_audioManager = std::shared_ptr<sound::AudioManager>(new sound::AudioManager);
 	m_audioManager->LoadSFX("data/sound/explosion.wav");
 	m_audioManager->LoadSong("data/sound/theGameHasChanged.mp3");
+	m_audioManager->LoadEngineSound();
 	m_audioManager->SetSongsVolume(0.5);
 	return true;
 }
@@ -207,8 +211,9 @@ bool TroenGame::initializeControllers()
 	{
 		m_bikeControllers.push_back(std::make_shared<BikeController>((
 			input::BikeInputState::InputDevice)m_playerInputTypes[i],
-			m_levelController->initialPositionTransformForBikeWithIndex(i),
-			m_playerColors[i])
+			m_levelController->getSpawnPointForBikeWithIndex(i),
+			m_playerColors[i],
+			&m_resourcePool)
 		);
 	}
 	m_HUDController = std::make_shared<HUDController>(m_bikeControllers[0]);
@@ -226,6 +231,18 @@ bool TroenGame::initializeHud()
 	return true;
 }
 
+bool TroenGame::initializeLighting()
+{
+	osg::ref_ptr<osg::Light> sunLight = new osg::Light(0);
+	sunLight->setPosition(osg::Vec4f(0.0f, 0.0f, 300.0f, 1.0f));
+	sunLight->setAmbient(osg::Vec4f(0.05f, 0.05f, 0.04f, 1.0f));
+	sunLight->setDiffuse(osg::Vec4f(1.0f, 1.0f, 0.0f, 1.0f));
+	sunLight->setSpecular(osg::Vec4f(1.0f, 1.0f, 1.0f, 1.0f));
+
+	osg::ref_ptr<osg::LightSource> m_sunLightSource = new osg::LightSource;
+	m_sunLightSource->setLight(sunLight.get());
+	return true;
+}
 
 bool TroenGame::initializeGameLogic()
 {
@@ -249,7 +266,6 @@ bool TroenGame::initializeViews()
 	m_statsHandler->setKeyEventPrintsOutStats(osgGA::GUIEventAdapter::KEY_P);
 	m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
 	m_gameView->addEventHandler(m_statsHandler);
-
 
 	m_gameView->setSceneData(m_rootNode);
 #ifdef WIN32
@@ -331,7 +347,7 @@ bool TroenGame::composeSceneGraph()
 									\
 									Quad#Geode
 	*/
-	
+
 	if (m_usePostProcessing)
 	{
 		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
@@ -344,17 +360,23 @@ bool TroenGame::composeSceneGraph()
 	else
 		m_sceneNode = m_rootNode;
 
+	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
 	m_sceneNode->addChild(m_skyDome.get());
-	m_sceneNode->addChild(m_levelController->getViewNode());	
-	
-	m_rootNode->addChild(m_hudSwitch);
+
+	m_sceneNode->addChild(m_levelController->getViewNode());
+	m_sceneNode->addChild(m_sunLightSource.get());
 
 	for (auto bikeController : m_bikeControllers)
+	{
 		m_sceneNode->addChild(bikeController->getViewNode());
+	}
 
+	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
+
+	m_rootNode->addChild(m_hudSwitch);
 	if (m_usePostProcessing)
 		m_rootNode->addChild(m_sceneNode);
-	
+
 	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
 	for (auto bikeController : m_bikeControllers)
 		radarScene->addChild(bikeController->getViewNode());
@@ -383,10 +405,14 @@ bool TroenGame::initializePhysicsWorld()
 	m_physicsWorld = std::make_shared<PhysicsWorld>(m_gameLogic, m_useDebugView);
 	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies(),COLGROUP_LEVEL,COLMASK_LEVEL);
 
+	// attach world
 	for (auto bikeController : m_bikeControllers)
 	{
 		bikeController->attachWorld(m_physicsWorld);
 	}
+	m_levelController->attachWorld(m_physicsWorld);
+
+
 	m_gameLogic->attachPhysicsWorld(m_physicsWorld);
 	return true;
 }
@@ -402,10 +428,15 @@ void TroenGame::startGameLoop()
 	m_timer->start();
 
 	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
+	m_audioManager->PlayEngineSound();
+
 	m_audioManager->SetMasterVolume(0.f);
 
 	if (m_useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
+
+	
+	m_levelController->addItemBox(btVector3(500, 255, +0.5));
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();
@@ -420,6 +451,8 @@ void TroenGame::startGameLoop()
 	while (!m_sampleOSGViewer->done())
 	{
 		long double currTime = m_timer->elapsed();
+		g_currentTime = currTime;
+
 		// are we significantly behind? if yes, "resync", force rendering
 		if ((currTime - nextTime) > maxMillisecondsBetweenFrames)
 			nextTime = currTime;
@@ -447,9 +480,10 @@ void TroenGame::startGameLoop()
 			}
 
 			m_audioManager->Update(currTime/1000);
+			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
 
 			if (m_postProcessing)
-				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());		
+				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
@@ -458,6 +492,7 @@ void TroenGame::startGameLoop()
 				m_sampleOSGViewer->frame();
 				if (m_splitscreen) m_sampleOSGViewer2->frame();
 
+				// TODO: find a way to eleminate this workaround
 				if (!nearPlaneAdapted) {
 					// doesn't work if it's executed earlier
 					double fovy, aspect, znear, zfar;

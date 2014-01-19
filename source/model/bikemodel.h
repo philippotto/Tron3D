@@ -20,6 +20,7 @@ namespace troen
 			BikeController* bikeController);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		void resetState();
+		long double getTimeSinceLastUpdate();
 		float updateState(long double time);
 		void rotate(float angle);
 		void accelerate(float velocity);
@@ -30,13 +31,20 @@ namespace troen
 		btVector3 getPositionBt();
 
 		void moveBikeToPosition(btTransform position);
+		float getTurboFactor();
+		void updateTurboFactor(float newVelocity, float time);
 
 	private:
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 		float m_velocity;
+		float m_oldVelocity;
 		float m_rotation;
 		float m_steering;
 		float m_bikeFriction;
+		float m_turboFactor;
+		float m_timeOfLastTurboInitiation;
 		long double m_lastUpdateTime;
+		BikeController* m_bikeController;
+		long double m_timeSinceLastUpdate;
 	};
 }

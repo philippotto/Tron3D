@@ -6,12 +6,12 @@
 
 using namespace troen::input;
 
-Keyboard::Keyboard(osg::ref_ptr<BikeInputState> bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol> keys)
-{
-	GUIEventHandler();
-	m_bikeInputState = bikeInputState;
-	m_keys = keys;
-}
+Keyboard::Keyboard(osg::ref_ptr<BikeInputState> bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol> keys) :
+GUIEventHandler(),
+m_bikeInputState(bikeInputState),
+m_keys(keys),
+m_handbrakePressed(false)
+{}
 
 bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActionAdapter& actionAdapter)
 {
@@ -45,11 +45,10 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 			m_handbrakePressed = 1.0;
 			return false;
 		}
-		// todo, move to gameeventhandler
-		else if (key == osgGA::GUIEventAdapter::KEY_R)
+		else if (key == m_keys[5])
 		{
-			std::cout << "Reloading shaders" << std::endl;
-			shaders::reloadShaders();
+			m_bikeInputState->setTurboPressed(true);
+			return false;
 		}
 		return false;
 	}
@@ -79,6 +78,11 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 		else if (key == m_keys[4])
 		{
 			m_handbrakePressed = 0.0;
+			return false;
+		}
+		else if (key == m_keys[5])
+		{
+			m_bikeInputState->setTurboPressed(false);
 			return false;
 		}
 		return false;

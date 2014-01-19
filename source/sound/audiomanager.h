@@ -17,8 +17,10 @@ namespace sound
 
 		void LoadSFX(const std::string& path);
 		void LoadSong(const std::string& path);
+		void LoadEngineSound();
 		void PlaySFX(const std::string& path, float minVolume, float maxVolume, float minPitch, float maxPitch);
 		void PlaySong(const std::string& path);
+		void PlayEngineSound();
 		void StopSFXs();
 		void StopSongs();
 		void SetMasterVolume(float volume);
@@ -28,9 +30,10 @@ namespace sound
 		void detectBeat(float tickCount);
 
 		float getTimeSinceLastBeat();
+		void setMotorSpeed(float speed);
 	private:
 		typedef std::map<std::string, FMOD::Sound*> SoundMap;
-		enum Category { CATEGORY_SFX, CATEGORY_SONG, CATEGORY_COUNT };
+		enum Category { CATEGORY_SFX, CATEGORY_SONG, CATEGORY_ENGINE, CATEGORY_COUNT };
 
 		void Load(Category type, const std::string& path);
 
@@ -43,6 +46,8 @@ namespace sound
 		float m_timeSinceLastBeat = 0.f;
 
 		FMOD::Channel* currentSong;
+		FMOD::Channel* engineChannel;
+
 		std::string currentSongPath;
 		std::string nextSongPath;
 		enum FadeState { FADE_NONE, FADE_IN, FADE_OUT };

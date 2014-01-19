@@ -10,6 +10,7 @@
 namespace troen
 {
 	// GENERAL
+	// extern const long double g_currentTime;
 
 	// GAME
 	extern const int DEFAULT_WINDOW_WIDTH;
@@ -37,16 +38,18 @@ namespace troen
 	extern const float BIKE_ACCELERATION_FACTOR_MAX;
 	extern const float BIKE_TURN_FACTOR_MAX;
 	extern const float BIKE_ANGULAR_DAMPENING_TERM;
-
+	extern const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE;
 
 	extern const float BIKE_TILT_DAMPENING;
 	extern const float BIKE_TILT_MAX;
+	extern const float BIKE_WHEELY_TILT_MAX;
 
 	//INPUT
 	extern const float BIKE_MOVE_VALUE;
 	extern const float BIKE_ROTATION_VALUE;
 	extern const float BIKE_HANDBRAKE_FACTOR;
 	extern const int POLLING_DELAY_MS;
+	extern const int VIBRATION_TIME_MS;
 
 	// FENCE
 	// determines how accurate the fence will be
@@ -66,8 +69,14 @@ namespace troen
 	extern const unsigned int CAMERA_MASK_RADAR;
 
 	// PHYSICS
-	extern const float BIKE_IMPACT_THRESHOLD_LOW;
-	extern const float BIKE_IMPACT_THRESHOLD_HIGH;
+	extern const float BIKE_FENCE_IMPACT_THRESHOLD_LOW;
+	extern const float BIKE_FENCE_IMPACT_THRESHOLD_HIGH;
+
+	extern const float BIKE_DEFAULT_HEALTH;
+
+	// AUDIO
+	extern const int ENGINE_FREQUENCY_LOW;
+	extern const int ENGINE_FREQUENCY_HIGH;
 }
 
 #endif
@@ -204,6 +213,13 @@ namespace troen
 
 #define smoothstep_ext(t, l, r) \
 	((t) < (l) ? 0 : (r) < (t) ? 1 : smoothstep(((t)-(l)) / ((r)-(l))))
+
+#define btToOSGVec3(v) \
+	osg::Vec3(v.x(), v.y(), v.z())
+
+#define btToOSGQuat(q) \
+	osg::Quat(q.x(), q.y(), q.z(), q.w())
+
 
 // Several interpolation methods in action: http://sol.gfxile.net/interpolation/
 
