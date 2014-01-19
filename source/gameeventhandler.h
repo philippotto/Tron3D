@@ -38,6 +38,7 @@ namespace troen
 				{
 					std::cout << "Reloading shaders" << std::endl;
 					shaders::reloadShaders();
+					return true;
 				}
 				case osgGA::GUIEventAdapter::KEY_Shift_R:
                 case osgGA::GUIEventAdapter::KEY_Shift_L:
