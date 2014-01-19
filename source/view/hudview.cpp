@@ -23,6 +23,7 @@ HUDView::HUDView()
 	AbstractView();
 	m_speedText = new osgText::Text();
 	m_healthText = new osgText::Text();
+	m_pointsText = new osgText::Text();
 
 	m_node = new osg::Group();
 
@@ -77,6 +78,17 @@ osg::Camera* HUDView::createHUD()
 
 			position += delta;
 		}
+		{
+			geode->addDrawable(m_pointsText);
+
+			m_pointsText->setFont(timesFont);
+			m_pointsText->setPosition(osg::Vec3(0.f, 100.f, 0.f));
+			setPointsText(0);
+			// m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
+
+			position += delta;
+		}
+
 
 		{
 			osg::BoundingBox bb;
@@ -169,4 +181,10 @@ void HUDView::setHealthText(float health)
 {
 	std::string healthString = std::to_string((int)health);
 	m_healthText->setText("Health: " + healthString);
+}
+
+void HUDView::setPointsText(float points)
+{
+	std::string pointsString = std::to_string((int)points);
+	m_pointsText->setText("Points: " + pointsString);
 }

@@ -34,6 +34,7 @@ namespace troen
 		bool hasEventHandler();
 		float getSpeed();
 		float getHealth();
+		float getPoints();
 
 		// logic events
 		void moveBikeToPosition(btTransform position);
@@ -45,6 +46,7 @@ namespace troen
 		float getTurboInitiation();
 
 		float increaseHealth(float diff);
+		float increasePoints(float diff);
 		void registerCollision(btScalar impulse);
 		void reset();
 	private:
@@ -64,6 +66,7 @@ namespace troen
 		btTransform m_initialTransform;
 
 		float m_health;
+		float m_points;
 		float m_speed;
 		bool m_turboInitiated = false;
 		float m_timeOfLastCollision;

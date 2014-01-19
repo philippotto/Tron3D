@@ -35,4 +35,8 @@ void HUDController::update() {
 
 	float health = m_bikeController.lock()->getHealth();
 	std::static_pointer_cast<HUDView>(m_view)->setHealthText(100 * health / BIKE_DEFAULT_HEALTH);
+
+	float points = m_bikeController.lock()->getPoints();
+	std::static_pointer_cast<HUDView>(m_view)->setPointsText(100 * points);
+
 }

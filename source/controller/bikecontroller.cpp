@@ -35,6 +35,7 @@ m_initialTransform(initialTransform)
 	m_playerColor = playerColor;
 
 	m_health = BIKE_DEFAULT_HEALTH;
+	m_points = 0;
 	m_timeOfLastCollision = -1;
 
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
@@ -54,6 +55,7 @@ void BikeController::reset()
 
 	removeAllFences();
 	m_health = BIKE_DEFAULT_HEALTH;
+	m_points = 0;
 	m_timeOfLastCollision = -1;
 }
 
@@ -67,6 +69,12 @@ float BikeController::increaseHealth(float diff)
 {
 	m_health += diff;
 	return m_health;
+}
+
+float BikeController::increasePoints(float diff)
+{
+	m_points += diff;
+	return m_points;
 }
 
 BikeController::~BikeController()
@@ -238,6 +246,11 @@ float BikeController::getHealth()
 	return m_health;
 }
 
+float BikeController::getPoints()
+{
+	return m_points;
+}
+
 void BikeController::activateTurbo()
 {
 	m_turboInitiated = true;
@@ -261,6 +274,7 @@ void BikeController::updateModel(long double time)
 		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
 	}
 
+	increasePoints(speed / 1000);
 
 	if (m_gameView.valid()) {
 		float currentFovy = getFovy();
@@ -291,7 +305,7 @@ void BikeController::removeAllFences()
 
 void BikeController::enforceFencePartsLimit(int maxFenceParts)
 {
-	m_fenceController->enforceFencePartsLimit(maxFenceParts);
+	m_fenceController->enforceFencePartsLimit(getPoints());
 }
 
 void BikeController::moveBikeToPosition(btTransform transform)

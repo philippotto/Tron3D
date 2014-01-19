@@ -19,6 +19,7 @@ namespace troen
 		void attachSceneToRadarCamera(osg::Group* scene);
 		void setSpeedText(float speed);
 		void setHealthText(float health);
+		void setPointsText(float points);
 
 	private:
 		osg::Camera* createHUD();
@@ -28,6 +29,7 @@ namespace troen
 		osg::ref_ptr<osg::Camera> m_radarCamera;
 		osg::ref_ptr<osgText::Text> m_healthText;
 		osg::ref_ptr<osgText::Text> m_speedText;
+		osg::ref_ptr<osgText::Text> m_pointsText;
 
 		osg::Geode* m_savedGeode;
 	};
