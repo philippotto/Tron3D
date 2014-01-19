@@ -55,8 +55,8 @@ namespace troen
 
 		void readData();
 
-		osg::Image* ResourcePool::getImage(TextureResource texture);
-		osg::Node* ResourcePool::getNode(ModelResource model);
+		osg::Image* getImage(TextureResource texture);
+		osg::Node* getNode(ModelResource model);
 
 	private:
 		static const int m_textureCount = 21;
