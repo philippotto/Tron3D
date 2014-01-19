@@ -81,6 +81,11 @@ void PhysicsWorld::removeRigidBody(btRigidBody* body)
 	m_world->removeRigidBody(body);
 }
 
+void PhysicsWorld::addCollisionObject(btCollisionObject* obj)
+{
+	m_world->addCollisionObject(obj);
+}
+
 void PhysicsWorld::stepSimulation(long double currentTime)
 {	
 	float timeSinceLastSimulation = currentTime - m_lastSimulationTime;
@@ -101,7 +106,6 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	// where the parameters are given as follows:
 	// stepSimulation(timeStep, maxSubSteps, fixedTimeStep)
 	m_world->stepSimulation(timeSinceLastSimulation/1000.f, 8);
-	//m_world->stepSimulation(1 / 60.f, 10);
 	
 	if (m_useDebugView)
 	{
@@ -167,3 +171,5 @@ void PhysicsWorld::checkForCollisionEvents()
 	// the pairs we found in this iteration
 	m_pairsLastUpdate = pairsThisUpdate;
 }
+
+

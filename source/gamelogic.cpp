@@ -10,7 +10,11 @@
 #include "model/abstractmodel.h"
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
+#include "controller/bikecontroller.h"
+#include "controller/itemcontroller.h"
 #include "sound/audiomanager.h"
+#include "model/objectinfo.h"
+
 
 using namespace troen;
 
@@ -40,17 +44,23 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 	collidingBodies[1] = pBody1;
 
 	// get the controllers of the colliding objects
+	ObjectInfo* objectInfos[2];
+	objectInfos[0] = static_cast<ObjectInfo *>(pBody0->getUserPointer());
+	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
+
 	AbstractController* collisionBodyControllers[2];
-	collisionBodyControllers[0] = static_cast<AbstractController *>(pBody0->getUserPointer());
-	collisionBodyControllers[1] = static_cast<AbstractController *>(pBody1->getUserPointer());
-	
+	collisionBodyControllers[0] = static_cast<AbstractController *>(objectInfos[0]->getUserPointer());
+	collisionBodyControllers[1] = static_cast<AbstractController *>(objectInfos[1]->getUserPointer());
+
+
 	// exit either controlles was not found
 	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
 
 	std::array<COLLISIONTYPE,2> collisionTypes;
-	collisionTypes[0] = static_cast<COLLISIONTYPE>(collidingBodies[0]->getUserIndex());
-	collisionTypes[1] = static_cast<COLLISIONTYPE>(collidingBodies[1]->getUserIndex());
-	
+	collisionTypes[0] = static_cast<COLLISIONTYPE>(objectInfos[0]->getUserIndex());
+	collisionTypes[1] = static_cast<COLLISIONTYPE>(objectInfos[1]->getUserIndex());
+
+
 	// handle colision events object specific
 	auto bikeIterator = std::find(collisionTypes.cbegin(), collisionTypes.cend(), BIKETYPE);
 	if (bikeIterator != collisionTypes.cend())
@@ -62,6 +72,7 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 		case LEVELWALLTYPE:
 		case LEVELOBSTACLETYPE:
 		case FENCETYPE:
+
 			handleCollisionOfBikeAndNonmovingObject(
 				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
 				collisionBodyControllers[otherIndex],
@@ -74,7 +85,15 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 				contactManifold);
 			break;
 		case LEVELGROUNDTYPE:
-			//std::cout << "collision with ground" << std::endl;
+			break;
+		case ITEMTYPE:
+		{
+			ItemController* itemController = static_cast<ItemController *>(collisionBodyControllers[otherIndex]);
+			if (itemController) {
+				itemController->triggerOn(static_cast<BikeController*>(collisionBodyControllers[bikeIndex]));
+			}
+			break;
+		}
 		default:
 			break;
 		}
@@ -83,22 +102,27 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 {
+	return;
 	//std::cout << "[PhysicsWorld::seperationEvent] seperation detected" << std::endl;
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
 	collidingBodies[1] = pBody1;
 
+	ObjectInfo* objectInfos[2];
+	objectInfos[0] = static_cast<ObjectInfo *>(pBody0->getUserPointer());
+	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
+
 	// get the controllers of the separating objects
 	AbstractController* collisionBodyControllers[2];
-	collisionBodyControllers[0] = static_cast<AbstractController *>(pBody0->getUserPointer());
-	collisionBodyControllers[1] = static_cast<AbstractController *>(pBody1->getUserPointer());
+	collisionBodyControllers[0] = static_cast<AbstractController *>(objectInfos[0]->getUserPointer());
+	collisionBodyControllers[1] = static_cast<AbstractController *>(objectInfos[1]->getUserPointer());
 
 	// exit either controlles was not found
 	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
 
 	std::array<COLLISIONTYPE, 2> collisionTypes;
-	collisionTypes[0] = static_cast<COLLISIONTYPE>(collidingBodies[0]->getUserIndex());
-	collisionTypes[1] = static_cast<COLLISIONTYPE>(collidingBodies[1]->getUserIndex());
+	collisionTypes[0] = static_cast<COLLISIONTYPE>(objectInfos[0]->getUserIndex());
+	collisionTypes[1] = static_cast<COLLISIONTYPE>(objectInfos[1]->getUserIndex());
 
 	// handle separation events object specific
 	auto bikeIterator = std::find(collisionTypes.cbegin(), collisionTypes.cend(), BIKETYPE);
@@ -141,10 +165,16 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
 			1, 1);
 
-	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_HIGH)
+
+	bike->registerCollision(impulse);
+	// TODO (Philipp): move increaseHealth and resetBike into registerCollision and trigger a respawn instead of pausing simulation (needs statistics about lifes etc.)
+	float newHealth = bike->increaseHealth(-1 * impulse);
+
+	if (newHealth <= 0)
 	{
+		resetBike(bike);
 		m_troenGame->pauseSimulation();
-		restartLevel();
+		restartLevel();		
 	}
 }
 
@@ -186,11 +216,20 @@ void GameLogic::toggleFencePartsLimit()
 	}
 }
 
+void GameLogic::resetBike(BikeController *bikeController)
+{
+	bikeController->reset();
+
+	// TODO should happen in reset()
+	btTransform position = m_levelController->getRandomSpawnPoint();
+	bikeController->moveBikeToPosition(position);
+}
+
 void GameLogic::resetBikePositions()
 {
 	for (int i = 0; i < m_bikeControllers.size(); i++)
 	{
-		btTransform position = m_levelController->initialPositionTransformForBikeWithIndex(i);
+		btTransform position = m_levelController->getSpawnPointForBikeWithIndex(i);
 		m_bikeControllers[i]->moveBikeToPosition(position);
 	}
 }

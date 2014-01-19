@@ -41,12 +41,15 @@ namespace troen
 	// 1 / BIKE_TILT_MAX specifies angle in radiant
 	const float BIKE_TILT_DAMPENING(20.f);
 	const float BIKE_TILT_MAX(16.f);
+	const float BIKE_WHEELY_TILT_MAX(2.f);
+	const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE(20.f);
 
 	//INPUT
 	const float BIKE_ROTATION_VALUE(10.0f);
 	const float BIKE_HANDBRAKE_FACTOR(0.8f);
 	// this should always be less than 1000/60FPS - the smaller, the more responsive is the input
 	const int POLLING_DELAY_MS(8);
+	const int VIBRATION_TIME_MS(500);
 
 	// FENCE
 	// determines how accurate the fence will be
@@ -68,5 +71,12 @@ namespace troen
 	// PHYSICS
 	const float BIKE_FENCE_IMPACT_THRESHOLD_LOW(BIKE_MASS*BIKE_VELOCITY_MIN);
 	const float BIKE_FENCE_IMPACT_THRESHOLD_HIGH(BIKE_MASS*BIKE_VELOCITY_MAX / 3);
+
+
+	const float BIKE_DEFAULT_HEALTH(5 * BIKE_FENCE_IMPACT_THRESHOLD_HIGH);
 	
+	// AUDIO
+	const int ENGINE_FREQUENCY_LOW(50000);
+	const int ENGINE_FREQUENCY_HIGH(120000);
+
 }

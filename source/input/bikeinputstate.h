@@ -21,10 +21,12 @@ namespace input
 		float getAcceleration();
 		void setAngle(float angle);
 		void setAcceleration(float acceleration);
-
+		void setTurboPressed(bool pressed);
+		bool getTurboPressed();
 	private:
 		float m_acceleration;
 		float m_angle;
+		float m_turboPressed;
 	};
 }
 }

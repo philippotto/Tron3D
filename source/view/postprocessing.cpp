@@ -118,7 +118,7 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 	// important to reflect the change in size for the FBO
 	if (m_allCameras.size() > 0)
 	{
-		for (size_t i = 0, iEnd = m_allCameras.size(); i<iEnd; i++)
+		for (size_t i = 0, iEnd = m_allCameras.size(); i < iEnd; i++)
 		{
 			m_allCameras[i]->setRenderingCache(0);
 			if (i  != 0 && i != iEnd - 1 && HALF_PINGPONGTEXTURE_WIDTH)
