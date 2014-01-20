@@ -237,10 +237,10 @@ bool TroenGame::initializeGameLogic()
 
 bool TroenGame::initializeViews()
 {
-	//m_statsHandler = new osgViewer::StatsHandler;
-	//m_statsHandler->setKeyEventTogglesOnScreenStats(osgGA::GUIEventAdapter::KEY_T);
-	//m_statsHandler->setKeyEventPrintsOutStats(osgGA::GUIEventAdapter::KEY_P);
-	//m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
+	m_statsHandler = new osgViewer::StatsHandler;
+	m_statsHandler->setKeyEventTogglesOnScreenStats(osgGA::GUIEventAdapter::KEY_T);
+	m_statsHandler->setKeyEventPrintsOutStats(osgGA::GUIEventAdapter::KEY_P);
+	m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
 
 	m_gameEventHandler = new GameEventHandler(this, m_gameLogic);
 
@@ -265,7 +265,7 @@ bool TroenGame::initializeViews()
 			bikeController->attachGameView(newGameView);
 			
 			newGameView->addEventHandler(m_gameEventHandler);
-			//newGameView->addEventHandler(m_statsHandler);
+			newGameView->addEventHandler(m_statsHandler);
 
 			m_gameViews.push_back(newGameView);
 
@@ -402,11 +402,13 @@ bool TroenGame::initializeInput()
 	for (auto bikeController : m_bikeControllers)
 	{
 		currentIndex++;
-		// attach keyboard handler to the gameView if existent
-		if (bikeController->hasEventHandler())
+		// attach all keyboard handlers to all gameViews
+		if (bikeController->hasKeyboardHandler())
 		{
-			// TODO register on all windows so that it doesnt matter which is activated
-			m_gameViews[0]->addEventHandler(bikeController->getEventHandler());
+			for (auto gameView : m_gameViews)
+			{
+				gameView->addEventHandler(bikeController->getKeyboardHandler());
+			}
 		}
 	}
 	return true;
@@ -557,6 +559,7 @@ bool TroenGame::shutdown()
 	m_viewers.clear();
 	for (auto gameView : m_gameViews)
 		gameView = nullptr;
+	m_gameViews.clear();
 
 	m_statsHandler = nullptr;
 
@@ -566,8 +569,14 @@ bool TroenGame::shutdown()
 	m_levelController.reset();
 	m_bikeControllers.clear();
 
+
+	// TODO: is this still necessary if we clear the vector?
 	for (auto hudController : m_HUDControllers)
 		hudController.reset();
+
+	m_HUDControllers.clear();
+
+	m_playerNodes.clear();
 
 	// sound
 	m_audioManager->StopSFXs();

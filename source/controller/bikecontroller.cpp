@@ -164,12 +164,12 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 	}
 }
 
-osg::ref_ptr<input::Keyboard> BikeController::getEventHandler()
+osg::ref_ptr<input::Keyboard> BikeController::getKeyboardHandler()
 {
 	return m_keyboardHandler;
 }
 
-bool BikeController::hasEventHandler()
+bool BikeController::hasKeyboardHandler()
 {
 	return m_keyboardHandler != nullptr;
 }
