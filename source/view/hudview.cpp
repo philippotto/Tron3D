@@ -53,7 +53,7 @@ osg::Camera* HUDView::createHUD()
 		osg::Geode* geode = new osg::Geode();
 		m_savedGeode = geode;
 
-		osgText::Font *timesFont = osgText::readFontFile("../data/fonts/Tr2n.ttf");
+		osgText::Font *timesFont = osgText::readFontFile("fonts/arial.ttf");
 
 		// turn lighting off for the text and disable depth test to ensure it's always ontop.
 		osg::StateSet* stateset = geode->getOrCreateStateSet();
