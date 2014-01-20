@@ -84,7 +84,7 @@ namespace troen
 	class PostProcessing;
 	class NodeFollowCameraManipulator;
 	class ResourcePool;
-	
+	class SplineDeformationRendering;
 
 	namespace util
 	{

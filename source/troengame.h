@@ -48,6 +48,10 @@ namespace troen
 		void setFovy(float newFovy);
 		float getFovy();
 
+		SplineDeformationRendering* getBendedViews() {
+			return m_deformationRendering;
+		}
+
 	public slots:
 		void prepareAndStartGame(GameConfig config);
 
@@ -105,6 +109,9 @@ namespace troen
 		std::vector<osg::Vec3> m_playerColors;
 
 		ResourcePool m_resourcePool;
+
+		// BendedViews
+		SplineDeformationRendering* m_deformationRendering;
 
 		bool m_simulationPaused;
 

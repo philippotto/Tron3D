@@ -4,6 +4,7 @@
 #include "troengame.h"
 #include "gamelogic.h"
 #include "view/shaders.h"
+#include "BendedViews/src/SplineDeformationRendering.h"
 
 namespace troen
 {
@@ -37,7 +38,9 @@ namespace troen
 				case osgGA::GUIEventAdapter::KEY_R:
 				{
 					std::cout << "Reloading shaders" << std::endl;
-					shaders::reloadShaders();
+					// shaders::reloadShaders();
+					m_troenGame->getBendedViews()->reloadShaders();
+
 				}
 				case osgGA::GUIEventAdapter::KEY_Shift_R:
                 case osgGA::GUIEventAdapter::KEY_Shift_L:

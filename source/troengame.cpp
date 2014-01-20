@@ -4,6 +4,7 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
+#include <osg/BoundingSphere>
 #include <osgViewer/ViewerEventHandlers>
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
@@ -32,6 +33,8 @@
 #include "view/skydome.h"
 #include "view/postprocessing.h"
 #include "view/nodefollowcameramanipulator.h"
+
+#include "BendedViews/src/SplineDeformationRendering.h"
 
 #include "globals.h"
 
@@ -357,11 +360,15 @@ bool TroenGame::composeSceneGraph()
 		//explicit call, to enable glow from start
 		resize(viewport->width(), viewport->height());
 	}
-	else
+	else {
 		m_sceneNode = m_rootNode;
 
-	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
-	m_sceneNode->addChild(m_skyDome.get());
+
+	}
+		
+
+	/*m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
+	m_sceneNode->addChild(m_skyDome.get());*/
 
 	m_sceneNode->addChild(m_levelController->getViewNode());
 	m_sceneNode->addChild(m_sunLightSource.get());
@@ -373,16 +380,50 @@ bool TroenGame::composeSceneGraph()
 
 	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
 
-	m_rootNode->addChild(m_hudSwitch);
+	/*m_rootNode->addChild(m_hudSwitch);
 	if (m_usePostProcessing)
-		m_rootNode->addChild(m_sceneNode);
+		m_rootNode->addChild(m_sceneNode);*/
 
-	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
+	/*osg::ref_ptr<osg::Group> radarScene = new osg::Group;
 	for (auto bikeController : m_bikeControllers)
-		radarScene->addChild(bikeController->getViewNode());
-	radarScene->addChild(m_levelController->getViewNode());
+		radarScene->addChild(bikeController->getViewNode());*/
+	//radarScene->addChild(m_levelController->getViewNode());
 
-	m_HUDController->attachSceneToRadarCamera(radarScene);
+	//m_HUDController->attachSceneToRadarCamera(radarScene);
+
+
+
+
+	m_deformationRendering = new SplineDeformationRendering(m_sceneNode);
+
+	m_deformationRendering->m_camera = m_gameView->getCamera();
+
+	/*m_osgView->setSceneData(m_root.get());*/
+
+	// get scene proportions
+	// const osg::BoundingSphere& bs = m_sceneNode->getBound();
+	//bs.radius()
+	float radius = 10000;
+	
+	// setup camera
+	osg::ref_ptr<osg::Camera> cam = m_gameView->getCamera();
+	double fov, aspectRatio, nearD, farD;
+	// simply set near and far plane to model-specific (bb-radius) values
+	cam->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+	cam->setViewport(0, 0, 1024, 768);
+	cam->getProjectionMatrixAsPerspective(fov, aspectRatio, nearD, farD);
+	nearD = 0.1;
+	farD = radius *2.0;
+	cam->setProjectionMatrixAsPerspective(fov, aspectRatio, nearD, farD);
+
+	// propagate new planes
+	m_deformationRendering->setDeformationStartEnd(nearD, farD);
+
+	m_deformationRendering->toggleDeactiv(false);
+	m_deformationRendering->setPreset(0);
+
+
+	//m_sceneNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::BIKE], osg::StateAttribute::ON);
 
 	return true;
 }
