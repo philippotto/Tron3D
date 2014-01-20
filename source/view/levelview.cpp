@@ -60,14 +60,16 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
 
-	osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
+	floorsGroup->addChild(osgDB::readNodeFile("data/models/images/checkerboard.3DS"));
+
+	/*osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
     addShaderAndUniforms(floors, shaders::GRID, levelSize);
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
 
 	osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());
 	radarFloors->setNodeMask(CAMERA_MASK_RADAR);
-	floorsGroup->addChild(radarFloors);
+	floorsGroup->addChild(radarFloors);*/
 
     return floorsGroup;
 }
@@ -95,12 +97,12 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 
 void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Group>& group, int shaderIndex, int levelSize)
 {
-	osg::StateSet *stateSet = group->getOrCreateStateSet();
+	/*osg::StateSet *stateSet = group->getOrCreateStateSet();
 	stateSet->ref();
 
 	stateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaderIndex], osg::StateAttribute::ON);
 	stateSet->addUniform(new osg::Uniform("levelSize", levelSize));
-	stateSet->addUniform(new osg::Uniform("modelID", DEFAULT));
+	stateSet->addUniform(new osg::Uniform("modelID", DEFAULT));*/
 }
 
 osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel> &boxes)
@@ -116,6 +118,7 @@ osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel>
 		// create obstacle
 		osg::ref_ptr<osg::Box> box
 				= new osg::Box(osg::Vec3(0,0,0), dimensions.x(), dimensions.y(), dimensions.z());
+		
 		osg::ref_ptr<osg::ShapeDrawable> boxDrawable
 				= new osg::ShapeDrawable(box);
 		osg::ref_ptr<osg::Geode> boxGeode

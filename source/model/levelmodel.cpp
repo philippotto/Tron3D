@@ -16,19 +16,29 @@ LevelModel::LevelModel(const LevelController* levelController)
 
 	btScalar levelSize = btScalar(getLevelSize());
 
-	addWalls(levelSize, -10);
+	//addWalls(levelSize, -10);
 
 	addFloor(levelSize, -10);
 
-	auto_addObstacles();
+	//auto_addObstacles();
 }
 
 void LevelModel::addFloor(float size, float yPosition)
 {
-	m_floors.push_back({
-		btVector3(0, 0, yPosition),
-		btVector3(size, size, 20)
-	});
+
+	for (size_t x = 0; x < size; x+=60)
+	{
+		for (size_t y = 0; y < size; y+=60) {
+			m_floors.push_back({
+				btVector3(x-3000, y-3000, yPosition),
+				btVector3(size / 60, size / 60, 20)
+			});
+
+		}
+	}
+
+
+	
 
 	addBoxes(m_floors, LEVELGROUNDTYPE);
 }
