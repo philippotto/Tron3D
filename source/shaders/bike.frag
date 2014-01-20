@@ -17,7 +17,7 @@ in vec3 diffuseColor;
 uniform int modelID;
 uniform float glowIntensity;
 
-uniform float test;
+// uniform float test;
 
 in vec3 lightDirection;
 
@@ -52,7 +52,4 @@ void main()
 	int glowIntesity_int = int(clamp(0.0,100.0,glowIntensity*100.0));
 	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
 	gl_FragData[1] = vec4(modelID, glowIntensity,0,0);
-
-
-	gl_FragData[0] = vec4(test, 0, 0, 1.f);
 }

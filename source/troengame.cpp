@@ -83,26 +83,15 @@ void TroenGame::unpauseSimulation()
 	m_simulationPaused = false;
 }
 
-void TroenGame::setFovy(float newFovy)
-{
-	double fovy, aspect, znear, zfar;
-	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
-}
-
-float TroenGame::getFovy()
-{
-	double fovy, aspect, znear, zfar;
-	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-	return fovy;
-}
-
-
 void TroenGame::resize(int width, int height){
 	if (m_postProcessing){
 		m_postProcessing->setupTextures(width, height);
 	}
-	m_HUDController->resize(width, height);
+	
+	for (auto hudController : m_HUDControllers)
+	{
+		hudController->resize(width, height);
+	}
 }
 
 
@@ -132,8 +121,7 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 bool TroenGame::initialize()
 {
 	m_rootNode = new osg::Group;
-	m_firstPlayerGroup = new osg::Group();
-	m_secondPlayerGroup = new osg::Group();
+	
 
 	// careful about the order of initialization
 	osg::DisplaySettings::instance()->setNumMultiSamples(NUM_MULTISAMPLES);
@@ -152,7 +140,6 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] controllers (models & views) ..." << std::endl;
 	initializeSkyDome();
 	initializeControllers();
-	initializeHud();
 	initializeLighting();
 
 	std::cout << "[TroenGame::initialize] gameLogic ..." << std::endl;
@@ -221,17 +208,10 @@ bool TroenGame::initializeControllers()
 			&m_resourcePool)
 		);
 	}
-	m_HUDController = std::make_shared<HUDController>(m_bikeControllers[0]);
-	return true;
-}
-
-bool TroenGame::initializeHud()
-{
-	m_hudSwitch = new osg::Switch();
-	m_hudSwitch->setNewChildDefaultValue(false);
-	m_hudSwitch->addChild(m_HUDController->getViewNode());
-	unsigned int childIndex = m_hudSwitch->getChildIndex(m_HUDController->getViewNode());
-	m_hudSwitch->setSingleChildOn(childIndex);
+	
+	for (auto bikeController : m_bikeControllers) {
+		m_HUDControllers.push_back(std::make_shared<HUDController>(bikeController));
+	}
 
 	return true;
 }
@@ -257,80 +237,82 @@ bool TroenGame::initializeGameLogic()
 
 bool TroenGame::initializeViews()
 {
-	m_gameView = new osgViewer::View;
-	m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
-	//m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
-
-	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
-		= new NodeFollowCameraManipulator();
-	m_bikeControllers[0]->attachTrackingCamera(manipulator);
-	m_gameView->setCameraManipulator(manipulator.get());
-
-	m_statsHandler = new osgViewer::StatsHandler;
-	m_statsHandler->setKeyEventTogglesOnScreenStats(osgGA::GUIEventAdapter::KEY_T);
-	m_statsHandler->setKeyEventPrintsOutStats(osgGA::GUIEventAdapter::KEY_P);
-	m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
-	m_gameView->addEventHandler(m_statsHandler);
-
-	m_gameView->setSceneData(m_firstPlayerGroup);
-#ifdef WIN32
-	if (m_fullscreen)
-		m_gameView->apply(new osgViewer::SingleScreen(0));
-	else
-		m_gameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
-#else
-    if (m_fullscreen)
-		m_gameView->setUpViewOnSingleScreen(0);
-	else
-		m_gameView->setUpViewInWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
-#endif
+	//m_statsHandler = new osgViewer::StatsHandler;
+	//m_statsHandler->setKeyEventTogglesOnScreenStats(osgGA::GUIEventAdapter::KEY_T);
+	//m_statsHandler->setKeyEventPrintsOutStats(osgGA::GUIEventAdapter::KEY_P);
+	//m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
 
 	m_gameEventHandler = new GameEventHandler(this, m_gameLogic);
-	m_gameView->addEventHandler(m_gameEventHandler);
 
-	m_bikeControllers[0]->attachGameView(m_gameView);
+	
+		int currentIndex = -1;
+		for (auto bikeController : m_bikeControllers) {
+			currentIndex++;
 
-	if (m_splitscreen)
-	{
-		m_gameView2 = new osgViewer::View;
-		m_gameView2->getCamera()->setCullMask(CAMERA_MASK_MAIN);
+			// TODO: is there a better place for this?
+			m_playerNodes.push_back(new osg::Group());
+			
+			osg::ref_ptr<osgViewer::View> newGameView = new osgViewer::View();
+			newGameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
+			newGameView->setSceneData(m_playerNodes[currentIndex]);
 
-		osg::ref_ptr<NodeFollowCameraManipulator> manipulator2
-			= new NodeFollowCameraManipulator();
-		m_bikeControllers[1]->attachTrackingCamera(manipulator2);
-		m_gameView2->setCameraManipulator(manipulator2.get());
+			osg::ref_ptr<NodeFollowCameraManipulator> manipulator
+				= new NodeFollowCameraManipulator();
+			
+			newGameView->setCameraManipulator(manipulator.get());
+			
+			bikeController->attachTrackingCamera(manipulator);
+			bikeController->attachGameView(newGameView);
+			
+			newGameView->addEventHandler(m_gameEventHandler);
+			//newGameView->addEventHandler(m_statsHandler);
 
-		m_gameView2->setSceneData(m_secondPlayerGroup);
-		m_gameView2->setUpViewInWindow(500, 500, 640, 480);
+			m_gameViews.push_back(newGameView);
 
-		m_bikeControllers[1]->attachGameView(m_gameView2);
-	}
+
+#ifdef WIN32
+			if (m_fullscreen)
+				newGameView->apply(new osgViewer::SingleScreen(0));
+			else
+				newGameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
+#else
+			if (m_fullscreen)
+				newGameView->setUpViewOnSingleScreen(0);
+			else
+				newGameView->setUpViewInWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+#endif
+
+			if (!m_splitscreen)
+				break;
+		}
+	
 
 	return true;
 }
 
 bool TroenGame::initializeViewer()
 {
-	m_sampleOSGViewer = new SampleOSGViewer();
-	m_sampleOSGViewer.get()->addView(m_gameView);
-
-#ifdef WIN32
-	// turn of vSync (we implement an adaptive gameLoop that syncs itself)
-	osg::ref_ptr<RealizeOperation> operation = new RealizeOperation;
-	m_sampleOSGViewer->setRealizeOperation(operation);
-	m_sampleOSGViewer->realize();
-#endif
-
-	if (m_splitscreen)
+	int currentIndex = -1;
+	for (auto bikeController : m_bikeControllers)
 	{
-		m_sampleOSGViewer2 = new SampleOSGViewer();
-		m_sampleOSGViewer2.get()->addView(m_gameView2);
+		currentIndex++;
+
+		osg::ref_ptr<SampleOSGViewer> viewer = new SampleOSGViewer();
+		// TODO: splitscreen gameviews...
+		viewer.get()->addView(m_gameViews[0]);
 
 #ifdef WIN32
-		m_sampleOSGViewer2->setRealizeOperation(operation);
-		m_sampleOSGViewer2->realize();
+		// turn of vSync (we implement an adaptive gameLoop that syncs itself)
+		osg::ref_ptr<RealizeOperation> operation = new RealizeOperation;
+		viewer->setRealizeOperation(operation);
+		viewer->realize();
 #endif
+		m_viewers.push_back(viewer);
+		if (!m_splitscreen)	{
+			return true;
+		}
 	}
+
 
 	return true;
 }
@@ -355,7 +337,8 @@ bool TroenGame::composeSceneGraph()
 
 	if (m_usePostProcessing)
 	{
-		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
+		// viewport of all windows has to be equal since only the first is taken for PostProcessing Texture Sizes
+		osg::Viewport * viewport = m_gameViews[0]->getCamera()->getViewport();
 
 		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
 		
@@ -367,14 +350,16 @@ bool TroenGame::composeSceneGraph()
 	else
 		m_sceneNode = m_rootNode;
 
-	m_firstPlayerGroup->addChild(m_rootNode);
-	m_secondPlayerGroup->addChild(m_rootNode);
+	for (auto playerNode : m_playerNodes) {
+		playerNode->addChild(m_rootNode);
+	}
+	
 
-	m_test1 = new osg::Uniform("test", 0.1);
-	m_firstPlayerGroup->getOrCreateStateSet()->addUniform(m_test1);
+	// TODO (Philipp): uniforms
+	/*m_test1 = new osg::Uniform("test", 0.1);
+	m_firstPlayerGroup->getOrCreateStateSet()->addUniform(m_test1);*/
+	
 
-	m_test2 = new osg::Uniform("test", 0.9);
-	m_secondPlayerGroup->getOrCreateStateSet()->addUniform(m_test2);
 
 	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
 	m_sceneNode->addChild(m_skyDome.get());
@@ -389,7 +374,13 @@ bool TroenGame::composeSceneGraph()
 
 	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
 
-	m_rootNode->addChild(m_hudSwitch);
+	int currentIndex = -1;
+	for (auto playerNode : m_playerNodes) {
+		currentIndex++;
+		playerNode->addChild(m_HUDControllers[currentIndex]->getViewNode());
+	}
+		
+
 	if (m_usePostProcessing)
 		m_rootNode->addChild(m_sceneNode);
 
@@ -398,19 +389,24 @@ bool TroenGame::composeSceneGraph()
 		radarScene->addChild(bikeController->getViewNode());
 	radarScene->addChild(m_levelController->getViewNode());
 
-	m_HUDController->attachSceneToRadarCamera(radarScene);
+	for (auto hudController : m_HUDControllers) {
+		hudController->attachSceneToRadarCamera(radarScene);
+	}	
 
 	return true;
 }
 
 bool TroenGame::initializeInput()
 {
+	int currentIndex = -1;
 	for (auto bikeController : m_bikeControllers)
 	{
+		currentIndex++;
 		// attach keyboard handler to the gameView if existent
 		if (bikeController->hasEventHandler())
 		{
-			m_gameView->addEventHandler(bikeController->getEventHandler());
+			// TODO register on all windows so that it doesnt matter which is activated
+			m_gameViews[0]->addEventHandler(bikeController->getEventHandler());
 		}
 	}
 	return true;
@@ -464,7 +460,8 @@ void TroenGame::startGameLoop()
 	bool nearPlaneAdapted = false;
 
 	// GAME LOOP
-	while (!m_sampleOSGViewer->done())
+	// terminates when first viewer is closed
+	while (!m_viewers[0]->done())
 	{
 		long double currTime = m_timer->elapsed();
 		g_currentTime = currTime;
@@ -504,28 +501,18 @@ void TroenGame::startGameLoop()
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
-				m_HUDController->update();
-				m_sampleOSGViewer->frame();
-				if (m_splitscreen) m_sampleOSGViewer2->frame();
-
-				// TODO: find a way to eleminate this workaround
+				for (auto hudController : m_HUDControllers)
+					hudController->update();
+				
+				for (auto viewer : m_viewers) {
+					viewer->frame();
+				}
+				
 				if (!nearPlaneAdapted) {
+					// TODO: find a way to eleminate this workaround
 					// doesn't work if it's executed earlier
-					double fovy, aspect, znear, zfar;
-					m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-					m_gameView->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
-					znear = 1.0;
-					m_gameView->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-					if (m_splitscreen)
-					{
-						m_gameView2->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-						m_gameView2->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
-						znear = 1.0;
-						m_gameView2->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-
-
-
-						
+					for (auto gameView : m_gameViews) {
+						fixCulling(gameView);
 					}
 				}
 
@@ -567,10 +554,10 @@ bool TroenGame::shutdown()
 	m_gameLogic.reset();
 
 	//viewer & views
-	m_sampleOSGViewer = nullptr;
-	m_sampleOSGViewer2 = nullptr;
-	m_gameView = nullptr;
-	m_gameView2 = nullptr;
+	m_viewers.clear();
+	for (auto gameView : m_gameViews)
+		gameView = nullptr;
+
 	m_statsHandler = nullptr;
 
 	// models & scenegraph
@@ -578,8 +565,9 @@ bool TroenGame::shutdown()
 
 	m_levelController.reset();
 	m_bikeControllers.clear();
-	m_HUDController.reset();
-	m_hudSwitch = nullptr;
+
+	for (auto hudController : m_HUDControllers)
+		hudController.reset();
 
 	// sound
 	m_audioManager->StopSFXs();
@@ -592,3 +580,12 @@ bool TroenGame::shutdown()
 	std::cout << "[TroenGame::shutdown] shutdown complete " << std::endl;
 	return true;
 }
+
+void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View>& view)
+{
+	double fovy, aspect, znear, zfar;
+	view->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	view->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+	znear = 1.0;
+	view->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+};

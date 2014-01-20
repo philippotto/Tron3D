@@ -36,6 +36,7 @@ m_initialTransform(initialTransform)
 
 	m_health = BIKE_DEFAULT_HEALTH;
 	m_points = 0;
+	m_speed = 0;
 	m_timeOfLastCollision = -1;
 
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
