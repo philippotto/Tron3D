@@ -8,6 +8,8 @@
 #include <osg/PositionAttitudeTransform>
 #include <osg/ShapeDrawable>
 #include <osgGA/GUIEventAdapter>
+#include <osg/Group>
+
 // troen
 #include "forwarddeclarations.h"
 
@@ -115,5 +117,12 @@ namespace troen
 		bool m_usePostProcessing;
 		bool m_useDebugView;
 		bool m_testPerformance;
+
+
+		osg::Uniform* m_test1;
+		osg::Uniform* m_test2;
+
+		osg::Group *m_g1;
+		osg::Group *m_g2;
 	};
 }

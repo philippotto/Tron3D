@@ -17,6 +17,8 @@ in vec3 diffuseColor;
 uniform int modelID;
 uniform float glowIntensity;
 
+uniform float test;
+
 in vec3 lightDirection;
 
 in float attenuation;
@@ -26,28 +28,31 @@ void main()
 	//float shininess = 10.0;
 
 	vec3 specularReflection;
-	
+
 	vec3 normal =  normalDirection *  normalize(texture2D(normalTexture, texCoord).rgb * 2.0 - 1.0);
 
 	// light source on the wrong side?
-	if (dot(normal, lightDirection) < 0.0) 
+	if (dot(normal, lightDirection) < 0.0)
 	{
 		// no specular reflection
-		specularReflection = vec3(0.0, 0.0, 0.0); 
+		specularReflection = vec3(0.0, 0.0, 0.0);
 	}
 	else // light source on the right side
 	{
-		specularReflection = attenuation 
-			* vec3(1.0) 
+		specularReflection = attenuation
+			* vec3(1.0)
 			* specularMaterialColor.xyz
 			* texture(specularTexture,texCoord).rgb
-			* pow(max(0.0,(dot(reflect(-lightDirection, normal), viewDirection))), 
+			* pow(max(0.0,(dot(reflect(-lightDirection, normal), viewDirection))),
 			shininess * 0.8);
 	}
-	
+
 	gl_FragData[0] = vec4(diffuseColor  * texture2D(diffuseTexture,texCoord).rgb + specularReflection, texture2D(diffuseTexture,texCoord).a);
 
 	int glowIntesity_int = int(clamp(0.0,100.0,glowIntensity*100.0));
 	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
 	gl_FragData[1] = vec4(modelID, glowIntensity,0,0);
+
+
+	gl_FragData[0] = vec3(test, 0, 0, 1.f);
 }
