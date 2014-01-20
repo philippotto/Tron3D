@@ -2,6 +2,7 @@
 // troen
 #include "bikeinputstate.h"
 #include "../constants.h"
+#include "../globals.h"
 #include <cmath>
 
 // VID and PID values of the specific device
@@ -17,6 +18,27 @@ GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDev
 
 	//initialise hid api
 	hid_init();
+
+	_controller = hid_open(VID, PID, nullptr);
+
+	for (int i = 0; i < 100096; i++) {
+		unsigned char* b = (unsigned char*)malloc(i);
+		//memset(b, 255, sizeof(b));
+		//b[0] = 0;
+		//b[(int) g_currentTime / 1000] = 255;
+		//std::cout << pow(2.f, (float)((int)g_currentTime / 1000)) << std::endl;
+		//printBinary(b, 0, sizeof(b));
+		//std::cout << hid_write(_controller, b, sizeof(b)) << std::endl;
+		memset(b, 0, sizeof(b));
+		b[0] = 0;
+		if (hid_get_feature_report(_controller, b, sizeof(b)) != -1)
+		//if (hid_read(_controller, b, i) != -1)
+			std::cout << "FOUND" << i << std::endl;
+		std::cout << _controller->output_report_length << std::endl;
+		//std::cout << b << std::endl;
+		//std::wcout << hid_error(_controller) << std::endl;
+		//free(b);
+	}
 }
 
 GamepadPS4::~GamepadPS4()
@@ -102,6 +124,23 @@ int GamepadPS4::getBitAt(int k, unsigned char * buffer){
 	return -1;
 }
 
+void printBinary(unsigned char *buffer, int iStart, int iEnd){
+	unsigned long ulBytes = 0x00;
+	unsigned long n = ulBytes;
+	for (int i = iStart; i<iEnd; i++) {
+		long n = ulBytes | buffer[i];
+		for (int j = 0; j < 8; j++) {
+			if (n & 1)
+				printf("1");
+			else
+				printf("0");
+			n >>= 1;
+		}
+		printf(" ");
+	}
+	printf("\n");
+}
+
 //check for events and handle them
 void GamepadPS4::run()
 {
@@ -145,8 +184,9 @@ void GamepadPS4::run()
 bool GamepadPS4::checkConnection(){
 	// Open the device using the vendor_id, product_id,
 	// and optionally the Serial number.
-	if ((_controller = hid_open(VID, PID, nullptr)) != nullptr)
-		return true;
+	//if ((_controller = hid_open(VID, PID, nullptr)) != nullptr)
+	//	return true;
 
-	return false;
+	//return false;
+	return true;
 }
