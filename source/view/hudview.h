@@ -24,8 +24,9 @@ namespace troen
 
 	private:
 		osg::Camera* createHUD();
-		void repositionHudElements(const int width, const int height);
 		osg::Camera* createRadar();
+
+		void resizeHudComponents(const int width, const int height);
 
 		osg::ref_ptr<osg::Camera> m_camera;
 		osg::ref_ptr<osg::Camera> m_radarCamera;

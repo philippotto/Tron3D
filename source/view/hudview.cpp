@@ -21,9 +21,8 @@
 
 using namespace troen;
 
-HUDView::HUDView(const osg::Vec4 playerColor) : m_trackNode(nullptr), m_playerColor(playerColor)
+HUDView::HUDView(const osg::Vec4 playerColor) : AbstractView(), m_trackNode(nullptr), m_playerColor(playerColor)
 {
-	AbstractView();
 	m_speedText = new osgText::Text();
 	m_healthText = new osgText::Text();
 	m_pointsText = new osgText::Text();
@@ -41,7 +40,7 @@ osg::Camera* HUDView::createHUD()
 
 	// set the projection matrix
 	m_camera->setViewport(new osg::Viewport(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
-	m_camera->setProjectionMatrix(osg::Matrix::ortho2D(0, 1000, 0, 1000));
+	m_camera->setProjectionMatrix(osg::Matrix::ortho2D(0, HUD_PROJECTION_SIZE, 0, HUD_PROJECTION_SIZE));
 	m_camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	m_camera->setViewMatrix(osg::Matrix::identity());
 	m_camera->setClearMask(GL_DEPTH_BUFFER_BIT);
@@ -59,17 +58,19 @@ osg::Camera* HUDView::createHUD()
 		osg::StateSet* stateset = geode->getOrCreateStateSet();
 		stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
-		int offset = 1000 / 20;
+		int offset = HUD_PROJECTION_SIZE / 20;
 		{
 			geode->addDrawable(m_speedText);
 
-			osg::Vec3 speedPosition(1000 - offset, offset, 0);
+			osg::Vec3 speedPosition(HUD_PROJECTION_SIZE - offset, offset, 0);
 
 			m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
 			m_speedText->setFont(font);
 			setSpeedText(0);
 			m_speedText->setPosition(speedPosition);
 			m_speedText->setColor(m_playerColor);
+			m_speedText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+			m_speedText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
 		}
 		{
 			geode->addDrawable(m_healthText);
@@ -79,52 +80,20 @@ osg::Camera* HUDView::createHUD()
 			m_healthText->setColor(m_playerColor);
 			setHealthText(100);
 			m_healthText->setAlignment(osgText::Text::AlignmentType::LEFT_BOTTOM);
+			m_healthText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+			m_healthText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
+
 		}
 		{
 			geode->addDrawable(m_pointsText);
 
 			m_pointsText->setFont(font);
-			m_pointsText->setPosition(osg::Vec3(offset, 1000 - offset ,0.f));
+			m_pointsText->setPosition(osg::Vec3(offset, HUD_PROJECTION_SIZE - offset ,0.f));
 			m_pointsText->setColor(m_playerColor);
 			setPointsText(0);
 			m_pointsText->setAlignment(osgText::Text::AlignmentType::LEFT_TOP);
-		}
-
-		{
-			//osg::BoundingBox bb;
-			//for (unsigned int i = 0; i<geode->getNumDrawables(); ++i)
-			//{
-			//	bb.expandBy(geode->getDrawable(i)->getBound());
-			//}
-
-			//osg::Geometry* geom = new osg::Geometry;
-
-			//osg::Vec3Array* vertices = new osg::Vec3Array;
-			//float depth = bb.zMin() - 0.1;
-			//vertices->push_back(osg::Vec3(bb.xMin(), bb.yMax(), depth));
-			//vertices->push_back(osg::Vec3(bb.xMin(), bb.yMin(), depth));
-			//vertices->push_back(osg::Vec3(bb.xMax(), bb.yMin(), depth));
-			//vertices->push_back(osg::Vec3(bb.xMax(), bb.yMax(), depth));
-			//geom->setVertexArray(vertices);
-
-			//osg::Vec3Array* normals = new osg::Vec3Array;
-			//normals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
-			//geom->setNormalArray(normals);
-			//geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
-
-			//osg::Vec4Array* colors = new osg::Vec4Array;
-			//colors->push_back(osg::Vec4(1.0f, 1.0, 0.8f, 0.2f));
-			//geom->setColorArray(colors);
-			//geom->setColorBinding(osg::Geometry::BIND_OVERALL);
-
-			//geom->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0, 4));
-
-			//osg::StateSet* stateset = geom->getOrCreateStateSet();
-			//stateset->setMode(GL_BLEND, osg::StateAttribute::ON);
-			////stateset->setAttribute(new osg::PolygonOffset(1.0f,1.0f),osg::StateAttribute::ON);
-			//stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-
-			//geode->addDrawable(geom);
+			m_pointsText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+			m_pointsText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 10);
 		}
 
 		m_camera->addChild(geode);
@@ -136,23 +105,21 @@ osg::Camera* HUDView::createHUD()
 
 void HUDView::resize(const int width,const int height)
 {
-	m_camera->setViewport(new osg::Viewport(0, 0, width, height));
-	repositionHudElements(width, height);
+	osg::ref_ptr<osg::Viewport> hudViewport = new osg::Viewport(0, 0, width, height);
+	m_camera->setViewport(hudViewport);
+	resizeHudComponents(width, height);
 	int offset = height / 20;
 	int size = height / 2.5;
-	m_radarCamera->setViewport(new osg::Viewport(offset, offset * 2, size, size));
+	osg::ref_ptr<osg::Viewport> radarViewport = new osg::Viewport(offset, offset * 4, size, size);
+	m_radarCamera->setViewport(radarViewport);
 }
 
-void HUDView::repositionHudElements(const int width, const int height)
+void HUDView::resizeHudComponents(const int width, const int height)
 {
-	//int offset = height / 20;
-	//int size = height / 2.5;
-
-	//m_speedText->setPosition(osg::Vec3(width - offset, offset, 0));
-	//m_pointsText->setPosition(osg::Vec3(offset, height,0));
-	//m_healthText->setPosition(osg::Vec3(offset, offset, 0.f));
+	m_speedText->setCharacterSize(height / 15);
+	m_healthText->setCharacterSize(height / 15);
+	m_pointsText->setCharacterSize(height / 10);
 }
-
 
 osg::Camera* HUDView::createRadar()
 {
