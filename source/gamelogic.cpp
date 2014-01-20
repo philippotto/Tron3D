@@ -24,7 +24,7 @@ GameLogic::GameLogic(
 	std::shared_ptr<LevelController> levelController,
 	std::vector<std::shared_ptr<BikeController>> bikeControllers) :
 m_troenGame(game),
-m_maxFenceParts(0),
+m_limitedFenceMode(true),
 m_audioManager(audioManager),
 m_levelController(levelController),
 m_bikeControllers(bikeControllers)
@@ -200,19 +200,18 @@ void GameLogic::removeAllFences()
 
 void GameLogic::toggleFencePartsLimit()
 {
-	if (m_maxFenceParts == 0){
-		m_maxFenceParts = DEFAULT_MAX_FENCE_PARTS;
+	m_limitedFenceMode = !m_limitedFenceMode;
+	if (m_limitedFenceMode){
 		std::cout << "[GameLogic::toggleFencePartsLimitEvent] turning fenceParsLimit ON ..." << std::endl;
 	}
 	else
 	{
-		m_maxFenceParts = 0;
 		std::cout << "[GameLogic::toggleFencePartsLimitEvent] turning fenceParsLimit OFF ..." << std::endl;
 	}
 
 	for (auto bikeController : m_bikeControllers)
 	{
-		bikeController->enforceFencePartsLimit(m_maxFenceParts);
+		bikeController->setLimitFence(m_limitedFenceMode);
 	}
 }
 

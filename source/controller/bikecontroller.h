@@ -41,7 +41,9 @@ namespace troen
 
 		// controlling the FenceController
 		void removeAllFences();
-		void enforceFencePartsLimit(int maxFenceParts);
+		void setLimitFence(bool boolean);
+		int getFenceLimit();
+
 		void activateTurbo();
 		float getTurboInitiation();
 
@@ -70,6 +72,7 @@ namespace troen
 		float m_speed;
 		bool m_turboInitiated = false;
 		float m_timeOfLastCollision;
+		bool m_fenceLimitActivated;
 
 	};
 }

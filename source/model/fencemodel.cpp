@@ -3,10 +3,11 @@
 #include "../constants.h"
 #include "physicsworld.h"
 #include "objectinfo.h"
+#include "../controller/fencecontroller.h"
 
 using namespace troen;
 
-FenceModel::FenceModel(FenceController* fenceController, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
+FenceModel::FenceModel(FenceController* fenceController)
 {
 	AbstractModel();
 	m_fenceController = fenceController;
@@ -54,7 +55,7 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 
 	m_world.lock()->addRigidBody(fenceRigidBody.get(),COLGROUP_FENCE, COLMASK_FENCE);
 
-	enforceFencePartsLimit(m_maxFenceParts);
+	enforceFencePartsLimit();
 }
 
 void FenceModel::removeAllFences()
@@ -66,10 +67,9 @@ void FenceModel::removeAllFences()
 	m_collisionShapeDeque.clear();
 }
 
-void FenceModel::enforceFencePartsLimit(int maxFenceParts)
+void FenceModel::enforceFencePartsLimit()
 {
-	if (m_maxFenceParts != maxFenceParts)
-		m_maxFenceParts = maxFenceParts;
+	int maxFenceParts = m_fenceController->getFenceLimit();
 
 	size_t rigidBodyDequeSize = m_rigidBodyDeque.size();
 	if (maxFenceParts != 0 && rigidBodyDequeSize > maxFenceParts)

@@ -40,7 +40,7 @@ m_initialTransform(initialTransform)
 
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
 
-	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
+	m_fenceController = std::make_shared<FenceController>(this, m_playerColor, m_initialTransform);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
@@ -274,6 +274,9 @@ void BikeController::updateModel(long double time)
 		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
 	}
 
+	// max speed: 360
+	// minimum fence length: 200 (or 400)
+	// in one second: add by 
 	increasePoints(speed / 1000);
 
 	if (m_gameView.valid()) {
@@ -303,9 +306,16 @@ void BikeController::removeAllFences()
 	m_fenceController->removeAllFences();
 }
 
-void BikeController::enforceFencePartsLimit(int maxFenceParts)
+void BikeController::setLimitFence(bool boolean)
 {
-	m_fenceController->enforceFencePartsLimit(getPoints());
+	m_fenceLimitActivated = boolean;
+}
+
+int BikeController::getFenceLimit() {
+	if (m_fenceLimitActivated)
+		return getPoints();
+	else
+		return 0;
 }
 
 void BikeController::moveBikeToPosition(btTransform transform)
