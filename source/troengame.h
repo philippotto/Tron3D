@@ -122,7 +122,7 @@ namespace troen
 		osg::Uniform* m_test1;
 		osg::Uniform* m_test2;
 
-		osg::Group *m_g1;
-		osg::Group *m_g2;
+		osg::Group *m_firstPlayerGroup;
+		osg::Group *m_secondPlayerGroup;
 	};
 }

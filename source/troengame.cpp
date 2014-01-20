@@ -49,8 +49,7 @@ m_usePostProcessing(false),
 m_testPerformance(false)
 {
 	QObject();
-	m_g1 = new osg::Group();
-	m_g2 = new osg::Group();
+	
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
 	}
@@ -133,6 +132,8 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 bool TroenGame::initialize()
 {
 	m_rootNode = new osg::Group;
+	m_firstPlayerGroup = new osg::Group();
+	m_secondPlayerGroup = new osg::Group();
 
 	// careful about the order of initialization
 	osg::DisplaySettings::instance()->setNumMultiSamples(NUM_MULTISAMPLES);
@@ -271,7 +272,7 @@ bool TroenGame::initializeViews()
 	m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
 	m_gameView->addEventHandler(m_statsHandler);
 
-	m_gameView->setSceneData(m_g1);
+	m_gameView->setSceneData(m_firstPlayerGroup);
 #ifdef WIN32
 	if (m_fullscreen)
 		m_gameView->apply(new osgViewer::SingleScreen(0));
@@ -299,7 +300,7 @@ bool TroenGame::initializeViews()
 		m_bikeControllers[1]->attachTrackingCamera(manipulator2);
 		m_gameView2->setCameraManipulator(manipulator2.get());
 
-		m_gameView2->setSceneData(m_g2);
+		m_gameView2->setSceneData(m_secondPlayerGroup);
 		m_gameView2->setUpViewInWindow(500, 500, 640, 480);
 
 		m_bikeControllers[1]->attachGameView(m_gameView2);
@@ -355,29 +356,25 @@ bool TroenGame::composeSceneGraph()
 	if (m_usePostProcessing)
 	{
 		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
+
 		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
-		//m_sceneNode = m_postProcessing->getSceneNode();
-
 		
-
-		m_g1->addChild(m_postProcessing->getSceneNode());
-		m_g2->addChild(m_postProcessing->getSceneNode());
-
-		m_test1 = new osg::Uniform("test", 0.1);
-		m_g1->getOrCreateStateSet()->addUniform(m_test1);
-
-		m_test2 = new osg::Uniform("test", 0.9);
-		m_g2->getOrCreateStateSet()->addUniform(m_test2);
-
-
-		m_sceneNode->addChild(m_g1);
-		m_sceneNode->addChild(m_g2);
+		m_sceneNode = m_postProcessing->getSceneNode();
 
 		//explicit call, to enable glow from start
 		resize(viewport->width(), viewport->height());
 	}
 	else
 		m_sceneNode = m_rootNode;
+
+	m_firstPlayerGroup->addChild(m_rootNode);
+	m_secondPlayerGroup->addChild(m_rootNode);
+
+	m_test1 = new osg::Uniform("test", 0.1);
+	m_firstPlayerGroup->getOrCreateStateSet()->addUniform(m_test1);
+
+	m_test2 = new osg::Uniform("test", 0.9);
+	m_secondPlayerGroup->getOrCreateStateSet()->addUniform(m_test2);
 
 	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
 	m_sceneNode->addChild(m_skyDome.get());

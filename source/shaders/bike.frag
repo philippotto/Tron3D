@@ -54,5 +54,5 @@ void main()
 	gl_FragData[1] = vec4(modelID, glowIntensity,0,0);
 
 
-	gl_FragData[0] = vec3(test, 0, 0, 1.f);
+	gl_FragData[0] = vec4(test, 0, 0, 1.f);
 }
