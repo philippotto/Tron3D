@@ -2,54 +2,61 @@
 // OSG
 #include <osg/BoundingBox>
 // STD
-#include <math.h>
+#include <cmath>
 // troen
+#include "../constants.h"
 #include "../input/bikeinputstate.h"
 #include "bikemotionstate.h"
+#include "objectinfo.h"
+#include "../controller/bikecontroller.h"
 
 using namespace troen;
 
-#define VMAX 1000
-#define FRICTION 10
-#define PI 3.14159265359
-
-BikeModel::BikeModel(osg::ref_ptr<osg::Group> node,
+BikeModel::BikeModel(
+	btTransform initialTransform,
+	osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<FenceController> fenceController,
-	BikeController* bikeController)
+	BikeController* bikeController) :
+m_lastUpdateTime(0)
 {
+	AbstractModel();
 	resetState();
+
+	m_bikeController = bikeController;
 
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
 
-	btVector3 bikeDimensions = btVector3( 12.5, 25, 12.5 );
-
-	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(bikeDimensions / 2);
+	std::shared_ptr<btBoxShape> bikeShape = std::make_shared<btBoxShape>(BIKE_DIMENSIONS / 2);
 
 	std::shared_ptr<BikeMotionState> bikeMotionState = std::make_shared<BikeMotionState>(
-		btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, bikeDimensions.z()/2)),
+		initialTransform,
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
 		fenceController,
-		bikeDimensions
+		this
 	);
-	
-	btScalar mass = 10;
-	btVector3 bikeInertia(0, 0, 0);
-	bikeShape->calculateLocalInertia(mass, bikeInertia);
 
-	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(mass, bikeMotionState.get(), bikeShape.get(), bikeInertia);
-	m_bikeRigidBodyCI.m_friction = 0;
+	// TODO
+	// make friction & ineartia work without wrong behaviour of bike (left turn)
+	btVector3 bikeInertia(0, 0, 0);
+	bikeShape->calculateLocalInertia(BIKE_MASS, bikeInertia);
+	//std::cout << bikeInertia.getX() << ".." << bikeInertia.getY() << ".." << bikeInertia.getZ() << std::endl;
+
+	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(BIKE_MASS, bikeMotionState.get(), bikeShape.get(), bikeInertia);
+	m_bikeRigidBodyCI.m_friction = 0.f;
+	//std::cout << m_bikeRigidBodyCI.m_friction << std::endl;
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 
-	bikeRigidBody->setCcdMotionThreshold(1 / bikeDimensions.y());
-	bikeRigidBody->setCcdSweptSphereRadius(bikeDimensions.x() / 2.0 - 0.5);
+	bikeRigidBody->setCcdMotionThreshold(1 / BIKE_DIMENSIONS.y());
+	bikeRigidBody->setCcdSweptSphereRadius(BIKE_DIMENSIONS.x() * .5f - BIKE_DIMENSIONS.x() * 0.01);
 	// this seems to be necessary so that we can move the object via setVelocity()
 	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
+
 	// for collision event handling
-	bikeRigidBody->setUserPointer(bikeController);
-	bikeRigidBody->setUserIndex(BIKETYPE);
+	ObjectInfo* info = new ObjectInfo(bikeController, BIKETYPE);
+	bikeRigidBody->setUserPointer(info);
 
 	bikeMotionState->setRigidBody(bikeRigidBody);
 
@@ -66,50 +73,124 @@ void BikeModel::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState
 void BikeModel::resetState()
 {
 	m_velocity = 0.0;
+	m_oldVelocity = 0.0;
 	m_rotation = 0.0;
+	m_bikeFriction = 1.0;
 }
 
-void BikeModel::updateState()
+float BikeModel::getSteering()
 {
-	const btVector3 up = btVector3(0, 0, 1);
+	return m_steering;
+}
+
+
+float BikeModel::getTurboFactor()
+{
+	// return value will either be between 0 and 1 or it is -1
+	// it indicates if the "turbo phase" has just started or if it is already over or if it was ended abruptly
+	// this can be used to compute the wheelyTilt of the bike
+	return m_turboFactor;
+}
+
+void BikeModel::updateTurboFactor(float newVelocity, float time)
+{
+	m_turboFactor = std::max(0.f, m_turboFactor);
+
+	if (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()) {
+		m_turboFactor = 1.f;
+		m_timeOfLastTurboInitiation = time;
+	}
+	else if (m_turboFactor > 0){
+		if (m_oldVelocity - newVelocity > THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE) {
+			// deactivate turbo phase if the bike speed was decreased abruptly (e.g. collision)
+			m_turboFactor = -1.f;
+		}
+		else {
+			const float turboPhaseLength = 2000;
+			m_turboFactor = 1 - (time - m_timeOfLastTurboInitiation) / turboPhaseLength;
+			m_turboFactor = std::max(0.f, m_turboFactor);
+		}
+	}
+
+}
+
+long double BikeModel::getTimeSinceLastUpdate()
+{
+	return m_timeSinceLastUpdate;
+}
+
+float BikeModel::updateState(long double time)
+{
+	m_timeSinceLastUpdate = time - m_lastUpdateTime;
+	float timeFactor = m_timeSinceLastUpdate / 16.6f;
+
+	m_lastUpdateTime = time;
+
 	const btVector3 front = btVector3(0, -1, 0);
 
 	// call this exactly once per frame
-	float angle = m_bikeInputState->getAngle();
-	float velocity = m_bikeInputState->getAcceleration();
+	m_steering = m_bikeInputState->getAngle();
+	float acceleration = m_bikeInputState->getAcceleration();
 
-	
+	// if the handbrake is pulled, reduce friction to allow drifting
+	m_bikeFriction = (abs(m_steering) > BIKE_ROTATION_VALUE) ? 0.03 : fmin(1.13 * m_bikeFriction, 1.0);
+
 	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
+
 	btVector3 currentVelocityVectorXY = bikeRigidBody->getLinearVelocity();
 	btScalar zComponent = currentVelocityVectorXY.getZ();
 	currentVelocityVectorXY = btVector3(currentVelocityVectorXY.getX(), currentVelocityVectorXY.getY(), 0);
+	btVector3 currentAngularVelocity = bikeRigidBody->getAngularVelocity();
 
+	// accelerate
+	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
+	// invsquared(t)   (1 - (1 - (t)) * (1 - (t)))
+	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
 
-	// initiate rotation
-	const float maximumTurn = 20;
-	const float turningRad = PI / 180 * angle * maximumTurn;
-	
+	// TODO: merge turboInitiation and turboPressed (Philipp)
+	float turboSpeed = 0;
+	// only initiate turbo, if no other turbo is active
+	if (getTurboFactor() == 0 && (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()))
+	{
+		turboSpeed =  BIKE_VELOCITY_MAX / 2;
+	}
+
+	float speed = currentVelocityVectorXY.length() + turboSpeed + ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
+
+	updateTurboFactor(speed, time);
+
+	// rotate:
+	// turnFactor
+	// -> stronger steering for low velocities
+	// -> weaker steering at high velocities
+	float turnFactor = clamp(.1,1, BIKE_VELOCITY_MIN / (.5f * speed));
+	float turningRad = PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor);
+
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
-	// accelerate	
-	const int maximumAcceleration = 5;
-	// const int dampFactor = 1;
-	
-	int speed = currentVelocityVectorXY.length() + velocity * maximumAcceleration;
+	if (speed > BIKE_VELOCITY_MAX) {
+		const float timeToSlowDown = 1000;
+		// decrease speed so that the user will reach the maximum speed within timeToSlowDown milli seconds
+		// this is done so that the turbo won't be resetted instantly
+		speed -= (speed - BIKE_VELOCITY_MAX) * m_timeSinceLastUpdate / timeToSlowDown;
+	}
 
-	if (speed > VMAX)
-		speed = VMAX;
+	if (speed < BIKE_VELOCITY_MIN)
+	 	speed = BIKE_VELOCITY_MIN;
+
+	m_oldVelocity = speed;
 
 	// adapt velocity vector to real direction
 
 	float quat =  bikeRigidBody->getOrientation().getAngle();
 	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
-	
-	currentVelocityVectorXY = front.rotate(axis, quat) * speed;
-	
+
+	// let the bike drift, if the friction is low
+	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, quat) * speed).normalized() * speed;
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
+	return speed;
 }
 
 float BikeModel::getRotation()
@@ -136,4 +217,11 @@ btVector3 BikeModel::getPositionBt()
 	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
 
 	return trans.getOrigin();
+}
+
+void BikeModel::moveBikeToPosition(btTransform position)
+{
+	m_rigidBodies[0]->setWorldTransform(position);
+	m_rigidBodies[0]->setAngularVelocity(btVector3(0, 0, 0));
+	m_rigidBodies[0]->setLinearVelocity(btVector3(0, 0, 0));
 }

@@ -1,4 +1,7 @@
 #pragma once
+
+#ifdef WIN32
+
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -19,11 +22,14 @@ namespace input
 			m_deadzoneX = 0.25f;
 			m_deadzoneY = 0.02f;
 		};
+		~Gamepad();
 		int getPort();
 		XINPUT_GAMEPAD* getState();
 		bool checkConnection();
-		bool refresh() override;
+		void run() override;
 		bool isPressed(unsigned short button);
+
+		void vibrate();
 
 	private:
 		int m_controllerId;
@@ -34,3 +40,5 @@ namespace input
 	};
 }
 }
+
+#endif

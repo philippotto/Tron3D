@@ -1,44 +1,25 @@
 #include "bikeinputstate.h"
 // troen
-#include "gamepad.h"
+#include "pollingdevice.h"
+#include "../constants.h"
 
 using namespace troen::input;
 
-#define MOVE_VALUE 2.0
-#define ROTATION_VALUE 5.0
-
 BikeInputState::BikeInputState()
 {
-	m_pollingEnabled = false;
 	m_acceleration = 0.0;
 	m_angle = 0.0;
-}
-
-void BikeInputState::setPollingDevice(std::shared_ptr<PollingDevice> pollingDevice)
-{
-	m_pollingEnabled = true;
-	m_pollingDevice = pollingDevice;
+	m_turboPressed = false;
 }
 
 float BikeInputState::getAngle()
 {
-	if (m_pollingEnabled)
-	{
-		m_pollingDevice->refresh();
-	}
-
-	return m_angle * ROTATION_VALUE;
+	return m_angle * BIKE_ROTATION_VALUE;
 }
 
 float BikeInputState::getAcceleration()
 {
-	// TODO dw: don't refresh twice
-	if (m_pollingEnabled)
-	{
-		m_pollingDevice->refresh();
-	}
-
-	return m_acceleration * MOVE_VALUE;
+	return m_acceleration;
 }
 
 void BikeInputState::setAngle(float angle)
@@ -50,3 +31,14 @@ void BikeInputState::setAcceleration(float acceleration)
 {
 	m_acceleration = acceleration;
 }
+
+bool BikeInputState::getTurboPressed()
+{
+	return m_turboPressed;
+}
+
+void BikeInputState::setTurboPressed(bool pressed)
+{
+	m_turboPressed = pressed;
+}
+

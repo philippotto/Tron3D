@@ -1,19 +1,20 @@
 // OSG
 #include <osgViewer/ViewerEventHandlers>
 // troen
-#include "TroenGame.h"
+#include "troengame.h"
+#include "gamelogic.h"
+#include "view/shaders.h"
 
 namespace troen
 {
 	class GameEventHandler : public osgGA::GUIEventHandler {
 	public:
-		GameEventHandler(TroenGame* game) : osgGA::GUIEventHandler(), m_troenGame(game) {}
-	protected:
-		GameEventHandler() :
-			m_troenGame(NULL) {
-		}
-		virtual ~GameEventHandler() {}
+		GameEventHandler(TroenGame* game, std::shared_ptr<GameLogic> gameLogic) :
+			osgGA::GUIEventHandler(),
+			m_troenGame(game),
+			m_gameLogic(gameLogic) {}
 
+	protected:
 		virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa, osg::Object*, osg::NodeVisitor*) {
 			switch (ea.getEventType()) {
 			case osgGA::GUIEventAdapter::KEYDOWN:
@@ -22,13 +23,26 @@ namespace troen
 					m_troenGame->switchSoundVolumeEvent();
 					return true;
 				case osgGA::GUIEventAdapter::KEY_C:
-					m_troenGame->removeAllFencesEvent();
+					m_gameLogic.lock()->removeAllFences();
+					return true;
+				case osgGA::GUIEventAdapter::KEY_I:
+					m_troenGame->setFovy(m_troenGame->getFovy() - 5);
+					return true;
+				case osgGA::GUIEventAdapter::KEY_O:
+					m_troenGame->setFovy(m_troenGame->getFovy() + 5);
 					return true;
 				case osgGA::GUIEventAdapter::KEY_F:
-					m_troenGame->toggleFencePartsLimitEvent();
+					m_gameLogic.lock()->toggleFencePartsLimit();
 					return true;
+				case osgGA::GUIEventAdapter::KEY_R:
+				{
+					std::cout << "Reloading shaders" << std::endl;
+					shaders::reloadShaders();
+					return true;
+				}
 				case osgGA::GUIEventAdapter::KEY_Shift_R:
-					m_troenGame->pauseGameEvent();
+                case osgGA::GUIEventAdapter::KEY_Shift_L:
+					m_troenGame->pauseEvent();
 					return true;
 				default:
 					break;
@@ -44,13 +58,13 @@ namespace troen
 			if (ea.getEventType() == osgGA::GUIEventAdapter::RESIZE)
 			{
 				// re setup textures to new size
-				m_troenGame->refreshTextures(ea);
+				m_troenGame->resize(ea.getWindowWidth(), ea.getWindowHeight());
 			}
 
 			return false;
-
 		}
 	private:
-		TroenGame*   m_troenGame;
+		TroenGame*					m_troenGame;
+		std::weak_ptr<GameLogic>	m_gameLogic;
 	};
 }

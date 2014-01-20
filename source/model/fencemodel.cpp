@@ -1,16 +1,20 @@
 #include "fencemodel.h"
 // troen
-#include "../model/physicsworld.h"
+#include "../constants.h"
+#include "physicsworld.h"
+#include "objectinfo.h"
+#include "../controller/fencecontroller.h"
 
 using namespace troen;
 
-FenceModel::FenceModel(FenceController* fenceController, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
+FenceModel::FenceModel(FenceController* fenceController)
 {
+	AbstractModel();
 	m_fenceController = fenceController;
 	m_rigidBodyDeque = std::deque<std::shared_ptr<btRigidBody>>();
 }
 
-void FenceModel::attachWorld(std::weak_ptr<PhysicsWorld>& world)
+void FenceModel::attachWorld(std::shared_ptr<PhysicsWorld>& world)
 {
 	m_world = world;
 }
@@ -18,10 +22,8 @@ void FenceModel::attachWorld(std::weak_ptr<PhysicsWorld>& world)
 void FenceModel::addFencePart(btVector3 a, btVector3 b)
 {
 	btVector3 fenceVector = b - a;
-	
-	std::shared_ptr<btBoxShape> fenceShape = std::make_shared<btBoxShape>(btVector3(1, fenceVector.length() / 2, getFenceHeight() / 2));
-	
-	const btVector3 up = btVector3(0, 0, 1);
+	std::shared_ptr<btBoxShape> fenceShape = std::make_shared<btBoxShape>(btVector3(FENCE_PART_WIDTH / 2, fenceVector.length() / 2, FENCE_HEIGHT_MODEL / 2));
+
 	const btVector3 forward = btVector3(0, 1, 0);
 	const btScalar angle = fenceVector.angle(forward);
 	const btScalar inverseAngle = fenceVector.angle(-1 * forward);
@@ -35,29 +37,25 @@ void FenceModel::addFencePart(btVector3 a, btVector3 b)
 		rotationQuat = btQuaternion(0, 0, 0, 1);
 	}
 
-	std::shared_ptr<btDefaultMotionState> fenceMotionState = std::make_shared<btDefaultMotionState>(btTransform(rotationQuat, (a + b) / 2 + btVector3(0, 0, getFenceHeight() / 2)));
+	std::shared_ptr<btDefaultMotionState> fenceMotionState = std::make_shared<btDefaultMotionState>(btTransform(rotationQuat, (a + b) / 2 + btVector3(0, 0, FENCE_HEIGHT_MODEL / 2)));
 
 	const btScalar mass = 0;
 	const btVector3 fenceInertia(0, 0, 0);
-	
+
 	btRigidBody::btRigidBodyConstructionInfo m_fenceRigidBodyCI(mass, fenceMotionState.get(), fenceShape.get(), fenceInertia);
 
 	std::shared_ptr<btRigidBody> fenceRigidBody = std::make_shared<btRigidBody>(m_fenceRigidBodyCI);
-	fenceRigidBody->setUserPointer(m_fenceController);
-	fenceRigidBody->setUserIndex(FENCETYPE);
+
+	ObjectInfo* info = new ObjectInfo(m_fenceController, FENCETYPE);
+	fenceRigidBody->setUserPointer(info);
 
 	m_collisionShapeDeque.push_back(fenceShape);
 	m_motionStateDeque.push_back(fenceMotionState);
 	m_rigidBodyDeque.push_back(fenceRigidBody);
 
-	m_world.lock()->addRigidBody(fenceRigidBody.get());
+	m_world.lock()->addRigidBody(fenceRigidBody.get(),COLGROUP_FENCE, COLMASK_FENCE);
 
-	enforceFencePartsLimit(m_maxFenceParts);
-}
-
-float FenceModel::getFenceHeight()
-{
-	return 15;
+	enforceFencePartsLimit();
 }
 
 void FenceModel::removeAllFences()
@@ -69,10 +67,9 @@ void FenceModel::removeAllFences()
 	m_collisionShapeDeque.clear();
 }
 
-void FenceModel::enforceFencePartsLimit(int maxFenceParts)
+void FenceModel::enforceFencePartsLimit()
 {
-	if (m_maxFenceParts != maxFenceParts)
-		m_maxFenceParts = maxFenceParts;
+	int maxFenceParts = m_fenceController->getFenceLimit();
 
 	size_t rigidBodyDequeSize = m_rigidBodyDeque.size();
 	if (maxFenceParts != 0 && rigidBodyDequeSize > maxFenceParts)

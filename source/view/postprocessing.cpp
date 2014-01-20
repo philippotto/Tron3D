@@ -10,22 +10,25 @@
 #include <osgDB/WriteFile>
 #include <osg/CullFace>
 #include <osg/TexGenNode>
-#include <osgUtil/CullVisitor>
-#include <osgViewer/Viewer>
 #include <osgGA/StateSetManipulator>
 #include <osgDB/FileNameUtils>
 #include <stdio.h>
 // troen
+
 #include "shaders.h"
+// ugly but convenient global statics for shaders    
+static osg::ref_ptr<osg::Uniform> g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
+#include "nearfarcallback.h"
+#include "timeupdate.h"
+
+#define HALF_PINGPONGTEXTURE_WIDTH true //for performance improvement, set to true
 
 using namespace troen;
 
-// ugly but convenient global statics for shaders    
-static osg::ref_ptr<osg::Uniform> g_nearFarUniform;
-
-PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Viewer* viewer, int width, int height)
-:m_root(rootNode), m_width(width), m_height(height), m_modelNode(new osg::Group())
+PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height)
+:m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height)
 {
+	AbstractView();
 	// init textures, will be recreated when screen size changes
 	setupTextures(m_width, m_height);
 
@@ -36,13 +39,13 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, osgViewer::Vie
 	// Multi pass rendering and Ping Pong //
 	////////////////////////////////////////
 
-	// 1. gBuffer pass: render color, normal&depth, id buffer
+	// 1. gBuffer pass: render color, normal & depth, id buffer
 	unsigned int pass = 0;
 	m_allCameras.push_back(gBufferPass()); 
 	m_root->addChild(m_allCameras[pass++]);
 	
 	// 2. prepare pass: render id buffer as seeds into PONG texture
-	TEXTURE_CONTENT pingPong[] = { PING, PONG };
+	//TEXTURE_CONTENT pingPong[] = { PING, PONG };
 	// start writing into PONG buffer (pass == 1 )
 
 	m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::SELECT_GLOW_OBJECTS, -1.0));
@@ -65,21 +68,41 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 	// 2D textures as render targets
 	//////////////////////////////////////////////////////////////////////////
 
+	int halfedWidth = width / 2;
+	int halfedHeight = height / 2;
+
 	// store color, normal & Depth, id in textures
 	m_fboTextures.resize(TEXTURE_CONTENT_SIZE);
 	for (int i = 0; i<m_fboTextures.size(); i++)
 	{
 		// only create textures on first run
-		if (!m_fboTextures[i])  
+
+		if (!m_fboTextures[i].get()) {
 			m_fboTextures[i] = new osg::Texture2D();
-		
-		m_fboTextures[i]->setTextureWidth(width);
-		m_fboTextures[i]->setTextureHeight(height);
+		}
+				
+		if ((i == PING || i == PONG) && HALF_PINGPONGTEXTURE_WIDTH) {
+			m_fboTextures[i]->setTextureWidth(halfedWidth);
+			m_fboTextures[i]->setTextureHeight(halfedHeight);
+		} else {
+			m_fboTextures[i]->setTextureWidth(width);
+			m_fboTextures[i]->setTextureHeight(height);
+		}
 
 		// higher resolution
-		m_fboTextures[i]->setInternalFormat(GL_RGBA32F_ARB);
-		m_fboTextures[i]->setSourceFormat(GL_RGBA);
-		m_fboTextures[i]->setSourceType(GL_FLOAT);
+		if (i == ID)
+		{
+			m_fboTextures[i]->setInternalFormat(GL_RG);
+			m_fboTextures[i]->setSourceFormat(GL_RG);
+			m_fboTextures[i]->setSourceType(GL_FLOAT);
+		}
+		else
+		{
+			m_fboTextures[i]->setInternalFormat(GL_RGBA);
+			m_fboTextures[i]->setSourceFormat(GL_RGBA);
+			m_fboTextures[i]->setSourceType(GL_FLOAT);
+		}
+
 		m_fboTextures[i]->setBorderWidth(0);
 		m_fboTextures[i]->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
 		m_fboTextures[i]->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
@@ -95,42 +118,16 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 	// important to reflect the change in size for the FBO
 	if (m_allCameras.size() > 0)
 	{
-		for (size_t i = 0, iEnd = m_allCameras.size(); i<iEnd; i++)
+		for (size_t i = 0, iEnd = m_allCameras.size(); i < iEnd; i++)
 		{
 			m_allCameras[i]->setRenderingCache(0);
+			if (i  != 0 && i != iEnd - 1 && HALF_PINGPONGTEXTURE_WIDTH)
+				// only draw with halfed resolution, if we process the gbuffer + postprocessing pass
+				m_allCameras[i]->setViewport(new osg::Viewport(0, 0, halfedWidth, halfedHeight));
 		}
 	}
 }
 
-
-class NearFarCallback : public osg::NodeCallback
-{
-	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
-	{
-		traverse(node, nv);
-
-		osgUtil::CullVisitor * cv = dynamic_cast<osgUtil::CullVisitor*> (nv);
-		if (cv)
-		{
-			double n = cv->getCalculatedNearPlane();
-			double f = cv->getCalculatedFarPlane();
-
-			osg::Matrixd m = *cv->getProjectionMatrix();
-			cv->clampProjectionMatrix(m, n, f);
-
-			if (n != m_oldNear || f != m_oldFar)
-			{
-				m_oldNear = n;
-				m_oldFar = f;
-				g_nearFarUniform->set(osg::Vec2(n, f));
-			}
-		}
-	}
-
-private:
-	double m_oldNear;
-	double m_oldFar;
-};
 
 // create gbuffer creation camera
 osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
@@ -139,7 +136,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	osg::ref_ptr<osg::Camera> cam = new osg::Camera();
 	// output textures
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
-	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
+	//cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
 
 	// Configure fboCamera to draw fullscreen textured quad
@@ -148,40 +145,28 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	cam->setReferenceFrame(osg::Camera::RELATIVE_RF);
-	cam->setRenderOrder(osg::Camera::PRE_RENDER, 0);
+	cam->setRenderOrder(osg::Camera::POST_RENDER, 0);
 
 	// need to know about near far changes for correct depth 
-	cam->setCullCallback(new NearFarCallback());
-	cam->addChild(m_modelNode);
+	//cam->setCullCallback(new NearFarCallback());
+	cam->addChild(m_sceneNode);
 
 	// attach shader program
-	cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-	cam->getOrCreateStateSet()->addUniform(new osg::Uniform("colorTex", COLOR));
-	cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
-	cam->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
-	cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
-	cam->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->addUniform(new osg::Uniform("colorTex", COLOR));
+	//cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 
-	g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
-	cam->getOrCreateStateSet()->addUniform(g_nearFarUniform);
+	//g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
+	//cam->getOrCreateStateSet()->addUniform(g_nearFarUniform);
 
 	return cam;
 }
 
-class timeUpdate : public osg::Uniform::Callback
-{
-public:
-	virtual void operator()
-		(osg::Uniform* uniform, osg::NodeVisitor* nv)
-	{
-		float time = nv->getFrameStamp()->getReferenceTime();
-		uniform->set(time);
-	}
-};
-
-
 // create skeleton creation camera 
-osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, int type, int step)
+osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, int shader, int step)
 {
 	osg::ref_ptr<osg::Camera> camera(new osg::Camera());
 
@@ -193,7 +178,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	camera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	camera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
-	camera->setRenderOrder(osg::Camera::PRE_RENDER, order);
+	camera->setRenderOrder(osg::Camera::POST_RENDER, order);
 
 	// geometry
 	osg::Geode* geode(new osg::Geode());
@@ -205,7 +190,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	osg::ref_ptr<osg::StateSet>	state = camera->getOrCreateStateSet();
 	state->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
 
-	state->setAttributeAndModes(shaders::m_allShaderPrograms[type], osg::StateAttribute::ON);
+	state->setAttributeAndModes(shaders::m_allShaderPrograms[shader], osg::StateAttribute::ON);
 
 	// add sampler textures	
 	state->addUniform(new osg::Uniform("inputLayer", inputTexture));
@@ -216,7 +201,11 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	// add time uniform
 	osg::Uniform* timeU = new osg::Uniform("time", 0.f);
 	state->addUniform(timeU);
-	timeU->setUpdateCallback(new timeUpdate());
+	timeU->setUpdateCallback(new TimeUpdate());
+
+	// add beat uniform
+	m_timeSinceLastBeat = new osg::Uniform("timeSinceLastBeat", 0.5f);
+	state->addUniform(m_timeSinceLastBeat);
 
 	state->setTextureAttributeAndModes(inputTexture, m_fboTextures[inputTexture], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
@@ -224,6 +213,10 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 	return camera.release();
 }
 
+void PostProcessing::setBeat(float beat)
+{
+	m_timeSinceLastBeat->set(beat);
+}
 
 // create post processing pass to put it all together
 osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
@@ -231,10 +224,10 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	osg::ref_ptr<osg::Camera> postRenderCamera(new osg::Camera());
 
 	// input textures
-	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
-	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
-	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
-	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + PONG), m_fboTextures[PONG]);
+	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + OLDCOLOR), m_fboTextures[OLDCOLOR]);
+	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
+	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
+	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + PONG), m_fboTextures[PONG]);
 
 	// configure postRenderCamera to draw fullscreen textured quad
 	postRenderCamera->setClearColor(osg::Vec4(0.0, 0.5, 0.0, 1)); // should never see this.
@@ -244,9 +237,9 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	// geometry
 	osg::Geode* geode(new osg::Geode());
 	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
-	/*geode->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
-	geode->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
-	geode->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
+	//geode->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
+	//geode->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
+	/*geode->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 	geode->getOrCreateStateSet()->setTextureAttributeAndModes(PONG, m_fboTextures[PONG], osg::StateAttribute::ON);*/
 	geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 	postRenderCamera->addChild(geode);
@@ -259,14 +252,16 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 
 	// add samplers	
 	state->addUniform(new osg::Uniform("sceneLayer", COLOR));
-	state->addUniform(new osg::Uniform("normalDepthLayer", NORMALDEPTH));
+	//state->addUniform(new osg::Uniform("normalDepthLayer", NORMALDEPTH));
 	state->addUniform(new osg::Uniform("idLayer", ID));
 	state->addUniform(new osg::Uniform("pongLayer", PONG));
+	state->addUniform(new osg::Uniform("oldLayer", OLDCOLOR));
 
 	state->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
-	state->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
+	//state->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(PONG, m_fboTextures[PONG], osg::StateAttribute::ON);
+	state->setTextureAttributeAndModes(OLDCOLOR, m_fboTextures[OLDCOLOR], osg::StateAttribute::ON);
 
 	return postRenderCamera;
 }

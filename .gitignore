@@ -15,15 +15,12 @@
 # build dir
 build
 /build
-/build
 /_configure.bat
 /_open-project.bat
 /_start-cmake-gui.bat
 /bin
-/build
 /lib
-/build
-/build
+/BendedViews
 
 CMakeLists.txt.user
 CMakeCache.txt
@@ -34,3 +31,5 @@ CMakeCache.txt
 fmod.log
 
 *.orig
+
+settings.ini

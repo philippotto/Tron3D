@@ -1,8 +1,5 @@
 #pragma once
 
-// necessary for wireframe debugging ? but with this variable, compilation fails
-// #define BT_USE_DOUBLE_PRECISION
-
 // STD includes we need everywhere
 #include <memory>
 #include <iostream>
@@ -33,11 +30,20 @@ namespace osg
 	class Geode;
 	class GraphicsContext;
 	class ShapeDrawable;
+	class Vec3f;
+	class Image;
 }
+
+namespace osgText
+{
+	class Text;
+}
+
 
 namespace osgGA
 {
 	class CameraManipulator;
+	class NodeTrackerManipulator;
 }
 
 // Bullet
@@ -47,9 +53,11 @@ class btDefaultCollisionConfiguration;
 class btCollisionDispatcher;
 class btBroadphaseInterface;
 class btRigidBody;
+class btCollisionObject;
 class btCollisionShape;
 class btPersistentManifold;
-
+class btVector3;
+class btTransform;
 
 
 // own classes
@@ -58,6 +66,7 @@ namespace troen
 	class TroenGame;
 	class SampleOSGViewer;
 	class GameEventHandler;
+	class GameLogic;
 
 	class BikeModel;
 	class LevelModel;
@@ -70,6 +79,7 @@ namespace troen
 	class FenceController;
 	class AbstractController;
 	class HUDController;
+	class ItemController;
 
 
 	class BikeView;
@@ -79,6 +89,9 @@ namespace troen
 	class HUDView;
 	class SkyDome;
 	class PostProcessing;
+	class NodeFollowCameraManipulator;
+	class ResourcePool;
+	
 
 	namespace util
 	{

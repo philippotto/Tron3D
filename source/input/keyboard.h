@@ -19,6 +19,7 @@ namespace input
 	protected:
 		osg::ref_ptr<BikeInputState> m_bikeInputState;
 		std::vector<osgGA::GUIEventAdapter::KeySymbol> m_keys;
+		float m_handbrakePressed = 0;
 	};
 }
 }

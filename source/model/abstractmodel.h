@@ -16,8 +16,27 @@ namespace troen
 		LEVELTYPE,
 		LEVELWALLTYPE,
 		LEVELGROUNDTYPE,
-		FENCETYPE
+		LEVELOBSTACLETYPE,
+		FENCETYPE,
+		ITEMTYPE
 	} COLLISIONTYPE;
+
+	// max 15 collision groups (enum -> short int)
+	enum CollisionGroups {
+		COLGROUP_NONE = 0,
+		COLGROUP_BIKE = 1 << 0,
+		COLGROUP_FENCE = 1 << 1,
+		COLGROUP_LEVEL = 1 << 2
+	};
+
+	// specifies with which other groups an object can collide with
+	// assuming its group is set in the add
+	enum CollisionMasks {
+		COLMASK_NONE = 0,
+		COLMASK_BIKE = COLGROUP_BIKE | COLGROUP_FENCE | COLGROUP_LEVEL,
+		COLMASK_FENCE = COLGROUP_BIKE,
+		COLMASK_LEVEL = COLGROUP_BIKE,
+	};
 
 	class AbstractModel
 	{

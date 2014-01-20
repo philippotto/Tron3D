@@ -1,10 +1,11 @@
 #include "sampleosgviewer.h"
+#include <iostream>
 
 using namespace troen;
 
-SampleOSGViewer::SampleOSGViewer(osg::GraphicsContext* context /*= NULL*/)
+SampleOSGViewer::SampleOSGViewer(osg::GraphicsContext* context /*= nullptr*/)
 {
-	setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
+	setThreadingModel(osgViewer::ViewerBase::ThreadingModel::SingleThreaded);
 }
 
 SampleOSGViewer::~SampleOSGViewer()

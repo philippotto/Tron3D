@@ -9,38 +9,35 @@
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
-
+#include "../resourcepool.h"
 
 
 namespace troen
 {
 
-	class BikeView : public AbstractView //, public osg::Referenced
+	class BikeView : public AbstractView
 	{
 	public:
-		BikeView(osg::Vec3 color);
-		//osg::ref_ptr<osg::MatrixTransform> get_rootNode();
-		void setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit);
-		osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::string specularTexturePath, std::string diffuseTexturePath, std::string normalTexturePath,
-			int modelIndex, float glowIntensity = 1.f);
-		osg::ref_ptr<osg::PositionAttitudeTransform> pat;
-		osg::ref_ptr<osg::Node> MovieCycle_Body;
+		BikeView(osg::Vec3 color, ResourcePool* resourcePool);
+		void setTexture(osg::ref_ptr<osg::StateSet> stateset, ResourcePool::TextureResource textureName, int unit);
+
+		osg::ref_ptr<osg::Node> createCyclePart(
+			ResourcePool::ModelResource objName,
+			ResourcePool::TextureResource specularTexturePath,
+			ResourcePool::TextureResource diffuseTexturePath,
+			ResourcePool::TextureResource normalTexturePath,
+			int modelIndex,
+			float glowIntensity = 1.f);
+
+		osg::ref_ptr<osg::PositionAttitudeTransform> m_pat;
+		osg::ref_ptr<osg::Node> m_MovieCycle_Body;
+
 		void update();
-
-		
-		
-
-
-	//protected:
-	//	osg::ref_ptr<osg::Program> m_program;
-	//	osg::ref_ptr<osg::Shader> m_vShader;
-	//	osg::ref_ptr<osg::Shader> m_fShader;
+		void createPlayerMarker(osg::Vec3 color);
 
 	private:
 		osg::Vec3 m_playerColor;
-
-		//osg::ref_ptr<osg::Group> rootNode;
-		//osg::ref_ptr<osg::MatrixTransform> rootNode;
-
+		osg::ref_ptr<osg::Node> m_playermarkerNode;
+		ResourcePool* m_resourcePool;
 	};
 }

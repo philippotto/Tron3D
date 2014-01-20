@@ -13,7 +13,7 @@ namespace input
 	public:
 		enum InputDevice
 		{
-			KEYBOARD_wasd, KEYBOARD_arrows, GAMEPAD, AI
+			KEYBOARD_wasd, KEYBOARD_arrows, GAMEPAD, GAMEPADPS4, AI
 		};
 
 		BikeInputState();
@@ -21,13 +21,12 @@ namespace input
 		float getAcceleration();
 		void setAngle(float angle);
 		void setAcceleration(float acceleration);
-		void setPollingDevice(std::shared_ptr<PollingDevice> pollingDevice);
-
+		void setTurboPressed(bool pressed);
+		bool getTurboPressed();
 	private:
-		bool m_pollingEnabled;
-		std::shared_ptr<input::PollingDevice> m_pollingDevice;
 		float m_acceleration;
 		float m_angle;
+		float m_turboPressed;
 	};
 }
 }

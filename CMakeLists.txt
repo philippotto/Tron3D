@@ -183,6 +183,9 @@ find_package(BULLET REQUIRED)
 # FMOD
 find_package(FMOD REQUIRED)
 
+# HIDAPI
+find_package(HIDAPI REQUIRED)
+
 #################################################
 # SOURCES
 #################################################
@@ -200,11 +203,21 @@ set(sources
 	source/sampleosgviewer.h
 	source/sampleosgviewer.cpp
 	source/gameeventhandler.h
+	source/globals.h
+	source/constants.h
+	source/constants.cpp
+	source/gamelogic.h
+	source/gamelogic.cpp
+
+	source/resourcepool.h
+	source/resourcepool.cpp
 
 	source/input/keyboard.h
 	source/input/keyboard.cpp
 	source/input/gamepad.h
 	source/input/gamepad.cpp
+	source/input/gamepadps4.h
+	source/input/gamepadps4.cpp
 	source/input/bikeinputstate.h
 	source/input/bikeinputstate.cpp
 	source/input/ai.h
@@ -214,9 +227,10 @@ set(sources
 
 	source/sound/audiomanager.h
 	source/sound/audiomanager.cpp
-	
+
 	source/model/bikemodel.h
 	source/model/bikemodel.cpp
+	source/model/auto_levelmodel.cpp
 	source/model/levelmodel.h
 	source/model/levelmodel.cpp
 	source/model/fencemodel.h
@@ -226,6 +240,7 @@ set(sources
 	source/model/physicsworld.h
 	source/model/physicsworld.cpp
 	source/model/bikemotionstate.h
+	source/model/objectinfo.h
 
 	source/controller/bikecontroller.h
 	source/controller/bikecontroller.cpp
@@ -237,6 +252,9 @@ set(sources
 	source/controller/abstractcontroller.cpp
 	source/controller/hudcontroller.h
 	source/controller/hudcontroller.cpp
+	source/controller/itemcontroller.h
+	source/controller/itemcontroller.cpp
+
 
 	source/view/bikeview.h
 	source/view/bikeview.cpp
@@ -254,6 +272,13 @@ set(sources
 	source/view/skydome.cpp
 	source/view/postprocessing.cpp
 	source/view/postprocessing.h
+	source/view/nearfarcallback.h
+	source/view/timeupdate.h
+	source/view/nodefollowcameramanipulator.h
+	source/view/nodefollowcameramanipulator.cpp
+	source/view/playermarker.h
+	source/view/playermarker.cpp
+	source/view/easemotion.h
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
@@ -264,7 +289,7 @@ set(sources
 
 )
 
-source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" 
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source"
 	"\\\\.h$|\\\\.hpp$|\\\\.cpp$|\\\\.c$|\\\\.ui$|\\\\.qrc$" "Source Files" ${sources})
 
 #################################################
@@ -283,6 +308,7 @@ include_directories(
 	${OPENSCENEGRAPH_INCLUDE_DIRS}
 	${BULLET_INCLUDE_DIRS}
 	${FMOD_INCLUDE_DIRS}
+	${HIDAPI_INCLUDE_DIRS}
 )
 
 target_link_libraries( ${target}
@@ -290,5 +316,11 @@ target_link_libraries( ${target}
     ${OPENSCENEGRAPH_LIBRARIES}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
+	${HIDAPI_LIBRARIES}
+)
+
+if (WIN32)
+target_link_libraries( ${target}
 	${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
 )
+endif (WIN32)

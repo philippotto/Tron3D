@@ -1,10 +1,9 @@
-#version 120
+#version 130
 
 uniform sampler2D sceneLayer;
-uniform sampler2D normalDepthLayer;
 uniform sampler2D idLayer;
-
 uniform sampler2D pongLayer;
+uniform sampler2D oldLayer;
 
 //////////////////////////////////////////////////////////////////////////
 // Final Color Composition
@@ -13,14 +12,11 @@ void main(void)
 {
 	vec2 st = gl_TexCoord[0].st;
 
-	float objectID = texture2D(idLayer, st).x;
-
 	vec4 sceneColor = texture2D(sceneLayer, st);
 	vec4 pongColor = texture2D(pongLayer, st);
+	vec4 oldColor = texture2D(oldLayer, st);
 
-    vec3 normal = texture2D(normalDepthLayer, st).xyz;
-    float depth = texture2D(normalDepthLayer, st).w;
-    
-
-    gl_FragColor = pongColor * 3 + sceneColor;
+	float oldFrameWeight = 0.5;
+	float newFrameWeight = 1 - oldFrameWeight;
+	gl_FragColor = newFrameWeight * (pongColor * 3 + sceneColor) + oldFrameWeight * oldColor;
 }

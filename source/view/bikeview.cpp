@@ -11,98 +11,147 @@
 #include <osg/CullFace>
 #include <osg/TexGenNode>
 #include <osgUtil/CullVisitor>
+#include <osg/ShapeDrawable>
 #include <stdio.h>
-// troen
-#include "shaders.h"
-#include "../input/bikeinputstate.h"
 #include <osgDB/ReadFile>
 #include <osg/PositionAttitudeTransform>
-
+// troen
+#include "../constants.h"
+#include "shaders.h"
+#include "../input/bikeinputstate.h"
 #include "../model/bikemodel.h"
+#include "playermarker.h"
+#include "../resourcepool.h"
 
 using namespace troen;
 
-BikeView::BikeView(osg::Vec3 color)
+BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView(),
+	m_playerColor(color)
 {
+	m_resourcePool = resourcePool;
 	m_node = new osg::Group();
-	m_playerColor = color;
-	pat = new osg::PositionAttitudeTransform();
-	
-#ifndef _DEBUG
+	m_pat = new osg::PositionAttitudeTransform();
+
 	osg::Matrixd initialTransform;
-	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Vec3d(0.0, 0.0, 1.0));
+	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Z_AXIS);
 	initialTransform.makeRotate(rotationQuat);
-	initialTransform *= initialTransform.scale(osg::Vec3f(5.0f, 5.0f, 5.0f));
-	initialTransform *= initialTransform.translate(0.0, 0.0, -3.0);
-	
+
+#ifndef true
+	initialTransform *= initialTransform.scale(BIKE_VIEW_SCALE_FACTORS);
+	initialTransform *= initialTransform.translate(BIKE_VIEW_TRANSLATE_VALUES);
+
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
-	pat->addChild(matrixTransform);
+	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
+
+	m_pat->addChild(matrixTransform);
 	
-	MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
-		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",
-		"data/models/cycle/MG_MovieCycle_BodyHeadLight_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Body_NORM.tga", DEFAULT);
-	
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBody_MI.obj",
-		"data/models/cycle/MG_Player_Body_SPEC.tga",
-		"data/models/cycle/MG_Player_Body_EMSS.tga",
-		"data/models/cycle/MG_Player_Body_NORM.tga", GLOW, 0.1);
+	m_MovieCycle_Body = createCyclePart(ResourcePool::MG_MovieCycle_Body_MI,
+		ResourcePool::MG_MovieCycle_Body_SPEC,
+		ResourcePool::MG_MovieCycle_BodyHeadLight_EMSS,
+		ResourcePool::MG_MovieCycle_Body_NORM, DEFAULT);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart("data/models/cycle/MG_MovieCycle_Tire_MI.obj",
-		"",
-		"data/models/cycle/MG_MovieCycle_Tire_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Tire_NORM.tga", GLOW, 0.5);
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart(ResourcePool::MG_MovieCycle_PlayerBody_MI,
+		ResourcePool::MG_Player_Body_SPEC,
+		ResourcePool::MG_Player_Body_EMSS,
+		ResourcePool::MG_Player_Body_NORM, GLOW, 0.1f);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerHelmet_MI.obj",
-		"data/models/cycle/MG_Player_Helmet_SPEC.tga",
-		"data/models/cycle/MG_Player_Helmet_EMSS.tga",
-		"data/models/cycle/MG_Player_Helmet_NORM.tga", DEFAULT);
+	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart(ResourcePool::MG_MovieCycle_Tire_MI,
+		ResourcePool::MG_MovieCycle_Tire_DIFF,
+		ResourcePool::MG_MovieCycle_Tire_EMSS,
+		ResourcePool::MG_MovieCycle_Tire_NORM, GLOW, 0.5f);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerDisc_MI.obj",
-		"data/models/cycle/MG_Player_Disc_SPEC.tga",
-		"data/models/cycle/MG_Player_Disc_EMSS.tga",
-		"data/models/cycle/MG_Player_Disc_NORM.tga", GLOW);
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart(ResourcePool::MG_MovieCycle_PlayerHelmet_MI,
+		ResourcePool::MG_Player_Helmet_SPEC,
+		ResourcePool::MG_Player_Helmet_EMSS,
+		ResourcePool::MG_Player_Helmet_NORM, GLOW, 0.3f);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Glass_MI = createCyclePart("data/models/cycle/MG_MovieCycle_Glass_MI.obj",
-		"data/models/cycle/Glass.tga",
-		"data/models/cycle/Glass.tga",
-		"", DEFAULT);
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart(ResourcePool::MG_MovieCycle_PlayerDisc_MI,
+		ResourcePool::MG_Player_Disc_SPEC,
+		ResourcePool::MG_Player_Disc_EMSS,
+		ResourcePool::MG_Player_Disc_NORM, GLOW);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Engine = createCyclePart("data/models/cycle/MG_MovieCycle_Engine_MI.obj",
-		"",
-		"data/models/cycle/MG_MovieCycle_Engine_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Engine_NORM.tga", DEFAULT);
+	osg::ref_ptr<osg::Node> MovieCycle_Glass_MI = createCyclePart(ResourcePool::MG_MovieCycle_Glass_MI,
+		ResourcePool::Glass,
+		ResourcePool::Glass,
+		ResourcePool::None,
+		DEFAULT);
 
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Baton = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBaton_MI.obj",
-		"data/models/cycle/MG_Player_Baton_SPEC.tga",
-		"data/models/cycle/MG_Player_Baton_EMSS.tga",
-		"data/models/cycle/MG_Player_Baton_NORM.tga", GLOW);
+	osg::ref_ptr<osg::Node> MovieCycle_Engine = createCyclePart(ResourcePool::MG_MovieCycle_Engine_MI,
+		ResourcePool::None,
+		ResourcePool::MG_MovieCycle_Engine_EMSS,
+		ResourcePool::MG_MovieCycle_Engine_NORM, DEFAULT);
+
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Baton = createCyclePart(ResourcePool::MG_MovieCycle_PlayerBaton_MI,
+		ResourcePool::MG_Player_Baton_SPEC,
+		ResourcePool::MG_Player_Baton_EMSS,
+		ResourcePool::MG_Player_Baton_NORM, GLOW);
 		
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Body);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Tire);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Helmet);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Disc);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Glass_MI);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
-	matrixTransform->addChild(MovieCycle_Body);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Body);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Tire);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Helmet);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Disc);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Glass_MI);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
+	matrixTransform->addChild(m_MovieCycle_Body);
 
 #endif
-#ifdef _DEBUG
-	
-	pat->addChild(osgDB::readNodeFile("data/models/cessna.osgt"));
+#ifdef false
+	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
+	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
+
+	osg::Vec4 whiteColor = osg::Vec4(1, 1, 1, 1.0);
+	osg::ref_ptr<osg::Material> material = new osg::Material;
+	material->setColorMode(osg::Material::AMBIENT);
+	material->setAmbient(osg::Material::FRONT_AND_BACK,
+		osg::Vec4(0.8f, 0.8f, 0.8f, 1.0f));
+	material->setDiffuse(osg::Material::FRONT_AND_BACK,
+		whiteColor*0.8f);
+	material->setSpecular(osg::Material::FRONT_AND_BACK, whiteColor);
+	material->setShininess(osg::Material::FRONT_AND_BACK, 1.0f);
+	material->setEmission(osg::Material::Face::FRONT, osg::Vec4f(.5, .5, .5, 1));
+
+	osg::ref_ptr<osg::ShapeDrawable> debugShape = new osg::ShapeDrawable;
+	debugShape->setShape(new osg::Box(osg::Vec3(), 2 ,4, 2));
+	//debugShape->setColor(osg::Vec4f(1,1,1,1));
+	osg::ref_ptr<osg::Geode> debugNode = new osg::Geode;
+	debugNode->addDrawable(debugShape.get());
+
+	debugNode->getOrCreateStateSet()->setAttributeAndModes(material.get(), osg::StateAttribute::OVERRIDE | osg::StateAttribute::MATERIAL);
+
+	matrixTransform->addChild(debugNode);
+
+	pat->addChild(matrixTransform);
 #endif
-	m_node->addChild(pat);
+
+	// create box for radar
+	osg::Vec4 color4 = osg::Vec4(m_playerColor, 1.0);
+	osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable;
+	mark_shape->setShape(new osg::Cone(osg::Vec3(), 120, 300));
+	mark_shape->setColor(color4);
+	osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
+	mark_node->addDrawable(mark_shape.get());
+
+	osg::Matrixd radarMatrix;
+	osg::Quat radarMarkRotationQuat(osg::DegreesToRadians(90.0f), osg::X_AXIS);
+	radarMatrix.makeRotate(radarMarkRotationQuat);
+
+	osg::MatrixTransform* radarMatrixTransform = new osg::MatrixTransform(radarMatrix);
+	radarMatrixTransform->addChild(mark_node);
+	radarMatrixTransform->setNodeMask(CAMERA_MASK_RADAR);
+
+	m_pat->addChild(radarMatrixTransform);
+	m_pat->addChild(PlayerMarker(color).getNode());
+	m_node->addChild(m_pat);
 }
 
-osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::string specularTexturePath,
-	std::string diffuseTexturePath, std::string normalTexturePath,
+osg::ref_ptr<osg::Node> BikeView::createCyclePart(ResourcePool::ModelResource objName, ResourcePool::TextureResource specularTexturePath,
+	ResourcePool::TextureResource diffuseTexturePath, ResourcePool::TextureResource normalTexturePath,
 	int modelIndex, float glowIntensity)
 {
 	enum BIKE_TEXTURES { DIFFUSE, SPECULAR, NORMAL };
 
-	std::cout << "[TroenGame::bikeView] Loading Model \"" << objFilePath << "\"" << std::endl;
-	osg::Node* Node = osgDB::readNodeFile(objFilePath);
+	osg::Node* Node = m_resourcePool->getNode(objName);
 
 	//osgDB::writeNodeFile(*Node, std::string("file.osg")); //to look at the scenegraph
 	osg::ref_ptr<osg::StateSet> NodeState = Node->getOrCreateStateSet();
@@ -117,10 +166,10 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::
 	osg::Uniform* glowIntensityU = new osg::Uniform("glowIntensity", glowIntensity);
 	NodeState->addUniform(glowIntensityU);
 
-	if (stateAttributeMaterial != NULL)
+	if (stateAttributeMaterial != nullptr)
 	{
 		osg::Material *objMaterial = dynamic_cast<osg::Material*>(stateAttributeMaterial);
-		
+
 		if (modelIndex != GLOW) {
 			// if modelIndex == GLOW we will set it later (this avoids some ugly warnings from osg)
 			osg::Vec4 diffuse = objMaterial->getDiffuse(osg::Material::FRONT_AND_BACK);
@@ -145,223 +194,62 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::
 	if (modelIndex == GLOW) {
 		ColorU = new osg::Uniform("playerColor", m_playerColor);
 		// set parts to white/gray so that we can color it
-		NodeState->addUniform(new osg::Uniform("diffuseMaterialColor", osg::Vec3(0.5f, 0.5f, 0.5f)));
+		NodeState->addUniform(new osg::Uniform("diffuseMaterialColor", osg::Vec4(0.5f, 0.5f, 0.5f, 1.f)));
 	}
 	else {
 		ColorU = new osg::Uniform("playerColor", osg::Vec3(1.f, 1.f, 1.f));
 	}
 	NodeState->addUniform(ColorU);
 
-	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::BIKE], osg::StateAttribute::ON);
-
-	if (specularTexturePath != "")
+	if (specularTexturePath != ResourcePool::None)
 	{
 		osg::Uniform* specularMapU = new osg::Uniform("specularTexture", SPECULAR);
 		NodeState->addUniform(specularMapU);
 		setTexture(NodeState, specularTexturePath, SPECULAR);
 	}
 
-	if (diffuseTexturePath != "")
+	if (diffuseTexturePath != ResourcePool::None)
 	{
 		osg::Uniform* diffuseMapU = new osg::Uniform("diffuseTexture", DIFFUSE);
 		NodeState->addUniform(diffuseMapU);
 		setTexture(NodeState, diffuseTexturePath, DIFFUSE);
 	}
 
-	if (normalTexturePath != ""){
+	if (normalTexturePath != ResourcePool::None){
 		osg::Uniform* normalMapU = new osg::Uniform("normalTexture", NORMAL);
 		NodeState->addUniform(normalMapU);
 		setTexture(NodeState, normalTexturePath, NORMAL);
 	}
 
+	NodeState->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::BIKE], osg::StateAttribute::ON);
+
 	return Node;
 }
 
-void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit)
+void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, ResourcePool::TextureResource textureName, int unit)
 {
 
-	osg::Image* image = osgDB::readImageFile(filePath);
-	if (!image)
-		std::cout << "[TroenGame::bikeView]  File \"" << filePath << "\" not found." << std::endl;
-	else
-	{
-		osg::Texture2D* texture = new osg::Texture2D;
-		texture->setImage(image);
+	//osg::Image* image = osgDB::readImageFile(filePath);
+	osg::Image* image = m_resourcePool->getImage(textureName);
 
-	/*	osg::TexEnv* texenv = new osg::TexEnv;
-		texenv->setMode(osg::TexEnv::BLEND);
-		texenv->setColor(osg::Vec4(0.3f, 0.3f, 0.3f, 0.3f));*/
+	osg::Texture2D* texture = new osg::Texture2D;
+	texture->setImage(image);
+	texture->setResizeNonPowerOfTwoHint(false);
 
-		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
-		//stateset->setTextureAttribute(1, texenv);
+	stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
 
-		//rootNode->setStateSet(stateset);
-	}
+
 }
 
 void BikeView::update()
 {
-	MovieCycle_Body->getStateSet()->addUniform(new osg::Uniform("transform", pat->asMatrixTransform()->getMatrix()));
+	m_MovieCycle_Body->getStateSet()->addUniform(new osg::Uniform("transform", m_pat->asMatrixTransform()->getMatrix()));
 }
-//
-//class UpdateCameraAndTexGenCallback : public osg::NodeCallback
-//{
-//public:
-//
-//	typedef std::vector< osg::ref_ptr<osg::Camera> >  CameraList;
-//
-//	UpdateCameraAndTexGenCallback(osg::NodePath& reflectorNodePath, CameraList& Cameras) :
-//		_reflectorNodePath(reflectorNodePath),
-//		_Cameras(Cameras)
-//	{
-//	}
-//
-//	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
-//	{
-//		// first update subgraph to make sure objects are all moved into position
-//		traverse(node, nv);
-//
-//		// compute the position of the center of the reflector subgraph
-//		osg::Matrixd worldToLocal = osg::computeWorldToLocal(_reflectorNodePath);
-//		osg::BoundingSphere bs = _reflectorNodePath.back()->getBound();
-//		osg::Vec3 position = bs.center();
-//
-//		typedef std::pair<osg::Vec3, osg::Vec3> ImageData;
-//		const ImageData id[] =
-//		{
-//			ImageData(osg::Vec3(1, 0, 0), osg::Vec3(0, -1, 0)), // +X
-//			ImageData(osg::Vec3(-1, 0, 0), osg::Vec3(0, -1, 0)), // -X
-//			ImageData(osg::Vec3(0, 1, 0), osg::Vec3(0, 0, 1)), // +Y
-//			ImageData(osg::Vec3(0, -1, 0), osg::Vec3(0, 0, -1)), // -Y
-//			ImageData(osg::Vec3(0, 0, 1), osg::Vec3(0, -1, 0)), // +Z
-//			ImageData(osg::Vec3(0, 0, -1), osg::Vec3(0, -1, 0))  // -Z
-//		};
-//
-//		for (unsigned int i = 0;
-//			i<6 && i<_Cameras.size();
-//			++i)
-//		{
-//			osg::Matrix localOffset;
-//			localOffset.makeLookAt(position, position + id[i].first, id[i].second);
-//
-//			osg::Matrix viewMatrix = worldToLocal*localOffset;
-//
-//			_Cameras[i]->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
-//			_Cameras[i]->setProjectionMatrixAsFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
-//			_Cameras[i]->setViewMatrix(viewMatrix);
-//		}
-//	}
-//
-//protected:
-//
-//	virtual ~UpdateCameraAndTexGenCallback() {}
-//
-//	osg::NodePath               _reflectorNodePath;
-//	CameraList                  _Cameras;
-//};
-//
-//class TexMatCullCallback : public osg::NodeCallback
-//{
-//public:
-//
-//	TexMatCullCallback(osg::TexMat* texmat) :
-//		_texmat(texmat)
-//	{
-//	}
-//
-//	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
-//	{
-//		// first update subgraph to make sure objects are all moved into position
-//		traverse(node, nv);
-//
-//		osgUtil::CullVisitor* cv = dynamic_cast<osgUtil::CullVisitor*>(nv);
-//		if (cv)
-//		{
-//			osg::Quat quat = cv->getModelViewMatrix()->getRotate();
-//			_texmat->setMatrix(osg::Matrix::rotate(quat.inverse()));
-//		}
-//	}
-//
-//protected:
-//
-//	osg::ref_ptr<osg::TexMat>    _texmat;
-//};
-//
-//
-//osg::Group* createShadowedScene(osg::Node* reflectedSubgraph, osg::NodePath reflectorNodePath, unsigned int unit, const osg::Vec4& clearColor, unsigned tex_width, unsigned tex_height, osg::Camera::RenderTargetImplementation renderImplementation)
-//{
-//
-//	osg::Group* group = new osg::Group;
-//
-//	osg::TextureCubeMap* texture = new osg::TextureCubeMap;
-//	texture->setTextureSize(tex_width, tex_height);
-//
-//	texture->setInternalFormat(GL_RGB);
-//	texture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
-//	texture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-//	texture->setWrap(osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_EDGE);
-//	texture->setFilter(osg::TextureCubeMap::MIN_FILTER, osg::TextureCubeMap::LINEAR);
-//	texture->setFilter(osg::TextureCubeMap::MAG_FILTER, osg::TextureCubeMap::LINEAR);
-//
-//	// set up the render to texture cameras.
-//	UpdateCameraAndTexGenCallback::CameraList Cameras;
-//	for (unsigned int i = 0; i<6; ++i)
-//	{
-//		// create the camera
-//		osg::Camera* camera = new osg::Camera;
-//
-//		camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//		camera->setClearColor(clearColor);
-//
-//		// set viewport
-//		camera->setViewport(0, 0, tex_width, tex_height);
-//
-//		// set the camera to render before the main camera.
-//		camera->setRenderOrder(osg::Camera::PRE_RENDER);
-//
-//		// tell the camera to use OpenGL frame buffer object where supported.
-//		camera->setRenderTargetImplementation(renderImplementation);
-//
-//		// attach the texture and use it as the color buffer.
-//		camera->attach(osg::Camera::COLOR_BUFFER, texture, 0, i);
-//
-//		// add subgraph to render
-//		camera->addChild(reflectedSubgraph);
-//
-//		group->addChild(camera);
-//
-//		Cameras.push_back(camera);
-//	}
-//
-//	// create the texgen node to project the tex coords onto the subgraph
-//	osg::TexGenNode* texgenNode = new osg::TexGenNode;
-//	texgenNode->getTexGen()->setMode(osg::TexGen::REFLECTION_MAP);
-//	texgenNode->setTextureUnit(unit);
-//	group->addChild(texgenNode);
-//
-//	// set the reflected subgraph so that it uses the texture and tex gen settings.    
-//	{
-//		osg::Node* reflectorNode = reflectorNodePath.front();
-//		group->addChild(reflectorNode);
-//
-//		osg::StateSet* stateset = reflectorNode->getOrCreateStateSet();
-//		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
-//		stateset->setTextureMode(unit, GL_TEXTURE_GEN_S, osg::StateAttribute::ON);
-//		stateset->setTextureMode(unit, GL_TEXTURE_GEN_T, osg::StateAttribute::ON);
-//		stateset->setTextureMode(unit, GL_TEXTURE_GEN_R, osg::StateAttribute::ON);
-//		stateset->setTextureMode(unit, GL_TEXTURE_GEN_Q, osg::StateAttribute::ON);
-//
-//		osg::TexMat* texmat = new osg::TexMat;
-//		stateset->setTextureAttributeAndModes(unit, texmat, osg::StateAttribute::ON);
-//
-//		reflectorNode->setCullCallback(new TexMatCullCallback(texmat));
-//	}
-//
-//	// add the reflector scene to draw just as normal
-//	group->addChild(reflectedSubgraph);
-//
-//	// set an update callback to keep moving the camera and tex gen in the right direction.
-//	group->setUpdateCallback(new UpdateCameraAndTexGenCallback(reflectorNodePath, Cameras));
-//
-//	return group;
-//}
+
+
+void BikeView::createPlayerMarker(osg::Vec3 color)
+{
+	//PlayerMarker *marker = new PlayerMarker(color)
+	m_playermarkerNode = PlayerMarker(color).getNode();
+	m_pat->addChild(m_playermarkerNode);
+}

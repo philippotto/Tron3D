@@ -1,5 +1,4 @@
 #include "SkyDome.h"
-//#include "constants.h"
 
 #include "abstractview.h"
 
@@ -110,13 +109,13 @@ SkyboxTexMatCallback::SkyboxTexMatCallback(const SkyboxTexMatCallback& copy, con
 
 void SkyboxTexMatCallback::operator()(osg::Node *node, osg::NodeVisitor* nv) {
     osgUtil::CullVisitor* cv = dynamic_cast<osgUtil::CullVisitor*>(nv);
-    if (cv != NULL) {
-        osg::TexMat* texMat = NULL;
+    if (cv != nullptr) {
+        osg::TexMat* texMat = nullptr;
         osg::StateSet* stateSet = node->getStateSet();
-        if (stateSet != NULL) {
+        if (stateSet != nullptr) {
             texMat = static_cast<osg::TexMat*>(stateSet->getTextureAttribute(0, osg::StateAttribute::TEXMAT));
         }
-        if (texMat != NULL) {
+        if (texMat != nullptr) {
             osg::RefMatrix* modelViewMatrix = cv->getModelViewMatrix();
             osg::Quat rotation = modelViewMatrix->getRotate();
             osg::Matrix inverseRotationMatrix = osg::Matrix::rotate(rotation.inverse());
