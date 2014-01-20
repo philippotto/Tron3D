@@ -250,7 +250,7 @@ bool TroenGame::initializeGameLogic()
 
 bool TroenGame::initializeReflection()
 {
-	m_reflectionNode = (new Reflection(m_sceneNode, m_levelController->getFloorView()))->getReflectionCameraGroup();
+	m_reflectionNode = (new Reflection(m_sceneNode, m_levelController->getFloorView(), m_gameView, m_skyDome->getSkyboxTexture()))->getReflectionCameraGroup();
 	return true;
 }
 

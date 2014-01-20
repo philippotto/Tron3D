@@ -1,6 +1,7 @@
 #pragma once
 
 #include <osg/MatrixTransform>
+#include <osg/TextureCubeMap>
 
 namespace osg {
     class TexMat;
@@ -19,10 +20,13 @@ namespace troen {
 		SkyDome();
 		SkyDome(const SkyDome& copy, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
 		META_Node(a3d, SkyDome);
+		osg::ref_ptr<osg::TextureCubeMap> readCubeMap();
+		osg::ref_ptr<osg::TextureCubeMap> SkyDome::getSkyboxTexture();
 	protected:
 		virtual ~SkyDome();
-	private:
-		osg::TextureCubeMap* readCubeMap();
+		osg::ref_ptr<osg::TextureCubeMap> m_texture;
+		
+
 	};
 
 	/**

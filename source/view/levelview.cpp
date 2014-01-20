@@ -199,6 +199,6 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 
 osg::ref_ptr<osg::Group>  LevelView::getFloor()
 {
-	return m_floors;
+	return m_node;
 }
 
