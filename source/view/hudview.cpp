@@ -82,7 +82,7 @@ osg::Camera* HUDView::createHUD()
 			geode->addDrawable(m_pointsText);
 
 			m_pointsText->setFont(timesFont);
-			m_pointsText->setPosition(osg::Vec3(0.f, 100.f, 0.f));
+			m_pointsText->setPosition(osg::Vec3(0.f, 900.f, 0.f));
 			setPointsText(0);
 			// m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
 
@@ -91,40 +91,40 @@ osg::Camera* HUDView::createHUD()
 
 
 		{
-			osg::BoundingBox bb;
-			for (unsigned int i = 0; i<geode->getNumDrawables(); ++i)
-			{
-				bb.expandBy(geode->getDrawable(i)->getBound());
-			}
+			//osg::BoundingBox bb;
+			//for (unsigned int i = 0; i<geode->getNumDrawables(); ++i)
+			//{
+			//	bb.expandBy(geode->getDrawable(i)->getBound());
+			//}
 
-			osg::Geometry* geom = new osg::Geometry;
+			//osg::Geometry* geom = new osg::Geometry;
 
-			osg::Vec3Array* vertices = new osg::Vec3Array;
-			float depth = bb.zMin() - 0.1;
-			vertices->push_back(osg::Vec3(bb.xMin(), bb.yMax(), depth));
-			vertices->push_back(osg::Vec3(bb.xMin(), bb.yMin(), depth));
-			vertices->push_back(osg::Vec3(bb.xMax(), bb.yMin(), depth));
-			vertices->push_back(osg::Vec3(bb.xMax(), bb.yMax(), depth));
-			geom->setVertexArray(vertices);
+			//osg::Vec3Array* vertices = new osg::Vec3Array;
+			//float depth = bb.zMin() - 0.1;
+			//vertices->push_back(osg::Vec3(bb.xMin(), bb.yMax(), depth));
+			//vertices->push_back(osg::Vec3(bb.xMin(), bb.yMin(), depth));
+			//vertices->push_back(osg::Vec3(bb.xMax(), bb.yMin(), depth));
+			//vertices->push_back(osg::Vec3(bb.xMax(), bb.yMax(), depth));
+			//geom->setVertexArray(vertices);
 
-			osg::Vec3Array* normals = new osg::Vec3Array;
-			normals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
-			geom->setNormalArray(normals);
-			geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
+			//osg::Vec3Array* normals = new osg::Vec3Array;
+			//normals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
+			//geom->setNormalArray(normals);
+			//geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
 
-			osg::Vec4Array* colors = new osg::Vec4Array;
-			colors->push_back(osg::Vec4(1.0f, 1.0, 0.8f, 0.2f));
-			geom->setColorArray(colors);
-			geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+			//osg::Vec4Array* colors = new osg::Vec4Array;
+			//colors->push_back(osg::Vec4(1.0f, 1.0, 0.8f, 0.2f));
+			//geom->setColorArray(colors);
+			//geom->setColorBinding(osg::Geometry::BIND_OVERALL);
 
-			geom->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0, 4));
+			//geom->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0, 4));
 
-			osg::StateSet* stateset = geom->getOrCreateStateSet();
-			stateset->setMode(GL_BLEND, osg::StateAttribute::ON);
-			//stateset->setAttribute(new osg::PolygonOffset(1.0f,1.0f),osg::StateAttribute::ON);
-			stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+			//osg::StateSet* stateset = geom->getOrCreateStateSet();
+			//stateset->setMode(GL_BLEND, osg::StateAttribute::ON);
+			////stateset->setAttribute(new osg::PolygonOffset(1.0f,1.0f),osg::StateAttribute::ON);
+			//stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 
-			geode->addDrawable(geom);
+			//geode->addDrawable(geom);
 		}
 
 		m_camera->addChild(geode);
