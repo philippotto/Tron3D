@@ -215,7 +215,7 @@ bool TroenGame::initializeControllers()
 			&m_resourcePool)
 		);
 	}
-	m_HUDController = std::make_shared<HUDController>(m_bikeControllers[0]);
+	m_HUDController = std::make_shared<HUDController>(m_bikeControllers[0], osg::Vec4(m_playerColors[0],1));
 	return true;
 }
 

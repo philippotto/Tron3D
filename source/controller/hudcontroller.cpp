@@ -6,9 +6,9 @@
 
 using namespace troen;
 
-HUDController::HUDController(std::shared_ptr<BikeController> bikeController) : AbstractController()
+HUDController::HUDController(std::shared_ptr<BikeController> bikeController, const osg::Vec4 playerColor) : AbstractController()
 {
-	m_view = std::static_pointer_cast<HUDView>(std::make_shared<HUDView>());
+	m_view = std::static_pointer_cast<HUDView>(std::make_shared<HUDView>(playerColor));
 	m_bikeController = bikeController;
 }
 

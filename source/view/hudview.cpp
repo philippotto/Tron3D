@@ -9,7 +9,6 @@
 #include <osg/Depth>
 #include <osg/PolygonOffset>
 #include <osg/MatrixTransform>
-//#include <osg/Camera>
 #include <osg/RenderInfo>
 #include <osgText/Text>
 #include <osgViewer/ViewerEventHandlers>
@@ -22,7 +21,7 @@
 
 using namespace troen;
 
-HUDView::HUDView(): m_trackNode(nullptr)
+HUDView::HUDView(const osg::Vec4 playerColor) : m_trackNode(nullptr), m_playerColor(playerColor)
 {
 	AbstractView();
 	m_speedText = new osgText::Text();
@@ -41,7 +40,8 @@ osg::Camera* HUDView::createHUD()
 	m_camera = new osg::Camera;
 
 	// set the projection matrix
-	m_camera->setProjectionMatrix(osg::Matrix::ortho2D(0, DEFAULT_WINDOW_HEIGHT, 0, DEFAULT_WINDOW_WIDTH));
+	m_camera->setViewport(new osg::Viewport(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
+	m_camera->setProjectionMatrix(osg::Matrix::ortho2D(0, 1000, 0, 1000));
 	m_camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	m_camera->setViewMatrix(osg::Matrix::identity());
 	m_camera->setClearMask(GL_DEPTH_BUFFER_BIT);
@@ -53,46 +53,42 @@ osg::Camera* HUDView::createHUD()
 		osg::Geode* geode = new osg::Geode();
 		m_savedGeode = geode;
 
-		osgText::Font *timesFont = osgText::readFontFile("data/fonts/tr2n.ttf");
+		osgText::Font *font = osgText::readFontFile("data/fonts/tr2n.ttf");
 
 		// turn lighting off for the text and disable depth test to ensure it's always ontop.
 		osg::StateSet* stateset = geode->getOrCreateStateSet();
 		stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
-		osg::Vec3 position(500.f, 0, 0);
-		osg::Vec3 delta(0.0f, -100.0f, 0.0f);
-
+		int offset = 1000 / 20;
 		{
 			geode->addDrawable(m_speedText);
 
-			m_speedText->setFont(timesFont);
-			m_speedText->setPosition(position);
-			setSpeedText(80);
-			// m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
+			osg::Vec3 speedPosition(1000 - offset, offset, 0);
 
-			position += delta;
+			m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
+			m_speedText->setFont(font);
+			setSpeedText(0);
+			m_speedText->setPosition(speedPosition);
+			m_speedText->setColor(m_playerColor);
 		}
 		{
 			geode->addDrawable(m_healthText);
 
-			m_healthText->setFont(timesFont);
-			m_healthText->setPosition(osg::Vec3(0.f, 0.f, 0.f));
+			m_healthText->setFont(font);
+			m_healthText->setPosition(osg::Vec3(offset, offset, 0.f));
+			m_healthText->setColor(m_playerColor);
 			setHealthText(100);
-			// m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
-
-			position += delta;
+			m_healthText->setAlignment(osgText::Text::AlignmentType::LEFT_BOTTOM);
 		}
 		{
 			geode->addDrawable(m_pointsText);
 
-			m_pointsText->setFont(timesFont);
-			m_pointsText->setPosition(osg::Vec3(0.f, 900.f, 0.f));
+			m_pointsText->setFont(font);
+			m_pointsText->setPosition(osg::Vec3(offset, 1000 - offset ,0.f));
+			m_pointsText->setColor(m_playerColor);
 			setPointsText(0);
-			// m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
-
-			position += delta;
+			m_pointsText->setAlignment(osgText::Text::AlignmentType::LEFT_TOP);
 		}
-
 
 		{
 			//osg::BoundingBox bb;
@@ -138,13 +134,25 @@ osg::Camera* HUDView::createHUD()
 }
 
 
-void HUDView::resize(int width, int height)
+void HUDView::resize(const int width,const int height)
 {
 	m_camera->setViewport(new osg::Viewport(0, 0, width, height));
+	repositionHudElements(width, height);
 	int offset = height / 20;
 	int size = height / 2.5;
-	m_radarCamera->setViewport(new osg::Viewport(offset, offset, size, size));
+	m_radarCamera->setViewport(new osg::Viewport(offset, offset * 2, size, size));
 }
+
+void HUDView::repositionHudElements(const int width, const int height)
+{
+	//int offset = height / 20;
+	//int size = height / 2.5;
+
+	//m_speedText->setPosition(osg::Vec3(width - offset, offset, 0));
+	//m_pointsText->setPosition(osg::Vec3(offset, height,0));
+	//m_healthText->setPosition(osg::Vec3(offset, offset, 0.f));
+}
+
 
 osg::Camera* HUDView::createRadar()
 {
@@ -154,10 +162,12 @@ osg::Camera* HUDView::createRadar()
 	m_radarCamera->setAllowEventFocus(false);
 	m_radarCamera->setClearMask(GL_DEPTH_BUFFER_BIT);
 	m_radarCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-	m_radarCamera->setViewport(DEFAULT_WINDOW_HEIGHT / 20, DEFAULT_WINDOW_HEIGHT / 20, DEFAULT_WINDOW_HEIGHT / 2.5, DEFAULT_WINDOW_HEIGHT / 2.5);
+	int offset = DEFAULT_WINDOW_HEIGHT / 20;
+	int size = DEFAULT_WINDOW_HEIGHT / 2.5;
+	m_radarCamera->setViewport(offset, offset * 2, size, size);
 
 	m_radarCamera->setViewMatrix(osg::Matrixd::lookAt(osg::Vec3(0.0f, 0.0f, 500.0f), osg::Vec3(0.f, 0.f, 0.f), osg::Y_AXIS));
-	m_radarCamera->setProjectionMatrix(osg::Matrixd::ortho(-3000, 3000, -3000, 3000,1.f,600));
+	m_radarCamera->setProjectionMatrix(osg::Matrixd::ortho(-3000, 3000, -3000, 3000, 1.f, 600));
 	m_radarCamera->setCullMask(CAMERA_MASK_RADAR);
 
 	return m_radarCamera;
@@ -237,7 +247,7 @@ void HUDView::setTrackNode(osg::Node* trackNode)
 void HUDView::setSpeedText(float speed)
 {
 	std::string speedString = std::to_string((int) speed);
-	m_speedText->setText("Speed: " + speedString + " km/h");
+	m_speedText->setText(speedString + " km/h");
 }
 
 void HUDView::setHealthText(float health)

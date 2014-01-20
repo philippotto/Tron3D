@@ -12,18 +12,19 @@ namespace troen
 	class HUDView : public AbstractView
 	{
 	public:
-		HUDView();
-		void resize(int width, int height);
+		HUDView(const osg::Vec4 playerColor);
+		void resize(const int width, const int height);
 		void attachSceneToRadarCamera(osg::Group* scene);
-		void setSpeedText(float speed);
-		void setHealthText(float health);
-		void setPointsText(float points);
+		void setSpeedText(const float speed);
+		void setHealthText(const float health);
+		void setPointsText(const float points);
 
 		void updateRadarCamera();
         void setTrackNode(osg::Node* trackNode);
 
 	private:
 		osg::Camera* createHUD();
+		void repositionHudElements(const int width, const int height);
 		osg::Camera* createRadar();
 
 		osg::ref_ptr<osg::Camera> m_camera;
@@ -35,5 +36,7 @@ namespace troen
 
 		osg::Geode* m_savedGeode;
         osg::Node* m_trackNode;
+
+		osg::Vec4 m_playerColor;
 	};
 }
