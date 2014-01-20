@@ -299,13 +299,13 @@ bool TroenGame::initializeViewer()
 
 		osg::ref_ptr<SampleOSGViewer> viewer = new SampleOSGViewer();
 		// TODO: splitscreen gameviews...
-		viewer.get()->addView(m_gameViews[0]);
+		viewer.get()->addView(m_gameViews[currentIndex]);
 
 #ifdef WIN32
 		// turn of vSync (we implement an adaptive gameLoop that syncs itself)
 		osg::ref_ptr<RealizeOperation> operation = new RealizeOperation;
 		viewer->setRealizeOperation(operation);
-		viewer->realize();
+		// viewer->realize();
 #endif
 		m_viewers.push_back(viewer);
 		if (!m_splitscreen)	{
