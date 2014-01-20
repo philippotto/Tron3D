@@ -64,6 +64,7 @@ namespace troen
 		bool initializeSound();
 		bool initializeSkyDome();
 		bool initializeLighting();
+		bool initializeReflection();
 
 		bool shutdown();
 		void startGameLoop();
@@ -86,6 +87,7 @@ namespace troen
 		osg::ref_ptr<osg::Group>			m_sceneNode;
 		osg::ref_ptr<osg::Switch>			m_hudSwitch;
 		osg::ref_ptr<osg::LightSource>		m_sunLightSource;
+		osg::ref_ptr<osg::Group>			m_reflectionNode;
 
 
 		// Controllers

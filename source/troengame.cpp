@@ -32,6 +32,7 @@
 #include "view/skydome.h"
 #include "view/postprocessing.h"
 #include "view/nodefollowcameramanipulator.h"
+#include "view/reflection.h"
 
 
 using namespace troen;
@@ -155,6 +156,7 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
 	initializeViews();
 	initializeViewer();
+	initializeReflection();
 
 	std::cout << "[TroenGame::initialize] postprocessing & scenegraph ..." << std::endl;
 	composeSceneGraph();
@@ -243,6 +245,12 @@ bool TroenGame::initializeLighting()
 bool TroenGame::initializeGameLogic()
 {
 	m_gameLogic = std::make_shared<GameLogic>(this, m_audioManager, m_levelController, m_bikeControllers);
+	return true;
+}
+
+bool TroenGame::initializeReflection()
+{
+	m_reflectionNode = (new Reflection(m_sceneNode, m_levelController->getFloorView()))->getReflectionCameraGroup();
 	return true;
 }
 
@@ -361,6 +369,9 @@ bool TroenGame::composeSceneGraph()
 
 	m_sceneNode->addChild(m_levelController->getViewNode());
 	m_sceneNode->addChild(m_sunLightSource.get());
+
+
+	m_rootNode->addChild(m_reflectionNode);
 	
 	for (auto bikeController : m_bikeControllers)
 	{

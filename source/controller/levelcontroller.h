@@ -13,6 +13,7 @@ namespace troen
 		LevelController();
 
 		virtual btTransform initialPositionTransformForBikeWithIndex(int index);
+		osg::ref_ptr<osg::Group>  getFloorView();
 
 	private:
 		std::vector<btTransform> m_initialBikePositionTransforms;

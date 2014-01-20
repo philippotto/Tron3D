@@ -60,10 +60,15 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
 
-	osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
-    addShaderAndUniforms(floors, shaders::GRID, levelSize);
-	floors->setNodeMask(CAMERA_MASK_MAIN);
-	floorsGroup->addChild(floors);
+	m_floors = constructGroupForBoxes(m_model->getFloors());
+	
+	//reflectionSurface
+
+
+
+	addShaderAndUniforms(m_floors, shaders::GRID, levelSize);
+	m_floors->setNodeMask(CAMERA_MASK_MAIN);
+	floorsGroup->addChild(m_floors);
 
 	osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());
 	radarFloors->setNodeMask(CAMERA_MASK_RADAR);
@@ -191,4 +196,9 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 	}
 }
 
+
+osg::ref_ptr<osg::Group>  LevelView::getFloor()
+{
+	return m_floors;
+}
 
