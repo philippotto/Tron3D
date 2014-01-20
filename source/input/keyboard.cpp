@@ -45,6 +45,11 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 			m_handbrakePressed = 1.0;
 			return false;
 		}
+		else if (key == m_keys[5])
+		{
+			m_bikeInputState->setTurboPressed(true);
+			return false;
+		}
 		return false;
 	}
 	case(osgGA::GUIEventAdapter::KEYUP) :
@@ -73,6 +78,11 @@ bool Keyboard::handle(const osgGA::GUIEventAdapter& eventAdapter, osgGA::GUIActi
 		else if (key == m_keys[4])
 		{
 			m_handbrakePressed = 0.0;
+			return false;
+		}
+		else if (key == m_keys[5])
+		{
+			m_bikeInputState->setTurboPressed(false);
 			return false;
 		}
 		return false;

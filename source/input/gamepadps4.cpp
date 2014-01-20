@@ -117,6 +117,7 @@ void GamepadPS4::run()
 			{
 				m_bikeInputState->setAngle(0);
 				m_bikeInputState->setAcceleration(0);
+				m_bikeInputState->setTurboPressed(false);
 				return;
 			};
 		}
@@ -127,7 +128,10 @@ void GamepadPS4::run()
 		float normLX = (getValueFromKey(GamepadPS4::PS4KEY::LEFT_HAT_X, buffer) - 128) / 128.f;
 		float leftStickX = (abs(normLX) < m_deadzoneX ? 0 : (abs(normLX) - m_deadzoneX) * (normLX / abs(normLX)));
 		float handbrakePressed = getValueFromKey(GamepadPS4::PS4KEY::ONE_PRESSED, buffer);
+		float turboPressed = getValueFromKey(GamepadPS4::PS4KEY::TWO_PRESSED, buffer);
+
 		m_bikeInputState->setAngle(-leftStickX - leftStickX * handbrakePressed * BIKE_HANDBRAKE_FACTOR);
+		m_bikeInputState->setTurboPressed(turboPressed);
 
 		// get acceleration from RIGHT_2 and LEFT_2
 		float rightTrigger = getValueFromKey(GamepadPS4::PS4KEY::RIGHT_2, buffer) / 255.f;

@@ -1,6 +1,7 @@
 #include "hudcontroller.h"
 // troen
 #include "../view/hudview.h"
+#include "../constants.h"
 #include "../controller/bikecontroller.h"
 
 using namespace troen;
@@ -25,9 +26,17 @@ void HUDController::update() {
 	float speed = m_bikeController.lock()->getSpeed();
 	std::static_pointer_cast<HUDView>(m_view)->setSpeedText(speed);
     std::static_pointer_cast<HUDView>(m_view)->updateRadarCamera();
+
+	float health = m_bikeController.lock()->getHealth();
+	std::static_pointer_cast<HUDView>(m_view)->setHealthText(100 * health / BIKE_DEFAULT_HEALTH);
+
+	float points = m_bikeController.lock()->getPoints();
+	std::static_pointer_cast<HUDView>(m_view)->setPointsText(points);
+
 }
 
 void HUDController::setTrackNode(osg::Node* trackNode)
 {
     std::static_pointer_cast<HUDView>(m_view)->setTrackNode(trackNode);
 }
+

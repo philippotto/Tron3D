@@ -203,10 +203,14 @@ set(sources
 	source/sampleosgviewer.h
 	source/sampleosgviewer.cpp
 	source/gameeventhandler.h
+	source/globals.h
 	source/constants.h
 	source/constants.cpp
 	source/gamelogic.h
 	source/gamelogic.cpp
+
+	source/resourcepool.h
+	source/resourcepool.cpp
 
 	source/input/keyboard.h
 	source/input/keyboard.cpp
@@ -236,6 +240,7 @@ set(sources
 	source/model/physicsworld.h
 	source/model/physicsworld.cpp
 	source/model/bikemotionstate.h
+	source/model/objectinfo.h
 
 	source/controller/bikecontroller.h
 	source/controller/bikecontroller.cpp
@@ -247,6 +252,9 @@ set(sources
 	source/controller/abstractcontroller.cpp
 	source/controller/hudcontroller.h
 	source/controller/hudcontroller.cpp
+	source/controller/itemcontroller.h
+	source/controller/itemcontroller.cpp
+
 
 	source/view/bikeview.h
 	source/view/bikeview.cpp
