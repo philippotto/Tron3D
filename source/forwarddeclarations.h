@@ -34,9 +34,16 @@ namespace osg
 	class Image;
 }
 
+namespace osgText
+{
+	class Text;
+}
+
+
 namespace osgGA
 {
 	class CameraManipulator;
+	class NodeTrackerManipulator;
 }
 
 // Bullet

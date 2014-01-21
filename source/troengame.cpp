@@ -4,7 +4,6 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
-#include <osgViewer/ViewerEventHandlers>
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>
@@ -49,7 +48,7 @@ m_usePostProcessing(false),
 m_testPerformance(false)
 {
 	QObject();
-	
+
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
 	}
@@ -87,7 +86,7 @@ void TroenGame::resize(int width, int height){
 	if (m_postProcessing){
 		m_postProcessing->setupTextures(width, height);
 	}
-	
+
 	for (auto hudController : m_HUDControllers)
 	{
 		hudController->resize(width, height);
@@ -121,7 +120,7 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 bool TroenGame::initialize()
 {
 	m_rootNode = new osg::Group;
-	
+
 
 	// careful about the order of initialization
 	osg::DisplaySettings::instance()->setNumMultiSamples(NUM_MULTISAMPLES);
@@ -208,7 +207,7 @@ bool TroenGame::initializeControllers()
 			&m_resourcePool)
 		);
 	}
-	
+
 	for (auto bikeController : m_bikeControllers) {
 		m_HUDControllers.push_back(std::make_shared<HUDController>(bikeController));
 	}
@@ -237,6 +236,7 @@ bool TroenGame::initializeGameLogic()
 
 bool TroenGame::initializeViews()
 {
+
 	m_statsHandler = new osgViewer::StatsHandler;
 	m_statsHandler->setKeyEventTogglesOnScreenStats(osgGA::GUIEventAdapter::KEY_T);
 	m_statsHandler->setKeyEventPrintsOutStats(osgGA::GUIEventAdapter::KEY_P);
@@ -244,26 +244,26 @@ bool TroenGame::initializeViews()
 
 	m_gameEventHandler = new GameEventHandler(this, m_gameLogic);
 
-	
+
 		int currentIndex = -1;
 		for (auto bikeController : m_bikeControllers) {
 			currentIndex++;
 
 			// TODO: is there a better place for this?
 			m_playerNodes.push_back(new osg::Group());
-			
+
 			osg::ref_ptr<osgViewer::View> newGameView = new osgViewer::View();
 			newGameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
 			newGameView->setSceneData(m_playerNodes[currentIndex]);
 
 			osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 				= new NodeFollowCameraManipulator();
-			
+
 			newGameView->setCameraManipulator(manipulator.get());
-			
-			bikeController->attachTrackingCamera(manipulator);
+
+			bikeController->attachTrackingCameras(manipulator, m_HUDControllers[currentIndex]);
 			bikeController->attachGameView(newGameView);
-			
+
 			newGameView->addEventHandler(m_gameEventHandler);
 			newGameView->addEventHandler(m_statsHandler);
 
@@ -285,7 +285,7 @@ bool TroenGame::initializeViews()
 			if (!m_splitscreen)
 				break;
 		}
-	
+
 
 	return true;
 }
@@ -341,7 +341,7 @@ bool TroenGame::composeSceneGraph()
 		osg::Viewport * viewport = m_gameViews[0]->getCamera()->getViewport();
 
 		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
-		
+
 		m_sceneNode = m_postProcessing->getSceneNode();
 
 		//explicit call, to enable glow from start
@@ -353,12 +353,12 @@ bool TroenGame::composeSceneGraph()
 	for (auto playerNode : m_playerNodes) {
 		playerNode->addChild(m_rootNode);
 	}
-	
+
 
 	// TODO (Philipp): uniforms
 	/*m_test1 = new osg::Uniform("test", 0.1);
 	m_firstPlayerGroup->getOrCreateStateSet()->addUniform(m_test1);*/
-	
+
 
 
 	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
@@ -379,7 +379,7 @@ bool TroenGame::composeSceneGraph()
 		currentIndex++;
 		playerNode->addChild(m_HUDControllers[currentIndex]->getViewNode());
 	}
-		
+
 
 	if (m_usePostProcessing)
 		m_rootNode->addChild(m_sceneNode);
@@ -391,7 +391,7 @@ bool TroenGame::composeSceneGraph()
 
 	for (auto hudController : m_HUDControllers) {
 		hudController->attachSceneToRadarCamera(radarScene);
-	}	
+	}
 
 	return true;
 }
@@ -505,11 +505,11 @@ void TroenGame::startGameLoop()
 			{
 				for (auto hudController : m_HUDControllers)
 					hudController->update();
-				
+
 				for (auto viewer : m_viewers) {
 					viewer->frame();
 				}
-				
+
 				if (!nearPlaneAdapted) {
 					// TODO: find a way to eleminate this workaround
 					// doesn't work if it's executed earlier

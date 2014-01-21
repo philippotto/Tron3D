@@ -181,8 +181,8 @@ void AudioManager::detectBeat(float tickCount)
 		spec[i] = (specLeft[i] + specRight[i]) / 2;
 
 	// Find max volume
-	auto maxIterator = std::max_element(&spec[0], &spec[sampleSize]);
-	float maxVol = *maxIterator;
+	//auto maxIterator = std::max_element(&spec[0], &spec[sampleSize]);
+	//float maxVol = *maxIterator;
 
 	// Normalize
 	// doesn't give good values? maybe sampleSize should be increased?

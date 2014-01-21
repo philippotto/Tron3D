@@ -245,7 +245,7 @@ namespace osgAnimation
     {
         inline static void getValueAt(float t, float& result)
         {
-            float s = 1.70158 * 1.525f;
+            float s = 1.70158f * 1.525f;
             t *= 2.0f;
             if (t < 1.0f)
             {

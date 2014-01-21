@@ -5,7 +5,6 @@
 #include <QColor>
 // OSG
 #include <osg/ref_ptr>
-#include <osg/PositionAttitudeTransform>
 #include <osg/ShapeDrawable>
 #include <osgGA/GUIEventAdapter>
 #include <osg/Group>
