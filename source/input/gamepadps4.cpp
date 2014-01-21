@@ -11,6 +11,24 @@
 
 using namespace troen::input;
 
+void printBinary(unsigned char *buffer, int iStart, int iEnd){
+	unsigned long ulBytes = 0x00;
+	unsigned long n = ulBytes;
+	for (int i = iStart; i < iEnd; i++) {
+		long n = ulBytes | buffer[i];
+		for (int j = 0; j < 8; j++) {
+			if (n & 1)
+				printf("1");
+			else
+				printf("0");
+			n >>= 1;
+		}
+		printf(" ");
+	}
+	printf("\n");
+}
+
+
 GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState)
 {
 	m_deadzoneX = 0.05f;
@@ -20,24 +38,98 @@ GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDev
 	hid_init();
 
 	_controller = hid_open(VID, PID, nullptr);
+	unsigned char* b = (unsigned char*)malloc(1000000);
+	int start, end;
+	/*start = 1;
+	end = 1000;*/
+	start = 32;
+	end = 33;
 
-	for (int i = 0; i < 100096; i++) {
-		unsigned char* b = (unsigned char*)malloc(i);
-		//memset(b, 255, sizeof(b));
-		//b[0] = 0;
-		//b[(int) g_currentTime / 1000] = 255;
-		//std::cout << pow(2.f, (float)((int)g_currentTime / 1000)) << std::endl;
-		//printBinary(b, 0, sizeof(b));
-		//std::cout << hid_write(_controller, b, sizeof(b)) << std::endl;
-		memset(b, 0, sizeof(b));
-		b[0] = 0;
-		if (hid_get_feature_report(_controller, b, sizeof(b)) != -1)
-		//if (hid_read(_controller, b, i) != -1)
-			std::cout << "FOUND" << i << std::endl;
-		std::cout << _controller->output_report_length << std::endl;
-		//std::cout << b << std::endl;
-		//std::wcout << hid_error(_controller) << std::endl;
-		//free(b);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << "starting................." << std::endl;
+
+	b[0] = 5;
+	b[1] = 111;
+	b[2] = 247;
+	b[3] = 188;
+	b[4] = 241;
+	b[5] = 115;
+	b[6] = 95;
+	b[7] = 134;
+	b[8] = 152;
+	b[9] = 117;
+	b[10] = 169;
+	b[11] = 64;
+	b[12] = 235;
+	b[13] = 127;
+	b[14] = 21;
+	b[15] = 97;
+	b[16] = 108;
+	b[17] = 11;
+	b[18] = 3;
+	b[19] = 106;
+	b[20] = 25;
+	b[21] = 146;
+	b[22] = 185;
+	b[23] = 12;
+	b[24] = 205;
+	b[25] = 45;
+	b[26] = 29;
+	b[27] = 46;
+	b[28] = 83;
+	b[29] = 137;
+	b[30] = 248;
+	b[31] = 121;
+
+	// probably not important
+	// b[32] = (int)0;
+
+	// toggles (?) first (?) motor
+	// 255 always vibrate
+	// modifying 4. byte lowers velocity
+	b[1] = 255;
+
+	// use 2, 3, 4 to adjust strength?
+	
+	for (int i = 0; i < 6; i++)
+	{
+		if (i == 1)
+			continue;
+		int oldValue = b[i];
+		
+		b[i] = 0;
+		int returnV = hid_write(_controller, b, 32);
+		if (returnV != -1)
+			std::cout << " you may change byte at index: " << i << std::endl;
+
+		sleep(1);
+		b[i] = oldValue;
+	}
+
+	std::cout << "now b[1] is 0" << std::endl;
+
+
+	// at 4 is no vibration (when setting byte 4 to 128 there is no vibration?)
+	// at 5 is no vibration (when setting byte 5 to 0)
+
+	b[1] = 0;
+
+	// use 2, 3, 4 to adjust strength?
+
+	for (int i = 0; i < 6; i++)
+	{
+		if (i == 1)
+			continue;
+		int oldValue = b[i];
+
+		b[i] = 0;
+		int returnV = hid_write(_controller, b, 32);
+		if (returnV != -1)
+			std::cout << " you may change byte at index: " << i << std::endl;
+
+		sleep(1);
+		b[i] = oldValue;
 	}
 }
 
@@ -124,22 +216,6 @@ int GamepadPS4::getBitAt(int k, unsigned char * buffer){
 	return -1;
 }
 
-void printBinary(unsigned char *buffer, int iStart, int iEnd){
-	unsigned long ulBytes = 0x00;
-	unsigned long n = ulBytes;
-	for (int i = iStart; i<iEnd; i++) {
-		long n = ulBytes | buffer[i];
-		for (int j = 0; j < 8; j++) {
-			if (n & 1)
-				printf("1");
-			else
-				printf("0");
-			n >>= 1;
-		}
-		printf(" ");
-	}
-	printf("\n");
-}
 
 //check for events and handle them
 void GamepadPS4::run()
