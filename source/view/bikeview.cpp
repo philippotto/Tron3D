@@ -112,8 +112,10 @@ BikeView::BikeView(osg::Vec3 color)
 	osg::ref_ptr<osg::ShapeDrawable> debugShape = new osg::ShapeDrawable;
 	debugShape->setShape(new osg::Box(osg::Vec3(), 2 ,4, 2));
 	debugShape->setColor(osg::Vec4f(1,1,1,1));
+
 	osg::ref_ptr<osg::Geode> debugNode = new osg::Geode;
 	debugNode->addDrawable(debugShape.get());
+	debugNode->setName("bikeDebugNode");
 
 	matrixTransform->addChild(debugNode);
 

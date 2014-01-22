@@ -12,7 +12,7 @@ namespace troen
 	class Reflection
 	{
 		public:
-			Reflection(osg::ref_ptr<osg::Group> sceneNode, osg::ref_ptr<osg::Node> reflectionSurface, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap);
+			Reflection(osg::ref_ptr<osg::Group> sceneNode, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap);
 
 			virtual osg::ref_ptr<osg::Group> getReflectionCameraGroup();	
 

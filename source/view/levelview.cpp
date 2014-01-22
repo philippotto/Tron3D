@@ -68,6 +68,7 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 
 	addShaderAndUniforms(m_floors, shaders::GRID, levelSize);
 	m_floors->setNodeMask(CAMERA_MASK_MAIN);
+	m_floors->setName("debugFloorsNode");
 	floorsGroup->addChild(m_floors);
 
 	osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());
@@ -80,6 +81,7 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 {
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
+	obstaclesGroup->setName("debugObstaclesGroup");
 
 	osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles()); 
 	osg::StateSet *obstaclesStateSet = obstacles->getOrCreateStateSet();
