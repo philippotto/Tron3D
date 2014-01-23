@@ -32,7 +32,7 @@ void main()
 	//vec4 refr = env(q);
 	
 	//gl_FragData[0] = textureCube(skyDome,r);
-	//gl_FragData[0] = texture(reflectionTex,uv*10.0);
+	gl_FragData[0] = texture(reflectionTex,uv);
 	int glowIntesity_int = int(clamp(0.0,100.0,glowIntensity*100.0));
 	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
 	gl_FragData[1] = vec4(modelID, glowIntensity,0,0);

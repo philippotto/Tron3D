@@ -156,11 +156,11 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
 	initializeViews();
 	initializeViewer();
+	initializeReflection();
 	
 
 	std::cout << "[TroenGame::initialize] postprocessing & scenegraph ..." << std::endl;
 	composeSceneGraph();
-	initializeReflection();
 
 	std::cout << "[TroenGame::initialize] input ..." << std::endl;
 	initializeInput();
@@ -249,7 +249,7 @@ bool TroenGame::initializeGameLogic()
 
 bool TroenGame::initializeReflection()
 {
-	m_reflectionNode = (new Reflection(m_sceneNode, m_gameView, m_skyDome->getSkyboxTexture()))->getReflectionCameraGroup();
+	m_reflectionNode = (new Reflection(m_levelController->getViewNode(), m_gameView, m_skyDome->getSkyboxTexture()))->getReflectionCameraGroup();
 	return true;
 }
 
@@ -369,7 +369,6 @@ bool TroenGame::composeSceneGraph()
 	m_sceneNode->addChild(m_levelController->getViewNode());
 	m_sceneNode->addChild(m_sunLightSource.get());
 
-	m_reflectionNode = new osg::Group();
 	m_rootNode->addChild(m_reflectionNode);
 	
 	for (auto bikeController : m_bikeControllers)

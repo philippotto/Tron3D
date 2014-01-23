@@ -54,8 +54,11 @@ public:
 			osg::Camera				*camera = static_cast<osg::Camera
 				*>(node->asGroup()->getChild(0));
 
-			camera->setProjectionMatrix(m_gameView->getCamera()->getProjectionMatrix());
-			camera->setViewMatrix(m_gameView->getCamera()->getViewMatrix());
+			//camera->setProjectionMatrix(m_gameView->getCamera()->getProjectionMatrix());
+			//camera->setViewMatrix(m_gameView->getCamera()->getViewMatrix());
+
+			camera->setProjectionMatrix(cv->getCurrentCamera()->getProjectionMatrix());
+			camera->setViewMatrix(cv->getCurrentCamera()->getViewMatrix());
 
 			//camera->setViewMatrix(m_reflectionMatrix * m_gameView->getCamera()->getViewMatrix());
 			//camera->setProjectionMatrix(m_gameView->getCamera()->getProjectionMatrix());
@@ -106,24 +109,26 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> sceneNode,osg::ref_ptr<osgViewer
 	reflectionCamera = new osg::Camera();
 	reflectionTransform = new osg::MatrixTransform();
 
-	reflectionCamera->setClearMask(GL_DEPTH_BUFFER_BIT);
+	reflectionCamera->setClearMask(GL_DEPTH_BUFFER_BIT |GL_COLOR_BUFFER_BIT);
 	reflectionCamera->setRenderOrder(osg::Camera::PRE_RENDER);
 	reflectionCamera->setClearColor(osg::Vec4(0.0f, 1.f, 0.0f, .5f));
 	reflectionCamera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 	reflectionCamera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 	reflectionCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	reflectionCamera->setViewport(0, 0, texSize, texSize);
+	reflectionCamera->getOrCreateStateSet()->setAttributeAndModes(new osg::ClipPlane(0, osg::Vec4d(0.0, 0.0, 0.0, 0.0)), osg::StateAttribute::ON);
 
+	//reflectionCamera->setCullCallback(new CUpdateCameraCallback(gameView));
 	/////////test
-	//reflectionCamera->setProjectionMatrix(osg::Matrixd::ortho(-3500, 3500, -3500, 3500., 1.f, 600));
+	reflectionCamera->setProjectionMatrix(osg::Matrixd::ortho(-3500, 3500, -3500, 3500., 1.f, 600));
 	//////////
 
 
 	reflectionCamera->setClearDepth(1.0);
 
 
-	//reflectionCamera->setViewMatrix(osg::Matrixd::lookAt(osg::Vec3(0.0f, 0.0f, 300.0f), osg::Vec3(0.f, 0.f, 0.f), osg::Y_AXIS));
-	//reflectionCamera->setCullMask(CAMERA_MASK_MAIN);
+	reflectionCamera->setViewMatrix(osg::Matrixd::lookAt(osg::Vec3(0.0f, 0.0f, 300.0f), osg::Vec3(0.f, 0.f, 0.f), osg::Y_AXIS));
+	reflectionCamera->setCullMask(CAMERA_MASK_MAIN);
 
 	osg::ref_ptr<osg::Texture2D>	texture = new osg::Texture2D();
 	texture->setTextureSize(texSize, texSize);
@@ -137,7 +142,6 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> sceneNode,osg::ref_ptr<osgViewer
 	//reflectionCamera->getOrCreateStateSet()->setAttributeAndModes(new osg::ClipPlane(0, osg::Vec4d(0.0, 0.0, 0.0, 0.0)), osg::StateAttribute::ON);
 	//reflectionTransform->setMatrix(osg::Matrix::scale(1.0, 1.0, -1.0));
 
-	reflectionCamera->setCullCallback(new CUpdateCameraCallback(gameView));
 
 	cameraGroup->addChild(reflectionCamera);
 	reflectionCamera->addChild(reflectionTransform);
@@ -166,7 +170,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> sceneNode,osg::ref_ptr<osgViewer
 
 	reflectNode->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 0));
 
-	reflectNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
+	//reflectNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
 
 	//reflectionSurface->getOrCreateStateSet()->setTextureAttributeAndModes(1, cubeMap,
 	//	osg::StateAttribute::ON);
