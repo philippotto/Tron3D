@@ -371,35 +371,35 @@ bool TroenGame::composeSceneGraph()
 	/*m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
 	m_sceneNode->addChild(m_skyDome.get());*/
 
-	//m_sceneNode->addChild(m_levelController->getViewNode());
-	//m_sceneNode->addChild(m_sunLightSource.get());
+	m_sceneNode->addChild(m_levelController->getViewNode());
+	m_sceneNode->addChild(m_sunLightSource.get());
 
 	for (auto bikeController : m_bikeControllers)
 	{
-		//m_sceneNode->addChild(bikeController->getViewNode());
+		m_sceneNode->addChild(bikeController->getViewNode());
 	}
 
 	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
 
-	/*m_rootNode->addChild(m_hudSwitch);
+	m_rootNode->addChild(m_hudSwitch);
 	if (m_usePostProcessing)
-		m_rootNode->addChild(m_sceneNode);*/
+		m_rootNode->addChild(m_sceneNode);
 
-	/*osg::ref_ptr<osg::Group> radarScene = new osg::Group;
+	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
 	for (auto bikeController : m_bikeControllers)
-		radarScene->addChild(bikeController->getViewNode());*/
-	//radarScene->addChild(m_levelController->getViewNode());
+		radarScene->addChild(bikeController->getViewNode());
+	radarScene->addChild(m_levelController->getViewNode());
 
-	//m_HUDController->attachSceneToRadarCamera(radarScene);
+	m_HUDController->attachSceneToRadarCamera(radarScene);
 
-	m_sceneNode->addChild(osgDB::readNodeFile("data/models/images/checkerboard.3DS"));
+	//m_sceneNode->addChild(osgDB::readNodeFile("data/models/checkerboard_zwo.3DS"));
 
 
-	m_deformationRendering = new SplineDeformationRendering(m_sceneNode);
+	//m_deformationRendering = new SplineDeformationRendering(m_sceneNode);
 
-	m_deformationRendering->m_camera = m_gameView->getCamera();
+	//m_deformationRendering->m_camera = m_gameView->getCamera();
 
-	/*m_osgView->setSceneData(m_root.get());*/
+	m_osgView->setSceneData(m_root.get());
 
 	// get scene proportions
 	const osg::BoundingSphere& bs = m_sceneNode->getBound();
@@ -418,11 +418,20 @@ bool TroenGame::composeSceneGraph()
 	farD = radius *2.0;
 	cam->setProjectionMatrixAsPerspective(fov, aspectRatio, nearD, farD);
 
-	// propagate new planes
-	m_deformationRendering->setDeformationStartEnd(nearD, radius*0.75);
+	osg::Vec3 center = bs.center();
+	osg::Vec3 eye = center + osg::Vec3(0.0, 1.0, 0.5);
+	
+	osg::Vec3 up, dummy1, dummy2;
 
-	m_deformationRendering->toggleDeactiv(false);
-	m_deformationRendering->setPreset(0);
+	//cam->getViewMatrixAsLookAt(dummy1, dummy2, up);
+	//cam->setViewMatrixAsLookAt(eye, center, up);
+
+
+	// propagate new planes
+	//m_deformationRendering->setDeformationStartEnd(nearD, radius*0.75);
+
+	//m_deformationRendering->toggleDeactiv(false);
+	//m_deformationRendering->setPreset(1);
 
 
 	//m_sceneNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::BIKE], osg::StateAttribute::ON);

@@ -42,6 +42,26 @@ namespace troen
 					m_troenGame->getBendedViews()->reloadShaders();
 					return true;
 				}
+				case osgGA::GUIEventAdapter::KEY_1:
+				{
+					m_troenGame->getBendedViews()->setPreset(0);
+					return true;
+				}
+				case osgGA::GUIEventAdapter::KEY_2:
+				{
+					m_troenGame->getBendedViews()->setPreset(1);
+					return true;
+				}
+				case osgGA::GUIEventAdapter::KEY_3:
+				{
+					m_troenGame->getBendedViews()->setPreset(2);
+					return true;
+				}
+				case osgGA::GUIEventAdapter::KEY_4:
+				{
+					m_troenGame->getBendedViews()->setPreset(3);
+					return true;
+				}
 				case osgGA::GUIEventAdapter::KEY_Shift_R:
                 case osgGA::GUIEventAdapter::KEY_Shift_L:
 					m_troenGame->pauseEvent();
