@@ -38,7 +38,7 @@ namespace troen
 				case osgGA::GUIEventAdapter::KEY_R:
 				{
 					std::cout << "Reloading shaders" << std::endl;
-					// shaders::reloadShaders();
+					shaders::reloadShaders();
 					m_troenGame->getBendedViews()->reloadShaders();
 					return true;
 				}

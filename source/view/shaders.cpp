@@ -47,18 +47,18 @@ void shaders::reloadShader(
 
 		osg::ref_ptr<osg::Shader> fragShader = new osg::Shader(osg::Shader::FRAGMENT);
 		loadShaderSource(fragShader, fragmentFileName);
-		//program->addShader(fragShader);
+		program->addShader(fragShader);
 
 		if (vertexFileName != "")
 		{
 			osg::ref_ptr<osg::Shader> vertShader = new osg::Shader(osg::Shader::VERTEX);
 			loadShaderSource(vertShader, vertexFileName);
-			//program->addShader(vertShader);
+			program->addShader(vertShader);
 		}
-		
+
 		std::string *mystr;
 		mystr = new std::string(osgDB::getStrippedName(fragmentFileName));
-		
+
 		program->setName(*mystr);
 	}
 }

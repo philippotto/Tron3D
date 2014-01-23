@@ -62,14 +62,14 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 
 	floorsGroup->addChild(osgDB::readNodeFile("data/models/images/checkerboard.3DS"));
 
-	/*osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
+	osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
     addShaderAndUniforms(floors, shaders::GRID, levelSize);
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
 
 	osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());
 	radarFloors->setNodeMask(CAMERA_MASK_RADAR);
-	floorsGroup->addChild(radarFloors);*/
+	floorsGroup->addChild(radarFloors);
 
     return floorsGroup;
 }
@@ -78,7 +78,7 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 {
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
 
-	osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles()); 
+	osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles());
 	osg::StateSet *obstaclesStateSet = obstacles->getOrCreateStateSet();
 	obstaclesStateSet->ref();
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
@@ -97,12 +97,12 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 
 void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Group>& group, int shaderIndex, int levelSize)
 {
-	/*osg::StateSet *stateSet = group->getOrCreateStateSet();
+	osg::StateSet *stateSet = group->getOrCreateStateSet();
 	stateSet->ref();
 
 	stateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaderIndex], osg::StateAttribute::ON);
 	stateSet->addUniform(new osg::Uniform("levelSize", levelSize));
-	stateSet->addUniform(new osg::Uniform("modelID", DEFAULT));*/
+	stateSet->addUniform(new osg::Uniform("modelID", DEFAULT));
 }
 
 osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel> &boxes)
@@ -118,7 +118,7 @@ osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel>
 		// create obstacle
 		osg::ref_ptr<osg::Box> box
 				= new osg::Box(osg::Vec3(0,0,0), dimensions.x(), dimensions.y(), dimensions.z());
-		
+
 		osg::ref_ptr<osg::ShapeDrawable> boxDrawable
 				= new osg::ShapeDrawable(box);
 		osg::ref_ptr<osg::Geode> boxGeode
@@ -211,7 +211,7 @@ void LevelView::addItemBox(osg::Vec3 position)
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
 	setTexture(obstaclesStateSet, "data/textures/turbostrip.tga", 0);
-	
+
 
 
 	obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
@@ -220,7 +220,7 @@ void LevelView::addItemBox(osg::Vec3 position)
 
 
 	// obstaclesGroup->addChild(obstacles);
-	
+
 
 
 

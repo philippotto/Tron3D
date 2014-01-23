@@ -366,10 +366,10 @@ bool TroenGame::composeSceneGraph()
 
 
 	}
-		
 
-	/*m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
-	m_sceneNode->addChild(m_skyDome.get());*/
+
+	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
+	m_sceneNode->addChild(m_skyDome.get());
 
 	m_sceneNode->addChild(m_levelController->getViewNode());
 	m_sceneNode->addChild(m_sunLightSource.get());
@@ -399,14 +399,14 @@ bool TroenGame::composeSceneGraph()
 
 	//m_deformationRendering->m_camera = m_gameView->getCamera();
 
-	m_osgView->setSceneData(m_root.get());
+	m_gameView->setSceneData(m_rootNode);
 
 	// get scene proportions
 	const osg::BoundingSphere& bs = m_sceneNode->getBound();
-	
+
 	float radius = bs.radius();
 	std::cout << radius << " " << bs.center()[0] << " " << bs.center()[1] << " " << bs.center()[2] << std::endl;
-	
+
 	// setup camera
 	osg::ref_ptr<osg::Camera> cam = m_gameView->getCamera();
 	double fov, aspectRatio, nearD, farD;
@@ -420,7 +420,7 @@ bool TroenGame::composeSceneGraph()
 
 	osg::Vec3 center = bs.center();
 	osg::Vec3 eye = center + osg::Vec3(0.0, 1.0, 0.5);
-	
+
 	osg::Vec3 up, dummy1, dummy2;
 
 	//cam->getViewMatrixAsLookAt(dummy1, dummy2, up);
@@ -434,7 +434,6 @@ bool TroenGame::composeSceneGraph()
 	//m_deformationRendering->setPreset(1);
 
 
-	//m_sceneNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::BIKE], osg::StateAttribute::ON);
 
 	return true;
 }
