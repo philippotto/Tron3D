@@ -7,6 +7,8 @@
 #include <osg/ref_ptr>
 #include <osg/ShapeDrawable>
 #include <osgGA/GUIEventAdapter>
+#include <osg/Group>
+
 // troen
 #include "forwarddeclarations.h"
 
@@ -44,8 +46,6 @@ namespace troen
 		void unpauseSimulation();
 
 		void resize(int width, int height);
-		void setFovy(float newFovy);
-		float getFovy();
 
 	public slots:
 		void prepareAndStartGame(GameConfig config);
@@ -54,7 +54,6 @@ namespace troen
 		bool initialize();
 		bool initializeViews();
 		bool initializeViewer();
-		bool initializeHud();
 		bool initializeControllers();
 		bool initializeInput();
 		bool composeSceneGraph();
@@ -69,15 +68,15 @@ namespace troen
 		bool shutdown();
 		void startGameLoop();
 
+		void fixCulling(osg::ref_ptr<osgViewer::View>& view);
+
 		// TODO
 		// implement some kind of menu to start the game from
 		//osg::ref_ptr<osgViewer::View>		m_menuView;
 
 		// OSG Components
-		osg::ref_ptr<SampleOSGViewer>		m_sampleOSGViewer;
-		osg::ref_ptr<SampleOSGViewer>		m_sampleOSGViewer2;
-		osg::ref_ptr<osgViewer::View>		m_gameView;
-		osg::ref_ptr<osgViewer::View>		m_gameView2;
+		std::vector<osg::ref_ptr<SampleOSGViewer>>	m_viewers;
+		std::vector<osg::ref_ptr<osgViewer::View>>	m_gameViews;
 
 		osg::ref_ptr<GameEventHandler>		m_gameEventHandler;
 		osg::ref_ptr<osg::Group>			m_rootNode;
@@ -85,15 +84,16 @@ namespace troen
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
-		osg::ref_ptr<osg::Switch>			m_hudSwitch;
 		osg::ref_ptr<osg::LightSource>		m_sunLightSource;
 
 
 		// Controllers
 		std::shared_ptr<LevelController>	m_levelController;
 		std::vector<std::shared_ptr<BikeController>> m_bikeControllers;
-		std::shared_ptr<HUDController>		m_HUDController;
-
+		std::vector<std::shared_ptr<HUDController>>		m_HUDControllers;
+		
+		std::vector<osg::ref_ptr<osg::Group>> m_playerNodes;
+		
 		QThread*							m_gameThread;
 		std::shared_ptr<util::ChronoTimer>	m_timer;
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
@@ -114,5 +114,9 @@ namespace troen
 		bool m_usePostProcessing;
 		bool m_useDebugView;
 		bool m_testPerformance;
+
+
+		osg::Uniform* m_test1;
+		osg::Uniform* m_test2;
 	};
 }

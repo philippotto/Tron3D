@@ -37,6 +37,7 @@ m_initialTransform(initialTransform)
 
 	m_health = BIKE_DEFAULT_HEALTH;
 	m_points = 0;
+	m_speed = 0;
 	m_timeOfLastCollision = -1;
 
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
@@ -164,12 +165,12 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 	}
 }
 
-osg::ref_ptr<input::Keyboard> BikeController::getEventHandler()
+osg::ref_ptr<input::Keyboard> BikeController::getKeyboardHandler()
 {
 	return m_keyboardHandler;
 }
 
-bool BikeController::hasEventHandler()
+bool BikeController::hasKeyboardHandler()
 {
 	return m_keyboardHandler != nullptr;
 }

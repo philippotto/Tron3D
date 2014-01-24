@@ -33,8 +33,8 @@ namespace troen
 
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
-		osg::ref_ptr<input::Keyboard> getEventHandler();
-		bool hasEventHandler();
+		osg::ref_ptr<input::Keyboard> getKeyboardHandler();
+		bool hasKeyboardHandler();
 		float getSpeed();
 		float getHealth();
 		float getPoints();

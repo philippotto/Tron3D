@@ -54,7 +54,7 @@ osg::Camera* HUDView::createHUD()
 
 		osgText::Font *font = osgText::readFontFile("data/fonts/tr2n.ttf");
 
-		// turn lighting off for the text and disable depth test to ensure it's always ontop.
+		// turn lighting off for the text and disable depth test to ensure it's always on top.
 		osg::StateSet* stateset = geode->getOrCreateStateSet();
 		stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
