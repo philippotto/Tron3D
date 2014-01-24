@@ -13,6 +13,9 @@
 #include <osgGA/StateSetManipulator>
 #include <osgDB/FileNameUtils>
 #include <stdio.h>
+
+#include <osgDB/FileUtils>
+#include <osgDB/FileNameUtils>
 // troen
 
 #include "shaders.h"
@@ -25,8 +28,8 @@ static osg::ref_ptr<osg::Uniform> g_nearFarUniform = new osg::Uniform("nearFar",
 
 using namespace troen;
 
-PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height)
-:m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height)
+PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height, OVR::HMDInfo* hmd)
+:m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height), m_hmd(hmd)
 {
 	AbstractView();
 	// init textures, will be recreated when screen size changes
@@ -35,30 +38,46 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 	// create shaders
 	shaders::reloadShaders();
 
-	////////////////////////////////////////
-	// Multi pass rendering and Ping Pong //
-	////////////////////////////////////////
-
-	// 1. gBuffer pass: render color, normal & depth, id buffer
-	unsigned int pass = 0;
-	m_allCameras.push_back(gBufferPass()); 
-	m_root->addChild(m_allCameras[pass++]);
 	
-	// 2. prepare pass: render id buffer as seeds into PONG texture
-	//TEXTURE_CONTENT pingPong[] = { PING, PONG };
-	// start writing into PONG buffer (pass == 1 )
+	if (m_useOculus) {
+		unsigned int pass = 0;
+		m_allCameras.push_back(oculusPass(true));
+		m_root->addChild(m_allCameras[pass++]);
 
-	m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::SELECT_GLOW_OBJECTS, -1.0));
-	m_root->addChild(m_allCameras[pass++]);
-	
-	m_allCameras.push_back(pingPongPass(pass, PONG, PING, shaders::HBLUR, -1.0));
-	m_root->addChild(m_allCameras[pass++]);
-		
-	m_allCameras.push_back(pingPongPass(pass, PING, PONG, shaders::VBLUR, -1.0));
-	m_root->addChild(m_allCameras[pass++]);
+		m_allCameras.push_back(oculusPass(false));
+		m_root->addChild(m_allCameras[pass++]);
 
-	m_allCameras.push_back(postProcessingPass());
-	m_root->addChild(m_allCameras[m_allCameras.size() - 1]);
+		m_allCameras.push_back(mergeEyes());
+		m_root->addChild(m_allCameras[pass++]);
+	}
+	else {
+
+
+		////////////////////////////////////////
+		// Multi pass rendering and Ping Pong //
+		////////////////////////////////////////
+
+		// 1. gBuffer pass: render color, normal & depth, id buffer
+		unsigned int pass = 0;
+		m_allCameras.push_back(gBufferPass());
+		m_root->addChild(m_allCameras[pass++]);
+
+		// 2. prepare pass: render id buffer as seeds into PONG texture
+		//TEXTURE_CONTENT pingPong[] = { PING, PONG };
+		// start writing into PONG buffer (pass == 1 )
+
+		m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::SELECT_GLOW_OBJECTS, -1.0));
+		m_root->addChild(m_allCameras[pass++]);
+
+		m_allCameras.push_back(pingPongPass(pass, PONG, PING, shaders::HBLUR, -1.0));
+		m_root->addChild(m_allCameras[pass++]);
+
+		m_allCameras.push_back(pingPongPass(pass, PING, PONG, shaders::VBLUR, -1.0));
+		m_root->addChild(m_allCameras[pass++]);
+
+		m_allCameras.push_back(postProcessingPass());
+		m_root->addChild(m_allCameras[m_allCameras.size() - 1]);
+	}
 }
 
 // sets up textures
@@ -80,29 +99,44 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		if (!m_fboTextures[i].get()) {
 			m_fboTextures[i] = new osg::Texture2D();
 		}
-				
-		if ((i == PING || i == PONG) && HALF_PINGPONGTEXTURE_WIDTH) {
-			m_fboTextures[i]->setTextureWidth(halfedWidth);
-			m_fboTextures[i]->setTextureHeight(halfedHeight);
-		} else {
+		
+		if (m_useOculus) {
+
+			
+			//m_fboTextures[i]->setTextureWidth(halfedWidth);
 			m_fboTextures[i]->setTextureWidth(width);
 			m_fboTextures[i]->setTextureHeight(height);
-		}
 
-		// higher resolution
-		if (i == ID)
-		{
-			m_fboTextures[i]->setInternalFormat(GL_RG);
-			m_fboTextures[i]->setSourceFormat(GL_RG);
-			m_fboTextures[i]->setSourceType(GL_FLOAT);
-		}
-		else
-		{
 			m_fboTextures[i]->setInternalFormat(GL_RGBA);
 			m_fboTextures[i]->setSourceFormat(GL_RGBA);
 			m_fboTextures[i]->setSourceType(GL_FLOAT);
-		}
 
+		} else {
+
+
+			if ((i == PING || i == PONG) && HALF_PINGPONGTEXTURE_WIDTH) {
+				m_fboTextures[i]->setTextureWidth(halfedWidth);
+				m_fboTextures[i]->setTextureHeight(halfedHeight);
+			}
+			else {
+				m_fboTextures[i]->setTextureWidth(width);
+				m_fboTextures[i]->setTextureHeight(height);
+			}
+		
+			// higher resolution
+			if (i == ID)
+			{
+				m_fboTextures[i]->setInternalFormat(GL_RG);
+				m_fboTextures[i]->setSourceFormat(GL_RG);
+				m_fboTextures[i]->setSourceType(GL_FLOAT);
+			}
+			else
+			{
+				m_fboTextures[i]->setInternalFormat(GL_RGBA);
+				m_fboTextures[i]->setSourceFormat(GL_RGBA);
+				m_fboTextures[i]->setSourceType(GL_FLOAT);
+			}
+		}
 		m_fboTextures[i]->setBorderWidth(0);
 		m_fboTextures[i]->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
 		m_fboTextures[i]->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
@@ -114,16 +148,36 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		// important to reflect the change in size
 		m_fboTextures[i]->dirtyTextureObject();
 	}
-
+	
+	
+	
 	// important to reflect the change in size for the FBO
 	if (m_allCameras.size() > 0)
 	{
-		for (size_t i = 0, iEnd = m_allCameras.size(); i < iEnd; i++)
-		{
-			m_allCameras[i]->setRenderingCache(0);
-			if (i  != 0 && i != iEnd - 1 && HALF_PINGPONGTEXTURE_WIDTH)
-				// only draw with halfed resolution, if we process the gbuffer + postprocessing pass
-				m_allCameras[i]->setViewport(new osg::Viewport(0, 0, halfedWidth, halfedHeight));
+		if (m_useOculus) {
+			m_allCameras[0]->setRenderingCache(0);
+			m_allCameras[1]->setRenderingCache(0);
+			m_allCameras[2]->setRenderingCache(0);
+
+
+			// TODO: remove this line
+			halfedWidth = width;
+
+			m_allCameras[0]->setViewport(new osg::Viewport(0, 0, halfedWidth, height));
+			m_allCameras[1]->setViewport(new osg::Viewport(halfedWidth, 0, halfedWidth, height));
+			m_allCameras[2]->setViewport(new osg::Viewport(0, 0, width, height));
+
+			
+		}
+		else {
+			
+			for (size_t i = 0, iEnd = m_allCameras.size(); i < iEnd; i++)
+			{
+				m_allCameras[i]->setRenderingCache(0);
+				if (i  != 0 && i != iEnd - 1 && HALF_PINGPONGTEXTURE_WIDTH)
+					// only draw with halfed resolution, if we process the gbuffer + postprocessing pass
+					m_allCameras[i]->setViewport(new osg::Viewport(0, 0, halfedWidth, halfedHeight));
+			}
 		}
 	}
 }
@@ -276,6 +330,123 @@ bool PostProcessing::handleGuiEvents(const osgGA::GUIEventAdapter& ea, osgGA::GU
 	}
 	else return false;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////// Oculus Specific Code ///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
+{
+	// /////////////
+	osg::ref_ptr<osg::Camera> cam = new osg::Camera();
+	TEXTURE_CONTENT SIDE = left ? LEFT : RIGHT;
+	
+	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER), m_fboTextures[SIDE]);
+	
+
+	// Configure fboCamera to draw fullscreen textured quad
+	// black clear color
+	cam->setClearColor(osg::Vec4(0.0, 0.0, 0.5, 1.0));
+	cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
+
+	cam->setReferenceFrame(osg::Camera::RELATIVE_RF);
+	cam->setRenderOrder(osg::Camera::POST_RENDER, 0);
+
+	cam->addChild(m_sceneNode);
+
+
+	if (left)
+		cam->setViewport(new osg::Viewport(0, 0, m_width / 2, m_height));
+	else 
+		cam->setViewport(new osg::Viewport(m_width / 2, 0, m_width / 2, m_height));
+	
+
+	// attach shader program
+	cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->addUniform(new osg::Uniform("colorTex", SIDE));
+	cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
+	cam->getOrCreateStateSet()->setTextureAttributeAndModes(0, m_fboTextures[SIDE], osg::StateAttribute::ON);
+
+
+	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
+
+	//g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
+	//cam->getOrCreateStateSet()->addUniform(g_nearFarUniform);
+	
+	// calculation
+
+
+	// for stereo rendering.
+	OVR::Util::Render::StereoConfig stereo;
+	stereo.SetFullViewport(OVR::Util::Render::Viewport(0, 0, m_width, m_height));
+	stereo.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
+	stereo.SetHMDInfo(*m_hmd);
+	stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
+	float renderScale = stereo.GetDistortionScale();
+
+	if (left) {
+		// Left eye rendering parameters
+
+		OVR::Util::Render::StereoEyeParams leftEye = stereo.GetEyeRenderParams(OVR::Util::Render::StereoEye_Left);
+		OVR::Util::Render::Viewport leftVP = leftEye.VP;
+		OVR::Matrix4f leftProjection = leftEye.Projection;
+		OVR::Matrix4f leftViewAdjust = leftEye.ViewAdjust;
+		osg::Matrixf leftProjectionOSG(*leftProjection.M);
+
+		//cam->setProjectionMatrix(leftProjectionOSG);
+	}
+	else {
+		// right eye rendering parameters
+		OVR::Util::Render::StereoEyeParams rightEye = stereo.GetEyeRenderParams(OVR::Util::Render::StereoEye_Right);
+		OVR::Util::Render::Viewport rightVP = rightEye.VP;
+		OVR::Matrix4f rightProjection = rightEye.Projection;
+		OVR::Matrix4f rightViewAdjust = rightEye.ViewAdjust;
+		osg::Matrixf rightProjectionOSG(*rightProjection.M);
+
+		//cam->setProjectionMatrix(rightProjectionOSG);
+	}
+	
+	return cam;
+}
+
+
+osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes()
+{
+	osg::ref_ptr<osg::Camera> postRenderCamera(new osg::Camera());
+
+	// input textures
+	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER), m_fboTextures[PONG]);
+
+	// configure postRenderCamera to draw fullscreen textured quad
+	postRenderCamera->setClearColor(osg::Vec4(0.0, 0.5, 0.0, 1)); // should never see this.
+	postRenderCamera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
+	postRenderCamera->setRenderOrder(osg::Camera::POST_RENDER);
+
+	// geometry
+	osg::Geode* geode(new osg::Geode());
+	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
+	geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+	postRenderCamera->addChild(geode);
+
+	// attach shader program
+	osg::ref_ptr<osg::StateSet>	state = postRenderCamera->getOrCreateStateSet();
+	state->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
+
+	state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_MERGE], osg::StateAttribute::ON);
+
+	state->addUniform(new osg::Uniform("left", LEFT));
+	state->addUniform(new osg::Uniform("right", RIGHT));
+
+	state->setTextureAttributeAndModes(0, m_fboTextures[PONG], osg::StateAttribute::ON);
+	
+
+	return postRenderCamera;
+}
+
 
 
 

@@ -22,7 +22,8 @@ void shaders::reloadShaders()
 	reloadShader(shaders::m_allShaderPrograms[POST_PROCESSING], "source/shaders/postprocessing.frag", "");
 	reloadShader(shaders::m_allShaderPrograms[OUTER_WALL], "source/shaders/outer_wall.frag", "source/shaders/outer_wall.vert");
 	reloadShader(shaders::m_allShaderPrograms[SELECT_GLOW_OBJECTS], "source/shaders/selectglowobjects.frag", "");
-
+	reloadShader(shaders::m_allShaderPrograms[OCULUS_MERGE], "source/shaders/oculusmerge.frag", "");
+	
 }
 
 void shaders::reloadShader(

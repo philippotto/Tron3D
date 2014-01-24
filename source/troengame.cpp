@@ -35,6 +35,12 @@
 #include "globals.h"
 
 
+
+#include <osgDB/ReadFile>
+#include <osgGA/TrackballManipulator>
+#include <osgViewer/Viewer>
+
+
 #include "OVR.h"
 using namespace OVR;
 
@@ -358,7 +364,7 @@ bool TroenGame::composeSceneGraph()
 	if (m_usePostProcessing)
 	{
 		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
-		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
+		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height(), m_hmd);
 		m_sceneNode = m_postProcessing->getSceneNode();
 
 		//explicit call, to enable glow from start
@@ -594,16 +600,16 @@ void troen::TroenGame::initializeOculus()
 	pHMD = *pManager->EnumerateDevices<HMDDevice>().CreateDevice();
 
 
-	HMDInfo hmd;
-	if (pHMD->GetDeviceInfo(&hmd))
+	m_hmd = new HMDInfo();
+	if (pHMD->GetDeviceInfo(m_hmd))
 	{
-		char * MonitorName = hmd.DisplayDeviceName;
-		float EyeDistance = hmd.InterpupillaryDistance;
+		char * MonitorName = m_hmd->DisplayDeviceName;
+		float EyeDistance = m_hmd->InterpupillaryDistance;
 		float DistortionK[4];
-		DistortionK[0] = hmd.DistortionK[0];
-		DistortionK[1] = hmd.DistortionK[1];
-		DistortionK[2] = hmd.DistortionK[2];
-		DistortionK[3] = hmd.DistortionK[3];
+		DistortionK[0] = m_hmd->DistortionK[0];
+		DistortionK[1] = m_hmd->DistortionK[1];
+		DistortionK[2] = m_hmd->DistortionK[2];
+		DistortionK[3] = m_hmd->DistortionK[3];
 
 
 		m_pSensor = pHMD->GetSensor();

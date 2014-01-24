@@ -16,16 +16,18 @@
 #include "abstractview.h"
 
 
+#include <OVR.h>
+
 namespace troen
 {
 
 	class PostProcessing : public AbstractView //, public osg::Referenced
 	{
 	public:
-		PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height);
+		PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height, OVR::HMDInfo* hmd);
 		
 		
-		enum TEXTURE_CONTENT { COLOR, ID, PING, PONG, OLDCOLOR, TEXTURE_CONTENT_SIZE };
+		enum TEXTURE_CONTENT { COLOR, ID, PING, PONG, OLDCOLOR, LEFT, RIGHT, TEXTURE_CONTENT_SIZE };
 
 		osg::ref_ptr<osg::Group> getSceneNode() { return m_sceneNode; };
 		osg::ref_ptr<osg::Camera> pingPongPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, int type, int step);
@@ -40,8 +42,16 @@ namespace troen
 		osg::Uniform* m_timeSinceLastBeat;
 		void setBeat(float beat);
 
+
+		// Oculus specific Code
+		bool m_useOculus = true;
+		OVR::HMDInfo* m_hmd;
+
+
 	protected:
 		osg::ref_ptr<osg::Camera> gBufferPass();
+		osg::ref_ptr<osg::Camera> oculusPass(bool left);
+		osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes();
 		osg::ref_ptr<osg::Camera> postProcessingPass();
 		//osg::ref_ptr<osg::Camera> distanceTransformPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, SHADER_PROGRAM_TYPES type, int step);
 

@@ -126,5 +126,6 @@ namespace troen
 
 		OVR::SensorFusion *m_SFusion;
 		OVR::SensorDevice *m_pSensor;
+		OVR::HMDInfo* m_hmd;
 	};
 }
