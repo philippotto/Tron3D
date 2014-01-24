@@ -146,8 +146,6 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(bikeNumberChanged(int)));
 
 	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(GameConfig)));
-
-
 }
 
 MainWindow::~MainWindow()
