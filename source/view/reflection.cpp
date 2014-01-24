@@ -121,7 +121,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> sceneNode,osg::ref_ptr<osgViewer
 
 	reflectionCamera->setClearMask(GL_DEPTH_BUFFER_BIT |GL_COLOR_BUFFER_BIT);
 	reflectionCamera->setRenderOrder(osg::Camera::PRE_RENDER);
-	reflectionCamera->setClearColor(osg::Vec4(0.0f, 1.f, 0.0f, .5f));
+	reflectionCamera->setClearColor(osg::Vec4(0.0f, 0.f, 0.0f, 1.0f));
 	reflectionCamera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 	reflectionCamera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 	reflectionCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
