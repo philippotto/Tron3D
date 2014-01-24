@@ -263,9 +263,10 @@ bool TroenGame::initializeViews()
 	//m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
 
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
-		= new NodeFollowCameraManipulator();
+		= new NodeFollowCameraManipulator(m_SFusion);
 	m_bikeControllers[0]->attachTrackingCameras(manipulator,m_HUDController);
-	m_gameView->setCameraManipulator(manipulator.get());
+	m_gameView->setCameraManipulator(manipulator.get());	
+		
 
 	m_statsHandler = new osgViewer::StatsHandler;
 	m_statsHandler->setKeyEventTogglesOnScreenStats(osgGA::GUIEventAdapter::KEY_T);
@@ -457,7 +458,7 @@ void TroenGame::startGameLoop()
 	while (!m_sampleOSGViewer->done())
 	{
 
-		getOcculusOrientation();
+		/*getOcculusOrientation();*/
 
 
 

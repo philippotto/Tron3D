@@ -3,7 +3,13 @@
 #include <osg/PositionAttitudeTransform>
 // troen
 #include "../constants.h"
+
+#include <OVR.h>
+
+using namespace OVR;
 using namespace troen;
+
+
 
 
 osg::Matrixd NodeFollowCameraManipulator::getMatrix() const
@@ -73,5 +79,22 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 	//nodePitchRelToFrame.makeRotate(pitch, osg::X_AXIS);
 	
 	rotationOfFrame = coordinateFrame.getRotate();
-	nodeRotation = nodeRollRelToFrame*nodeYawRelToFrame*rotationOfFrame;
+
+	if (m_SFusion) {
+		// or getOrientation()
+		Quatf hmdOrient = m_SFusion->GetOrientation();
+
+		float angle;
+		OVR::Vector3<float> axis;
+		hmdOrient.GetAxisAngle(&axis, &angle);
+
+		std::cout << "angle: " << angle << " quat: " << axis.x << " " << axis.y << " " << axis.z << std::endl;
+
+
+		osg::Vec3f vec3fAxis(axis.x, axis.z, axis.y);
+		nodeRotation = osg::Quat(angle, vec3fAxis);
+	} else {
+		nodeRotation = nodeRollRelToFrame*nodeYawRelToFrame*rotationOfFrame;
+	}
+	
 }
