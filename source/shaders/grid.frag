@@ -3,6 +3,7 @@
 uniform sampler2D reflectionTex;
 uniform samplerCube skyDome;
 uniform int modelID;
+uniform vec2 nearFar;
 uniform float glowIntensity;
 
 in vec2 uv;
@@ -33,7 +34,7 @@ void main()
 	
 	//gl_FragData[0] = textureCube(skyDome,r);
 	
-	vec4 vClipReflection = gl_ModelViewProjectionMatrix * vec4(vertex_objCoords.xy, 0.0 , 1.0);
+	vec4 vClipReflection = gl_ModelViewProjectionMatrix * vec4(vertex_objCoords.xy, 10.0 , 1.0);
 	vec2 vDeviceReflection = vClipReflection.xy / vClipReflection.w;
 	vec2 vTextureReflection = vec2(0.5) + 0.5 * vDeviceReflection;
 
@@ -41,7 +42,7 @@ void main()
 	
 	//vec3 r = normalize(reflect(e,n));
 	
-	gl_FragData[0] = reflectionTextureColor; //texture(reflectionTex,uv);
+	gl_FragData[0] = reflectionTextureColor;//texture(reflectionTex,uv);
 	int glowIntesity_int = int(clamp(0.0,100.0,glowIntensity*100.0));
 	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
 	gl_FragData[1] = vec4(modelID, glowIntensity,0,0);
