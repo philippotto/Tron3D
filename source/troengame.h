@@ -12,6 +12,8 @@
 
 #include "resourcepool.h"
 
+#include "OVR.h"
+
 typedef struct s_GameConfig
 {
 	int numberOfBikes;
@@ -52,6 +54,9 @@ namespace troen
 
 	private:
 		bool initialize();
+
+		void initializeOculus();
+
 		bool initializeViews();
 		bool initializeViewer();
 		bool initializeHud();
@@ -68,6 +73,8 @@ namespace troen
 
 		bool shutdown();
 		void startGameLoop();
+
+		void getOcculusOrientation();
 
 		// TODO
 		// implement some kind of menu to start the game from
@@ -114,5 +121,10 @@ namespace troen
 		bool m_usePostProcessing;
 		bool m_useDebugView;
 		bool m_testPerformance;
+
+
+
+		OVR::SensorFusion *m_SFusion;
+		OVR::SensorDevice *m_pSensor;
 	};
 }

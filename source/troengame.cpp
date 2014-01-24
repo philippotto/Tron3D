@@ -35,6 +35,10 @@
 #include "globals.h"
 
 
+#include "OVR.h"
+using namespace OVR;
+
+
 using namespace troen;
 extern long double g_currentTime;
 
@@ -57,6 +61,7 @@ m_testPerformance(false)
 
 TroenGame::~TroenGame()
 {
+
 }
 
 void TroenGame::switchSoundVolumeEvent()
@@ -127,6 +132,8 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 
 bool TroenGame::initialize()
 {
+	initializeOculus();
+
 	m_rootNode = new osg::Group;
 
 	// careful about the order of initialization
@@ -449,6 +456,11 @@ void TroenGame::startGameLoop()
 	// GAME LOOP
 	while (!m_sampleOSGViewer->done())
 	{
+
+		getOcculusOrientation();
+
+
+
 		long double currTime = m_timer->elapsed();
 		g_currentTime = currTime;
 
@@ -570,4 +582,54 @@ bool TroenGame::shutdown()
 
 	std::cout << "[TroenGame::shutdown] shutdown complete " << std::endl;
 	return true;
+}
+
+void troen::TroenGame::initializeOculus()
+{
+	System::Init(Log::ConfigureDefaultLog(LogMask_All));
+	Ptr<DeviceManager> pManager;
+	Ptr<HMDDevice> pHMD;
+	pManager = *DeviceManager::Create();
+	pHMD = *pManager->EnumerateDevices<HMDDevice>().CreateDevice();
+
+
+	HMDInfo hmd;
+	if (pHMD->GetDeviceInfo(&hmd))
+	{
+		char * MonitorName = hmd.DisplayDeviceName;
+		float EyeDistance = hmd.InterpupillaryDistance;
+		float DistortionK[4];
+		DistortionK[0] = hmd.DistortionK[0];
+		DistortionK[1] = hmd.DistortionK[1];
+		DistortionK[2] = hmd.DistortionK[2];
+		DistortionK[3] = hmd.DistortionK[3];
+
+
+		m_pSensor = pHMD->GetSensor();
+
+
+		if (m_pSensor) {
+
+			m_SFusion = new SensorFusion();
+
+			m_SFusion->AttachToSensor(m_pSensor);
+			std::cout << "it worked!############################" << std::endl;
+		}
+
+	}
+	else {
+		std::cout << "didnt work :(" << std::endl;
+	}
+}
+
+void troen::TroenGame::getOcculusOrientation()
+{
+	// or getOrientation()
+	Quatf hmdOrient = m_SFusion->GetOrientation();
+
+	float angle;
+	OVR::Vector3<float> axis;
+	hmdOrient.GetAxisAngle(&axis, &angle);
+
+	std::cout << "angle: " << angle << " quat: " << axis.x << " " << axis.y << " " << axis.z << std::endl;
 }
