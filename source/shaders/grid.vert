@@ -14,6 +14,7 @@ void main()
 	//v_eye = normalize((gl_ModelViewMatrix *  gl_Vertex).xyz - cameraEye);
 	
 	vertex_objCoords = gl_Vertex;
+	gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
 	
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex ;
 	

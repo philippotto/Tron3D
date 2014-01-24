@@ -2,6 +2,8 @@
 // OSG
 #include <osg/ref_ptr>
 #include <osg/Group>
+#include <osg/ClipPlane>
+
 // STD
 #include <vector>
 // troen
@@ -22,6 +24,8 @@ namespace troen
 			osg::ref_ptr<osg::Group>				cameraGroup;
 			osg::ref_ptr<osg::Camera>				reflectionCamera;
 			osg::ref_ptr<osg::MatrixTransform>	reflectionTransform;
+
+			osg::ref_ptr<osg::ClipPlane> m_ReflectionClipPlane;
 			
 	};
 }
