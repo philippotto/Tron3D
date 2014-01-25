@@ -249,7 +249,7 @@ bool TroenGame::initializeGameLogic()
 
 bool TroenGame::initializeReflection()
 {
-	m_reflectionNode = (new Reflection(m_levelController->getViewNode(), m_gameView, m_skyDome->getSkyboxTexture()))->getReflectionCameraGroup();
+	m_reflection = std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameView, m_skyDome->getSkyboxTexture());
 	return true;
 }
 
@@ -369,7 +369,9 @@ bool TroenGame::composeSceneGraph()
 	m_sceneNode->addChild(m_levelController->getViewNode());
 	m_sceneNode->addChild(m_sunLightSource.get());
 
-	m_rootNode->addChild(m_reflectionNode);
+
+	m_reflection->addSceneNode(m_sceneNode);
+	m_rootNode->addChild(m_reflection->getReflectionCameraGroup());
 	
 	for (auto bikeController : m_bikeControllers)
 	{

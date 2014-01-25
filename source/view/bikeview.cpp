@@ -103,6 +103,7 @@ BikeView::BikeView(osg::Vec3 color)
 	MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
 	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
 	matrixTransform->addChild(MovieCycle_Body);
+	MovieCycle_Body->setName("bikeNode");
 
 #endif
 #ifdef _DEBUG

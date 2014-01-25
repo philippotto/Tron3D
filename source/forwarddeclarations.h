@@ -80,6 +80,7 @@ namespace troen
 	class SkyDome;
 	class PostProcessing;
 	class NodeFollowCameraManipulator;
+	class Reflection;
 
 	namespace util
 	{

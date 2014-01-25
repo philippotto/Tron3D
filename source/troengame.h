@@ -87,7 +87,7 @@ namespace troen
 		osg::ref_ptr<osg::Group>			m_sceneNode;
 		osg::ref_ptr<osg::Switch>			m_hudSwitch;
 		osg::ref_ptr<osg::LightSource>		m_sunLightSource;
-		osg::ref_ptr<osg::Group>			m_reflectionNode;
+		
 
 
 		// Controllers
@@ -100,6 +100,7 @@ namespace troen
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 		std::shared_ptr<GameLogic>			m_gameLogic;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
+		std::shared_ptr<Reflection>			m_reflection;
 
 		std::vector<int> m_playerInputTypes;
 		std::vector<osg::Vec3> m_playerColors;

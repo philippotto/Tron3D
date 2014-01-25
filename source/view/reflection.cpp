@@ -99,8 +99,9 @@ protected:
 };
 
 
-Reflection::Reflection(osg::ref_ptr<osg::Group> sceneNode,osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap)
+Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap)
 {
+
 	//osg::Group		*group = new osg::Group();
 	int texSize = 1024;
 	// Set up the reflection camera
@@ -108,68 +109,45 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> sceneNode,osg::ref_ptr<osgViewer
 	reflectionCamera = new osg::Camera();
 	reflectionTransform = new osg::MatrixTransform();
 
-	FindNamedNode findObstacles("debugObstaclesGroup");
-	sceneNode->accept(findObstacles);
-	osg::Node *obstaclesGroup = findObstacles.getNode();
 
-	// Set reflection textures
-	FindNamedNode fnn("debugFloorsNode");
-	sceneNode->accept(fnn);
-	osg::Node *reflectNode = fnn.getNode();
-
-
-
-	reflectionCamera->setClearMask(GL_DEPTH_BUFFER_BIT |GL_COLOR_BUFFER_BIT);
+	reflectionCamera->setClearMask(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	reflectionCamera->setRenderOrder(osg::Camera::PRE_RENDER);
 	reflectionCamera->setClearColor(osg::Vec4(0.0f, 0.f, 0.0f, 1.0f));
 	reflectionCamera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 	reflectionCamera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 	reflectionCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	reflectionCamera->setViewport(0, 0, texSize, texSize);
+	reflectionCamera->setClearDepth(1.0);
+	reflectionCamera->setCullMask(CAMERA_MASK_MAIN);
 
 	cameraGroup->setCullCallback(new CUpdateCameraCallback(gameView));
 
 	//beware, that vec4(a,b,c,d) is a plane equation with a,b,c the plane normal and d the plane height
 	m_ReflectionClipPlane = new osg::ClipPlane(0, osg::Vec4d(0.0, 0.0, 1.0, 0.0));
-	osg::ClipNode* reflectionClipNode = new osg::ClipNode;
-	reflectionClipNode->addClipPlane(m_ReflectionClipPlane);
-	reflectionClipNode->addChild(obstaclesGroup);
+	m_reflectionClipNode = new osg::ClipNode;
+	m_reflectionClipNode->addClipPlane(m_ReflectionClipPlane);
 	
-	//reflectionCamera->getOrCreateStateSet()->setAttributeAndModes(m_ReflectionClipPlane, osg::StateAttribute::ON);
-
-	/////////test
-	//reflectionCamera->setProjectionMatrix(osg::Matrixd::ortho(-3500, 3500, -3500, 3500., 1.f, 600));
-	//////////
-
-
-	reflectionCamera->setClearDepth(1.0);
-	reflectionCamera->setCullMask(CAMERA_MASK_MAIN);
 
 	osg::ref_ptr<osg::Texture2D>	texture = new osg::Texture2D();
 	texture->setTextureSize(texSize, texSize);
 	texture->setInternalFormat(GL_RGBA);
 	reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER0, texture);
 
-	//reflectionCamera->getOrCreateStateSet()->setMode(GL_CLIP_PLANE0 + 0, osg::StateAttribute::ON);
 	reflectionCamera->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
 	reflectionTransform->setMatrix(osg::Matrix::scale(1.0, 1.0, -1.0));
 
 
 	cameraGroup->addChild(reflectionCamera);
 	reflectionCamera->addChild(reflectionTransform);
-	reflectionTransform->addChild(reflectionClipNode);
-	
+	reflectionTransform->addChild(m_reflectionClipNode);
 
 
-	
+	// Set reflection textures
 
-
-
-
-	reflectNode->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture,
+	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture,
 		osg::StateAttribute::ON);
 
-	reflectNode->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 0));
+	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 0));
 
 	//reflectNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
 
@@ -182,6 +160,31 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> sceneNode,osg::ref_ptr<osgViewer
 
 }
 
+
+
+bool Reflection::addSceneNode(osg::ref_ptr<osg::Group> sceneNode)
+{
+	reflectionObjectsGroup = new osg::Group();
+
+	FindNamedNode findObstacles("debugObstaclesGroup");
+	sceneNode->accept(findObstacles);
+	osg::Node *obstaclesGroup = findObstacles.getNode();
+
+	//FindNamedNode findBike("bikeNode");
+	//sceneNode->accept(findBike);
+	//osg::Node *bikeGroup = findBike.getNode();
+
+
+	reflectionObjectsGroup->addChild(obstaclesGroup);
+	//reflectionObjectsGroup->addChild(bikeGroup);
+
+
+
+	m_reflectionClipNode->addChild(reflectionObjectsGroup);
+
+	return true;
+
+}
 
 osg::ref_ptr<osg::Group> Reflection::getReflectionCameraGroup()
 {
