@@ -43,6 +43,7 @@ LevelView::LevelView(std::shared_ptr<LevelModel> model)
 osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
 {
 	osg::ref_ptr<osg::Group> wallsGroup = new osg::Group();
+	wallsGroup->setName("wallsGroup");
 
     osg::ref_ptr<osg::Group> walls = constructGroupForBoxes(m_model->getWalls());
 	addShaderAndUniforms(walls, shaders::OUTER_WALL, levelSize);
@@ -81,7 +82,7 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 {
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
-	obstaclesGroup->setName("debugObstaclesGroup");
+	obstaclesGroup->setName("obstaclesGroup");
 
 	osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles()); 
 	osg::StateSet *obstaclesStateSet = obstacles->getOrCreateStateSet();

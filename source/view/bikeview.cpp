@@ -103,7 +103,7 @@ BikeView::BikeView(osg::Vec3 color)
 	MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
 	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
 	matrixTransform->addChild(MovieCycle_Body);
-	MovieCycle_Body->setName("bikeNode");
+	pat->setName("bikeGroup");
 
 #endif
 #ifdef _DEBUG
@@ -116,8 +116,8 @@ BikeView::BikeView(osg::Vec3 color)
 
 	osg::ref_ptr<osg::Geode> debugNode = new osg::Geode;
 	debugNode->addDrawable(debugShape.get());
-	debugNode->setName("bikeDebugNode");
 
+	matrixTransform->setName("bikeGroup");
 	matrixTransform->addChild(debugNode);
 
 	pat->addChild(matrixTransform);

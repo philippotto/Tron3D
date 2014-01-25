@@ -53,12 +53,6 @@ public:
 			osgUtil::CullVisitor	*cv = static_cast<osgUtil::CullVisitor *>(nv);
 			osg::Camera				*camera = static_cast<osg::Camera *>(node->asGroup()->getChild(0));
 
-			//camera->setProjectionMatrix(m_gameView->getCamera()->getProjectionMatrix());
-			//camera->setViewMatrix(m_gameView->getCamera()->getViewMatrix());
-
-			//camera->setProjectionMatrix(cv->getCurrentCamera()->getProjectionMatrix());
-			//camera->setViewMatrix(cv->getCurrentCamera()->getViewMatrix());
-
 			camera->setViewMatrix(m_gameView->getCamera()->getViewMatrix());
 			camera->setProjectionMatrix(m_gameView->getCamera()->getProjectionMatrix());
 
@@ -77,7 +71,9 @@ public:
 	FindNamedNode(const std::string& name)
 		: osg::NodeVisitor( // Traverse all children.
 		osg::NodeVisitor::TRAVERSE_ALL_CHILDREN),
-		_name(name) {}
+		_name(name) {
+			_node = new osg::Group();
+		}
 
 	// This method gets called for every node in the scene
 	//   graph. Check each node to see if its name matches
@@ -85,7 +81,7 @@ public:
 	virtual void apply(osg::Node& node)
 	{
 		if (node.getName() == _name)
-			_node = &node;
+			_node->addChild(&node);
 
 		// Keep traversing the rest of the scene graph.
 		traverse(node);
@@ -95,7 +91,7 @@ public:
 
 protected:
 	std::string _name;
-	osg::ref_ptr<osg::Node> _node;
+	osg::ref_ptr<osg::Group> _node;
 };
 
 
@@ -165,17 +161,22 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 bool Reflection::addSceneNode(osg::ref_ptr<osg::Group> sceneNode)
 {
 	reflectionObjectsGroup = new osg::Group();
+	char *reflectionNames[] = { "wallsGroup", "obstaclesGroup", "bikeGroup","fenceGroup" };
 
-	FindNamedNode findObstacles("debugObstaclesGroup");
-	sceneNode->accept(findObstacles);
-	osg::Node *obstaclesGroup = findObstacles.getNode();
+	for (auto name : reflectionNames )
+	{
+		FindNamedNode findReflecting(name);
+		sceneNode->accept(findReflecting);
+		reflectionObjectsGroup->addChild(findReflecting.getNode());
+
+	}
 
 	//FindNamedNode findBike("bikeNode");
 	//sceneNode->accept(findBike);
 	//osg::Node *bikeGroup = findBike.getNode();
 
-
-	reflectionObjectsGroup->addChild(obstaclesGroup);
+	//for (int i = 0; i < sceneNode->getNumChildren();i++)
+	//	reflectionObjectsGroup->addChild(sceneNode->getChild(i));
 	//reflectionObjectsGroup->addChild(bikeGroup);
 
 

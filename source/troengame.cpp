@@ -370,8 +370,6 @@ bool TroenGame::composeSceneGraph()
 	m_sceneNode->addChild(m_sunLightSource.get());
 
 
-	m_reflection->addSceneNode(m_sceneNode);
-	m_rootNode->addChild(m_reflection->getReflectionCameraGroup());
 	
 	for (auto bikeController : m_bikeControllers)
 	{
@@ -379,6 +377,11 @@ bool TroenGame::composeSceneGraph()
 	}
 
 	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
+
+	//sceneNode has to be added to reflection after adding all (non hud) objects
+	m_reflection->addSceneNode(m_sceneNode);
+	m_rootNode->addChild(m_reflection->getReflectionCameraGroup());
+
 
 	m_rootNode->addChild(m_hudSwitch);
 	if (m_usePostProcessing)
