@@ -31,11 +31,19 @@ namespace osg
 	class GraphicsContext;
 	class ShapeDrawable;
 	class Vec3f;
+	class Image;
 }
+
+namespace osgText
+{
+	class Text;
+}
+
 
 namespace osgGA
 {
 	class CameraManipulator;
+	class NodeTrackerManipulator;
 }
 
 // Bullet
@@ -45,6 +53,7 @@ class btDefaultCollisionConfiguration;
 class btCollisionDispatcher;
 class btBroadphaseInterface;
 class btRigidBody;
+class btCollisionObject;
 class btCollisionShape;
 class btPersistentManifold;
 class btVector3;
@@ -70,6 +79,7 @@ namespace troen
 	class FenceController;
 	class AbstractController;
 	class HUDController;
+	class ItemController;
 
 
 	class BikeView;
@@ -81,6 +91,7 @@ namespace troen
 	class PostProcessing;
 	class NodeFollowCameraManipulator;
 	class Reflection;
+	class ResourcePool;
 
 	namespace util
 	{

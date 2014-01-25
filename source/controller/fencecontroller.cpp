@@ -1,6 +1,7 @@
 #include "fencecontroller.h"
 // troen
 #include "../constants.h"
+#include "bikecontroller.h"
 #include "../view/fenceview.h"
 #include "../model/fencemodel.h"
 #include "../model/physicsworld.h"
@@ -9,12 +10,13 @@
 
 using namespace troen;
 
-FenceController::FenceController(osg::Vec3 color, btTransform initialTransform, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
+FenceController::FenceController(BikeController *bikeController, osg::Vec3 color, btTransform initialTransform)
 {
 	AbstractController();
 	m_playerColor = color;
-	m_model = std::make_shared<FenceModel>(this, m_maxFenceParts);
-    m_view = std::shared_ptr<FenceView>(new FenceView(m_playerColor, m_model,m_maxFenceParts));
+	m_bikeController = bikeController;
+	m_model = std::make_shared<FenceModel>(this);
+    m_view = std::shared_ptr<FenceView>(new FenceView(this, m_playerColor, m_model));
 
 	btQuaternion rotation = initialTransform.getRotation();
 	btVector3 position = initialTransform.getOrigin();
@@ -53,13 +55,8 @@ void FenceController::removeAllFences()
 	std::static_pointer_cast<FenceView>(m_view)->removeAllFences();
 }
 
-void FenceController::enforceFencePartsLimit(int maxFenceParts)
-{
-	if (m_maxFenceParts == maxFenceParts) return;
-
-	m_maxFenceParts = maxFenceParts;
-	std::static_pointer_cast<FenceModel>(m_model)->enforceFencePartsLimit(maxFenceParts);
-	std::static_pointer_cast<FenceView>(m_view)->enforceFencePartsLimit(maxFenceParts);
+int FenceController::getFenceLimit() {
+	return m_bikeController->getFenceLimit();
 }
 
 void FenceController::adjustPositionUsingFenceOffset(const btQuaternion& rotation, btVector3& position)

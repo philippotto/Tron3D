@@ -6,20 +6,23 @@
 #include <osg/Vec4>
 #include <osg/PositionAttitudeTransform>
 #include <osg/ref_ptr>
+
 // troen
 #include "../constants.h"
 #include "shaders.h"
 #include "../model/fencemodel.h"
+#include "../controller/fencecontroller.h"
 
 using namespace troen;
 
-FenceView::FenceView(osg::Vec3 color, std::shared_ptr<AbstractModel>& model, int maxFenceParts) : m_maxFenceParts(maxFenceParts)
+FenceView::FenceView(FenceController* fenceController, osg::Vec3 color, std::shared_ptr<AbstractModel>& model)
 {
 	AbstractView();
 	m_playerColor = color;
 	m_model = std::static_pointer_cast<FenceModel>(model);
 	m_node = new osg::Group();
-	
+
+	m_fenceController = fenceController;
 
 	initializeFence();
 	initializeShader();
@@ -101,7 +104,7 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 	m_relativeHeights->push_back(0.f);
 	m_relativeHeights->push_back(1.f);
 	
-	enforceFencePartsLimit(m_maxFenceParts);
+	enforceFencePartsLimit();
 
 	// TODO
 	// remove if no disadvantages seem necessary?
@@ -115,13 +118,13 @@ void FenceView::removeAllFences()
 	initializeFence();
 }
 
-void FenceView::enforceFencePartsLimit(int maxFenceParts)
+void FenceView::enforceFencePartsLimit()
 {
-	if (m_maxFenceParts != maxFenceParts)
-		m_maxFenceParts = maxFenceParts;
+	int maxFenceParts = m_fenceController->getFenceLimit();
 
 	// the quad strip contains two more vertices for the beginning of the fence
 	int currentFenceParts = (m_coordinates->size() - 2) / 2;
+	
 	if (maxFenceParts != 0 && currentFenceParts > maxFenceParts)
 	{
 		for (int i = 0; i < (currentFenceParts - maxFenceParts); i++)

@@ -21,101 +21,108 @@
 #include "../input/bikeinputstate.h"
 #include "../model/bikemodel.h"
 #include "playermarker.h"
+#include "../resourcepool.h"
 
 using namespace troen;
 
-BikeView::BikeView(osg::Vec3 color)
+BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView(),
+	m_playerColor(color)
 {
-	AbstractView();
+	m_resourcePool = resourcePool;
 	m_node = new osg::Group();
-	m_playerColor = color;
-	pat = new osg::PositionAttitudeTransform();
+	m_pat = new osg::PositionAttitudeTransform();
 
-	osg::Vec4 color4 = osg::Vec4(color, 1.0);
+	osg::Matrixd initialTransform;
+	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Z_AXIS);
+	initialTransform.makeRotate(rotationQuat);
+
+#ifndef true
+	initialTransform *= initialTransform.scale(BIKE_VIEW_SCALE_FACTORS);
+	initialTransform *= initialTransform.translate(BIKE_VIEW_TRANSLATE_VALUES);
+
+	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
+	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
+
+	m_pat->addChild(matrixTransform);
+	
+	m_MovieCycle_Body = createCyclePart(ResourcePool::MG_MovieCycle_Body_MI,
+		ResourcePool::MG_MovieCycle_Body_SPEC,
+		ResourcePool::MG_MovieCycle_BodyHeadLight_EMSS,
+		ResourcePool::MG_MovieCycle_Body_NORM, DEFAULT);
+
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart(ResourcePool::MG_MovieCycle_PlayerBody_MI,
+		ResourcePool::MG_Player_Body_SPEC,
+		ResourcePool::MG_Player_Body_EMSS,
+		ResourcePool::MG_Player_Body_NORM, GLOW, 0.1f);
+
+	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart(ResourcePool::MG_MovieCycle_Tire_MI,
+		ResourcePool::MG_MovieCycle_Tire_DIFF,
+		ResourcePool::MG_MovieCycle_Tire_EMSS,
+		ResourcePool::MG_MovieCycle_Tire_NORM, GLOW, 0.5f);
+
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart(ResourcePool::MG_MovieCycle_PlayerHelmet_MI,
+		ResourcePool::MG_Player_Helmet_SPEC,
+		ResourcePool::MG_Player_Helmet_EMSS,
+		ResourcePool::MG_Player_Helmet_NORM, GLOW, 0.3f);
+
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart(ResourcePool::MG_MovieCycle_PlayerDisc_MI,
+		ResourcePool::MG_Player_Disc_SPEC,
+		ResourcePool::MG_Player_Disc_EMSS,
+		ResourcePool::MG_Player_Disc_NORM, GLOW);
+
+	osg::ref_ptr<osg::Node> MovieCycle_Glass_MI = createCyclePart(ResourcePool::MG_MovieCycle_Glass_MI,
+		ResourcePool::Glass,
+		ResourcePool::Glass,
+		ResourcePool::None,
+		DEFAULT);
+
+	osg::ref_ptr<osg::Node> MovieCycle_Engine = createCyclePart(ResourcePool::MG_MovieCycle_Engine_MI,
+		ResourcePool::None,
+		ResourcePool::MG_MovieCycle_Engine_EMSS,
+		ResourcePool::MG_MovieCycle_Engine_NORM, DEFAULT);
+
+	osg::ref_ptr<osg::Node> MovieCycle_Player_Baton = createCyclePart(ResourcePool::MG_MovieCycle_PlayerBaton_MI,
+		ResourcePool::MG_Player_Baton_SPEC,
+		ResourcePool::MG_Player_Baton_EMSS,
+		ResourcePool::MG_Player_Baton_NORM, GLOW);
+		
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Body);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Tire);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Helmet);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Disc);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Glass_MI);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
+	matrixTransform->addChild(m_MovieCycle_Body);
+	m_pat->setName("bikeGroup");
+
+
+#endif
+#ifdef false
+	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
+	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
+
+	osg::Vec4 whiteColor = osg::Vec4(1, 1, 1, 1.0);
 	osg::ref_ptr<osg::Material> material = new osg::Material;
 	material->setColorMode(osg::Material::AMBIENT);
 	material->setAmbient(osg::Material::FRONT_AND_BACK,
 		osg::Vec4(0.8f, 0.8f, 0.8f, 1.0f));
 	material->setDiffuse(osg::Material::FRONT_AND_BACK,
-		color4*0.8f);
-	material->setSpecular(osg::Material::FRONT_AND_BACK, color4);
+		whiteColor*0.8f);
+	material->setSpecular(osg::Material::FRONT_AND_BACK, whiteColor);
 	material->setShininess(osg::Material::FRONT_AND_BACK, 1.0f);
-
-	osg::Matrixd initialTransform;
-	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Z_AXIS);
-	initialTransform.makeRotate(rotationQuat);
-	
-#ifndef _DEBUG
-	initialTransform *= initialTransform.scale(BIKE_VIEW_SCALE_FACTORS);
-	initialTransform *= initialTransform.translate(BIKE_VIEW_TRANSLATE_VALUES);
-	
-	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
-	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
-
-	pat->addChild(matrixTransform);
-	
-
-	MovieCycle_Body = createCyclePart("data/models/cycle/MG_MovieCycle_Body_MI.obj",
-		"data/models/cycle/MG_MovieCycle_Body_SPEC.tga",
-		"data/models/cycle/MG_MovieCycle_BodyHeadLight_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Body_NORM.tga", DEFAULT);
-	
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBody_MI.obj",
-		"data/models/cycle/MG_Player_Body_SPEC.tga",
-		"data/models/cycle/MG_Player_Body_EMSS.tga",
-		"data/models/cycle/MG_Player_Body_NORM.tga", GLOW, 0.1f);
-
-	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart("data/models/cycle/MG_MovieCycle_Tire_MI.obj",
-		"data/models/cycle/MG_MovieCycle_Tire_DIFF.tga",
-		"data/models/cycle/MG_MovieCycle_Tire_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Tire_NORM.tga", GLOW, 0.5f);
-
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Helmet = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerHelmet_MI.obj",
-		"data/models/cycle/MG_Player_Helmet_SPEC.tga",
-		"data/models/cycle/MG_Player_Helmet_EMSS.tga",
-		"data/models/cycle/MG_Player_Helmet_NORM.tga", GLOW, 0.3f);
-
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Disc = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerDisc_MI.obj",
-		"data/models/cycle/MG_Player_Disc_SPEC.tga",
-		"data/models/cycle/MG_Player_Disc_EMSS.tga",
-		"data/models/cycle/MG_Player_Disc_NORM.tga", GLOW);
-
-	osg::ref_ptr<osg::Node> MovieCycle_Glass_MI = createCyclePart("data/models/cycle/MG_MovieCycle_Glass_MI.obj",
-		"data/models/cycle/Glass.tga",
-		"data/models/cycle/Glass.tga",
-		"", DEFAULT);
-
-	osg::ref_ptr<osg::Node> MovieCycle_Engine = createCyclePart("data/models/cycle/MG_MovieCycle_Engine_MI.obj",
-		"",
-		"data/models/cycle/MG_MovieCycle_Engine_EMSS.tga",
-		"data/models/cycle/MG_MovieCycle_Engine_NORM.tga", DEFAULT);
-
-	osg::ref_ptr<osg::Node> MovieCycle_Player_Baton = createCyclePart("data/models/cycle/MG_MovieCycle_PlayerBaton_MI.obj",
-		"data/models/cycle/MG_Player_Baton_SPEC.tga",
-		"data/models/cycle/MG_Player_Baton_EMSS.tga",
-		"data/models/cycle/MG_Player_Baton_NORM.tga", GLOW);
-		
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Body);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Tire);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Helmet);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Disc);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Glass_MI);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
-	matrixTransform->addChild(MovieCycle_Body);
-	pat->setName("bikeGroup");
-
-#endif
-#ifdef _DEBUG
-	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
-	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
+	material->setEmission(osg::Material::Face::FRONT, osg::Vec4f(.5, .5, .5, 1));
 
 	osg::ref_ptr<osg::ShapeDrawable> debugShape = new osg::ShapeDrawable;
 	debugShape->setShape(new osg::Box(osg::Vec3(), 2 ,4, 2));
+
 	debugShape->setColor(osg::Vec4f(1,1,1,1));
 
+	//debugShape->setColor(osg::Vec4f(1,1,1,1));
 	osg::ref_ptr<osg::Geode> debugNode = new osg::Geode;
 	debugNode->addDrawable(debugShape.get());
+
+	debugNode->getOrCreateStateSet()->setAttributeAndModes(material.get(), osg::StateAttribute::OVERRIDE | osg::StateAttribute::MATERIAL);
 
 	matrixTransform->setName("bikeGroup");
 	matrixTransform->addChild(debugNode);
@@ -124,6 +131,7 @@ BikeView::BikeView(osg::Vec3 color)
 #endif
 
 	// create box for radar
+	osg::Vec4 color4 = osg::Vec4(m_playerColor, 1.0);
 	osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable;
 	mark_shape->setShape(new osg::Cone(osg::Vec3(), 120, 300));
 	mark_shape->setColor(color4);
@@ -138,19 +146,18 @@ BikeView::BikeView(osg::Vec3 color)
 	radarMatrixTransform->addChild(mark_node);
 	radarMatrixTransform->setNodeMask(CAMERA_MASK_RADAR);
 
-	pat->addChild(radarMatrixTransform);
-	pat->addChild(PlayerMarker(color).getNode());
-	m_node->addChild(pat);
+	m_pat->addChild(radarMatrixTransform);
+	m_pat->addChild(PlayerMarker(color).getNode());
+	m_node->addChild(m_pat);
 }
 
-osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::string specularTexturePath,
-	std::string diffuseTexturePath, std::string normalTexturePath,
+osg::ref_ptr<osg::Node> BikeView::createCyclePart(ResourcePool::ModelResource objName, ResourcePool::TextureResource specularTexturePath,
+	ResourcePool::TextureResource diffuseTexturePath, ResourcePool::TextureResource normalTexturePath,
 	int modelIndex, float glowIntensity)
 {
 	enum BIKE_TEXTURES { DIFFUSE, SPECULAR, NORMAL };
 
-	std::cout << "[TroenGame::bikeView] Loading Model \"" << objFilePath << "\"" << std::endl;
-	osg::Node* Node = osgDB::readNodeFile(objFilePath);
+	osg::Node* Node = m_resourcePool->getNode(objName);
 
 	//osgDB::writeNodeFile(*Node, std::string("file.osg")); //to look at the scenegraph
 	osg::ref_ptr<osg::StateSet> NodeState = Node->getOrCreateStateSet();
@@ -168,7 +175,7 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::
 	if (stateAttributeMaterial != nullptr)
 	{
 		osg::Material *objMaterial = dynamic_cast<osg::Material*>(stateAttributeMaterial);
-		
+
 		if (modelIndex != GLOW) {
 			// if modelIndex == GLOW we will set it later (this avoids some ugly warnings from osg)
 			osg::Vec4 diffuse = objMaterial->getDiffuse(osg::Material::FRONT_AND_BACK);
@@ -200,21 +207,21 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::
 	}
 	NodeState->addUniform(ColorU);
 
-	if (specularTexturePath != "")
+	if (specularTexturePath != ResourcePool::None)
 	{
 		osg::Uniform* specularMapU = new osg::Uniform("specularTexture", SPECULAR);
 		NodeState->addUniform(specularMapU);
 		setTexture(NodeState, specularTexturePath, SPECULAR);
 	}
 
-	if (diffuseTexturePath != "")
+	if (diffuseTexturePath != ResourcePool::None)
 	{
 		osg::Uniform* diffuseMapU = new osg::Uniform("diffuseTexture", DIFFUSE);
 		NodeState->addUniform(diffuseMapU);
 		setTexture(NodeState, diffuseTexturePath, DIFFUSE);
 	}
 
-	if (normalTexturePath != ""){
+	if (normalTexturePath != ResourcePool::None){
 		osg::Uniform* normalMapU = new osg::Uniform("normalTexture", NORMAL);
 		NodeState->addUniform(normalMapU);
 		setTexture(NodeState, normalTexturePath, NORMAL);
@@ -225,32 +232,24 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(std::string objFilePath, std::
 	return Node;
 }
 
-void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit)
+void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, ResourcePool::TextureResource textureName, int unit)
 {
 
-	osg::Image* image = osgDB::readImageFile(filePath);
-	if (!image)
-		std::cout << "[TroenGame::bikeView]  File \"" << filePath << "\" not found." << std::endl;
-	else
-	{
-		osg::Texture2D* texture = new osg::Texture2D;
-		texture->setImage(image);
-		texture->setResizeNonPowerOfTwoHint(false);
+	//osg::Image* image = osgDB::readImageFile(filePath);
+	osg::Image* image = m_resourcePool->getImage(textureName);
 
-	/*	osg::TexEnv* texenv = new osg::TexEnv;
-		texenv->setMode(osg::TexEnv::BLEND);
-		texenv->setColor(osg::Vec4(0.3f, 0.3f, 0.3f, 0.3f));*/
+	osg::Texture2D* texture = new osg::Texture2D;
+	texture->setImage(image);
+	texture->setResizeNonPowerOfTwoHint(false);
 
-		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
-		//stateset->setTextureAttribute(1, texenv);
+	stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
 
-		//rootNode->setStateSet(stateset);
-	}
+
 }
 
 void BikeView::update()
 {
-	MovieCycle_Body->getStateSet()->addUniform(new osg::Uniform("transform", pat->asMatrixTransform()->getMatrix()));
+	m_MovieCycle_Body->getStateSet()->addUniform(new osg::Uniform("transform", m_pat->asMatrixTransform()->getMatrix()));
 }
 
 
@@ -258,5 +257,5 @@ void BikeView::createPlayerMarker(osg::Vec3 color)
 {
 	//PlayerMarker *marker = new PlayerMarker(color)
 	m_playermarkerNode = PlayerMarker(color).getNode();
-	pat->addChild(m_playermarkerNode);
+	m_pat->addChild(m_playermarkerNode);
 }

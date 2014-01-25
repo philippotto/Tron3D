@@ -5,6 +5,10 @@
 #include <time.h>
 #include <iostream>
 
+#include "../globals.h"
+#include "../constants.h"
+
+
 using namespace troen::sound;
 
 float ChangeSemitone(float frequency, float variation) {
@@ -18,7 +22,7 @@ float RandomBetween(float min, float max) {
 	return min + n * (max - min);
 }
 
-AudioManager::AudioManager() : currentSong(0), fade(FADE_NONE) {
+AudioManager::AudioManager() : currentSong(0), engineChannel(0), fade(FADE_NONE) {
 	// Initialize system
 	FMOD::System_Create(&system);
 	system->init(100, FMOD_INIT_NORMAL, 0);
@@ -31,9 +35,8 @@ AudioManager::AudioManager() : currentSong(0), fade(FADE_NONE) {
 	}
 	// Set up modes for each category
 	modes[CATEGORY_SFX] = FMOD_DEFAULT;
-	// modes[CATEGORY_SONG] = FMOD_DEFAULT | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL;
-	// TODO check if FMOD_SOFTWARE | ... would also work
-	modes[CATEGORY_SONG] = FMOD_DEFAULT | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL |FMOD_SOFTWARE;
+	modes[CATEGORY_SONG] = FMOD_DEFAULT | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL | FMOD_SOFTWARE;
+	modes[CATEGORY_ENGINE] = FMOD_DEFAULT | FMOD_CREATESTREAM | FMOD_LOOP_NORMAL | FMOD_SOFTWARE;
 
 	// Seed random number generator for SFXs
 	srand((unsigned int) time(0));
@@ -58,6 +61,23 @@ void AudioManager::LoadSFX(const std::string& path) {
 
 void AudioManager::LoadSong(const std::string& path) {
 	Load(CATEGORY_SONG, path);
+}
+
+void AudioManager::LoadEngineSound()
+{
+	Load(CATEGORY_ENGINE, "data/sound/engine-loop-1-normalized.wav");
+}
+
+void AudioManager::PlayEngineSound()
+{
+	// Search for a matching sound in the map
+	SoundMap::iterator sound = sounds[CATEGORY_ENGINE].find("data/sound/engine-loop-1-normalized.wav");
+	if (sound == sounds[CATEGORY_ENGINE].end()) return;
+	
+	system->playSound(FMOD_CHANNEL_FREE, sound->second, true, &engineChannel);
+	engineChannel->setChannelGroup(groups[CATEGORY_ENGINE]);
+	engineChannel->setVolume(0.1f);
+	engineChannel->setPaused(false);
 }
 
 void AudioManager::Load(Category type, const std::string& path) {
@@ -121,6 +141,17 @@ void AudioManager::StopSongs() {
 	nextSongPath.clear();
 }
 
+void AudioManager::setMotorSpeed(float speed) {
+	float speedFactor = (speed - BIKE_VELOCITY_MIN) / BIKE_VELOCITY_MAX;
+
+	float currentFrequency;
+	engineChannel->getFrequency(&currentFrequency);
+
+	float desiredFrequency = ENGINE_FREQUENCY_LOW + speedFactor * ENGINE_FREQUENCY_HIGH;
+
+	engineChannel->setFrequency(currentFrequency + (desiredFrequency - currentFrequency) / 100);
+}
+
 float AudioManager::getTimeSinceLastBeat()
 {
 	return m_timeSinceLastBeat;
@@ -150,8 +181,8 @@ void AudioManager::detectBeat(float tickCount)
 		spec[i] = (specLeft[i] + specRight[i]) / 2;
 
 	// Find max volume
-	auto maxIterator = std::max_element(&spec[0], &spec[sampleSize]);
-	float maxVol = *maxIterator;
+	//auto maxIterator = std::max_element(&spec[0], &spec[sampleSize]);
+	//float maxVol = *maxIterator;
 
 	// Normalize
 	// doesn't give good values? maybe sampleSize should be increased?

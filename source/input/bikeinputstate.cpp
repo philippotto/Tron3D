@@ -9,6 +9,7 @@ BikeInputState::BikeInputState()
 {
 	m_acceleration = 0.0;
 	m_angle = 0.0;
+	m_turboPressed = false;
 }
 
 float BikeInputState::getAngle()
@@ -30,3 +31,14 @@ void BikeInputState::setAcceleration(float acceleration)
 {
 	m_acceleration = acceleration;
 }
+
+bool BikeInputState::getTurboPressed()
+{
+	return m_turboPressed;
+}
+
+void BikeInputState::setTurboPressed(bool pressed)
+{
+	m_turboPressed = pressed;
+}
+

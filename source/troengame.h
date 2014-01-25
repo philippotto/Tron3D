@@ -5,11 +5,12 @@
 #include <QColor>
 // OSG
 #include <osg/ref_ptr>
-#include <osg/PositionAttitudeTransform>
 #include <osg/ShapeDrawable>
 #include <osgGA/GUIEventAdapter>
 // troen
 #include "forwarddeclarations.h"
+
+#include "resourcepool.h"
 
 typedef struct s_GameConfig
 {
@@ -104,6 +105,8 @@ namespace troen
 
 		std::vector<int> m_playerInputTypes;
 		std::vector<osg::Vec3> m_playerColors;
+
+		ResourcePool m_resourcePool;
 
 		bool m_simulationPaused;
 

@@ -8,6 +8,7 @@
 #include "../view/nodefollowcameramanipulator.h"
 #include "../model/bikemodel.h"
 #include "../controller/fencecontroller.h"
+#include "../controller/hudcontroller.h"
 #include "../model/physicsworld.h"
 #include "../sound/audiomanager.h"
 
@@ -16,25 +17,65 @@
 #include "../input/gamepadps4.h"
 #include "../input/ai.h"
 #include "../input/pollingdevice.h"
+#include "../globals.h"
+
+#include "../resourcepool.h"
 
 using namespace troen;
+
+
 
 BikeController::BikeController(
 	input::BikeInputState::InputDevice inputDevice,
 	btTransform initialTransform,
-	osg::Vec3 playerColor) :
+	osg::Vec3 playerColor,
+	ResourcePool *m_resourcePool) :
 m_initialTransform(initialTransform)
 {
 	AbstractController();
 	m_playerColor = playerColor;
 
-	m_view = std::make_shared<BikeView>(m_playerColor);
-	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
+	m_health = BIKE_DEFAULT_HEALTH;
+	m_points = 0;
+	m_timeOfLastCollision = -1;
+
+	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
+
+	m_fenceController = std::make_shared<FenceController>(this, m_playerColor, m_initialTransform);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
 
 	initializeInput(inputDevice);
+}
+
+void BikeController::reset()
+{
+	if (m_pollingThread != nullptr)
+		m_pollingThread->setVibration(false);
+
+	removeAllFences();
+	m_health = BIKE_DEFAULT_HEALTH;
+	m_points = 0;
+	m_timeOfLastCollision = -1;
+}
+
+void BikeController::registerCollision(btScalar impulse)
+{
+	if (impulse > 0)
+		m_timeOfLastCollision = g_currentTime;
+}
+
+float BikeController::increaseHealth(float diff)
+{
+	m_health += diff;
+	return m_health;
+}
+
+float BikeController::increasePoints(float diff)
+{
+	m_points += diff;
+	return m_points;
 }
 
 BikeController::~BikeController()
@@ -60,7 +101,8 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 				osgGA::GUIEventAdapter::KEY_A,
 				osgGA::GUIEventAdapter::KEY_S,
 				osgGA::GUIEventAdapter::KEY_D,
-				osgGA::GUIEventAdapter::KEY_Space
+				osgGA::GUIEventAdapter::KEY_Space,
+				osgGA::GUIEventAdapter::KEY_G
 			});
 		break;
 	}
@@ -71,7 +113,8 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 			osgGA::GUIEventAdapter::KEY_Left,
 			osgGA::GUIEventAdapter::KEY_Down,
 			osgGA::GUIEventAdapter::KEY_Right,
-			osgGA::GUIEventAdapter::KEY_Control_R
+			osgGA::GUIEventAdapter::KEY_Control_R,
+			osgGA::GUIEventAdapter::KEY_M,
 		});
 		break;
 	}
@@ -136,15 +179,18 @@ void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInput
 	std::static_pointer_cast<BikeModel>(m_model)->setInputState(bikeInputState);
 }
 
-void BikeController::attachTrackingCamera
-//  (osg::ref_ptr<osgGA::NodeTrackerManipulator>& manipulator)
-  (osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
+void BikeController::attachTrackingCameras(
+    osg::ref_ptr<NodeFollowCameraManipulator>& manipulator,
+    std::shared_ptr<HUDController>& hudController)
 {
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
 
 	// set the actual node as the track node, not the pat
 	manipulator->setTrackNode(pat->getChild(0));
+    if(hudController != nullptr)
+        hudController->setTrackNode(pat->getChild(0));
+    
 
 	// set camera position
 	manipulator->setHomePosition(
@@ -153,6 +199,22 @@ void BikeController::attachTrackingCamera
 		osg::Z_AXIS, // up
 		false
 		);
+}
+void BikeController::attachTrackingCamera(osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
+{
+	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
+	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
+    
+	// set the actual node as the track node, not the pat
+	manipulator->setTrackNode(pat->getChild(0));
+    
+	// set camera position
+	manipulator->setHomePosition(
+                                 CAMERA_EYE_POSITION, // homeEye
+                                 osg::Vec3f(), // homeCenter
+                                 osg::Z_AXIS, // up
+                                 false
+                                 );
 }
 
 void BikeController::attachGameView(osg::ref_ptr<osgViewer::View> gameView)
@@ -180,25 +242,69 @@ float BikeController::getFovy()
 
 float BikeController::computeFovyDelta(float speed, float currentFovy)
 {
+	long double timeSinceLastUpdate = std::static_pointer_cast<BikeModel>(m_model)->getTimeSinceLastUpdate();
+	long double timeFactor = timeSinceLastUpdate / 16.7f;
+
+
 	m_speed = speed;
+
 	float fovyFactor = (speed - BIKE_VELOCITY_MIN) / (BIKE_VELOCITY_MAX - BIKE_VELOCITY_MIN);
 	fovyFactor = fovyFactor > 0 ? fovyFactor : 0;
 	float newFovy = FOVY_INITIAL + interpolate(fovyFactor, InterpolateCubed) * FOVY_ADDITION_MAX;
-	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, newFovy - currentFovy); 
+
+	const float fovyDampening = 20.f;
+	float fovyDelta = (newFovy - currentFovy) / fovyDampening * timeFactor;
+	return clamp(-FOVY_DELTA_MAX, FOVY_DELTA_MAX, fovyDelta);
 }
 
-float BikeController::getSpeed() {
+float BikeController::getSpeed()
+{
 	return m_speed;
+}
+
+float BikeController::getHealth()
+{
+	return m_health;
+}
+
+float BikeController::getPoints()
+{
+	return m_points;
+}
+
+void BikeController::activateTurbo()
+{
+	m_turboInitiated = true;
+}
+
+float BikeController::getTurboInitiation()
+{
+	return m_turboInitiated;
 }
 
 void BikeController::updateModel(long double time)
 {
 	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
 
-	if (!m_gameView.valid()) return;
+	// turbo should be only applied in one frame
+	if (m_turboInitiated)
+		m_turboInitiated = false;
 
-	float currentFovy = getFovy();
-	setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
+	if (m_pollingThread != nullptr)
+	{
+		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
+	}
+
+	// max speed: 360
+	// minimum fence length: 200 (or 400)
+	// in one second: add by 
+	increasePoints(speed / 1000);
+
+	if (m_gameView.valid()) {
+		float currentFovy = getFovy();
+		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
+	}
+
 }
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
@@ -221,9 +327,16 @@ void BikeController::removeAllFences()
 	m_fenceController->removeAllFences();
 }
 
-void BikeController::enforceFencePartsLimit(int maxFenceParts)
+void BikeController::setLimitFence(bool boolean)
 {
-	m_fenceController->enforceFencePartsLimit(maxFenceParts);
+	m_fenceLimitActivated = boolean;
+}
+
+int BikeController::getFenceLimit() {
+	if (m_fenceLimitActivated)
+		return getPoints();
+	else
+		return 0;
 }
 
 void BikeController::moveBikeToPosition(btTransform transform)

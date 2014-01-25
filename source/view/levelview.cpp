@@ -7,8 +7,6 @@
 #include <osg/MatrixTransform>
 #include <osg/Texture2D>
 #include <osg/TexMat>
-#include <osg/Group>
-#include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
@@ -19,7 +17,6 @@
 // bullet
 #include <btBulletDynamicsCommon.h>
 // troen
-#include "../model/levelmodel.h"
 #include "shaders.h"
 #include "../constants.h"
 
@@ -167,8 +164,6 @@ osg::ref_ptr<osg::Group> LevelView::constructRadarElementsForBoxes(std::vector<B
 		mark_node->addDrawable(mark_shape.get());
 		mark_node->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 
-		// radar material
-
 		// place objects in world space
 		osg::Matrixd initialTransform;
 		initialTransform.makeRotate(btToOSGQuat(rotation));
@@ -198,6 +193,47 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 
 	}
 }
+
+void LevelView::addItemBox(osg::Vec3 position)
+{
+
+	btVector3 dimensions = btVector3(10, 10, 0.1);
+
+	osg::ref_ptr<osg::Box> box
+		= new osg::Box(osg::Vec3(0.0, 0.0, 0.0), dimensions.x(), dimensions.y(), dimensions.z());
+
+	osg::ref_ptr<osg::ShapeDrawable> boxDrawable
+		= new osg::ShapeDrawable(box);
+
+	osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
+	boxGeode->addDrawable(boxDrawable);
+
+	osg::StateSet *obstaclesStateSet = boxGeode->getOrCreateStateSet();
+	obstaclesStateSet->ref();
+	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
+	obstaclesStateSet->addUniform(textureMapU);
+	setTexture(obstaclesStateSet, "data/textures/turbostrip.tga", 0);
+	
+
+	obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
+	obstaclesStateSet->addUniform(new osg::Uniform("levelSize", m_model->getLevelSize()));
+	obstaclesStateSet->addUniform(new osg::Uniform("modelID", DEFAULT));
+
+
+	// obstaclesGroup->addChild(obstacles);
+	
+
+
+
+	osg::Matrixd initialTransform;
+	initialTransform = initialTransform.translate(position);
+
+	osg::ref_ptr<osg::MatrixTransform> matrixTransform = new osg::MatrixTransform(initialTransform);
+	matrixTransform->addChild(boxGeode);
+
+	m_node->addChild(matrixTransform);
+}
+
 
 
 osg::ref_ptr<osg::Group>  LevelView::getFloor()

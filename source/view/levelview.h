@@ -2,9 +2,8 @@
 // OSG
 #include <osg/ref_ptr>
 #include <osg/Geode>
-
+// bullet
 #include <btBulletDynamicsCommon.h>
-
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
@@ -17,6 +16,8 @@ namespace troen
 	public:
 		LevelView(std::shared_ptr<LevelModel> model);
 		osg::ref_ptr<osg::Group> getFloor();
+
+		void addItemBox(osg::Vec3 position);
 
 	private:
 		osg::ref_ptr<osg::Group> constructWalls(int levelSize);
@@ -33,17 +34,5 @@ namespace troen
 		void addShaderAndUniforms(osg::ref_ptr<osg::Group>& group, int shaderIndex, int levelSize);
 
 		std::shared_ptr<LevelModel> m_model;
-		
-		// TODO find a better place
-		osg::Vec3 btToOSGVec3(const btVector3& v)
-		{
-			return osg::Vec3(v.x(), v.y(), v.z());
-		};
-
-		osg::Quat btToOSGQuat(const btQuaternion& q)
-		{
-			return osg::Quat(q.x(), q.y(), q.z(),q.w());
-		};
-
 	};
 }

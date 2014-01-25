@@ -171,16 +171,6 @@ bool Reflection::addSceneNode(osg::ref_ptr<osg::Group> sceneNode)
 
 	}
 
-	//FindNamedNode findBike("bikeNode");
-	//sceneNode->accept(findBike);
-	//osg::Node *bikeGroup = findBike.getNode();
-
-	//for (int i = 0; i < sceneNode->getNumChildren();i++)
-	//	reflectionObjectsGroup->addChild(sceneNode->getChild(i));
-	//reflectionObjectsGroup->addChild(bikeGroup);
-
-
-
 	m_reflectionClipNode->addChild(reflectionObjectsGroup);
 
 	return true;

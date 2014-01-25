@@ -22,11 +22,14 @@ namespace input
 			m_deadzoneX = 0.25f;
 			m_deadzoneY = 0.02f;
 		};
+		~Gamepad();
 		int getPort();
 		XINPUT_GAMEPAD* getState();
 		bool checkConnection();
 		void run() override;
 		bool isPressed(unsigned short button);
+
+		void vibrate();
 
 	private:
 		int m_controllerId;

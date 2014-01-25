@@ -1,12 +1,10 @@
 #pragma once
 // OSG
-#include <osg/Referenced>
-#include <osg/Camera>
+#include <osgViewer/View>
 #include <osgText/Text>
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
-
 
 namespace troen
 {
@@ -18,6 +16,11 @@ namespace troen
 		void resize(int width, int height);
 		void attachSceneToRadarCamera(osg::Group* scene);
 		void setSpeedText(float speed);
+		void setHealthText(float health);
+		void setPointsText(float points);
+
+		void updateRadarCamera();
+        void setTrackNode(osg::Node* trackNode);
 
 	private:
 		osg::Camera* createHUD();
@@ -25,8 +28,12 @@ namespace troen
 
 		osg::ref_ptr<osg::Camera> m_camera;
 		osg::ref_ptr<osg::Camera> m_radarCamera;
-		osgText::Text* m_speedText;
+		osg::ref_ptr<osgGA::NodeTrackerManipulator> m_radarManipulator;
+		osg::ref_ptr<osgText::Text> m_healthText;
+		osg::ref_ptr<osgText::Text> m_speedText;
+		osg::ref_ptr<osgText::Text> m_pointsText;
 
 		osg::Geode* m_savedGeode;
+        osg::Node* m_trackNode;
 	};
 }

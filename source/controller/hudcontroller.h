@@ -13,6 +13,7 @@ namespace troen
 		void attachSceneToRadarCamera(osg::Group* scene);
 		void resize(int width, int height);
 		void update();
+        void setTrackNode(osg::Node* trackNode);
 
 	private:
 		std::weak_ptr<BikeController> m_bikeController;

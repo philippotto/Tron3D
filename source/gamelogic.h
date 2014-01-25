@@ -28,7 +28,7 @@ namespace troen
 
 		void removeAllFences();
 		void toggleFencePartsLimit();
-
+		void resetBike(BikeController *bikeController);
 		void resetBikePositions();
 		void restartLevel();
 
@@ -48,6 +48,6 @@ namespace troen
         TroenGame*							m_troenGame;
 		std::shared_ptr<sound::AudioManager>m_audioManager;
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
-        int m_maxFenceParts;
+        bool m_limitedFenceMode;
 	};
 }
