@@ -21,8 +21,8 @@ void main()
 	
 	vec4 grid  = mix(
 		vec4(0.086, 0.45, 0.513, 1.0),
-		vec4(0, 0,0.0, 1),
-		clamp(0.0,1.0, pow(min(smoothingFactorX, smoothingFactorY), 0.5))
+		vec4(0.0, 0.0, 0.0, 1),
+		clamp(0.0, 1.0, pow(min(smoothingFactorX, smoothingFactorY), 0.5))
 	); // sceneColor
 	//vec3 r = normalize(reflect(v_eye,normalize(v_normal)));
 	//vec3 q = refract(e,n,1/1.03);
@@ -43,7 +43,7 @@ void main()
 	
 	//vec3 r = normalize(reflect(e,n));
 	
-	gl_FragData[0] = vec4(mix(grid*2.0,reflectionTextureColor.rgb,0.8),1.0);//texture(reflectionTex,uv);
+	gl_FragData[0] = vec4(mix(grid * 2.0, reflectionTextureColor, 0.8));//texture(reflectionTex,uv);
 	int glowIntesity_int = int(clamp(0.0,100.0,glowIntensity*100.0));
 	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
 	gl_FragData[1] = vec4(modelID, glowIntensity,0,0);

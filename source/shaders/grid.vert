@@ -13,7 +13,7 @@ void main()
 	uv = (gl_Vertex).xy / levelSize + vec2(0.5, 0.5);
 	//v_eye = normalize((gl_ModelViewMatrix *  gl_Vertex).xyz - cameraEye);
 	
-	vertex_objCoords = gl_Vertex;
+	vertex_objCoords = gl_Vertex.xyz;
 	gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
 
 	
