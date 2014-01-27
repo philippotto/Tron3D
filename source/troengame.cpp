@@ -93,14 +93,14 @@ void TroenGame::unpauseSimulation()
 void TroenGame::setFovy(float newFovy)
 {
 	double fovy, aspect, znear, zfar;
-	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
+	/*m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);*/
 }
 
 float TroenGame::getFovy()
 {
 	double fovy, aspect, znear, zfar;
-	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	//m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
 	return fovy;
 }
 
@@ -364,7 +364,8 @@ bool TroenGame::composeSceneGraph()
 	if (m_usePostProcessing)
 	{
 		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
-		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height(), m_hmd);
+		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height(), m_hmd, m_gameView);
+
 		m_sceneNode = m_postProcessing->getSceneNode();
 
 		//explicit call, to enable glow from start
@@ -518,13 +519,19 @@ void TroenGame::startGameLoop()
 					m_gameView->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 					znear = 1.0;
 					m_gameView->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+
+
+					// oculus: projection = identity
+					
+					//m_gameView->getCamera()->setProjectionMatrix(osg::Matrixf::identity());
+/*
 					if (m_splitscreen)
 					{
 						m_gameView2->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
 						m_gameView2->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 						znear = 1.0;
 						m_gameView2->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-					}
+					}*/
 				}
 
 				skippedFrames = 0;

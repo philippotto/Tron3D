@@ -28,8 +28,8 @@ static osg::ref_ptr<osg::Uniform> g_nearFarUniform = new osg::Uniform("nearFar",
 
 using namespace troen;
 
-PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height, OVR::HMDInfo* hmd)
-:m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height), m_hmd(hmd)
+PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height, OVR::HMDInfo* hmd, osg::View* view)
+:m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height), m_hmd(hmd), m_view(view)
 {
 	AbstractView();
 	// init textures, will be recreated when screen size changes
@@ -41,11 +41,14 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 	
 	if (m_useOculus) {
 		unsigned int pass = 0;
+		
 		m_allCameras.push_back(oculusPass(true));
 		m_root->addChild(m_allCameras[pass++]);
-
+		
 		m_allCameras.push_back(oculusPass(false));
 		m_root->addChild(m_allCameras[pass++]);
+
+		
 
 		m_allCameras.push_back(mergeEyes());
 		m_root->addChild(m_allCameras[pass++]);
@@ -102,9 +105,11 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		
 		if (m_useOculus) {
 
+			if (i == LEFT || i == RIGHT)
+				m_fboTextures[i]->setTextureWidth(halfedWidth);
+			else
+				m_fboTextures[i]->setTextureWidth(width);
 			
-			//m_fboTextures[i]->setTextureWidth(halfedWidth);
-			m_fboTextures[i]->setTextureWidth(width);
 			m_fboTextures[i]->setTextureHeight(height);
 
 			m_fboTextures[i]->setInternalFormat(GL_RGBA);
@@ -161,10 +166,14 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 
 
 			// TODO: remove this line
-			halfedWidth = width;
+			//halfedWidth = width;
 
 			m_allCameras[0]->setViewport(new osg::Viewport(0, 0, halfedWidth, height));
-			m_allCameras[1]->setViewport(new osg::Viewport(halfedWidth, 0, halfedWidth, height));
+			m_allCameras[1]->setViewport(new osg::Viewport(0, 0, halfedWidth, height));
+
+
+			/*m_allCameras[0]->setViewport(new osg::Viewport(0, 0, halfedWidth, height));
+			m_allCameras[1]->setViewport(new osg::Viewport(halfedWidth, 0, halfedWidth, height));*/
 			m_allCameras[2]->setViewport(new osg::Viewport(0, 0, width, height));
 
 			
@@ -345,7 +354,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 	TEXTURE_CONTENT SIDE = left ? LEFT : RIGHT;
 	
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0), m_fboTextures[SIDE]);
-	
+	cam->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Configure fboCamera to draw fullscreen textured quad
 	// black clear color
@@ -353,11 +362,16 @@ osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 	cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	cam->setReferenceFrame(osg::Camera::RELATIVE_RF);
-	cam->setRenderOrder(osg::Camera::POST_RENDER, left ? 0 : 1);
+	cam->setRenderOrder( osg::Camera::PRE_RENDER, 0);
 
 	cam->addChild(m_sceneNode);
 
-	cam->setViewport(new osg::Viewport(0, 0, m_width, m_height));
+	
+
+
+	//cam->setViewport(new osg::Viewport(0, 0, m_width, m_height));
+
+
 	/*if (left)
 		cam->setViewport(new osg::Viewport(0, 0, m_width / 2, m_height));
 	else 
@@ -392,12 +406,29 @@ osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 		// Left eye rendering parameters
 
 		OVR::Util::Render::StereoEyeParams leftEye = stereo.GetEyeRenderParams(OVR::Util::Render::StereoEye_Left);
+		
 		OVR::Util::Render::Viewport leftVP = leftEye.VP;
 		OVR::Matrix4f leftProjection = leftEye.Projection;
 		OVR::Matrix4f leftViewAdjust = leftEye.ViewAdjust;
+		
 		osg::Matrixf leftProjectionOSG(*leftProjection.M);
+		osg::Matrixf leftViewAdjustOSG(*leftViewAdjust.M);
+
+		//osg::Matrixf v = m_camera->getViewMatrix();
+		//osg::Matrixf p = m_camera->getProjectionMatrix();
 
 		//cam->setProjectionMatrix(leftProjectionOSG);
+
+		osg::Matrixf testScale;
+		testScale.makeScale(osg::Vec3(1.1, 1.1, 1.1));
+		//cam->setProjectionMatrix(testScale);
+		cam->setViewMatrix(leftViewAdjustOSG); // *leftViewAdjustOSG);
+			
+
+		//cam->setViewport(leftVP.x, leftVP.y, leftVP.w, leftVP.h);
+
+
+		
 	}
 	else {
 		// right eye rendering parameters
@@ -406,8 +437,13 @@ osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 		OVR::Matrix4f rightProjection = rightEye.Projection;
 		OVR::Matrix4f rightViewAdjust = rightEye.ViewAdjust;
 		osg::Matrixf rightProjectionOSG(*rightProjection.M);
+		osg::Matrixf rightViewAdjustOSG(*rightViewAdjust.M);
+
 
 		//cam->setProjectionMatrix(rightProjectionOSG);
+		cam->setViewMatrix(rightViewAdjustOSG); // *rightViewAdjustOSG);
+		//cam->setViewport(rightVP.x, rightVP.y, rightVP.w, rightVP.h);
+
 	}
 	
 	return cam;
@@ -428,10 +464,19 @@ osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes()
 	postRenderCamera->setRenderOrder(osg::Camera::POST_RENDER, 3);
 
 	// geometry
-	osg::Geode* geode(new osg::Geode());
-	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
-	geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-	postRenderCamera->addChild(geode);
+	/*geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));*/
+	
+	osg::Geode* geodeLeft(new osg::Geode());
+	geodeLeft->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(1, 0, 0), osg::Vec3(0, 2, 0)));
+	geodeLeft->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+
+	osg::Geode* geodeRight(new osg::Geode());
+	geodeRight->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(0, -1, 0), osg::Vec3(1, 0, 0), osg::Vec3(0, 2, 0)));
+	geodeRight->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+	
+	postRenderCamera->addChild(geodeLeft);
+	postRenderCamera->addChild(geodeRight);
+	
 
 	// attach shader program
 	osg::ref_ptr<osg::StateSet>	state = postRenderCamera->getOrCreateStateSet();
@@ -439,12 +484,15 @@ osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes()
 
 	state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_MERGE], osg::StateAttribute::ON);
 
-	state->addUniform(new osg::Uniform("left", LEFT));
-	state->addUniform(new osg::Uniform("right", RIGHT));
 
-	state->setTextureAttributeAndModes(LEFT, m_fboTextures[LEFT], osg::StateAttribute::ON);
-	state->setTextureAttributeAndModes(RIGHT, m_fboTextures[RIGHT], osg::StateAttribute::ON);
+	osg::ref_ptr<osg::StateSet>	stateLeft = geodeLeft->getOrCreateStateSet();
+	stateLeft->addUniform(new osg::Uniform("side", LEFT));
+	stateLeft->setTextureAttributeAndModes(LEFT, m_fboTextures[LEFT], osg::StateAttribute::ON);
 	
+	osg::ref_ptr<osg::StateSet>	stateRight = geodeRight->getOrCreateStateSet();
+	stateRight->addUniform(new osg::Uniform("side", RIGHT));
+	stateRight->setTextureAttributeAndModes(RIGHT, m_fboTextures[RIGHT], osg::StateAttribute::ON);
+
 
 	return postRenderCamera;
 }
