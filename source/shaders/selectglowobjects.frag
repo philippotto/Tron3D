@@ -9,7 +9,7 @@ void main(void)
 	float objectID = texture2D(idLayer, st).x;
 
 	if (objectID != 1.f){
-		gl_FragColor = vec4(0.f, 0.f, 0.f, 0.f);
+		gl_FragColor = vec4(0.f, 0.f, 0.f, 1.f);
 		return;
 	}
 

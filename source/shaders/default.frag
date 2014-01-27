@@ -1,9 +1,9 @@
 #version 130
 
 uniform sampler2D diffuseTexture;
+in vec2 uv;
 uniform int modelID;
 uniform float glowIntensity;
-in vec2 uv;
 
 void main() {
 	gl_FragData[0] = vec4(texture(diffuseTexture, uv).x, 0.0, 0.0, 1.0);

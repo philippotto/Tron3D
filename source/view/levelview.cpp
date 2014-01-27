@@ -58,7 +58,11 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
 
 	osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
-    addShaderAndUniforms(floors, shaders::GRID, levelSize, DEFAULT);
+	osg::StateSet *obstaclesStateSet = floors->getOrCreateStateSet();
+	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
+	obstaclesStateSet->addUniform(textureMapU);
+	setTexture(obstaclesStateSet, "data/textures/floor.tga", 0);
+	addShaderAndUniforms(floors, shaders::GRID, levelSize, GLOW);
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
 
@@ -184,6 +188,8 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 		osg::Texture2D* texture = new osg::Texture2D;
 		texture->setImage(image);
 		texture->setResizeNonPowerOfTwoHint(false);
+		texture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
+		texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
 		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
 
 	}

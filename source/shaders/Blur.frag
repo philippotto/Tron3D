@@ -26,6 +26,9 @@ void main() {
 	float numBlurPixelsPerSide;
 	float glowIntensity = texture2D(idLayer, v_texCoord).y;
 
+	if (glowIntensity == 0.f)
+		glowIntensity = 1.f;
+
 	vec2 textureSize = textureSize(inputLayer, 0);
 
 	vec2 blurMultiplyVec;
