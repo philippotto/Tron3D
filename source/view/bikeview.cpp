@@ -30,7 +30,7 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView()
 {
 	m_resourcePool = resourcePool;
 	m_node = new osg::Group();
-	pat = new osg::PositionAttitudeTransform();
+	m_pat = new osg::PositionAttitudeTransform();
 
 	osg::Matrixd initialTransform;
 	osg::Quat rotationQuat(osg::DegreesToRadians(180.0f), osg::Z_AXIS);
@@ -43,9 +43,9 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView()
 	osg::MatrixTransform* matrixTransform = new osg::MatrixTransform(initialTransform);
 	matrixTransform->setNodeMask(CAMERA_MASK_MAIN);
 
-	pat->addChild(matrixTransform);
-
-	MovieCycle_Body = createCyclePart(ResourcePool::MG_MovieCycle_Body_MI,
+	m_pat->addChild(matrixTransform);
+	
+	m_MovieCycle_Body = createCyclePart(ResourcePool::MG_MovieCycle_Body_MI,
 		ResourcePool::MG_MovieCycle_Body_SPEC,
 		ResourcePool::MG_MovieCycle_BodyHeadLight_EMSS,
 		ResourcePool::MG_MovieCycle_Body_NORM, DEFAULT);
@@ -85,15 +85,15 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView()
 		ResourcePool::MG_Player_Baton_SPEC,
 		ResourcePool::MG_Player_Baton_EMSS,
 		ResourcePool::MG_Player_Baton_NORM, GLOW);
-
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Body);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Tire);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Helmet);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Disc);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Glass_MI);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
-	MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
-	matrixTransform->addChild(MovieCycle_Body);
+		
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Body);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Tire);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Helmet);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Disc);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Glass_MI);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
+	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
+	matrixTransform->addChild(m_MovieCycle_Body);
 
 #endif
 #ifdef false
@@ -140,9 +140,9 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView()
 	radarMatrixTransform->addChild(mark_node);
 	radarMatrixTransform->setNodeMask(CAMERA_MASK_RADAR);
 
-	pat->addChild(radarMatrixTransform);
-	pat->addChild(PlayerMarker(color).getNode());
-	m_node->addChild(pat);
+	m_pat->addChild(radarMatrixTransform);
+	m_pat->addChild(PlayerMarker(color).getNode());
+	m_node->addChild(m_pat);
 }
 
 osg::ref_ptr<osg::Node> BikeView::createCyclePart(ResourcePool::ModelResource objName, ResourcePool::TextureResource specularTexturePath,
@@ -243,7 +243,7 @@ void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, ResourcePool::Te
 
 void BikeView::update()
 {
-	MovieCycle_Body->getStateSet()->addUniform(new osg::Uniform("transform", pat->asMatrixTransform()->getMatrix()));
+	m_MovieCycle_Body->getStateSet()->addUniform(new osg::Uniform("transform", m_pat->asMatrixTransform()->getMatrix()));
 }
 
 
@@ -251,5 +251,5 @@ void BikeView::createPlayerMarker(osg::Vec3 color)
 {
 	//PlayerMarker *marker = new PlayerMarker(color)
 	m_playermarkerNode = PlayerMarker(color).getNode();
-	pat->addChild(m_playermarkerNode);
+	m_pat->addChild(m_playermarkerNode);
 }

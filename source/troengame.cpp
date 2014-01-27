@@ -4,7 +4,6 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
-#include <osgViewer/ViewerEventHandlers>
 
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
@@ -112,7 +111,6 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 	m_usePostProcessing = config.usePostProcessing;
 	m_useDebugView = config.useDebugView;
 	m_testPerformance = config.testPerformance;
-	m_useHalvedTextures = config.useHalvedTextures;
 
 	m_playerInputTypes.clear();
 	for (int i = 0; i < m_numberOfBikes; i++)
@@ -260,7 +258,7 @@ bool TroenGame::initializeViews()
 
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 		= new NodeFollowCameraManipulator();
-	m_bikeControllers[0]->attachTrackingCamera(manipulator);
+	m_bikeControllers[0]->attachTrackingCameras(manipulator,m_HUDController);
 	m_gameView->setCameraManipulator(manipulator.get());
 
 	m_statsHandler = new osgViewer::StatsHandler;
@@ -353,7 +351,7 @@ bool TroenGame::composeSceneGraph()
 	if (m_usePostProcessing)
 	{
 		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
-		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height(), m_useHalvedTextures);
+		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
 		m_sceneNode = m_postProcessing->getSceneNode();
 
 		//explicit call, to enable glow from start
@@ -441,8 +439,8 @@ void TroenGame::startGameLoop()
 	if (m_useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 
-	
-	m_levelController->addItemBox(btVector3(500, 255, +0.5));
+    btVector3 itemBoxVector(500, 255, +0.5);
+	m_levelController->addItemBox(itemBoxVector);
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();

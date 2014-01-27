@@ -8,6 +8,7 @@
 #include "../view/nodefollowcameramanipulator.h"
 #include "../model/bikemodel.h"
 #include "../controller/fencecontroller.h"
+#include "../controller/hudcontroller.h"
 #include "../model/physicsworld.h"
 #include "../sound/audiomanager.h"
 
@@ -35,11 +36,12 @@ m_initialTransform(initialTransform)
 	m_playerColor = playerColor;
 
 	m_health = BIKE_DEFAULT_HEALTH;
+	m_points = 0;
 	m_timeOfLastCollision = -1;
 
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
 
-	m_fenceController = std::make_shared<FenceController>(m_playerColor,m_initialTransform);
+	m_fenceController = std::make_shared<FenceController>(this, m_playerColor, m_initialTransform);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
@@ -54,6 +56,7 @@ void BikeController::reset()
 
 	removeAllFences();
 	m_health = BIKE_DEFAULT_HEALTH;
+	m_points = 0;
 	m_timeOfLastCollision = -1;
 }
 
@@ -67,6 +70,12 @@ float BikeController::increaseHealth(float diff)
 {
 	m_health += diff;
 	return m_health;
+}
+
+float BikeController::increasePoints(float diff)
+{
+	m_points += diff;
+	return m_points;
 }
 
 BikeController::~BikeController()
@@ -170,14 +179,18 @@ void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInput
 	std::static_pointer_cast<BikeModel>(m_model)->setInputState(bikeInputState);
 }
 
-void BikeController::attachTrackingCamera
-  (osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
+void BikeController::attachTrackingCameras(
+    osg::ref_ptr<NodeFollowCameraManipulator>& manipulator,
+    std::shared_ptr<HUDController>& hudController)
 {
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
 
 	// set the actual node as the track node, not the pat
 	manipulator->setTrackNode(pat->getChild(0));
+    if(hudController != nullptr)
+        hudController->setTrackNode(pat->getChild(0));
+    
 
 	// set camera position
 	manipulator->setHomePosition(
@@ -186,6 +199,22 @@ void BikeController::attachTrackingCamera
 		osg::Z_AXIS, // up
 		false
 		);
+}
+void BikeController::attachTrackingCamera(osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
+{
+	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
+	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
+    
+	// set the actual node as the track node, not the pat
+	manipulator->setTrackNode(pat->getChild(0));
+    
+	// set camera position
+	manipulator->setHomePosition(
+                                 CAMERA_EYE_POSITION, // homeEye
+                                 osg::Vec3f(), // homeCenter
+                                 osg::Z_AXIS, // up
+                                 false
+                                 );
 }
 
 void BikeController::attachGameView(osg::ref_ptr<osgViewer::View> gameView)
@@ -238,6 +267,11 @@ float BikeController::getHealth()
 	return m_health;
 }
 
+float BikeController::getPoints()
+{
+	return m_points;
+}
+
 void BikeController::activateTurbo()
 {
 	m_turboInitiated = true;
@@ -261,6 +295,10 @@ void BikeController::updateModel(long double time)
 		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
 	}
 
+	// max speed: 360
+	// minimum fence length: 200 (or 400)
+	// in one second: add by 
+	increasePoints(speed / 1000);
 
 	if (m_gameView.valid()) {
 		float currentFovy = getFovy();
@@ -289,9 +327,16 @@ void BikeController::removeAllFences()
 	m_fenceController->removeAllFences();
 }
 
-void BikeController::enforceFencePartsLimit(int maxFenceParts)
+void BikeController::setLimitFence(bool boolean)
 {
-	m_fenceController->enforceFencePartsLimit(maxFenceParts);
+	m_fenceLimitActivated = boolean;
+}
+
+int BikeController::getFenceLimit() {
+	if (m_fenceLimitActivated)
+		return getPoints();
+	else
+		return 0;
 }
 
 void BikeController::moveBikeToPosition(btTransform transform)

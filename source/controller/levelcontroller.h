@@ -15,7 +15,7 @@ namespace troen
 		virtual btTransform getSpawnPointForBikeWithIndex(int index);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 		void addItemBox(btVector3 &position);
-		btTransform LevelController::getRandomSpawnPoint();
+		btTransform getRandomSpawnPoint();
 
 	private:
 		std::vector<btTransform> m_initialBikePositionTransforms;

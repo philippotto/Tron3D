@@ -40,8 +40,10 @@ namespace troen
 		void bikeNumberChanged(int newBikeNumber);
 		void chooseColor(int i);
 
-
 	private:
+		void loadSettings();
+		void saveSettings();
+		QString			m_settingsFileName;
 		QStatusBar*		m_statusBar;
 		QPushButton*	m_gameStartButton;
 		QSpinBox*		m_bikeNumberSpinBox;
@@ -53,7 +55,6 @@ namespace troen
 		QCheckBox*		m_postProcessingCheckBox;
 		QCheckBox*		m_testPerformanceCheckBox;
 		QCheckBox*		m_debugViewCheckBox;
-		QCheckBox*		m_halvedTexturesCheckBox;
 
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;

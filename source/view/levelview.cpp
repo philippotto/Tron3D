@@ -7,8 +7,6 @@
 #include <osg/MatrixTransform>
 #include <osg/Texture2D>
 #include <osg/TexMat>
-#include <osg/Group>
-#include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
@@ -19,7 +17,6 @@
 // bullet
 #include <btBulletDynamicsCommon.h>
 // troen
-#include "../model/levelmodel.h"
 #include "shaders.h"
 #include "../constants.h"
 

@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 // Qt
+#include <QDir>
+#include <QSettings>
 #include <QThread>
 #include <QBoxLayout>
 #include <QLabel>
@@ -46,8 +48,6 @@ MainWindow::MainWindow(QWidget * parent)
 	}
 
 	QSignalMapper* signalMapper = new QSignalMapper(this);
-	std::vector<QColor> initialColors{ QColor(255.0, 0.0, 0.0), QColor(0.0, 255.0, 0.0), QColor(0.0, 0.0, 255.0),
-		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) };
 
 	// bikeInputs
 	for (int i = 0; i < MAX_BIKES; i++)
@@ -70,15 +70,12 @@ MainWindow::MainWindow(QWidget * parent)
 		playerInputLayout->addWidget(playerComboBox);
 		m_playerComboBoxes.push_back(playerComboBox);
 
-		QColor initialColor = initialColors[i];
-		QString colorString = QString("background-color: %1").arg(initialColor.name());
 		QPushButton* colorButton = new QPushButton();
 		colorButton->setContentsMargins(0, 5, 0, 5);
-		colorButton->setStyleSheet(colorString);
 		signalMapper->setMapping(colorButton, i);
 		connect(colorButton, SIGNAL(clicked()), signalMapper, SLOT(map()));
 		playerInputLayout->addWidget(colorButton);
-		m_playerColors.push_back(initialColor);
+		m_playerColors.push_back(QColor());
 		m_colorButtons.push_back(colorButton);
 
 		switch (i)
@@ -124,11 +121,6 @@ MainWindow::MainWindow(QWidget * parent)
 	vBoxLayout->addWidget(m_debugViewCheckBox, 0, Qt::AlignLeft);
 	m_debugViewCheckBox->setChecked(false);
 
-	// debugViewCheckBox
-	m_halvedTexturesCheckBox = new QCheckBox("&Halved post processing texture sizes");
-	vBoxLayout->addWidget(m_halvedTexturesCheckBox, 0, Qt::AlignLeft);
-	m_halvedTexturesCheckBox->setChecked(false);
-
 	// gameStartButton
 	m_gameStartButton = new QPushButton(QString("start Game"));
 	m_gameStartButton->setContentsMargins(0, 5, 0, 5);
@@ -138,6 +130,10 @@ MainWindow::MainWindow(QWidget * parent)
 	m_statusBar = new QStatusBar(this);
 	m_statusBar->showMessage("...");
 	setStatusBar(m_statusBar);
+
+	// settings
+	m_settingsFileName = QDir::currentPath() + "/settings.ini";
+	loadSettings();
 
 	// create GameThread and Game
 	m_gameThread = new QThread(this);
@@ -150,8 +146,6 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(bikeNumberChanged(int)));
 
 	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(GameConfig)));
-
-
 }
 
 MainWindow::~MainWindow()
@@ -202,7 +196,8 @@ void MainWindow::prepareGameStart()
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	config.useDebugView = m_debugViewCheckBox->isChecked();
 	config.testPerformance = m_testPerformanceCheckBox->isChecked();
-	config.useHalvedTextures = m_halvedTexturesCheckBox->isChecked();
+
+	saveSettings();
 	emit startGame(config);
 }
 
@@ -262,6 +257,54 @@ void MainWindow::childEvent(QChildEvent* e)
 			e->child()->removeEventFilter(this);
 		}
 	}
-
 	QWidget::childEvent(e);
+}
+
+void MainWindow::loadSettings()
+{
+	QSettings settings(m_settingsFileName, QSettings::IniFormat);
+
+	std::vector<QColor> initialColors{ QColor(255.0, 0.0, 0.0), QColor(0.0, 255.0, 0.0), QColor(0.0, 0.0, 255.0),
+		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) };
+
+	m_bikeNumberSpinBox->setValue(settings.value("bikeNumber").toInt());
+	m_splitscreenCheckBox->setChecked(settings.value("splitscreen").toBool());
+	m_postProcessingCheckBox->setChecked(settings.value("postProcessing").toBool());
+	m_testPerformanceCheckBox->setChecked(settings.value("vSyncOff").toBool());
+	m_debugViewCheckBox->setChecked(settings.value("debugView").toBool());
+
+	for (int i = 0; i < MAX_BIKES; i++)
+	{
+		int playerInput =
+			settings.value("player" + QString::number(i) + "input").toInt();
+		m_playerComboBoxes[i]->setCurrentIndex(playerInput);
+		m_playerColors[i] =
+			settings.value("player" + QString::number(i) + "color").value<QColor>();
+		m_playerColors[i] = m_playerColors[i].value() == 0 ? initialColors[i] : m_playerColors[i];
+		QString colorString = QString("background-color: %1").arg(m_playerColors[i].name());
+		m_colorButtons[i]->setStyleSheet(colorString);
+	}
+
+	updatePlayerInputBoxes();
+}
+
+void MainWindow::saveSettings()
+{
+	QSettings settings(m_settingsFileName, QSettings::IniFormat);
+
+	settings.setValue("bikeNumber", QString::number(m_bikeNumberSpinBox->value()));
+	settings.setValue("splitscreen", QString::number(m_splitscreenCheckBox->isChecked()));
+	settings.setValue("postProcessing", QString::number(m_postProcessingCheckBox->isChecked()));
+	settings.setValue("vSyncOff", QString::number(m_testPerformanceCheckBox->isChecked()));
+	settings.setValue("debugView", QString::number(m_debugViewCheckBox->isChecked()));
+
+	for (int i = 0; i < MAX_BIKES; i++)
+	{
+		settings.setValue("player" + QString::number(i) + "input",
+			m_playerComboBoxes[i]->currentIndex());
+		settings.setValue("player" + QString::number(i) + "color",
+			m_playerColors[i]);
+	}
+
+	settings.sync();
 }

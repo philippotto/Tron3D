@@ -2,9 +2,8 @@
 // OSG
 #include <osg/ref_ptr>
 #include <osg/Geode>
-
+// bullet
 #include <btBulletDynamicsCommon.h>
-
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
@@ -17,7 +16,7 @@ namespace troen
 	public:
 		LevelView(std::shared_ptr<LevelModel> model);
 
-		void LevelView::addItemBox(osg::Vec3 position);
+		void addItemBox(osg::Vec3 position);
 
 	private:
 		osg::ref_ptr<osg::Group> constructWalls(int levelSize);
