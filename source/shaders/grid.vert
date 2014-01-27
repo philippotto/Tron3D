@@ -12,7 +12,7 @@ out vec3 v_normal;
 out vec3 v_eye;
 void main()
 {
-	uv = (gl_Vertex).xy / levelSize + vec2(0.5, 0.5);
+	uv = gl_Vertex.xy / levelSize + vec2(0.5, 0.5);
 	//v_eye = normalize((gl_ModelViewMatrix *  gl_Vertex).xyz - cameraEye);
 
 	// vec4 worldPosition = gl_Vertex;
@@ -23,7 +23,7 @@ void main()
     // vec3 normal = normalize(input.Normal * WorldInverseTranspose);
     // output.Reflection = reflect(-normalize(ViewDirection), normalize(Normal));
 	
-	vertex_objCoords = gl_Vertex;
+	vertex_objCoords = gl_Vertex.xyz;
 	gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
 	v_normal = vec3(0.0,0.0,1.0);
 
