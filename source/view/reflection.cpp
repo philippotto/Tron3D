@@ -33,6 +33,7 @@
 using namespace troen;
 
 static osg::ref_ptr<osg::Uniform> g_cameraEyeU = new osg::Uniform("cameraEye", osg::Vec3(0.0, 0.0,0.0));
+static osg::ref_ptr<osg::Uniform> g_cameraViewU = new osg::Uniform("cameraViewMatrix", osg::Matrixd());
 
 class CUpdateCameraCallback : public osg::NodeCallback
 {
@@ -55,6 +56,8 @@ public:
 
 			camera->setViewMatrix(m_gameView->getCamera()->getViewMatrix());
 			camera->setProjectionMatrix(m_gameView->getCamera()->getProjectionMatrix());
+
+			g_cameraViewU->set(m_gameView->getCamera()->getViewMatrix());
 
 			//g_cameraEyeU->set(osg::Vec3(0.0, 0.0, 0.0) * m_gameView->getCamera()->getInverseViewMatrix());
 
@@ -144,6 +147,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 		osg::StateAttribute::ON);
 
 	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 0));
+	reflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
 
 	//reflectNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
 

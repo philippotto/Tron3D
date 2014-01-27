@@ -8,7 +8,8 @@ uniform float glowIntensity;
 
 in vec2 uv;
 in vec3 vertex_objCoords;
-//in vec3 v_normal;
+in vec3 v_normal;
+in vec3 v_eye;
 
 
 void main()
@@ -22,10 +23,12 @@ void main()
 	vec4 grid  = mix(
 		vec4(0.086, 0.45, 0.513, 1.0),
 		vec4(0, 0,0.0, 1),
-		clamp(0.0,1.0, pow(min(smoothingFactorX, smoothingFactorY), 0.5))
+		clamp(pow(min(smoothingFactorX, smoothingFactorY), 0.5),0.0,1.0)
 	); // sceneColor
-	//vec3 r = normalize(reflect(v_eye,normalize(v_normal)));
-	//vec3 q = refract(e,n,1/1.03);
+	
+
+	vec3 r = normalize(reflect(v_eye,v_normal));
+	vec4 skydome_reflection = textureCube(skyDome,r);
 	
 	//float frsl = -1 * dot(e, n) ;
 
@@ -39,11 +42,11 @@ void main()
 	vec2 vDeviceReflection = vClipReflection.xy / vClipReflection.w;
 	vec2 vTextureReflection = vec2(0.5) + 0.5 * vDeviceReflection;
 
-	vec4 reflectionTextureColor = texture(reflectionTex, vTextureReflection);
+	vec4 reflectionTextureColor = mix(texture(reflectionTex, vTextureReflection), skydome_reflection,0.2);
 	
 	//vec3 r = normalize(reflect(e,n));
 	
-	gl_FragData[0] = vec4(mix(grid*2.0,reflectionTextureColor.rgb,0.8),1.0);//texture(reflectionTex,uv);
+	gl_FragData[0] = skydome_reflection;// vec4(mix(grid*2.0,reflectionTextureColor.rgb,0.8),1.0);//texture(reflectionTex,uv);
 	int glowIntesity_int = int(clamp(0.0,100.0,glowIntensity*100.0));
 	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
 	gl_FragData[1] = vec4(modelID, glowIntensity,0,0);
