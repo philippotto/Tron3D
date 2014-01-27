@@ -47,13 +47,7 @@ void main()
 
 	gl_FragData[0] = vec4(diffuseColor  * texture2D(diffuseTexture,texCoord).rgb + specularReflection, texture2D(diffuseTexture,texCoord).a);
 
-
-	int glowIntesity_int = int(clamp(0.0, 100.0, glowIntensity * 100.0));
 	// 8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
 
-	// TODO: quickfix for filtering body lines (works only for red, obviously)
-	int correctedModelID = gl_FragData[0].r > 0.5 ? 1 : 0;
-
-	// gl_FragData[0] = vec4(correctedModelID);
-	gl_FragData[1] = vec4(correctedModelID, glowIntensity, 0, 0);
+	gl_FragData[1] = vec4(modelID, glowIntensity, 0, 0);
 }

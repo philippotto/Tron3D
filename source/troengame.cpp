@@ -360,10 +360,6 @@ bool TroenGame::composeSceneGraph()
 	else
 		m_sceneNode = m_rootNode;
 
-
-
-
-
 	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
 	m_sceneNode->addChild(m_skyDome.get());
 

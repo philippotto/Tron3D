@@ -161,5 +161,4 @@ void main(void)
 	newColor = mix(newColor, vec4(reddedColor, 1.f), circleTransparency);
 
 	gl_FragColor = newFrameWeight * newColor + oldFrameWeight * oldColor;
-	// gl_FragColor = pongColor;
 }

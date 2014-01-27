@@ -22,8 +22,6 @@ const float pi = 3.14159265f;
 
 void main() {
 
-	// gl_FragColor = texture2D(inputLayer, v_texCoord.xy);
-	// return;
 	float blurSize;
 	float numBlurPixelsPerSide;
 	float glowIntensity = texture2D(idLayer, v_texCoord).y;
