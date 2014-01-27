@@ -369,10 +369,10 @@ bool TroenGame::composeSceneGraph()
 
 
 	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
-	m_sceneNode->addChild(m_skyDome.get());
+	//m_sceneNode->addChild(m_skyDome.get());
 
 	m_sceneNode->addChild(m_levelController->getViewNode());
-	m_sceneNode->addChild(m_sunLightSource.get());
+	//m_sceneNode->addChild(m_sunLightSource.get());
 
 	for (auto bikeController : m_bikeControllers)
 	{
@@ -390,22 +390,22 @@ bool TroenGame::composeSceneGraph()
 		radarScene->addChild(bikeController->getViewNode());
 	radarScene->addChild(m_levelController->getViewNode());
 
-	m_HUDController->attachSceneToRadarCamera(radarScene);
+	//m_HUDController->attachSceneToRadarCamera(radarScene);
 
 	//m_sceneNode->addChild(osgDB::readNodeFile("data/models/checkerboard_zwo.3DS"));
 
 
-	//m_deformationRendering = new SplineDeformationRendering(m_sceneNode);
+	m_deformationRendering = new SplineDeformationRendering(m_sceneNode);
 
-	//m_deformationRendering->m_camera = m_gameView->getCamera();
+	m_deformationRendering->m_camera = m_gameView->getCamera();
 
-	m_gameView->setSceneData(m_rootNode);
+	m_gameView->setSceneData(m_sceneNode);
 
 	// get scene proportions
 	const osg::BoundingSphere& bs = m_sceneNode->getBound();
 
 	float radius = bs.radius();
-	std::cout << radius << " " << bs.center()[0] << " " << bs.center()[1] << " " << bs.center()[2] << std::endl;
+	std::cout << "overall Scene geometry: " << radius << " " << bs.center()[0] << " " << bs.center()[1] << " " << bs.center()[2] << std::endl;
 
 	// setup camera
 	osg::ref_ptr<osg::Camera> cam = m_gameView->getCamera();
@@ -428,10 +428,11 @@ bool TroenGame::composeSceneGraph()
 
 
 	// propagate new planes
-	//m_deformationRendering->setDeformationStartEnd(nearD, radius*0.75);
+	// todo: the magic number (0.25) can be used to control the length of the deformation and must be possibly adjusted after the scene graph tweaks
+	m_deformationRendering->setDeformationStartEnd(nearD, radius*0.25);
 
-	//m_deformationRendering->toggleDeactiv(false);
-	//m_deformationRendering->setPreset(1);
+	m_deformationRendering->toggleDeactiv(false);
+	m_deformationRendering->setPreset(1);
 
 
 

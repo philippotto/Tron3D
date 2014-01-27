@@ -53,6 +53,8 @@ osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
 	radarWalls->setNodeMask(CAMERA_MASK_RADAR);
 	wallsGroup->addChild(radarWalls);
 
+	std::cout << "Walls radius" << wallsGroup->getBound().radius() << std::endl;
+
     return wallsGroup;
 }
 
@@ -60,16 +62,18 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
 
-	floorsGroup->addChild(osgDB::readNodeFile("data/models/images/checkerboard.3DS"));
+	//floorsGroup->addChild(osgDB::readNodeFile("data/models/terrain1.3ds"));
 
-	osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
+	/*osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
     addShaderAndUniforms(floors, shaders::GRID, levelSize);
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
 
 	osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());
 	radarFloors->setNodeMask(CAMERA_MASK_RADAR);
-	floorsGroup->addChild(radarFloors);
+	floorsGroup->addChild(radarFloors);*/
+
+	std::cout << "Floor radius" << floorsGroup->getBound().radius() << std::endl;
 
     return floorsGroup;
 }
@@ -91,6 +95,8 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 	osg::ref_ptr<osg::Group> radarObstacles = constructRadarElementsForBoxes(m_model->getObstacles());
 	radarObstacles->setNodeMask(CAMERA_MASK_RADAR);
 	obstaclesGroup->addChild(radarObstacles);
+
+	std::cout << "Obstacles radius" << obstaclesGroup->getBound().radius() << std::endl;
 
 	return obstaclesGroup;
 }
