@@ -10,7 +10,7 @@ out vec3 vertex_objCoords;
 //out vec3 v_normal;
 void main()
 {
-	uv = (gl_Vertex).xy / levelSize + vec2(0.5, 0.5);
+	uv = gl_Vertex.xy / levelSize + vec2(0.5, 0.5);
 	//v_eye = normalize((gl_ModelViewMatrix *  gl_Vertex).xyz - cameraEye);
 	
 	vertex_objCoords = gl_Vertex.xyz;

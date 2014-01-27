@@ -1,5 +1,6 @@
 #version 130
 
+uniform int levelSize;
 uniform sampler2D reflectionTex;
 uniform samplerCube skyDome;
 uniform int modelID;
@@ -16,13 +17,13 @@ void main()
 	int inverseFrequency = 80;
 	
 	float modifier = 2;
-	float smoothingFactorX = abs(mod((5000 / modifier * uv.x), inverseFrequency / modifier) - 5);
-	float smoothingFactorY = abs(mod((5000 / modifier * uv.y), inverseFrequency / modifier) - 5);
+	float smoothingFactorX = abs(mod((levelSize / modifier * uv.x), inverseFrequency / modifier) - 5);
+	float smoothingFactorY = abs(mod((levelSize / modifier * uv.y), inverseFrequency / modifier) - 5);
 	
-	vec4 grid  = mix(
+	vec4 grid = mix(
 		vec4(0.086, 0.45, 0.513, 1.0),
-		vec4(0.0, 0.0, 0.0, 1),
-		clamp(0.0, 1.0, pow(min(smoothingFactorX, smoothingFactorY), 0.5))
+		vec4(0.0, 0.0, 0.0, 1.0),
+		clamp(pow(min(smoothingFactorX, smoothingFactorY), 0.5), 0.0, 1.0)
 	); // sceneColor
 	//vec3 r = normalize(reflect(v_eye,normalize(v_normal)));
 	//vec3 q = refract(e,n,1/1.03);
