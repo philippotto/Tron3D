@@ -49,7 +49,7 @@ void main()
 
 	gl_FragData[0] = vec4(diffuseColor  * texture2D(diffuseTexture,texCoord).rgb + specularReflection, texture2D(diffuseTexture,texCoord).a);
 
-	int glowIntesity_int = int(clamp(0.0,100.0,glowIntensity*100.0));
-	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
-	gl_FragData[1] = vec4(modelID, glowIntensity,0,0);
+	// 8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
+
+	gl_FragData[1] = vec4(modelID, glowIntensity, 0, 0);
 }
