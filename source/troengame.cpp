@@ -305,7 +305,7 @@ bool TroenGame::initializeViewer()
 		// turn of vSync (we implement an adaptive gameLoop that syncs itself)
 		osg::ref_ptr<RealizeOperation> operation = new RealizeOperation;
 		viewer->setRealizeOperation(operation);
-		// viewer->realize();
+		viewer->realize();
 #endif
 		m_viewers.push_back(viewer);
 		if (!m_splitscreen)	{
@@ -373,25 +373,29 @@ bool TroenGame::composeSceneGraph()
 	}
 
 	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
-
+	
 	int currentIndex = -1;
 	for (auto playerNode : m_playerNodes) {
 		currentIndex++;
 		playerNode->addChild(m_HUDControllers[currentIndex]->getViewNode());
 	}
 
-
+	
 	if (m_usePostProcessing)
 		m_rootNode->addChild(m_sceneNode);
-
+	
+	
 	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
+	
+	
 	for (auto bikeController : m_bikeControllers)
 		radarScene->addChild(bikeController->getViewNode());
 	radarScene->addChild(m_levelController->getViewNode());
-
+	
 	for (auto hudController : m_HUDControllers) {
 		hudController->attachSceneToRadarCamera(radarScene);
 	}
+	
 
 	return true;
 }
