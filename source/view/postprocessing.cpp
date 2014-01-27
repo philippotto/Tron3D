@@ -269,7 +269,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::pingPongPass(int order, TEXTURE_CONTEN
 
 void PostProcessing::setBeat(float beat)
 {
-	m_timeSinceLastBeat->set(beat);
+	//m_timeSinceLastBeat->set(beat);
 }
 
 // create post processing pass to put it all together
@@ -344,7 +344,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 	osg::ref_ptr<osg::Camera> cam = new osg::Camera();
 	TEXTURE_CONTENT SIDE = left ? LEFT : RIGHT;
 	
-	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER), m_fboTextures[SIDE]);
+	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0), m_fboTextures[SIDE]);
 	
 
 	// Configure fboCamera to draw fullscreen textured quad
@@ -353,22 +353,22 @@ osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 	cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	cam->setReferenceFrame(osg::Camera::RELATIVE_RF);
-	cam->setRenderOrder(osg::Camera::POST_RENDER, 0);
+	cam->setRenderOrder(osg::Camera::POST_RENDER, left ? 0 : 1);
 
 	cam->addChild(m_sceneNode);
 
-
-	if (left)
+	cam->setViewport(new osg::Viewport(0, 0, m_width, m_height));
+	/*if (left)
 		cam->setViewport(new osg::Viewport(0, 0, m_width / 2, m_height));
 	else 
-		cam->setViewport(new osg::Viewport(m_width / 2, 0, m_width / 2, m_height));
+		cam->setViewport(new osg::Viewport(m_width / 2, 0, m_width / 2, m_height));*/
 	
 
 	// attach shader program
-	cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
 	//cam->getOrCreateStateSet()->addUniform(new osg::Uniform("colorTex", SIDE));
-	cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
-	cam->getOrCreateStateSet()->setTextureAttributeAndModes(0, m_fboTextures[SIDE], osg::StateAttribute::ON);
+	////cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
+	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(SIDE, m_fboTextures[SIDE], osg::StateAttribute::ON);
 
 
 	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
@@ -419,12 +419,13 @@ osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes()
 	osg::ref_ptr<osg::Camera> postRenderCamera(new osg::Camera());
 
 	// input textures
-	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER), m_fboTextures[PONG]);
+	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + PING), m_fboTextures[PING]);
+	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
 
 	// configure postRenderCamera to draw fullscreen textured quad
 	postRenderCamera->setClearColor(osg::Vec4(0.0, 0.5, 0.0, 1)); // should never see this.
 	postRenderCamera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
-	postRenderCamera->setRenderOrder(osg::Camera::POST_RENDER);
+	postRenderCamera->setRenderOrder(osg::Camera::POST_RENDER, 3);
 
 	// geometry
 	osg::Geode* geode(new osg::Geode());
@@ -441,7 +442,8 @@ osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes()
 	state->addUniform(new osg::Uniform("left", LEFT));
 	state->addUniform(new osg::Uniform("right", RIGHT));
 
-	state->setTextureAttributeAndModes(0, m_fboTextures[PONG], osg::StateAttribute::ON);
+	state->setTextureAttributeAndModes(LEFT, m_fboTextures[LEFT], osg::StateAttribute::ON);
+	state->setTextureAttributeAndModes(RIGHT, m_fboTextures[RIGHT], osg::StateAttribute::ON);
 	
 
 	return postRenderCamera;
