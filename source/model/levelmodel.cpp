@@ -26,19 +26,10 @@ LevelModel::LevelModel(const LevelController* levelController)
 void LevelModel::addFloor(float size, float yPosition)
 {
 
-	for (size_t x = 0; x < size; x+=100)
-	{
-		for (size_t y = 0; y < size; y+=100) {
-			m_floors.push_back({
-				btVector3(x-3000, y-3000, yPosition),
-				btVector3(100, 100, 20)
-			});
-
-		}
-	}
-
-
-
+	m_floors.push_back({
+		btVector3(0, 0, yPosition),
+		btVector3(size, size, 20)
+	});
 
 	addBoxes(m_floors, LEVELGROUNDTYPE);
 }

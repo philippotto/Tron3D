@@ -12,23 +12,24 @@ std::vector<osg::ref_ptr<osg::Program> > shaders::m_allShaderPrograms;
 void shaders::reloadShaders()
 {
 	shaders::m_allShaderPrograms.resize(SHADER_NAME_COUNT);
-	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "BendedViews/shaders/deform.frag", "BendedViews/shaders/deform_ws_bowl.vert");
-	reloadShader(shaders::m_allShaderPrograms[BIKE], "BendedViews/shaders/deform.frag", "BendedViews/shaders/deform_ws_bowl.vert");
-	reloadShader(shaders::m_allShaderPrograms[GRID], "BendedViews/shaders/deform.frag", "BendedViews/shaders/deform_ws_bowl.vert");
-	reloadShader(shaders::m_allShaderPrograms[FENCE], "BendedViews/shaders/deform.frag", "BendedViews/shaders/deform_ws_bowl.vert");
-	reloadShader(shaders::m_allShaderPrograms[GBUFFER], "BendedViews/shaders/deform.frag", "BendedViews/shaders/deform_ws_bowl.vert");
-	reloadShader(shaders::m_allShaderPrograms[HBLUR], "source/shaders/Blur.frag", "source/shaders/HBlur.vert");
-	reloadShader(shaders::m_allShaderPrograms[VBLUR], "source/shaders/Blur.frag", "source/shaders/VBlur.vert");
-	reloadShader(shaders::m_allShaderPrograms[POST_PROCESSING], "source/shaders/postprocessing.frag", "");
-	reloadShader(shaders::m_allShaderPrograms[OUTER_WALL], "BendedViews/shaders/deform.frag", "BendedViews/shaders/deform_ws_bowl.vert");
-	reloadShader(shaders::m_allShaderPrograms[SELECT_GLOW_OBJECTS], "source/shaders/selectglowobjects.frag", "");
-
+	
+	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "source/shaders/default.frag", "BendedViews/shaders/deform_ws_bowl.vert", "source/shaders/default.vert");
+	reloadShader(shaders::m_allShaderPrograms[BIKE], "source/shaders/bike.frag", "BendedViews/shaders/deform_ws_bowl.vert", "source/shaders/bike.vert");
+	reloadShader(shaders::m_allShaderPrograms[GRID], "source/shaders/grid.frag", "BendedViews/shaders/deform_ws_bowl.vert", "source/shaders/grid.vert");
+	reloadShader(shaders::m_allShaderPrograms[FENCE], "source/shaders/fence.frag", "BendedViews/shaders/deform_ws_bowl.vert", "source/shaders/fence.vert");
+	reloadShader(shaders::m_allShaderPrograms[GBUFFER], "source/shaders/gbuffer.frag", "source/shaders/gbuffer.vert", "");
+	reloadShader(shaders::m_allShaderPrograms[HBLUR], "source/shaders/Blur.frag", "source/shaders/HBlur.vert", "");
+	reloadShader(shaders::m_allShaderPrograms[VBLUR], "source/shaders/Blur.frag", "source/shaders/VBlur.vert", "");
+	reloadShader(shaders::m_allShaderPrograms[POST_PROCESSING], "source/shaders/postprocessing.frag", "", "");
+	reloadShader(shaders::m_allShaderPrograms[OUTER_WALL], "source/shaders/outer_wall.frag", "BendedViews/shaders/deform_ws_bowl.vert", "source/shaders/outer_wall.vert");
+	reloadShader(shaders::m_allShaderPrograms[SELECT_GLOW_OBJECTS], "source/shaders/selectglowobjects.frag", "", "");
 }
 
 void shaders::reloadShader(
 	osg::ref_ptr<osg::Program> & program,
 	std::string fragmentFileName,
-	std::string vertexFileName)
+	std::string vertexFileName,
+	std::string secondVertexFileName)
 {
 	// reload shader files, if necessary
 	if (program)
@@ -39,6 +40,9 @@ void shaders::reloadShader(
 		{
 			loadShaderSource(program->getShader(1), vertexFileName);
 		}
+
+		if (secondVertexFileName != "")
+			loadShaderSource(program->getShader(2), secondVertexFileName);
 
 	}
 	else
@@ -54,6 +58,15 @@ void shaders::reloadShader(
 			osg::ref_ptr<osg::Shader> vertShader = new osg::Shader(osg::Shader::VERTEX);
 			loadShaderSource(vertShader, vertexFileName);
 			program->addShader(vertShader);
+		}
+
+
+		if (secondVertexFileName != "")
+		{
+			osg::ref_ptr<osg::Shader> vertShader = new osg::Shader(osg::Shader::VERTEX);
+			loadShaderSource(vertShader, secondVertexFileName);
+			program->addShader(vertShader);
+			
 		}
 
 		std::string *mystr;

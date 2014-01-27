@@ -363,8 +363,6 @@ bool TroenGame::composeSceneGraph()
 	}
 	else {
 		m_sceneNode = m_rootNode;
-
-
 	}
 
 
@@ -392,49 +390,29 @@ bool TroenGame::composeSceneGraph()
 
 	//m_HUDController->attachSceneToRadarCamera(radarScene);
 
-	//m_sceneNode->addChild(osgDB::readNodeFile("data/models/checkerboard_zwo.3DS"));
-
 
 	m_deformationRendering = new SplineDeformationRendering(m_sceneNode);
-
 	m_deformationRendering->m_camera = m_gameView->getCamera();
 
 	m_gameView->setSceneData(m_sceneNode);
 
 	// get scene proportions
 	const osg::BoundingSphere& bs = m_sceneNode->getBound();
-
 	float radius = bs.radius();
-	std::cout << "overall Scene geometry: " << radius << " " << bs.center()[0] << " " << bs.center()[1] << " " << bs.center()[2] << std::endl;
-
+	
 	// setup camera
 	osg::ref_ptr<osg::Camera> cam = m_gameView->getCamera();
 	double fov, aspectRatio, nearD, farD;
+	
 	// simply set near and far plane to model-specific (bb-radius) values
 	cam->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 	cam->setViewport(0, 0, 1024, 768);
-	cam->getProjectionMatrixAsPerspective(fov, aspectRatio, nearD, farD);
 	nearD = 0.1;
-	farD = radius *2.0;
-	cam->setProjectionMatrixAsPerspective(fov, aspectRatio, nearD, farD);
-
-	osg::Vec3 center = bs.center();
-	osg::Vec3 eye = center + osg::Vec3(0.0, 1.0, 0.5);
-
-	osg::Vec3 up, dummy1, dummy2;
-
-	//cam->getViewMatrixAsLookAt(dummy1, dummy2, up);
-	//cam->setViewMatrixAsLookAt(eye, center, up);
-
-
+		
 	// propagate new planes
 	// todo: the magic number (0.25) can be used to control the length of the deformation and must be possibly adjusted after the scene graph tweaks
-	m_deformationRendering->setDeformationStartEnd(nearD, radius*0.25);
-
-	m_deformationRendering->toggleDeactiv(false);
+	m_deformationRendering->setDeformationStartEnd(nearD, radius * 0.25);
 	m_deformationRendering->setPreset(1);
-
-
 
 	return true;
 }

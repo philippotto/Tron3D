@@ -62,11 +62,10 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
 
-	//floorsGroup->addChild(osgDB::readNodeFile("data/models/terrain1.3ds"));
+	floorsGroup->addChild(osgDB::readNodeFile("data/models/floor.ive"));
 
-	/*osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
-    addShaderAndUniforms(floors, shaders::GRID, levelSize);
-	floors->setNodeMask(CAMERA_MASK_MAIN);
+	addShaderAndUniforms(floorsGroup, shaders::GRID, levelSize);
+	/*floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
 
 	osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());

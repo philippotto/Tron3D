@@ -19,4 +19,6 @@ void main(void)
 	float oldFrameWeight = 0.5;
 	float newFrameWeight = 1 - oldFrameWeight;
 	gl_FragColor = newFrameWeight * (pongColor * 3 + sceneColor) + oldFrameWeight * oldColor;
+
+	return;
 }
