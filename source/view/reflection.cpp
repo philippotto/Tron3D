@@ -111,7 +111,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 
 	reflectionCamera->setClearMask(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	reflectionCamera->setRenderOrder(osg::Camera::PRE_RENDER);
-	reflectionCamera->setClearColor(osg::Vec4(0.0f, 0.f, 0.0f, 1.0f));
+	reflectionCamera->setClearColor(osg::Vec4(0.0f, 0.f, 0.0f, 0.0f));
 	reflectionCamera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 	reflectionCamera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 	reflectionCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
@@ -147,7 +147,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 		osg::StateAttribute::ON);
 
 	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 1));
-	77reflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
+	//sreflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
 
 	//reflectNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
 

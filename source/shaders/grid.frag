@@ -34,9 +34,11 @@ void main()
 	vec2 vTextureReflection = vec2(0.5) + 0.5 * vDeviceReflection;
 	vec4 scene_reflection = texture(reflectionTex, vTextureReflection);
 	
-	vec2 xy_dist = length(v_eye) / 400.0;
-	vec2 skybox_blend = clamp(smoothstep(0.0, 0.2, xy_dist) * xy_dist, 0.0, 0.6);
-	vec4 reflectionTextureColor = mix(scene_reflection, skydome_reflection, skybox_blend);
+	float xy_dist = length(v_eye) / 400.0;
+	float skybox_blend = clamp(smoothstep(0.0, 0.2, xy_dist) * xy_dist, 0.0, 0.6);
+	//occlude skybox, when reflection occludes it
+	float occlusion_fac = 1.0 - scene_reflection.a;
+	vec4 reflectionTextureColor = mix(scene_reflection, skydome_reflection, skybox_blend * occlusion_fac);
 	
 	//vec4(skybox_blend,0.0,1.0);//
 	gl_FragData[0] =  mix(grid * 2.0, reflectionTextureColor, 0.5);
