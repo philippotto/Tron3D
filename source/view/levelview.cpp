@@ -42,7 +42,7 @@ osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
 	osg::ref_ptr<osg::Group> wallsGroup = new osg::Group();
 
     osg::ref_ptr<osg::Group> walls = constructGroupForBoxes(m_model->getWalls());
-	addShaderAndUniforms(walls, shaders::OUTER_WALL, levelSize);
+	addShaderAndUniforms(walls, shaders::OUTER_WALL, levelSize, DEFAULT);
 	walls->setNodeMask(CAMERA_MASK_MAIN);
 	wallsGroup->addChild(walls);
 
@@ -58,7 +58,11 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
 
 	osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
-    addShaderAndUniforms(floors, shaders::GRID, levelSize);
+	osg::StateSet *obstaclesStateSet = floors->getOrCreateStateSet();
+	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
+	obstaclesStateSet->addUniform(textureMapU);
+	setTexture(obstaclesStateSet, "data/textures/floor.tga", 0);
+	addShaderAndUniforms(floors, shaders::GRID, levelSize, GLOW);
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
 
@@ -78,8 +82,8 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 	obstaclesStateSet->ref();
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
-	setTexture(obstaclesStateSet, "data/textures/troen_box_tex.tga", 0);
-	addShaderAndUniforms(obstacles, shaders::DEFAULT, levelSize);
+	setTexture(obstaclesStateSet, "data/textures/box.tga", 0);
+	addShaderAndUniforms(obstacles, shaders::DEFAULT, levelSize, GLOW);
 	obstacles->setNodeMask(CAMERA_MASK_MAIN);
 	obstaclesGroup->addChild(obstacles);
 
@@ -90,14 +94,17 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 	return obstaclesGroup;
 }
 
-void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Group>& group, int shaderIndex, int levelSize)
+void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Group>& group, int shaderIndex, int levelSize, int modelID)
 {
 	osg::StateSet *stateSet = group->getOrCreateStateSet();
 	stateSet->ref();
 
 	stateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaderIndex], osg::StateAttribute::ON);
 	stateSet->addUniform(new osg::Uniform("levelSize", levelSize));
-	stateSet->addUniform(new osg::Uniform("modelID", DEFAULT));
+	stateSet->addUniform(new osg::Uniform("modelID", modelID));
+	if (modelID == GLOW)
+		stateSet->addUniform(new osg::Uniform("glowIntensity", 1.f));
+
 }
 
 osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel> &boxes)
@@ -181,6 +188,8 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 		osg::Texture2D* texture = new osg::Texture2D;
 		texture->setImage(image);
 		texture->setResizeNonPowerOfTwoHint(false);
+		texture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
+		texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
 		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
 
 	}
@@ -205,18 +214,10 @@ void LevelView::addItemBox(osg::Vec3 position)
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
 	setTexture(obstaclesStateSet, "data/textures/turbostrip.tga", 0);
-	
-
 
 	obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
 	obstaclesStateSet->addUniform(new osg::Uniform("levelSize", m_model->getLevelSize()));
 	obstaclesStateSet->addUniform(new osg::Uniform("modelID", DEFAULT));
-
-
-	// obstaclesGroup->addChild(obstacles);
-	
-
-
 
 	osg::Matrixd initialTransform;
 	initialTransform = initialTransform.translate(position);
