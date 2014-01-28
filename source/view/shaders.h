@@ -34,6 +34,7 @@ namespace troen
 							SELECT_GLOW_OBJECTS,
 							POST_PROCESSING,
 							OUTER_WALL,
+							SKYDOME,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
 

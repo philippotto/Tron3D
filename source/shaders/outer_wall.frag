@@ -22,7 +22,6 @@ void main()
 		vec4(1, 1, 1, 0) / 255.f,
 		pow(min(smoothingFactorX, smoothingFactorY), 0.5));
 
-	int glowIntesity_int = int(clamp(0.0,100.0,glowIntensity*100.0));
 	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
 	gl_FragData[1] = vec4(modelID, glowIntensity,0,0);
 }

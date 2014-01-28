@@ -12,6 +12,8 @@
 #include <osgDB/ReadFile>
 #include <osgUtil/CullVisitor>
 
+#include "shaders.h"
+
 using namespace troen;
 
 SkyDome::SkyDome() :
@@ -40,13 +42,9 @@ SkyDome::SkyDome() :
     texGen->setMode(osg::TexGen::NORMAL_MAP);
     stateset->setTextureAttributeAndModes(0, texGen.get(), osg::StateAttribute::ON);
 
-    osg::ref_ptr<osg::Program> program = new osg::Program;
-    program->addShader(osgDB::readShaderFile("source/shaders/skydome.frag"));
-    //program->addShader(osgDB::readShaderFile("shader/TypeId.frag"));
-    stateset->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
-    stateset->addUniform(new osg::Uniform("cubemap", 0));
-
-	stateset->addUniform(new osg::Uniform("modelID", AbstractView::BACKGROUND));
+	stateset->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::SKYDOME], osg::StateAttribute::ON);
+	stateset->addUniform(new osg::Uniform("cubemap", 0));
+	stateset->addUniform(new osg::Uniform("modelID", shaders::DEFAULT));
 
     // clear the depth to the far plane.
     osg::ref_ptr<osg::Depth> depth = new osg::Depth(osg::Depth::ALWAYS, 1.0, 1.0);

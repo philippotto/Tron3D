@@ -102,7 +102,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 {
 
 	//osg::Group		*group = new osg::Group();
-	int texSize = 1024;
+	int texSize = 512;
 	// Set up the reflection camera
 	cameraGroup = new osg::Group();
 	reflectionCamera = new osg::Camera();
@@ -143,18 +143,17 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 
 	// Set reflection textures
 
-	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture,
+	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(1, texture,
 		osg::StateAttribute::ON);
 
-	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 0));
+	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 1));
 	reflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
 
 	//reflectNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
 
-	//reflectionSurface->getOrCreateStateSet()->setTextureAttributeAndModes(1, cubeMap,
-	//	osg::StateAttribute::ON);
+	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(2, cubeMap, osg::StateAttribute::ON);
 
-	//reflectionSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("skyDome",1));
+	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("skyDome", 2));
 
 	//reflectionSurface->getOrCreateStateSet()->addUniform(g_cameraEyeU);
 
