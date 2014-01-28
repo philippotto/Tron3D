@@ -59,7 +59,7 @@ public:
 
 			g_cameraViewU->set(m_gameView->getCamera()->getViewMatrix());
 
-			//g_cameraEyeU->set(osg::Vec3(0.0, 0.0, 0.0) * m_gameView->getCamera()->getInverseViewMatrix());
+			g_cameraEyeU->set(osg::Vec3(0.0, 0.0, 0.0) * m_gameView->getCamera()->getInverseViewMatrix());
 
 			//_reflectionCamera->accept(*_cv);
 
@@ -155,7 +155,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 
 	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("skyDome", 2));
 
-	//reflectionSurface->getOrCreateStateSet()->addUniform(g_cameraEyeU);
+	reflectSurface->getOrCreateStateSet()->addUniform(g_cameraEyeU);
 
 }
 
