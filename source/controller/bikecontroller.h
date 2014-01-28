@@ -21,8 +21,11 @@ namespace troen
 			osg::Vec3 playerColor,
 			ResourcePool *resourcePool);
 		~BikeController();
-		void attachTrackingCamera
-			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
+		void attachTrackingCameras
+			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator,
+             std::shared_ptr<HUDController>& hudController);
+        void attachTrackingCamera
+            (osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
 

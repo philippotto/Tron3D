@@ -31,3 +31,5 @@ CMakeCache.txt
 fmod.log
 
 *.orig
+
+settings.ini

@@ -21,8 +21,6 @@ static osg::ref_ptr<osg::Uniform> g_nearFarUniform = new osg::Uniform("nearFar",
 #include "nearfarcallback.h"
 #include "timeupdate.h"
 
-#define HALF_PINGPONGTEXTURE_WIDTH true //for performance improvement, set to true
-
 using namespace troen;
 
 PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height)
@@ -45,7 +43,7 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 	m_root->addChild(m_allCameras[pass++]);
 	
 	// 2. prepare pass: render id buffer as seeds into PONG texture
-	TEXTURE_CONTENT pingPong[] = { PING, PONG };
+	//TEXTURE_CONTENT pingPong[] = { PING, PONG };
 	// start writing into PONG buffer (pass == 1 )
 
 	m_allCameras.push_back(pingPongPass(pass, COLOR, PONG, shaders::SELECT_GLOW_OBJECTS, -1.0));
@@ -81,7 +79,7 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 			m_fboTextures[i] = new osg::Texture2D();
 		}
 				
-		if ((i == PING || i == PONG) && HALF_PINGPONGTEXTURE_WIDTH) {
+		if ((i == PING || i == PONG)) {
 			m_fboTextures[i]->setTextureWidth(halfedWidth);
 			m_fboTextures[i]->setTextureHeight(halfedHeight);
 		} else {
@@ -121,7 +119,7 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		for (size_t i = 0, iEnd = m_allCameras.size(); i < iEnd; i++)
 		{
 			m_allCameras[i]->setRenderingCache(0);
-			if (i  != 0 && i != iEnd - 1 && HALF_PINGPONGTEXTURE_WIDTH)
+			if (i != 0 && i != iEnd - 1)
 				// only draw with halfed resolution, if we process the gbuffer + postprocessing pass
 				m_allCameras[i]->setViewport(new osg::Viewport(0, 0, halfedWidth, halfedHeight));
 		}

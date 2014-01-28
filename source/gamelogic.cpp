@@ -23,11 +23,11 @@ GameLogic::GameLogic(
 	std::shared_ptr<sound::AudioManager>& audioManager,
 	std::shared_ptr<LevelController> levelController,
 	std::vector<std::shared_ptr<BikeController>> bikeControllers) :
+m_levelController(levelController),
+m_bikeControllers(bikeControllers),
 m_troenGame(game),
 m_limitedFenceMode(true),
-m_audioManager(audioManager),
-m_levelController(levelController),
-m_bikeControllers(bikeControllers)
+m_audioManager(audioManager)
 {}
 
 void GameLogic::attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld)
@@ -48,12 +48,20 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 	objectInfos[0] = static_cast<ObjectInfo *>(pBody0->getUserPointer());
 	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
 
+	// try to recognize invalid pointers
+	if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
+
 	AbstractController* collisionBodyControllers[2];
-	collisionBodyControllers[0] = static_cast<AbstractController *>(objectInfos[0]->getUserPointer());
-	collisionBodyControllers[1] = static_cast<AbstractController *>(objectInfos[1]->getUserPointer());
+	try {
+		collisionBodyControllers[0] = static_cast<AbstractController *>(objectInfos[0]->getUserPointer());
+		collisionBodyControllers[1] = static_cast<AbstractController *>(objectInfos[1]->getUserPointer());
+	}
+	catch (int e) {
+		std::cout << "RigidBody invalid, but pointer was not 0xfeeefeeefeeefeee: " << e << std::endl;
+		return;
+	}
 
-
-	// exit either controlles was not found
+	// exit either controllers was not found
 	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
 
 	std::array<COLLISIONTYPE,2> collisionTypes;

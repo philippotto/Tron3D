@@ -4,9 +4,10 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
-#include <osg/BoundingSphere>
-#include <osgViewer/ViewerEventHandlers>
-#include <osgDB/ReadFile>
+// todo bended:
+// #include <osg/BoundingSphere>
+// #include <osgViewer/ViewerEventHandlers>
+// #include <osgDB/ReadFile>
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>
@@ -258,11 +259,10 @@ bool TroenGame::initializeViews()
 {
 	m_gameView = new osgViewer::View;
 	m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
-	//m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
-
+	
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 		= new NodeFollowCameraManipulator();
-	m_bikeControllers[0]->attachTrackingCamera(manipulator);
+	m_bikeControllers[0]->attachTrackingCameras(manipulator,m_HUDController);
 	m_gameView->setCameraManipulator(manipulator.get());
 
 	m_statsHandler = new osgViewer::StatsHandler;
@@ -389,29 +389,17 @@ bool TroenGame::composeSceneGraph()
 	radarScene->addChild(m_levelController->getViewNode());
 
 	//m_HUDController->attachSceneToRadarCamera(radarScene);
-
-
-	m_deformationRendering = new SplineDeformationRendering(m_sceneNode);
-	m_deformationRendering->m_camera = m_gameView->getCamera();
-
+		
 	m_gameView->setSceneData(m_sceneNode);
 
-	// get scene proportions
+
+	// extract to own method? BB should be calculated either before adding the skybox OR by adding the skybox to another node
 	const osg::BoundingSphere& bs = m_sceneNode->getBound();
-	float radius = bs.radius();
-	
-	// setup camera
-	osg::ref_ptr<osg::Camera> cam = m_gameView->getCamera();
-	double fov, aspectRatio, nearD, farD;
-	
-	// simply set near and far plane to model-specific (bb-radius) values
-	cam->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
-	cam->setViewport(0, 0, 1024, 768);
-	nearD = 0.1;
-		
-	// propagate new planes
 	// todo: the magic number (0.25) can be used to control the length of the deformation and must be possibly adjusted after the scene graph tweaks
-	m_deformationRendering->setDeformationStartEnd(nearD, radius * 0.25);
+	float radius = bs.radius() * 0.25;
+	double nearD = 0.1;
+	m_deformationRendering = new SplineDeformationRendering(m_sceneNode);
+	m_deformationRendering->setDeformationStartEnd(nearD, radius);
 	m_deformationRendering->setPreset(1);
 
 	return true;
