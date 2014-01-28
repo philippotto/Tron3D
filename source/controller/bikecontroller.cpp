@@ -63,8 +63,9 @@ void BikeController::reset()
 
 void BikeController::registerCollision(btScalar impulse)
 {
-	if (impulse > 0)
+	if (impulse > 0) {
 		m_timeOfLastCollision = g_currentTime;
+	}
 }
 
 float BikeController::increaseHealth(float diff)
@@ -296,6 +297,9 @@ void BikeController::updateModel(long double time)
 		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
 	}
 
+
+	m_timeOfCollisionUniform->set((float) g_currentTime - m_timeOfLastCollision);
+
 	// max speed: 360
 	// minimum fence length: 200 (or 400)
 	// in one second: add by 
@@ -317,6 +321,17 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	group->addChild(std::static_pointer_cast<BikeView>(m_view)->getNode());
 	return group;
 };
+
+void BikeController::setPlayerNode(osg::Group* playerNode)
+{
+	// this is the node which holds the rootNode of the entire scene
+	// it is used to expose player specific information to the shaders
+
+	m_playerNode = playerNode;
+	m_timeOfCollisionUniform = new osg::Uniform("timeSinceLastHit", 100000.f);
+	m_playerNode->getOrCreateStateSet()->addUniform(m_timeOfCollisionUniform);
+
+}
 
 void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
 	world->addRigidBodies(getRigidBodies(),COLGROUP_BIKE, COLMASK_BIKE);

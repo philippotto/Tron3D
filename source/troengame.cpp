@@ -251,7 +251,9 @@ bool TroenGame::initializeViews()
 			currentIndex++;
 
 			// TODO: is there a better place for this?
-			m_playerNodes.push_back(new osg::Group());
+			osg::Group* playerNode = new osg::Group();
+			m_playerNodes.push_back(playerNode);
+			bikeController->setPlayerNode(playerNode);
 
 			osg::ref_ptr<osgViewer::View> newGameView = new osgViewer::View();
 			newGameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
@@ -299,7 +301,6 @@ bool TroenGame::initializeViewer()
 		currentIndex++;
 
 		osg::ref_ptr<SampleOSGViewer> viewer = new SampleOSGViewer();
-		// TODO: splitscreen gameviews...
 		viewer.get()->addView(m_gameViews[currentIndex]);
 
 #ifdef WIN32
@@ -355,13 +356,6 @@ bool TroenGame::composeSceneGraph()
 		playerNode->addChild(m_rootNode);
 	}
 
-
-	// TODO (Philipp): uniforms
-	/*m_test1 = new osg::Uniform("test", 0.1);
-	m_firstPlayerGroup->getOrCreateStateSet()->addUniform(m_test1);*/
-
-
-
 	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
 	m_sceneNode->addChild(m_skyDome.get());
 
@@ -397,7 +391,6 @@ bool TroenGame::composeSceneGraph()
 		hudController->attachSceneToRadarCamera(radarScene);
 	}
 	
-
 	return true;
 }
 

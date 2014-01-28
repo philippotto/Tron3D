@@ -114,9 +114,5 @@ namespace troen
 		bool m_usePostProcessing;
 		bool m_useDebugView;
 		bool m_testPerformance;
-
-
-		osg::Uniform* m_test1;
-		osg::Uniform* m_test2;
 	};
 }

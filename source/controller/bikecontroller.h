@@ -54,6 +54,7 @@ namespace troen
 		float increasePoints(float diff);
 		void registerCollision(btScalar impulse);
 		void reset();
+		void setPlayerNode(osg::Group* playerNode);
 	private:
 		void setFovy(float newFovy);
 		float getFovy();
@@ -61,7 +62,7 @@ namespace troen
 
 		void initializeInput(input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
-
+		
 		std::shared_ptr<FenceController> m_fenceController;
 		osg::ref_ptr<input::Keyboard> m_keyboardHandler = nullptr;
 		std::shared_ptr<input::PollingDevice> m_pollingThread = nullptr;
@@ -76,6 +77,7 @@ namespace troen
 		bool m_turboInitiated = false;
 		float m_timeOfLastCollision;
 		bool m_fenceLimitActivated;
-
+		osg::Uniform* m_playerUniform;
+		osg::Group* m_playerNode;
 	};
 }
