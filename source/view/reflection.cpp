@@ -130,7 +130,13 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 	osg::ref_ptr<osg::Texture2D>	texture = new osg::Texture2D();
 	texture->setTextureSize(texSize, texSize);
 	texture->setInternalFormat(GL_RGBA);
+
+
+	osg::ref_ptr<osg::Texture2D>	idTexture = new osg::Texture2D();
+	idTexture->setTextureSize(texSize, texSize);
+	idTexture->setInternalFormat(GL_RGB);
 	reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER0, texture);
+	reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER1, idTexture);
 
 	reflectionCamera->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
 	reflectionTransform->setMatrix(osg::Matrix::scale(1.0, 1.0, -1.0));
@@ -156,6 +162,9 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("skyDome", 2));
 
 	reflectSurface->getOrCreateStateSet()->addUniform(g_cameraEyeU);
+
+	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(3, idTexture, osg::StateAttribute::ON);
+	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionAttrib", 3));
 
 }
 
