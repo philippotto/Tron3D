@@ -77,7 +77,7 @@ namespace troen
 		bool m_turboInitiated = false;
 		float m_timeOfLastCollision;
 		bool m_fenceLimitActivated;
-		osg::Uniform* m_playerUniform;
+		osg::Uniform* m_timeOfCollisionUniform;
 		osg::Group* m_playerNode;
 	};
 }
