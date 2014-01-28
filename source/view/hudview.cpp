@@ -189,6 +189,13 @@ void HUDView::updateRadarCamera()
         osg::Matrixd* worldCoordinateMatrix = nullptr;
 		getWorldCoordOfNodeVisitor ncv;
         
+		// fail silently, in case no node is attached
+		if (!m_trackNode)
+		{
+			std::cout << "[HUDView::updateRadarCamera] updating HUDView Radar without node attached" << std::endl;
+			return;
+		}
+
         ((osg::Group *)m_trackNode)->accept(ncv);
         worldCoordinateMatrix = ncv.worldCoordinatesMatrix();
             

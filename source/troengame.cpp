@@ -211,6 +211,7 @@ bool TroenGame::initializeControllers()
 
 	for (int i = 0; i < m_bikeControllers.size(); i++) {
 		m_HUDControllers.push_back(std::make_shared<HUDController>(m_bikeControllers[i], osg::Vec4(m_playerColors[i], 1)));
+		if (!m_splitscreen) break;
 	}
 
 	return true;
@@ -504,8 +505,8 @@ void TroenGame::startGameLoop()
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
-				for (auto hudController : m_HUDControllers)
-					hudController->update();
+				for (int i = 0; i < m_viewers.size(); i++)
+					m_HUDControllers[i]->update();
 
 				for (auto viewer : m_viewers) {
 					viewer->frame();
