@@ -57,7 +57,7 @@ public:
 			camera->setViewMatrix(m_gameView->getCamera()->getViewMatrix());
 			camera->setProjectionMatrix(m_gameView->getCamera()->getProjectionMatrix());
 
-			g_cameraViewU->set(m_gameView->getCamera()->getViewMatrix());
+			//g_cameraViewU->set(m_gameView->getCamera()->getViewMatrix());
 
 			g_cameraEyeU->set(osg::Vec3(0.0, 0.0, 0.0) * m_gameView->getCamera()->getInverseViewMatrix());
 
@@ -147,7 +147,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 		osg::StateAttribute::ON);
 
 	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 1));
-	reflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
+	77reflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
 
 	//reflectNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
 
