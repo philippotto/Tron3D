@@ -4,6 +4,7 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
+
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>

@@ -53,7 +53,7 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView()
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart(ResourcePool::MG_MovieCycle_PlayerBody_MI,
 		ResourcePool::MG_Player_Body_SPEC,
 		ResourcePool::MG_Player_Body_EMSS,
-		ResourcePool::MG_Player_Body_NORM, GLOW, 0.1f);
+		ResourcePool::MG_Player_Body_NORM, GLOW, 0.5f);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart(ResourcePool::MG_MovieCycle_Tire_MI,
 		ResourcePool::MG_MovieCycle_Tire_DIFF,
