@@ -186,6 +186,10 @@ find_package(FMOD REQUIRED)
 # HIDAPI
 find_package(HIDAPI REQUIRED)
 
+# Oculus Rift
+# TODO: make it optional instead?
+find_package(OCULUS REQUIRED)
+
 #################################################
 # SOURCES
 #################################################
@@ -309,6 +313,7 @@ include_directories(
 	${BULLET_INCLUDE_DIRS}
 	${FMOD_INCLUDE_DIRS}
 	${HIDAPI_INCLUDE_DIRS}
+	${OCULUS_INCLUDE_DIRS}
 )
 
 target_link_libraries( ${target}
@@ -316,7 +321,8 @@ target_link_libraries( ${target}
     ${OPENSCENEGRAPH_LIBRARIES}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
-	${HIDAPI_LIBRARIES}
+		${HIDAPI_LIBRARIES}
+		${OCULUS_LIBRARIES}
 )
 
 if (WIN32)
