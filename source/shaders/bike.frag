@@ -17,10 +17,7 @@ in vec3 diffuseColor;
 uniform int modelID;
 uniform float glowIntensity;
 
-// uniform float test;
-
 in vec3 lightDirection;
-
 in float attenuation;
 
 void main()

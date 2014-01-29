@@ -32,6 +32,7 @@ namespace troen
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
 
 		void updateModel(long double time);
+		void updateUniforms();
 
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;

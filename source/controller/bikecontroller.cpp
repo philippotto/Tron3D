@@ -298,15 +298,7 @@ void BikeController::updateModel(long double time)
 		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
 	}
 
-	if (m_hasGameView) {
-		// update uniforms
-		// TODO: extract to own method within bikeview
-		m_timeOfCollisionUniform->set((float)g_currentTime - m_timeOfLastCollision);
-	}
-
-	// max speed: 360
-	// minimum fence length: 200 (or 400)
-	// in one second: add by 
+	updateUniforms();
 	increasePoints(speed / 1000);
 
 	if (m_gameView.valid()) {
@@ -371,3 +363,10 @@ osg::ref_ptr<osgViewer::View> BikeController::getGameView()
 {
 	return m_gameView;
 };
+
+void troen::BikeController::updateUniforms()
+{
+	if (m_hasGameView) {
+		m_timeOfCollisionUniform->set((float)g_currentTime - m_timeOfLastCollision);
+	}
+}
