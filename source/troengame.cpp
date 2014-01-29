@@ -627,23 +627,10 @@ void troen::TroenGame::initializeOculus()
 			m_SFusion = new SensorFusion();
 
 			m_SFusion->AttachToSensor(m_pSensor);
-			std::cout << "it worked!############################" << std::endl;
 		}
 
 	}
 	else {
 		std::cout << "didnt work :(" << std::endl;
 	}
-}
-
-void troen::TroenGame::getOcculusOrientation()
-{
-	// or getOrientation()
-	Quatf hmdOrient = m_SFusion->GetOrientation();
-
-	float angle;
-	OVR::Vector3<float> axis;
-	hmdOrient.GetAxisAngle(&axis, &angle);
-
-	std::cout << "angle: " << angle << " quat: " << axis.x << " " << axis.y << " " << axis.z << std::endl;
 }

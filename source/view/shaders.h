@@ -35,6 +35,7 @@ namespace troen
 							POST_PROCESSING,
 							OUTER_WALL,
 							OCULUS_MERGE,
+							OCULUS_EYE,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
 

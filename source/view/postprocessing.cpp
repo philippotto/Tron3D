@@ -42,6 +42,11 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 	if (m_useOculus) {
 		unsigned int pass = 0;
 		
+
+		// TODO: deactivate this and implement proper culling!
+		m_root->setCullingActive(false);
+		m_sceneNode->setCullingActive(false);
+
 		m_allCameras.push_back(oculusPass(true));
 		m_root->addChild(m_allCameras[pass++]);
 		
@@ -368,29 +373,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 
 	
 
-
-	//cam->setViewport(new osg::Viewport(0, 0, m_width, m_height));
-
-
-	/*if (left)
-		cam->setViewport(new osg::Viewport(0, 0, m_width / 2, m_height));
-	else 
-		cam->setViewport(new osg::Viewport(m_width / 2, 0, m_width / 2, m_height));*/
-	
-
-	// attach shader program
-	//cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-	//cam->getOrCreateStateSet()->addUniform(new osg::Uniform("colorTex", SIDE));
-	////cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
-	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(SIDE, m_fboTextures[SIDE], osg::StateAttribute::ON);
-
-
-	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
-	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
-
-	//g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
-	//cam->getOrCreateStateSet()->addUniform(g_nearFarUniform);
-	
 	// calculation
 
 
@@ -401,50 +383,35 @@ osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 	stereo.SetHMDInfo(*m_hmd);
 	stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
 	float renderScale = stereo.GetDistortionScale();
+	
 
-	if (left) {
-		// Left eye rendering parameters
 
-		OVR::Util::Render::StereoEyeParams leftEye = stereo.GetEyeRenderParams(OVR::Util::Render::StereoEye_Left);
+	OVR::Util::Render::StereoEye eye = left ? OVR::Util::Render::StereoEye_Left : OVR::Util::Render::StereoEye_Right;
+
+	
+	OVR::Util::Render::StereoEyeParams eyeParams = stereo.GetEyeRenderParams(eye);
+	OVR::Util::Render::Viewport eyeVP = eyeParams.VP;
+	OVR::Matrix4f eyeProjection = eyeParams.Projection;
+	OVR::Matrix4f eyeViewAdjust = eyeParams.ViewAdjust;
 		
-		OVR::Util::Render::Viewport leftVP = leftEye.VP;
-		OVR::Matrix4f leftProjection = leftEye.Projection;
-		OVR::Matrix4f leftViewAdjust = leftEye.ViewAdjust;
-		
-		osg::Matrixf leftProjectionOSG(*leftProjection.M);
-		osg::Matrixf leftViewAdjustOSG(*leftViewAdjust.M);
+	osg::Matrixf eyeProjectionOSG(*eyeProjection.M);
+	osg::Matrixf eyeViewAdjustOSG(*eyeViewAdjust.M);
 
-		//osg::Matrixf v = m_camera->getViewMatrix();
-		//osg::Matrixf p = m_camera->getProjectionMatrix();
+	//osg::Matrixf v = m_camera->getViewMatrix();
+	//osg::Matrixf p = m_camera->getProjectionMatrix();
 
-		//cam->setProjectionMatrix(leftProjectionOSG);
-
-		osg::Matrixf testScale;
-		testScale.makeScale(osg::Vec3(1.1, 1.1, 1.1));
-		//cam->setProjectionMatrix(testScale);
-		cam->setViewMatrix(leftViewAdjustOSG); // *leftViewAdjustOSG);
-			
-
-		//cam->setViewport(leftVP.x, leftVP.y, leftVP.w, leftVP.h);
+	//cam->setProjectionMatrix(leftProjectionOSG);
 
 
-		
-	}
-	else {
-		// right eye rendering parameters
-		OVR::Util::Render::StereoEyeParams rightEye = stereo.GetEyeRenderParams(OVR::Util::Render::StereoEye_Right);
-		OVR::Util::Render::Viewport rightVP = rightEye.VP;
-		OVR::Matrix4f rightProjection = rightEye.Projection;
-		OVR::Matrix4f rightViewAdjust = rightEye.ViewAdjust;
-		osg::Matrixf rightProjectionOSG(*rightProjection.M);
-		osg::Matrixf rightViewAdjustOSG(*rightViewAdjust.M);
+	osg::ref_ptr<osg::StateSet>	state = cam->getOrCreateStateSet();
 
+	state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_EYE], osg::StateAttribute::ON);
 
-		//cam->setProjectionMatrix(rightProjectionOSG);
-		cam->setViewMatrix(rightViewAdjustOSG); // *rightViewAdjustOSG);
-		//cam->setViewport(rightVP.x, rightVP.y, rightVP.w, rightVP.h);
+	state->addUniform(new osg::Uniform("occViewAdjust", eyeViewAdjustOSG));
+	state->addUniform(new osg::Uniform("occProjection", eyeProjectionOSG));
 
-	}
+	//cam->setViewport(leftVP.x, leftVP.y, leftVP.w, leftVP.h);
+
 	
 	return cam;
 }
@@ -492,6 +459,54 @@ osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes()
 	osg::ref_ptr<osg::StateSet>	stateRight = geodeRight->getOrCreateStateSet();
 	stateRight->addUniform(new osg::Uniform("side", RIGHT));
 	stateRight->setTextureAttributeAndModes(RIGHT, m_fboTextures[RIGHT], osg::StateAttribute::ON);
+
+
+
+
+
+	// remove
+
+	OVR::Util::Render::StereoConfig stereo;
+	stereo.SetFullViewport(OVR::Util::Render::Viewport(0, 0, m_width, m_height));
+	stereo.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
+	stereo.SetHMDInfo(*m_hmd);
+	stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
+	float renderScale = stereo.GetDistortionScale();
+
+
+	bool left = true;
+	OVR::Util::Render::StereoEye eye = left ? OVR::Util::Render::StereoEye_Left : OVR::Util::Render::StereoEye_Right;
+
+
+	OVR::Util::Render::StereoEyeParams eyeParams = stereo.GetEyeRenderParams(eye);
+	OVR::Util::Render::Viewport eyeVP = eyeParams.VP;
+	OVR::Matrix4f eyeProjection = eyeParams.Projection;
+	OVR::Matrix4f eyeViewAdjust = eyeParams.ViewAdjust;
+
+	osg::Matrixf eyeProjectionOSG(*eyeProjection.M);
+	osg::Matrixf eyeViewAdjustOSG(*eyeViewAdjust.M);
+
+	//osg::Matrixf v = m_camera->getViewMatrix();
+	//osg::Matrixf p = m_camera->getProjectionMatrix();
+
+	//cam->setProjectionMatrix(leftProjectionOSG);
+
+
+
+	state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_EYE], osg::StateAttribute::ON);
+
+	state->addUniform(new osg::Uniform("occViewAdjust", eyeViewAdjustOSG));
+	state->addUniform(new osg::Uniform("occProjection", eyeProjectionOSG));
+
+
+	// remove end
+
+
+
+
+
+
+
 
 
 	return postRenderCamera;

@@ -88,9 +88,6 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 		OVR::Vector3<float> axis;
 		hmdOrient.GetAxisAngle(&axis, &angle);
 
-		std::cout << "angle: " << angle << " quat: " << axis.x << " " << axis.y << " " << axis.z << std::endl;
-
-
 		osg::Vec3f vec3fAxis(axis.x, axis.z, axis.y);
 		nodeRotation = osg::Quat(angle, vec3fAxis);
 	} else {

@@ -74,7 +74,6 @@ namespace troen
 		bool shutdown();
 		void startGameLoop();
 
-		void getOcculusOrientation();
 
 		// TODO
 		// implement some kind of menu to start the game from
