@@ -14,6 +14,8 @@
 #include <osg/TexEnv>
 #include <osg/TexGen>
 #include <osg/TexGenNode>
+
+#include <osg/PolygonMode>
 // bullet
 #include <btBulletDynamicsCommon.h>
 // troen
@@ -126,14 +128,25 @@ osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel>
 		btQuaternion rotation = boxes[i].rotation;
 
 		// create obstacle
-		osg::ref_ptr<osg::Box> box
-				= new osg::Box(osg::Vec3(0,0,0), dimensions.x(), dimensions.y(), dimensions.z());
+		//box 0 new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z())
+
+		osg::ref_ptr<osg::TessellationHints> hints = new osg::TessellationHints;
+		hints->setDetailRatio(2.0f);
+		hints->setTargetNumFaces(64);
+		hints->setTessellationMode(osg::TessellationHints::USE_TARGET_NUM_FACES);
 
 		osg::ref_ptr<osg::ShapeDrawable> boxDrawable
-				= new osg::ShapeDrawable(box);
+			= new osg::ShapeDrawable(new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z()), hints.get());
+
+
+
+
+
+
 		osg::ref_ptr<osg::Geode> boxGeode
-				= new osg::Geode();
-		boxGeode->addDrawable(boxDrawable);
+			= createCube(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z());// new osg::Geode();
+		//boxGeode->addDrawable(boxDrawable);
+		//boxGeode->getOrCreateStateSet()->setAttribute(new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
 
 		// place objects in world space
 		osg::Matrixd initialTransform;
@@ -215,7 +228,7 @@ void LevelView::addItemBox(osg::Vec3 position)
 	osg::ref_ptr<osg::ShapeDrawable> boxDrawable
 		= new osg::ShapeDrawable(box);
 
-	osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
+	osg::ref_ptr<osg::Geode> boxGeode =  new osg::Geode();
 	boxGeode->addDrawable(boxDrawable);
 
 	osg::StateSet *obstaclesStateSet = boxGeode->getOrCreateStateSet();
@@ -236,3 +249,100 @@ void LevelView::addItemBox(osg::Vec3 position)
 
 	m_node->addChild(matrixTransform);
 }
+
+
+osg::ref_ptr<osg::Geode>  LevelView::createCube(osg::Vec3 center, float lengthX, float lengthY, float lengthZ)
+{
+	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+
+	osg::Geometry* geometry = new osg::Geometry;
+	geode->addDrawable(geometry);
+
+	osg::Vec3Array* vertices = new osg::Vec3Array;
+	geometry->setVertexArray(vertices);
+
+	osg::Vec3Array* normals = new osg::Vec3Array;
+	geometry->setNormalArray(normals, osg::Array::BIND_PER_VERTEX);
+
+	osg::Vec4Array* colours = new osg::Vec4Array;
+	geometry->setColorArray(colours, osg::Array::BIND_OVERALL);
+	colours->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	osg::Vec3 dx(lengthX, 0.0f, 0.0f);
+	osg::Vec3 dy(0.0f, lengthY, 0.0f);
+	osg::Vec3 dz(0.0f, 0.0f, lengthZ);
+
+	osg::Vec3 px(1.0f, 0.0, 0.0f);
+	osg::Vec3 nx(-1.0f, 0.0, 0.0f);
+	osg::Vec3 py(0.0f, 1.0f, 0.0f);
+	osg::Vec3 ny(0.0f, -1.0f, 0.0f);
+	osg::Vec3 pz(0.0f, 0.0f, 1.0f);
+	osg::Vec3 nz(0.0f, 0.0f, -1.0f);
+
+
+	// front face
+	vertices->push_back(center);
+	vertices->push_back(center + dx);
+	vertices->push_back(center + dx + dz);
+	vertices->push_back(center + dz);
+	normals->push_back(ny);
+	normals->push_back(ny);
+	normals->push_back(ny);
+	normals->push_back(ny);
+
+	// back face
+	vertices->push_back(center + dy);
+	vertices->push_back(center + dy + dz);
+	vertices->push_back(center + dy + dx + dz);
+	vertices->push_back(center + dy + dx);
+	normals->push_back(py);
+	normals->push_back(py);
+	normals->push_back(py);
+	normals->push_back(py);
+
+	// left face
+	vertices->push_back(center + dy);
+	vertices->push_back(center);
+	vertices->push_back(center + dz);
+	vertices->push_back(center + dy + dz);
+	normals->push_back(nx);
+	normals->push_back(nx);
+	normals->push_back(nx);
+	normals->push_back(nx);
+
+
+	// right face
+	vertices->push_back(center + dx + dy);
+	vertices->push_back(center + dx + dy + dz);
+	vertices->push_back(center + dx + dz);
+	vertices->push_back(center + dx);
+	normals->push_back(px);
+	normals->push_back(px);
+	normals->push_back(px);
+	normals->push_back(px);
+
+	// top face
+	vertices->push_back(center + dz);
+	vertices->push_back(center + dz + dx);
+	vertices->push_back(center + dz + dx + dy);
+	vertices->push_back(center + dz + dy);
+	normals->push_back(pz);
+	normals->push_back(pz);
+	normals->push_back(pz);
+	normals->push_back(pz);
+
+	// bottom face
+	vertices->push_back(center);
+	vertices->push_back(center + dy);
+	vertices->push_back(center + dx + dy);
+	vertices->push_back(center + dx);
+	normals->push_back(nz);
+	normals->push_back(nz);
+	normals->push_back(nz);
+	normals->push_back(nz);
+
+	geometry->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0, vertices->size()));
+
+	return geode;
+}
+

@@ -22,6 +22,7 @@ namespace troen
 		osg::ref_ptr<osg::Group> constructWalls(int levelSize);
 		osg::ref_ptr<osg::Group> constructFloors(int levelSize);
 		osg::ref_ptr<osg::Group> constructObstacles(int levelSize);
+		osg::ref_ptr<osg::Geode> createCube(osg::Vec3 center, float lengthX, float lengthY, float lengthZ);
 
 		osg::ref_ptr<osg::Group> constructGroupForBoxes(std::vector<BoxModel> &boxes);
 		osg::ref_ptr<osg::Group> constructRadarElementsForBoxes(std::vector<BoxModel> &boxes);
