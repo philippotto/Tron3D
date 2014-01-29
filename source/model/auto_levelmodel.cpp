@@ -13,7 +13,6 @@
 		void LevelModel::auto_addObstacles()
 		{
 			// obstacles
-			// TODO grab the value from origin
 			std::vector<BoxModel> newObstacles = {
 
 			

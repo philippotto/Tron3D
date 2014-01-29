@@ -55,6 +55,7 @@ namespace troen
 		QCheckBox*		m_postProcessingCheckBox;
 		QCheckBox*		m_testPerformanceCheckBox;
 		QCheckBox*		m_debugViewCheckBox;
+		std::vector<QCheckBox*> m_ownViewCheckboxes;
 
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;
