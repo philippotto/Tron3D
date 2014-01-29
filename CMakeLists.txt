@@ -186,6 +186,21 @@ find_package(FMOD REQUIRED)
 # HIDAPI
 find_package(HIDAPI REQUIRED)
 
+# V8
+find_package(V8 REQUIRED)
+
+# Scriptzeug
+find_package(Scriptzeug REQUIRED)
+
+# remove debug version to avoid clash with release version which crashes scriptzeug
+if(MSVC)
+   _populate_Core_target_properties   (DEBUG "Qt5Core.dll"    "Qt5Core.lib"    )
+   _populate_Gui_target_properties    (DEBUG "Qt5Gui.dll"     "Qt5Gui.lib"     )
+   _populate_Widgets_target_properties(DEBUG "Qt5Widgets.dll" "Qt5Widgets.lib" )
+   _populate_OpenGL_target_properties (DEBUG "Qt5OpenGL.dll"  "Qt5OpenGL.lib"  )
+endif()
+
+
 #################################################
 # SOURCES
 #################################################
@@ -309,14 +324,35 @@ include_directories(
 	${BULLET_INCLUDE_DIRS}
 	${FMOD_INCLUDE_DIRS}
 	${HIDAPI_INCLUDE_DIRS}
+	${V8_INCLUDE}
+	${SCRIPTZEUG_INCLUDE_DIRS}
+)
+
+
+# remove debug version to avoid clash with release version which crashes scriptzeug
+set( OPENSCENEGRAPH_LIBRARIES_RELEASE
+	${OPENTHREADS_LIBRARY}
+	${OSG_LIBRARY}
+	${OSGANIMATION_LIBRARY}
+	${OSGDB_LIBRARY}
+	${OSGFX_LIBRARY}
+	${OSGGA_LIBRARY}
+	${OSGPARTICLE_LIBRARY}
+	${OSGSHADOW_LIBRARY}
+	${OSGTEXT_LIBRARY}
+	${OSGUTIL_LIBRARY}
+	${OSGVIEWER_LIBRARY}
+	${OSGQT_LIBRARY}
 )
 
 target_link_libraries( ${target}
     ${OPENGL_LIBRARIES}
-    ${OPENSCENEGRAPH_LIBRARIES}
+    ${OPENSCENEGRAPH_LIBRARIES_RELEASE}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
-	${HIDAPI_LIBRARIES}
+		${HIDAPI_LIBRARIES}
+		${V8_LIBS}
+		${SCRIPTZEUG_LIBRARIES}
 )
 
 if (WIN32)
