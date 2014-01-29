@@ -8,6 +8,9 @@
 #include "../globals.h"
 #include "../constants.h"
 
+#include <osg/ref_ptr>
+#include <osg/Array>
+#include <osg/Uniform>
 
 using namespace troen::sound;
 
@@ -171,6 +174,14 @@ void AudioManager::detectBeat(float tickCount)
 	currentSong->getSpectrum(specLeft, sampleSize, 0, FMOD_DSP_FFT_WINDOW_RECT);
 	currentSong->getSpectrum(specRight, sampleSize, 1, FMOD_DSP_FFT_WINDOW_RECT);
 	
+	if (m_frequencies.valid()) {
+		for (int i = 0; i < sampleSize; i++)
+		{
+			// add half of the difference between current and target value to interpolate smoothly
+			(*m_frequencies)[i] += 0.1 * ((specLeft[i] + specRight[i]) / 2 - (*m_frequencies)[i]);
+		}
+		m_frequenciesU->setArray(m_frequencies);
+	}
 
 	// get average volume distribution
 	float *spec;

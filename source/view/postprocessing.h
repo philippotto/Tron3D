@@ -40,6 +40,9 @@ namespace troen
 		osg::Uniform* m_timeSinceLastBeat;
 		void setBeat(float beat);
 
+		osg::Uniform* m_frequenciesU;
+		osg::ref_ptr<osg::FloatArray> m_frequencies;
+
 	protected:
 		osg::ref_ptr<osg::Camera> gBufferPass();
 		osg::ref_ptr<osg::Camera> postProcessingPass();

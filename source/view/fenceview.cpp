@@ -35,8 +35,10 @@ void FenceView::initializeFence()
 	m_coordinates = new osg::Vec3Array;
 	m_coordinates->setDataVariance(osg::Object::DYNAMIC);
 
+
 	m_relativeHeights = new osg::FloatArray;
 	m_relativeHeights->setDataVariance(osg::Object::DYNAMIC);
+
 
 	m_geometry = new osg::Geometry();
 	m_geometry->setVertexArray(m_coordinates);

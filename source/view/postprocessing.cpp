@@ -33,6 +33,27 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 	// create shaders
 	shaders::reloadShaders();
 
+
+
+
+	const int num = 64;
+	m_frequencies = new osg::FloatArray(num);
+	m_frequencies->setDataVariance(osg::Object::DYNAMIC);
+	for (int i = 0; i < num; i++)
+	{
+		(*m_frequencies)[i] = 0;
+	}
+
+	m_frequenciesU = new osg::Uniform();
+	m_frequenciesU->setName("frequencies");
+	m_frequenciesU->setType(osg::Uniform::FLOAT);
+	m_frequenciesU->setNumElements(num);
+	m_frequenciesU->setArray(m_frequencies);
+
+
+
+
+
 	////////////////////////////////////////
 	// Multi pass rendering and Ping Pong //
 	////////////////////////////////////////
@@ -57,6 +78,11 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 
 	m_allCameras.push_back(postProcessingPass());
 	m_root->addChild(m_allCameras[m_allCameras.size() - 1]);
+
+
+
+	
+
 }
 
 // sets up textures
@@ -159,6 +185,8 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 
 	//g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
 	//cam->getOrCreateStateSet()->addUniform(g_nearFarUniform);
+
+	cam->getOrCreateStateSet()->addUniform(m_frequenciesU);
 
 	return cam;
 }

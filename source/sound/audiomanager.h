@@ -4,6 +4,9 @@
 #include <map>
 #include <fmod.hpp>
 
+#include <osg/ref_ptr>
+#include "osg/Array"
+
 namespace troen
 {
 namespace sound
@@ -31,6 +34,13 @@ namespace sound
 
 		float getTimeSinceLastBeat();
 		void setMotorSpeed(float speed);
+
+
+		void setFrequencyHandles(osg::ref_ptr<osg::FloatArray> frequencies, osg::Uniform* frequenciesU) {
+			m_frequencies = frequencies;
+			m_frequenciesU = frequenciesU;
+		}
+
 	private:
 		typedef std::map<std::string, FMOD::Sound*> SoundMap;
 		enum Category { CATEGORY_SFX, CATEGORY_SONG, CATEGORY_ENGINE, CATEGORY_COUNT };
@@ -54,6 +64,10 @@ namespace sound
 		FadeState fade;
 
 		FMOD::Channel* m_channel;
+
+
+		osg::Uniform* m_frequenciesU;
+		osg::ref_ptr<osg::FloatArray> m_frequencies;
 	};
 
 }

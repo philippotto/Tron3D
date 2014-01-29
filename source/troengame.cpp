@@ -442,6 +442,8 @@ void TroenGame::startGameLoop()
 	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
 	m_audioManager->PlayEngineSound();
 
+	m_audioManager->setFrequencyHandles(m_postProcessing->m_frequencies, m_postProcessing->m_frequenciesU);
+
 	m_audioManager->SetMasterVolume(0.f);
 
 	if (m_useDebugView)
@@ -494,8 +496,9 @@ void TroenGame::startGameLoop()
 			m_audioManager->Update(currTime/1000);
 			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
 
-			if (m_postProcessing)
+			if (m_postProcessing) {
 				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
+			}
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
