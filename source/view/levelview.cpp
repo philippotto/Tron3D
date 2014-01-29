@@ -59,7 +59,7 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
 
-	osg::ref_ptr<osg::Node> floors = osgDB::readNodeFile("data/models/floor_highres.obj");
+	osg::ref_ptr<osg::Node> floors = osgDB::readNodeFile("data/models/floor_highres.ive"); 
 	
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	
