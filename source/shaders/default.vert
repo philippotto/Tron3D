@@ -1,4 +1,4 @@
-#version 120
+#version 130
 
 uniform float objectID;
 out vec2 uv;
