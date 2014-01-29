@@ -261,6 +261,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	state->setTextureAttributeAndModes(PONG, m_fboTextures[PONG], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(OLDCOLOR, m_fboTextures[OLDCOLOR], osg::StateAttribute::ON);
 
+
 	return postRenderCamera;
 }
 

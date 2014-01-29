@@ -18,7 +18,6 @@ uniform int modelID;
 uniform float glowIntensity;
 
 in vec3 lightDirection;
-
 in float attenuation;
 
 void main()

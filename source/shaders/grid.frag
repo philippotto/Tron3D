@@ -7,7 +7,7 @@ uniform float glowIntensity;
 
 void main()
 {
-	gl_FragData[0] = vec4(texture(diffuseTexture, 45 * uv).x, 0.0, 0.0, 1.0);
+	gl_FragData[0] = vec4(0.0f, texture(diffuseTexture, 45 * uv).x * 1.5, texture(diffuseTexture, 45 * uv).x * 1.5, 1.0);
 
 	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
 	gl_FragData[1] = vec4(modelID, glowIntensity, 0, 0);
