@@ -15,6 +15,7 @@ namespace troen
 	{
 	public:
 		LevelView(std::shared_ptr<LevelModel> model);
+		osg::ref_ptr<osg::Group> getFloor();
 
 		void addItemBox(osg::Vec3 position);
 
@@ -25,6 +26,8 @@ namespace troen
 
 		osg::ref_ptr<osg::Group> constructGroupForBoxes(std::vector<BoxModel> &boxes);
 		osg::ref_ptr<osg::Group> constructRadarElementsForBoxes(std::vector<BoxModel> &boxes);
+		
+		osg::ref_ptr<osg::Group> m_floors;
 
 		void setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit);
 

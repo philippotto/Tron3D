@@ -42,6 +42,13 @@ void LevelController::initializeSpawnPoints()
 	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS,0), btVector3(-100, -100, BIKE_DIMENSIONS.z() / 2)));
 }
 
+
+
+osg::ref_ptr<osg::Group>  LevelController::getFloorView()
+{
+		return std::static_pointer_cast<LevelView>(m_view)->getFloor();
+
+}
 void LevelController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 {
 	m_world = world;

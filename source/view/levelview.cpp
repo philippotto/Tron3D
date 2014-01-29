@@ -40,6 +40,7 @@ LevelView::LevelView(std::shared_ptr<LevelModel> model)
 osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
 {
 	osg::ref_ptr<osg::Group> wallsGroup = new osg::Group();
+	wallsGroup->setName("wallsGroup");
 
     osg::ref_ptr<osg::Group> walls = constructGroupForBoxes(m_model->getWalls());
 	addShaderAndUniforms(walls, shaders::OUTER_WALL, levelSize, DEFAULT);
@@ -56,8 +57,8 @@ osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
 osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
-
 	osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
+	floors->setName("debugFloorsNode");
 	osg::StateSet *obstaclesStateSet = floors->getOrCreateStateSet();
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
@@ -65,6 +66,7 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 	addShaderAndUniforms(floors, shaders::GRID, levelSize, GLOW);
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
+
 
 	osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());
 	radarFloors->setNodeMask(CAMERA_MASK_RADAR);
@@ -76,6 +78,7 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 {
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
+	obstaclesGroup->setName("obstaclesGroup");
 
 	osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles()); 
 	osg::StateSet *obstaclesStateSet = obstacles->getOrCreateStateSet();
@@ -227,3 +230,11 @@ void LevelView::addItemBox(osg::Vec3 position)
 
 	m_node->addChild(matrixTransform);
 }
+
+
+
+osg::ref_ptr<osg::Group>  LevelView::getFloor()
+{
+	return m_node;
+}
+

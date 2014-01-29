@@ -32,6 +32,7 @@
 #include "view/skydome.h"
 #include "view/postprocessing.h"
 #include "view/nodefollowcameramanipulator.h"
+#include "view/reflection.h"
 
 #include "globals.h"
 
@@ -156,11 +157,11 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
 	initializeViews();
 	initializeViewer();
+	initializeReflection();
+	
 
 	std::cout << "[TroenGame::initialize] postprocessing & scenegraph ..." << std::endl;
 	composeSceneGraph();
-
-
 
 	std::cout << "[TroenGame::initialize] input ..." << std::endl;
 	initializeInput();
@@ -247,6 +248,12 @@ bool TroenGame::initializeLighting()
 bool TroenGame::initializeGameLogic()
 {
 	m_gameLogic = std::make_shared<GameLogic>(this, m_audioManager, m_levelController, m_bikeControllers);
+	return true;
+}
+
+bool TroenGame::initializeReflection()
+{
+	m_reflection = std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameView, m_skyDome->getSkyboxTexture());
 	return true;
 }
 
@@ -372,6 +379,11 @@ bool TroenGame::composeSceneGraph()
 	}
 
 	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
+
+	//sceneNode has to be added to reflection after adding all (non hud) objects
+	m_reflection->addSceneNode(m_sceneNode);
+	m_rootNode->addChild(m_reflection->getReflectionCameraGroup());
+
 
 	m_rootNode->addChild(m_hudSwitch);
 	if (m_usePostProcessing)

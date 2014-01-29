@@ -27,12 +27,14 @@ SkyDome::SkyDome() :
     geode->setCullingActive(false);
     geode->setCullCallback(new SkyboxTexMatCallback);
     geode->addDrawable(drawable.get());
+
+	m_texture = readCubeMap();
     //geode->setNodeMask(CameraMask::kMain);
 
     osg::StateSet* stateset = geode->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     stateset->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
-    stateset->setTextureAttributeAndModes(0, readCubeMap(), osg::StateAttribute::ON);
+    stateset->setTextureAttributeAndModes(0,m_texture, osg::StateAttribute::ON);
     stateset->setTextureAttributeAndModes(0, new osg::TexEnv(osg::TexEnv::REPLACE), osg::StateAttribute::ON);
     stateset->setTextureAttributeAndModes(0, new osg::TexMat, osg::StateAttribute::ON);
 
@@ -62,7 +64,7 @@ SkyDome::SkyDome(const SkyDome& copy, const osg::CopyOp& copyop) :
 SkyDome::~SkyDome() {
 }
 
-osg::TextureCubeMap* SkyDome::readCubeMap() {
+osg::ref_ptr<osg::TextureCubeMap> SkyDome::readCubeMap() {
 	#define SKYBOX_FILENAME(face) "data/textures/skybox/" #face ".bmp"
 
     osg::ref_ptr<osg::TextureCubeMap> cubemap = new osg::TextureCubeMap();
@@ -94,12 +96,21 @@ osg::TextureCubeMap* SkyDome::readCubeMap() {
 		//OSG_NOTICE << "Skybox: Loaded correctly.\n";
     } else OSG_NOTICE << "Skybox: Error while loading image files!\n";
 
-    return cubemap.release();
+    return cubemap;
+}
+
+osg::ref_ptr<osg::TextureCubeMap> SkyDome::getSkyboxTexture()
+{
+	return m_texture;
 }
 
 SkyboxTexMatCallback::SkyboxTexMatCallback() :
         osg::NodeCallback() {
 }
+
+
+
+
 
 SkyboxTexMatCallback::SkyboxTexMatCallback(const SkyboxTexMatCallback& copy, const osg::CopyOp& copyop) :
         osg::NodeCallback(copy, copyop) {
