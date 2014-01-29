@@ -11,9 +11,9 @@
 
 // troen
 #include "forwarddeclarations.h"
-
 #include "resourcepool.h"
 
+#define MAX_BIKES 6
 typedef struct s_GameConfig
 {
 	int numberOfBikes;
@@ -24,6 +24,7 @@ typedef struct s_GameConfig
 	bool usePostProcessing;
 	bool useDebugView;
 	bool testPerformance;
+	bool ownView[MAX_BIKES];
 } GameConfig;
 Q_DECLARE_METATYPE(s_GameConfig)
 
@@ -114,5 +115,6 @@ namespace troen
 		bool m_usePostProcessing;
 		bool m_useDebugView;
 		bool m_testPerformance;
+		bool m_ownView[MAX_BIKES];
 	};
 }

@@ -1,7 +1,5 @@
 #include "troengame.h"
 // OSG
-#include <osgGA/TrackballManipulator>
-#include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
 
@@ -115,6 +113,10 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 		m_playerColors.push_back(col);
 	}
 
+	for (int i = 0; i < MAX_BIKES; i++) {
+		m_ownView[i] = config.ownView[i];
+	}
+
 	startGameLoop();
 }
 
@@ -205,12 +207,15 @@ bool TroenGame::initializeControllers()
 			input::BikeInputState::InputDevice)m_playerInputTypes[i],
 			m_levelController->getSpawnPointForBikeWithIndex(i),
 			m_playerColors[i],
-			&m_resourcePool)
+			&m_resourcePool, m_ownView[i])
 		);
 	}
 
 	for (auto bikeController : m_bikeControllers) {
-		m_HUDControllers.push_back(std::make_shared<HUDController>(bikeController));
+		// only attach a HUD if a corresponding gameview exists
+		if (bikeController->hasGameView()) {
+			m_HUDControllers.push_back(std::make_shared<HUDController>(bikeController));
+		}
 	}
 
 	return true;
@@ -245,49 +250,45 @@ bool TroenGame::initializeViews()
 
 	m_gameEventHandler = new GameEventHandler(this, m_gameLogic);
 
+	
+	// iterate over hudcontrollers because they only exist, if the corresponding bike has an own gameView
+	for (auto hudController : m_HUDControllers) {
+	
+		std::weak_ptr<BikeController> bikeController = hudController->getBikeController();
+		
+		// TODO: is there a better place for this?
+		osg::Group* playerNode = new osg::Group();
+		m_playerNodes.push_back(playerNode);
+		bikeController.lock()->setPlayerNode(playerNode);
 
-		int currentIndex = -1;
-		for (auto bikeController : m_bikeControllers) {
-			currentIndex++;
+		osg::ref_ptr<osgViewer::View> newGameView = new osgViewer::View();
+		newGameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
+		newGameView->setSceneData(playerNode);
 
-			// TODO: is there a better place for this?
-			osg::Group* playerNode = new osg::Group();
-			m_playerNodes.push_back(playerNode);
-			bikeController->setPlayerNode(playerNode);
+		osg::ref_ptr<NodeFollowCameraManipulator> manipulator
+			= new NodeFollowCameraManipulator();
+		
+		bikeController.lock()->attachTrackingCameras(manipulator, hudController);
+		bikeController.lock()->attachGameView(newGameView);
 
-			osg::ref_ptr<osgViewer::View> newGameView = new osgViewer::View();
-			newGameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
-			newGameView->setSceneData(m_playerNodes[currentIndex]);
+		newGameView->setCameraManipulator(manipulator.get());
+		newGameView->addEventHandler(m_gameEventHandler);
+		newGameView->addEventHandler(m_statsHandler);
 
-			osg::ref_ptr<NodeFollowCameraManipulator> manipulator
-				= new NodeFollowCameraManipulator();
-
-			newGameView->setCameraManipulator(manipulator.get());
-
-			bikeController->attachTrackingCameras(manipulator, m_HUDControllers[currentIndex]);
-			bikeController->attachGameView(newGameView);
-
-			newGameView->addEventHandler(m_gameEventHandler);
-			newGameView->addEventHandler(m_statsHandler);
-
-			m_gameViews.push_back(newGameView);
-
+		m_gameViews.push_back(newGameView);
 
 #ifdef WIN32
-			if (m_fullscreen)
-				newGameView->apply(new osgViewer::SingleScreen(0));
-			else
-				newGameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
+		if (m_fullscreen)
+			newGameView->apply(new osgViewer::SingleScreen(0));
+		else
+			newGameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
 #else
-			if (m_fullscreen)
-				newGameView->setUpViewOnSingleScreen(0);
-			else
-				newGameView->setUpViewInWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+		if (m_fullscreen)
+			newGameView->setUpViewOnSingleScreen(0);
+		else
+			newGameView->setUpViewInWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
 #endif
-
-			if (!m_splitscreen)
-				break;
-		}
+	}
 
 
 	return true;
@@ -295,23 +296,19 @@ bool TroenGame::initializeViews()
 
 bool TroenGame::initializeViewer()
 {
-	int currentIndex = -1;
 	for (auto bikeController : m_bikeControllers)
 	{
-		currentIndex++;
-
-		osg::ref_ptr<SampleOSGViewer> viewer = new SampleOSGViewer();
-		viewer.get()->addView(m_gameViews[currentIndex]);
+		if (bikeController->hasGameView()) {
+			osg::ref_ptr<SampleOSGViewer> viewer = new SampleOSGViewer();
+			viewer.get()->addView(bikeController->getGameView());
 
 #ifdef WIN32
-		// turn of vSync (we implement an adaptive gameLoop that syncs itself)
-		osg::ref_ptr<RealizeOperation> operation = new RealizeOperation;
-		viewer->setRealizeOperation(operation);
-		viewer->realize();
+			// turn of vSync (we implement an adaptive gameLoop that syncs itself)
+			osg::ref_ptr<RealizeOperation> operation = new RealizeOperation;
+			viewer->setRealizeOperation(operation);
+			viewer->realize();
 #endif
-		m_viewers.push_back(viewer);
-		if (!m_splitscreen)	{
-			return true;
+			m_viewers.push_back(viewer);
 		}
 	}
 

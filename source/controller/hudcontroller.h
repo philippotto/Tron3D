@@ -14,7 +14,7 @@ namespace troen
 		void resize(int width, int height);
 		void update();
         void setTrackNode(osg::Node* trackNode);
-
+		std::weak_ptr<BikeController> getBikeController();
 	private:
 		std::weak_ptr<BikeController> m_bikeController;
 	};

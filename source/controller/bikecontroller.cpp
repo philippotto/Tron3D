@@ -29,8 +29,9 @@ BikeController::BikeController(
 	input::BikeInputState::InputDevice inputDevice,
 	btTransform initialTransform,
 	osg::Vec3 playerColor,
-	ResourcePool *m_resourcePool) :
-m_initialTransform(initialTransform)
+	ResourcePool *m_resourcePool,
+	bool hasGameView) :
+	m_initialTransform(initialTransform), m_hasGameView(hasGameView)
 {
 	AbstractController();
 	m_playerColor = playerColor;
@@ -297,8 +298,11 @@ void BikeController::updateModel(long double time)
 		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
 	}
 
-
-	m_timeOfCollisionUniform->set((float) g_currentTime - m_timeOfLastCollision);
+	if (m_hasGameView) {
+		// update uniforms
+		// TODO: extract to own method within bikeview
+		m_timeOfCollisionUniform->set((float)g_currentTime - m_timeOfLastCollision);
+	}
 
 	// max speed: 360
 	// minimum fence length: 200 (or 400)
@@ -326,6 +330,7 @@ void BikeController::setPlayerNode(osg::Group* playerNode)
 {
 	// this is the node which holds the rootNode of the entire scene
 	// it is used to expose player specific information to the shaders
+	// this is only necessary if a gameView exists for this player
 
 	m_playerNode = playerNode;
 	m_timeOfCollisionUniform = new osg::Uniform("timeSinceLastHit", 100000.f);
@@ -360,3 +365,9 @@ void BikeController::moveBikeToPosition(btTransform transform)
 	std::static_pointer_cast<BikeModel>(m_model)->moveBikeToPosition(transform);
 	m_fenceController->setLastPosition(transform.getRotation(), transform.getOrigin());
 }
+
+
+osg::ref_ptr<osgViewer::View> BikeController::getGameView()
+{
+	return m_gameView;
+};
