@@ -64,6 +64,7 @@ namespace troen
 	extern const float CAMERA_ROTATION_OFFSET;
 	extern const osg::Vec3 CAMERA_EYE_POSITION;
 	extern const float CAMERA_TILT_FACTOR;
+	extern const int HUD_PROJECTION_SIZE;
 
 	extern const unsigned int CAMERA_MASK_MAIN;
 	extern const unsigned int CAMERA_MASK_RADAR;

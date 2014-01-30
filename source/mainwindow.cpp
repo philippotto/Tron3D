@@ -62,10 +62,10 @@ MainWindow::MainWindow(QWidget * parent)
 		playerInputLayout->addWidget(playerInputLabel);
 
 		QComboBox* playerComboBox = new QComboBox;
-		playerComboBox->addItem("KEYBOARD_wasd");
-		playerComboBox->addItem("KEYBOARD_arrows");
-		playerComboBox->addItem("GAMEPAD");
-		playerComboBox->addItem("GAMEPADPS4");
+		playerComboBox->addItem("Keyboard WASD");
+		playerComboBox->addItem("Keyboard Arrows");
+		playerComboBox->addItem("Gamepad XBox");
+		playerComboBox->addItem("GAMEPAD PS4");
 		playerComboBox->addItem("AI");
 		playerInputLayout->addWidget(playerComboBox);
 		m_playerComboBoxes.push_back(playerComboBox);
@@ -78,19 +78,15 @@ MainWindow::MainWindow(QWidget * parent)
 		m_playerColors.push_back(QColor());
 		m_colorButtons.push_back(colorButton);
 
-		switch (i)
-		{
-		case 0:
-			playerComboBox->setCurrentIndex(0);
-			break;
-		case 1:
-			playerComboBox->setCurrentIndex(1);
-			break;
-		default:
-			playerComboBox->setCurrentIndex(3);
-			break;
-		}
+		// own view
+		QCheckBox* ownViewCheckBox = new QCheckBox("&Own view");
+		bool isFirstPlayer = i == 0;
+		ownViewCheckBox->setChecked(isFirstPlayer);
+		ownViewCheckBox->setDisabled(isFirstPlayer);
+		m_ownViewCheckboxes.push_back(ownViewCheckBox);
+		playerInputLayout->addWidget(ownViewCheckBox);
 
+		playerComboBox->setCurrentIndex(i < 2 ? i : 3);	
 		vBoxLayout->addWidget(playerInputWidget);
 	}
 	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(chooseColor(int)));
@@ -203,6 +199,12 @@ void MainWindow::prepareGameStart()
 	config.testPerformance = m_testPerformanceCheckBox->isChecked();
 	config.reflection = m_reflectionCheckBox->isChecked();
 
+	int i = 0;
+	for (auto ownViewCheckbox : m_ownViewCheckboxes) {
+		config.ownView[i] = ownViewCheckbox->isChecked();
+		i++;
+	}
+
 	saveSettings();
 	emit startGame(config);
 }
@@ -231,6 +233,18 @@ void MainWindow::bikeNumberChanged(int newBikeNumber)
 	{
 		m_splitscreenCheckBox->setCheckable(true);
 		m_splitscreenCheckBox->setDisabled(false);
+	}
+
+
+	for (int i = 0; i < MAX_BIKES; i++)
+	{
+		if (i < newBikeNumber) {
+			m_ownViewCheckboxes[i]->setDisabled(false);
+		}
+		else {
+			m_ownViewCheckboxes[i]->setChecked(false);
+			m_ownViewCheckboxes[i]->setDisabled(true);
+		}
 	}
 }
 

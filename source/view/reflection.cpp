@@ -19,21 +19,19 @@
 #include <osg/Camera>
 #include <osg/LightModel>
 #include <osg/ClipNode>
-
-
+#include <osg/ClipPlane>
 //troen
 #include "reflection.h"
 #include "shaders.h"
 #include "skydome.h"
 #include "../constants.h"
-
 /*
 **
 */
 using namespace troen;
 
+
 static osg::ref_ptr<osg::Uniform> g_cameraEyeU = new osg::Uniform("cameraEye", osg::Vec3(0.0, 0.0,0.0));
-static osg::ref_ptr<osg::Uniform> g_cameraViewU = new osg::Uniform("cameraViewMatrix", osg::Matrixd());
 
 class CUpdateCameraCallback : public osg::NodeCallback
 {
@@ -68,6 +66,7 @@ public:
 	}
 };
 
+
 class FindNamedNode : public osg::NodeVisitor
 {
 public:
@@ -100,7 +99,6 @@ protected:
 
 Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap)
 {
-
 	//osg::Group		*group = new osg::Group();
 	int texSize = 1024;
 	// Set up the reflection camera
@@ -125,7 +123,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	m_ReflectionClipPlane = new osg::ClipPlane(0, osg::Vec4d(0.0, 0.0, 1.0, 0.0));
 	m_reflectionClipNode = new osg::ClipNode;
 	m_reflectionClipNode->addClipPlane(m_ReflectionClipPlane);
-	
+
 
 	osg::ref_ptr<osg::Texture2D>	texture = new osg::Texture2D();
 	texture->setTextureSize(texSize, texSize);
@@ -174,7 +172,6 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionAttrib", 3));
 
 }
-
 
 
 bool Reflection::addSceneNode(osg::ref_ptr<osg::Group> sceneNode)

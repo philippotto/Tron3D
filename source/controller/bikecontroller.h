@@ -19,7 +19,9 @@ namespace troen
 			input::BikeInputState::InputDevice inputDevice,
 			btTransform initialPosition,
 			osg::Vec3 playerColor,
-			ResourcePool *resourcePool);
+			ResourcePool *resourcePool,
+			bool hasGameView);
+
 		~BikeController();
 		void attachTrackingCameras
 			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator,
@@ -30,11 +32,12 @@ namespace troen
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
 
 		void updateModel(long double time);
+		void updateUniforms();
 
 		// getters
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
-		osg::ref_ptr<input::Keyboard> getEventHandler();
-		bool hasEventHandler();
+		osg::ref_ptr<input::Keyboard> getKeyboardHandler();
+		bool hasKeyboardHandler();
 		float getSpeed();
 		float getHealth();
 		float getPoints();
@@ -54,6 +57,10 @@ namespace troen
 		float increasePoints(float diff);
 		void registerCollision(btScalar impulse);
 		void reset();
+		void setPlayerNode(osg::Group* playerNode);
+		bool hasGameView() { return m_hasGameView; };
+		osg::ref_ptr<osgViewer::View> getGameView();
+
 	private:
 		void setFovy(float newFovy);
 		float getFovy();
@@ -61,7 +68,7 @@ namespace troen
 
 		void initializeInput(input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
-
+		
 		std::shared_ptr<FenceController> m_fenceController;
 		osg::ref_ptr<input::Keyboard> m_keyboardHandler = nullptr;
 		std::shared_ptr<input::PollingDevice> m_pollingThread = nullptr;
@@ -76,6 +83,13 @@ namespace troen
 		bool m_turboInitiated = false;
 		float m_timeOfLastCollision;
 		bool m_fenceLimitActivated;
+		
+		
+		bool m_hasGameView = false;
+		// the following attributes only exist if the bikeController has a corresponding gameview
+		osg::Uniform* m_timeOfCollisionUniform;
+		osg::Group* m_playerNode;
+
 
 	};
 }
