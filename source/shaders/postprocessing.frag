@@ -4,6 +4,8 @@ uniform sampler2D sceneLayer;
 uniform sampler2D idLayer;
 uniform sampler2D pongLayer;
 uniform sampler2D oldLayer;
+uniform float timeSinceLastHit;
+uniform float time;
 
 /*
 ** Copyright (c) 2012, Romain Dura romain@shazbits.com
@@ -147,9 +149,9 @@ void main(void)
 
 	st = 1 * (st - vec2(0.5));
 
-	const int enableDamageHUD = 0;
+	float enableDamageHUD = 1 - clamp(timeSinceLastHit / 1000, 0, 1);
 	float circleTransparency = st.x * st.x + st.y * st.y;
-	circleTransparency = enableDamageHUD * min(1, 5 * pow(circleTransparency, 1.5));
+	circleTransparency = enableDamageHUD * 2 * min(1, 5 * pow(circleTransparency, 1.5));
 
 	vec3 hsl = RGBToHSL((sceneColor + pongColor).xyz);
 	hsl.x = mix(hsl.x, 1, 0.99); // .x is hue, .y is saturation, .z is brightness

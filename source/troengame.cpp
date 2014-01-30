@@ -1,7 +1,5 @@
 #include "troengame.h"
 // OSG
-#include <osgGA/TrackballManipulator>
-#include <osgGA/NodeTrackerManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
 
@@ -115,6 +113,10 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 		m_playerColors.push_back(col);
 	}
 
+	for (int i = 0; i < MAX_BIKES; i++) {
+		m_ownView[i] = config.ownView[i];
+	}
+
 	startGameLoop();
 }
 
@@ -205,13 +207,15 @@ bool TroenGame::initializeControllers()
 			input::BikeInputState::InputDevice)m_playerInputTypes[i],
 			m_levelController->getSpawnPointForBikeWithIndex(i),
 			m_playerColors[i],
-			&m_resourcePool)
+			&m_resourcePool, m_ownView[i])
 		);
 	}
 
 	for (int i = 0; i < m_bikeControllers.size(); i++) {
-		m_HUDControllers.push_back(std::make_shared<HUDController>(m_bikeControllers[i], osg::Vec4(m_playerColors[i], 1)));
-		if (!m_splitscreen) break;
+		// only attach a HUD if a corresponding gameview exists
+		if (m_bikeControllers[i]->hasGameView()) {
+			m_HUDControllers.push_back(std::make_shared<HUDController>(m_bikeControllers[i],osg::Vec4(m_playerColors[i],1)));
+		}
 	}
 
 	return true;
@@ -246,47 +250,45 @@ bool TroenGame::initializeViews()
 
 	m_gameEventHandler = new GameEventHandler(this, m_gameLogic);
 
+	
+	// iterate over hudcontrollers because they only exist, if the corresponding bike has an own gameView
+	for (auto hudController : m_HUDControllers) {
+	
+		std::weak_ptr<BikeController> bikeController = hudController->getBikeController();
+		
+		// TODO: is there a better place for this?
+		osg::Group* playerNode = new osg::Group();
+		m_playerNodes.push_back(playerNode);
+		bikeController.lock()->setPlayerNode(playerNode);
 
-		int currentIndex = -1;
-		for (auto bikeController : m_bikeControllers) {
-			currentIndex++;
+		osg::ref_ptr<osgViewer::View> newGameView = new osgViewer::View();
+		newGameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
+		newGameView->setSceneData(playerNode);
 
-			// TODO: is there a better place for this?
-			m_playerNodes.push_back(new osg::Group());
+		osg::ref_ptr<NodeFollowCameraManipulator> manipulator
+			= new NodeFollowCameraManipulator();
+		
+		bikeController.lock()->attachTrackingCameras(manipulator, hudController);
+		bikeController.lock()->attachGameView(newGameView);
 
-			osg::ref_ptr<osgViewer::View> newGameView = new osgViewer::View();
-			newGameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
-			newGameView->setSceneData(m_playerNodes[currentIndex]);
+		newGameView->setCameraManipulator(manipulator.get());
+		newGameView->addEventHandler(m_gameEventHandler);
+		newGameView->addEventHandler(m_statsHandler);
 
-			osg::ref_ptr<NodeFollowCameraManipulator> manipulator
-				= new NodeFollowCameraManipulator();
-
-			newGameView->setCameraManipulator(manipulator.get());
-
-			bikeController->attachTrackingCameras(manipulator, m_HUDControllers[currentIndex]);
-			bikeController->attachGameView(newGameView);
-
-			newGameView->addEventHandler(m_gameEventHandler);
-			newGameView->addEventHandler(m_statsHandler);
-
-			m_gameViews.push_back(newGameView);
-
+		m_gameViews.push_back(newGameView);
 
 #ifdef WIN32
-			if (m_fullscreen)
-				newGameView->apply(new osgViewer::SingleScreen(0));
-			else
-				newGameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
+		if (m_fullscreen)
+			newGameView->apply(new osgViewer::SingleScreen(0));
+		else
+			newGameView->apply(new osgViewer::SingleWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
 #else
-			if (m_fullscreen)
-				newGameView->setUpViewOnSingleScreen(0);
-			else
-				newGameView->setUpViewInWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+		if (m_fullscreen)
+			newGameView->setUpViewOnSingleScreen(0);
+		else
+			newGameView->setUpViewInWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
 #endif
-
-			if (!m_splitscreen)
-				break;
-		}
+	}
 
 
 	return true;
@@ -294,24 +296,19 @@ bool TroenGame::initializeViews()
 
 bool TroenGame::initializeViewer()
 {
-	int currentIndex = -1;
 	for (auto bikeController : m_bikeControllers)
 	{
-		currentIndex++;
-
-		osg::ref_ptr<SampleOSGViewer> viewer = new SampleOSGViewer();
-		// TODO: splitscreen gameviews...
-		viewer.get()->addView(m_gameViews[currentIndex]);
+		if (bikeController->hasGameView()) {
+			osg::ref_ptr<SampleOSGViewer> viewer = new SampleOSGViewer();
+			viewer.get()->addView(bikeController->getGameView());
 
 #ifdef WIN32
-		// turn of vSync (we implement an adaptive gameLoop that syncs itself)
-		osg::ref_ptr<RealizeOperation> operation = new RealizeOperation;
-		viewer->setRealizeOperation(operation);
-		// viewer->realize();
+			// turn of vSync (we implement an adaptive gameLoop that syncs itself)
+			osg::ref_ptr<RealizeOperation> operation = new RealizeOperation;
+			viewer->setRealizeOperation(operation);
+			viewer->realize();
 #endif
-		m_viewers.push_back(viewer);
-		if (!m_splitscreen)	{
-			return true;
+			m_viewers.push_back(viewer);
 		}
 	}
 
@@ -356,13 +353,6 @@ bool TroenGame::composeSceneGraph()
 		playerNode->addChild(m_rootNode);
 	}
 
-
-	// TODO (Philipp): uniforms
-	/*m_test1 = new osg::Uniform("test", 0.1);
-	m_firstPlayerGroup->getOrCreateStateSet()->addUniform(m_test1);*/
-
-
-
 	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
 	m_sceneNode->addChild(m_skyDome.get());
 
@@ -375,26 +365,29 @@ bool TroenGame::composeSceneGraph()
 	}
 
 	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
-
+	
 	int currentIndex = -1;
 	for (auto playerNode : m_playerNodes) {
 		currentIndex++;
 		playerNode->addChild(m_HUDControllers[currentIndex]->getViewNode());
 	}
 
-
+	
 	if (m_usePostProcessing)
 		m_rootNode->addChild(m_sceneNode);
-
+	
+	
 	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
+	
+	
 	for (auto bikeController : m_bikeControllers)
 		radarScene->addChild(bikeController->getViewNode());
 	radarScene->addChild(m_levelController->getViewNode());
-
+	
 	for (auto hudController : m_HUDControllers) {
 		hudController->attachSceneToRadarCamera(radarScene);
 	}
-
+	
 	return true;
 }
 

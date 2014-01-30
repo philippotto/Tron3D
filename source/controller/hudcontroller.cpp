@@ -40,3 +40,7 @@ void HUDController::setTrackNode(osg::Node* trackNode)
     std::static_pointer_cast<HUDView>(m_view)->setTrackNode(trackNode);
 }
 
+std::weak_ptr<BikeController> HUDController::getBikeController()
+{
+	return m_bikeController;
+}
