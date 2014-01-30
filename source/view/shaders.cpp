@@ -15,6 +15,7 @@ void shaders::reloadShaders()
 	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "source/shaders/default.frag", "source/shaders/default.vert");
 	reloadShader(shaders::m_allShaderPrograms[BIKE], "source/shaders/bike.frag", "source/shaders/bike.vert");
 	reloadShader(shaders::m_allShaderPrograms[GRID], "source/shaders/grid.frag", "source/shaders/grid.vert");
+	reloadShader(shaders::m_allShaderPrograms[GRID_NOREFLECTION], "source/shaders/grid_noreflection.frag", "source/shaders/grid.vert");
 	reloadShader(shaders::m_allShaderPrograms[FENCE], "source/shaders/fence.frag", "source/shaders/fence.vert");
 	reloadShader(shaders::m_allShaderPrograms[GBUFFER], "source/shaders/gbuffer.frag", "source/shaders/gbuffer.vert");
 	reloadShader(shaders::m_allShaderPrograms[HBLUR], "source/shaders/Blur.frag", "source/shaders/HBlur.vert");

@@ -22,6 +22,7 @@ typedef struct s_GameConfig
 	bool usePostProcessing;
 	bool useDebugView;
 	bool testPerformance;
+	bool reflection;
 } GameConfig;
 Q_DECLARE_METATYPE(s_GameConfig)
 
@@ -117,5 +118,6 @@ namespace troen
 		bool m_usePostProcessing;
 		bool m_useDebugView;
 		bool m_testPerformance;
+		bool m_useReflection;
 	};
 }

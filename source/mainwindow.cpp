@@ -121,6 +121,11 @@ MainWindow::MainWindow(QWidget * parent)
 	vBoxLayout->addWidget(m_debugViewCheckBox, 0, Qt::AlignLeft);
 	m_debugViewCheckBox->setChecked(false);
 
+	//reflectionCheckBox
+	m_reflectionCheckBox = new QCheckBox("&Reflection");
+	vBoxLayout->addWidget(m_reflectionCheckBox, 0, Qt::AlignLeft);
+	m_reflectionCheckBox->setChecked(true);
+
 	// gameStartButton
 	m_gameStartButton = new QPushButton(QString("start Game"));
 	m_gameStartButton->setContentsMargins(0, 5, 0, 5);
@@ -196,6 +201,7 @@ void MainWindow::prepareGameStart()
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	config.useDebugView = m_debugViewCheckBox->isChecked();
 	config.testPerformance = m_testPerformanceCheckBox->isChecked();
+	config.reflection = m_reflectionCheckBox->isChecked();
 
 	saveSettings();
 	emit startGame(config);
@@ -272,6 +278,7 @@ void MainWindow::loadSettings()
 	m_postProcessingCheckBox->setChecked(settings.value("postProcessing").toBool());
 	m_testPerformanceCheckBox->setChecked(settings.value("vSyncOff").toBool());
 	m_debugViewCheckBox->setChecked(settings.value("debugView").toBool());
+	m_reflectionCheckBox->setChecked(settings.value("reflection").toBool());
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
@@ -297,6 +304,7 @@ void MainWindow::saveSettings()
 	settings.setValue("postProcessing", QString::number(m_postProcessingCheckBox->isChecked()));
 	settings.setValue("vSyncOff", QString::number(m_testPerformanceCheckBox->isChecked()));
 	settings.setValue("debugView", QString::number(m_debugViewCheckBox->isChecked()));
+	settings.setValue("reflection", QString::number(m_reflectionCheckBox->isChecked()));
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{

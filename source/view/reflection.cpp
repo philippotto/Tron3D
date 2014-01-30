@@ -98,11 +98,11 @@ protected:
 };
 
 
-Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap)
+Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap)
 {
 
 	//osg::Group		*group = new osg::Group();
-	int texSize = 512;
+	int texSize = 1024;
 	// Set up the reflection camera
 	cameraGroup = new osg::Group();
 	reflectionCamera = new osg::Camera();
@@ -130,6 +130,8 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 	osg::ref_ptr<osg::Texture2D>	texture = new osg::Texture2D();
 	texture->setTextureSize(texSize, texSize);
 	texture->setInternalFormat(GL_RGBA);
+	texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
+	texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
 
 
 	osg::ref_ptr<osg::Texture2D>	idTexture = new osg::Texture2D();
@@ -148,6 +150,10 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 
 
 	// Set reflection textures
+	osg::ref_ptr<osg::Node> reflectSurface;
+	FindNamedNode findReflecting("floorsNode");
+	levelView->accept(findReflecting);
+	reflectSurface = static_cast<osg::Group*>(findReflecting.getNode())->getChild(0);
 
 	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(1, texture,
 		osg::StateAttribute::ON);
@@ -155,7 +161,8 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 1));
 	//sreflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
 
-	//reflectNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
+	reflectSurface->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID_NOREFLECTION], osg::StateAttribute::OFF);
+	reflectSurface->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
 
 	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(2, cubeMap, osg::StateAttribute::ON);
 

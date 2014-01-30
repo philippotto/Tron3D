@@ -47,7 +47,8 @@ m_numberOfBikes(0),
 m_splitscreen(false),
 m_fullscreen(false),
 m_usePostProcessing(false),
-m_testPerformance(false)
+m_testPerformance(false),
+m_useReflection(false)
 {
 	QObject();
 	if (m_gameThread == nullptr) {
@@ -112,6 +113,7 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 	m_usePostProcessing = config.usePostProcessing;
 	m_useDebugView = config.useDebugView;
 	m_testPerformance = config.testPerformance;
+	m_useReflection = config.reflection;
 
 	m_playerInputTypes.clear();
 	for (int i = 0; i < m_numberOfBikes; i++)
@@ -253,7 +255,8 @@ bool TroenGame::initializeGameLogic()
 
 bool TroenGame::initializeReflection()
 {
-	m_reflection = std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameView, m_skyDome->getSkyboxTexture());
+	if (m_useReflection)
+		m_reflection = std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameView, m_skyDome->getSkyboxTexture());
 	return true;
 }
 
@@ -380,9 +383,12 @@ bool TroenGame::composeSceneGraph()
 
 	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
 
-	//sceneNode has to be added to reflection after adding all (non hud) objects
-	m_reflection->addSceneNode(m_sceneNode);
-	m_rootNode->addChild(m_reflection->getReflectionCameraGroup());
+	if (m_useReflection)
+	{
+		//sceneNode has to be added to reflection after adding all (non hud) objects
+		m_reflection->addSceneNode(m_sceneNode);
+		m_rootNode->addChild(m_reflection->getReflectionCameraGroup());
+	}
 
 
 	m_rootNode->addChild(m_hudSwitch);

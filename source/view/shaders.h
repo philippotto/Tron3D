@@ -27,6 +27,7 @@ namespace troen
 							DEFAULT,
 							BIKE,
 							GRID,
+							GRID_NOREFLECTION,
 							FENCE,
 							GBUFFER,
 							HBLUR,
