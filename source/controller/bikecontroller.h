@@ -25,9 +25,9 @@ namespace troen
 
 		typedef enum enum_BIKESTATE
 		{
-			DRIVING = 0,
-			RESPAWN = 1,
-			WAITING = 2
+			DRIVING,
+			RESPAWN,
+			WAITING
 		} BIKESTATE;
 
 		void attachTrackingCameras
@@ -49,6 +49,8 @@ namespace troen
 		float getSpeed();
 		float getHealth();
 		float getPoints();
+		BIKESTATE getState();
+		double getRespawnTime();
 
 		// logic events
 		void moveBikeToPosition(btTransform position);

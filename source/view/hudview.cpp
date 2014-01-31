@@ -21,14 +21,15 @@
 
 using namespace troen;
 
-HUDView::HUDView(const osg::Vec4 playerColor) : AbstractView(), m_trackNode(nullptr), m_playerColor(playerColor)
+HUDView::HUDView(const osg::Vec4 playerColor) :
+AbstractView(),
+m_trackNode(nullptr),
+m_playerColor(playerColor),
+m_speedText(new osgText::Text()),
+m_healthText(new osgText::Text()),
+m_pointsText(new osgText::Text()),
+m_countdownText(new osgText::Text())
 {
-	m_speedText = new osgText::Text();
-	m_healthText = new osgText::Text();
-	m_pointsText = new osgText::Text();
-
-	m_node = new osg::Group();
-
 	m_node->addChild(createHUD());
 	m_node->addChild(createRadar());
 }
@@ -88,14 +89,24 @@ osg::Camera* HUDView::createHUD()
 			geode->addDrawable(m_pointsText);
 
 			m_pointsText->setFont(font);
-			m_pointsText->setPosition(osg::Vec3(offset, HUD_PROJECTION_SIZE - offset ,0.f));
+			m_pointsText->setPosition(osg::Vec3(offset, HUD_PROJECTION_SIZE - offset, 0.f));
 			m_pointsText->setColor(m_playerColor);
 			setPointsText(0);
 			m_pointsText->setAlignment(osgText::Text::AlignmentType::LEFT_TOP);
 			m_pointsText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
 			m_pointsText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 10);
 		}
+		{
+			geode->addDrawable(m_countdownText);
 
+			m_countdownText->setFont("fonts/arial.ttf");
+			m_countdownText->setPosition(osg::Vec3(HUD_PROJECTION_SIZE / 2, HUD_PROJECTION_SIZE / 2, 0.f));
+			m_countdownText->setColor(m_playerColor);
+			setCountdownText(-1);
+			m_countdownText->setAlignment(osgText::Text::AlignmentType::CENTER_CENTER);
+			m_countdownText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+			m_countdownText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 3);
+		}
 		m_camera->addChild(geode);
 	}
 
@@ -119,6 +130,7 @@ void HUDView::resizeHudComponents(const int width, const int height)
 	m_speedText->setCharacterSize(height / 15);
 	m_healthText->setCharacterSize(height / 15);
 	m_pointsText->setCharacterSize(height / 10);
+	m_countdownText->setCharacterSize(height / 3);
 }
 
 osg::Camera* HUDView::createRadar()
@@ -234,4 +246,17 @@ void HUDView::setPointsText(float points)
 {
 	std::string pointsString = std::to_string((int)points);
 	m_pointsText->setText("Points: " + pointsString);
+}
+
+void HUDView::setCountdownText(const int countdown)
+{
+	if (countdown == -1)
+	{
+		m_countdownText->setText(" ");
+	}
+	else
+	{
+		std::string countdownString = std::to_string(countdown);
+		m_countdownText->setText(countdownString);
+	}
 }

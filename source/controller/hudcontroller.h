@@ -14,7 +14,7 @@ namespace troen
 		HUDController(std::shared_ptr<BikeController> bikeController, const osg::Vec4 playerColor);
 		void attachSceneToRadarCamera(osg::Group* scene);
 		void resize(int width, int height);
-		void update();
+		void update(double currentTime);
         void setTrackNode(osg::Node* trackNode);
 		std::weak_ptr<BikeController> getBikeController();
 	private:

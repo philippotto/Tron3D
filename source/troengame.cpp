@@ -518,7 +518,7 @@ void TroenGame::startGameLoop()
 			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
 				for (int i = 0; i < m_viewers.size(); i++)
-					m_HUDControllers[i]->update();
+					m_HUDControllers[i]->update(currTime);
 
 				for (auto viewer : m_viewers) {
 					viewer->frame();

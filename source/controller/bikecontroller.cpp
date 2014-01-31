@@ -309,7 +309,7 @@ void BikeController::updateModel(long double time)
 	{
 		std::static_pointer_cast<BikeModel>(m_model)->freeze();
 		updateFov(0);
-		if (time > m_respawnTime)
+		if (time > m_respawnTime + 2000)
 		{
 			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
 			//std::static_pointer_cast<BikeView>(m_view)->m_pat->setAttitude(attitude);
@@ -322,7 +322,7 @@ void BikeController::updateModel(long double time)
 	{
 		reset();
 		updateFov(0);
-		if (time > m_respawnTime + 1000)
+		if (time > m_respawnTime + 3000)
 		{
 			m_currentState = DRIVING;
 		}
@@ -415,4 +415,14 @@ void BikeController::updateFov(double speed)
 		float currentFovy = getFovy();
 		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 	}
+}
+
+BikeController::BIKESTATE BikeController::getState()
+{
+	return m_currentState;
+}
+
+double BikeController::getRespawnTime()
+{
+	return m_respawnTime;
 }

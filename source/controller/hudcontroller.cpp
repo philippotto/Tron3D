@@ -22,7 +22,8 @@ void HUDController::attachSceneToRadarCamera(osg::Group* scene)
 	std::static_pointer_cast<HUDView>(m_view)->attachSceneToRadarCamera(scene);
 }
 
-void HUDController::update() {
+void HUDController::update(double currentTime)
+{
 	float speed = m_bikeController.lock()->getSpeed();
 	std::static_pointer_cast<HUDView>(m_view)->setSpeedText(speed);
     std::static_pointer_cast<HUDView>(m_view)->updateRadarCamera();
@@ -33,6 +34,16 @@ void HUDController::update() {
 	float points = m_bikeController.lock()->getPoints();
 	std::static_pointer_cast<HUDView>(m_view)->setPointsText(points);
 
+	BikeController::BIKESTATE state = m_bikeController.lock()->getState();
+	if (state == BikeController::BIKESTATE::RESPAWN || state == BikeController::BIKESTATE::WAITING)
+	{
+		double respawnTime = m_bikeController.lock()->getRespawnTime();
+		std::static_pointer_cast<HUDView>(m_view)->setCountdownText((int)(respawnTime - currentTime + 3000)/1000 + 1);
+	}
+	else
+	{
+		std::static_pointer_cast<HUDView>(m_view)->setCountdownText(-1);
+	}
 }
 
 void HUDController::setTrackNode(osg::Node* trackNode)
