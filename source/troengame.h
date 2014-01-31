@@ -47,10 +47,10 @@ namespace troen
 		void pauseSimulation();
 		void unpauseSimulation();
 
-		void resize(int width, int height);
+		void resize(const int width,const int height);
 
 	public slots:
-		void prepareAndStartGame(GameConfig config);
+		void prepareAndStartGame(const GameConfig config);
 
 	private:
 		bool initialize();

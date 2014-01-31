@@ -24,7 +24,7 @@ namespace troen
 		virtual ~MainWindow();
 
 	signals:
-		void startGame(GameConfig config);
+		void startGame(const GameConfig config);
 
 	public slots:
 		void updatePlayerInputBoxes();
@@ -37,8 +37,8 @@ namespace troen
 		void prepareGameStart();
 		void splitscreenToggled();
 		void fullscreenToggled();
-		void bikeNumberChanged(int newBikeNumber);
-		void chooseColor(int i);
+		void bikeNumberChanged(const int newBikeNumber);
+		void chooseColor(const int i);
 
 	private:
 		void loadSettings();

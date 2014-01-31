@@ -38,8 +38,8 @@ namespace troen
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
 
-		void setState(BIKESTATE newState, double respawnTime = -1);
-		void updateModel(long double time);
+		void setState(const BIKESTATE newState, const double respawnTime = -1);
+		void updateModel(const long double time);
 		void updateUniforms();
 
 		// getters
@@ -57,14 +57,14 @@ namespace troen
 
 		// controlling the FenceController
 		void removeAllFences();
-		void setLimitFence(bool boolean);
+		void setLimitFence(const bool boolean);
 		int getFenceLimit();
 
 		void activateTurbo();
 		float getTurboInitiation();
 
-		float increaseHealth(float diff);
-		float increasePoints(float diff);
+		float increaseHealth(const float diff);
+		float increasePoints(const float diff);
 		void registerCollision(btScalar impulse);
 		void reset();
 		void setPlayerNode(osg::Group* playerNode);
@@ -72,17 +72,17 @@ namespace troen
 		osg::ref_ptr<osgViewer::View> getGameView();
 
 	private:
-		void updateFov(double speed);
-		void setFovy(float newFovy);
+		void updateFov(const double speed);
+		void setFovy(const float newFovy);
 		float getFovy();
-		float computeFovyDelta(float speed, float currentFovy);
+		float computeFovyDelta(const float speed, const float currentFovy);
 
-		void initializeInput(input::BikeInputState::InputDevice inputDevice);
+		void initializeInput(const input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		
 		std::shared_ptr<FenceController> m_fenceController;
-		osg::ref_ptr<input::Keyboard> m_keyboardHandler = nullptr;
-		std::shared_ptr<input::PollingDevice> m_pollingThread = nullptr;
+		osg::ref_ptr<input::Keyboard> m_keyboardHandler;
+		std::shared_ptr<input::PollingDevice> m_pollingThread;
 
 		osg::ref_ptr<osgViewer::View> m_gameView;
 		osg::Vec3 m_playerColor;

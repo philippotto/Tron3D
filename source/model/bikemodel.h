@@ -22,21 +22,21 @@ namespace troen
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 
 		long double getTimeSinceLastUpdate();
-		float updateState(long double time);
+		float updateState(const long double time);
 		void resetState();
 		void freeze();
 
-		void rotate(float angle);
-		void accelerate(float velocity);
+		void rotate(const float angle);
+		void accelerate(const float velocity);
 		float getRotation();
 		float getVelocity();
 		float getSteering();
 		osg::Vec3d getPositionOSG();
 		btVector3 getPositionBt();
 
-		void moveBikeToPosition(btTransform position);
+		void moveBikeToPosition(const btTransform position);
 		float getTurboFactor();
-		void updateTurboFactor(float newVelocity, float time);
+		void updateTurboFactor(const float newVelocity, const float time);
 
 	private:
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;

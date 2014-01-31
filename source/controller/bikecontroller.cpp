@@ -41,7 +41,9 @@ m_points(0),
 m_speed(0),
 m_timeOfLastCollision(-1),
 m_currentState(BIKESTATE::DRIVING),
-m_respawnTime(-1)
+m_respawnTime(-1),
+m_keyboardHandler(nullptr),
+m_pollingThread(nullptr)
 {
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
 

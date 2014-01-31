@@ -26,7 +26,7 @@ namespace input
 
 	private:
 		int getBitAt(int k, unsigned char * buf);
-		int getValueFromKey(PS4KEY type, unsigned char *buffer);
+		int getValueFromKey(const PS4KEY type, unsigned char *buffer);
 		int calcDecimalFromBinar(unsigned char *binar, int i, int jMax);
 
 		float m_deadzoneX, m_deadzoneY;
