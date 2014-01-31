@@ -21,8 +21,15 @@ namespace troen
 			osg::Vec3 playerColor,
 			ResourcePool *resourcePool,
 			bool hasGameView);
-
 		~BikeController();
+
+		typedef enum enum_BIKESTATE
+		{
+			DRIVING = 0,
+			RESPAWN = 1,
+			WAITING = 2
+		} BIKESTATE;
+
 		void attachTrackingCameras
 			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator,
              std::shared_ptr<HUDController>& hudController);
@@ -31,6 +38,7 @@ namespace troen
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
 
+		void setState(BIKESTATE newState, double respawnTime = -1);
 		void updateModel(long double time);
 		void updateUniforms();
 
@@ -62,6 +70,7 @@ namespace troen
 		osg::ref_ptr<osgViewer::View> getGameView();
 
 	private:
+		void updateFov(double speed);
 		void setFovy(float newFovy);
 		float getFovy();
 		float computeFovyDelta(float speed, float currentFovy);
@@ -82,7 +91,9 @@ namespace troen
 		float m_speed;
 		bool m_turboInitiated = false;
 		float m_timeOfLastCollision;
+		double m_respawnTime;
 		bool m_fenceLimitActivated;
+		BIKESTATE m_currentState;
 		
 		
 		bool m_hasGameView = false;

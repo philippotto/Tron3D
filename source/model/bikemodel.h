@@ -18,10 +18,13 @@ namespace troen
 			osg::ref_ptr<osg::Group> node,
 			std::shared_ptr<FenceController> fenceController,
 			BikeController* bikeController);
+
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
-		void resetState();
+
 		long double getTimeSinceLastUpdate();
 		float updateState(long double time);
+		void resetState();
+
 		void rotate(float angle);
 		void accelerate(float velocity);
 		float getRotation();

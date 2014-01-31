@@ -17,9 +17,9 @@ BikeModel::BikeModel(
 	osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<FenceController> fenceController,
 	BikeController* bikeController) :
+AbstractModel(),
 m_lastUpdateTime(0)
 {
-	AbstractModel();
 	resetState();
 
 	m_bikeController = bikeController;

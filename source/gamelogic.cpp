@@ -7,6 +7,7 @@
 //troen
 #include "troengame.h"
 #include "constants.h"
+#include "globals.h"
 #include "model/abstractmodel.h"
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
@@ -180,9 +181,10 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 
 	if (newHealth <= 0)
 	{
-		resetBike(bike);
-		m_troenGame->pauseSimulation();
-		restartLevel();		
+		//resetBike(bike);
+		//m_troenGame->pauseSimulation();
+		//restartLevel();
+		bike->setState(BikeController::BIKESTATE::RESPAWN, g_currentTime+3000);
 	}
 }
 

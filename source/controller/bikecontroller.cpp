@@ -31,16 +31,18 @@ BikeController::BikeController(
 	osg::Vec3 playerColor,
 	ResourcePool *m_resourcePool,
 	bool hasGameView) :
-	m_initialTransform(initialTransform), m_hasGameView(hasGameView)
+AbstractController(),
+m_initialTransform(initialTransform),
+m_hasGameView(hasGameView),
+m_turboInitiated(false),
+m_playerColor(playerColor),
+m_health(BIKE_DEFAULT_HEALTH),
+m_points(0),
+m_speed(0),
+m_timeOfLastCollision(-1),
+m_currentState(BIKESTATE::DRIVING),
+m_respawnTime(-1)
 {
-	AbstractController();
-	m_playerColor = playerColor;
-
-	m_health = BIKE_DEFAULT_HEALTH;
-	m_points = 0;
-	m_speed = 0;
-	m_timeOfLastCollision = -1;
-
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
 
 	m_fenceController = std::make_shared<FenceController>(this, m_playerColor, m_initialTransform);
@@ -285,9 +287,51 @@ float BikeController::getTurboInitiation()
 	return m_turboInitiated;
 }
 
+void BikeController::setState(BIKESTATE newState, double respawnTime /*=-1*/)
+{
+	m_currentState = newState;
+	m_respawnTime = respawnTime;
+}
+
+
 void BikeController::updateModel(long double time)
 {
-	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
+	switch (m_currentState)
+	{
+	case DRIVING:
+	{
+		double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
+		increasePoints(speed / 1000);
+		updateFov(speed);
+
+		std::cout << speed << std::endl;
+		break;
+	}
+	case RESPAWN:
+	{
+		std::static_pointer_cast<BikeModel>(m_model)->resetState();
+		if (time > m_respawnTime)
+		{
+			reset();
+			moveBikeToPosition(m_initialTransform);
+			m_currentState = WAITING;
+		}
+		std::cout << "respawning" << std::endl;
+		break;
+	}
+	case WAITING:
+	{
+		if (time > m_respawnTime + 2000)
+		{
+			m_currentState = DRIVING;
+		}
+		std::cout << "waiting" << std::endl;
+		break;
+	}
+	default:
+		break;
+	}
+
 
 	// turbo should be only applied in one frame
 	if (m_turboInitiated)
@@ -299,12 +343,6 @@ void BikeController::updateModel(long double time)
 	}
 
 	updateUniforms();
-	increasePoints(speed / 1000);
-
-	if (m_gameView.valid()) {
-		float currentFovy = getFovy();
-		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
-	}
 
 }
 
@@ -364,9 +402,17 @@ osg::ref_ptr<osgViewer::View> BikeController::getGameView()
 	return m_gameView;
 };
 
-void troen::BikeController::updateUniforms()
+void BikeController::updateUniforms()
 {
 	if (m_hasGameView) {
 		m_timeOfCollisionUniform->set((float)g_currentTime - m_timeOfLastCollision);
+	}
+}
+
+void BikeController::updateFov(double speed)
+{
+	if (m_gameView.valid()) {
+		float currentFovy = getFovy();
+		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 	}
 }
