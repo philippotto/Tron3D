@@ -24,6 +24,7 @@ namespace troen
 		long double getTimeSinceLastUpdate();
 		float updateState(long double time);
 		void resetState();
+		void freeze();
 
 		void rotate(float angle);
 		void accelerate(float velocity);

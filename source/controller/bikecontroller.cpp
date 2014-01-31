@@ -307,16 +307,13 @@ void BikeController::updateModel(long double time)
 	}
 	case RESPAWN:
 	{
-		reset();
-		moveBikeToPosition(m_initialTransform);
-		m_currentState = DRIVING;
-		//std::static_pointer_cast<BikeModel>(m_model)->resetState();
-		//if (time > m_respawnTime)
-		//{
-		//	reset();
-		//	moveBikeToPosition(m_initialTransform);
-		//	m_currentState = WAITING;
-		//}
+		std::static_pointer_cast<BikeModel>(m_model)->freeze();
+		if (time > m_respawnTime)
+		{
+			reset();
+			moveBikeToPosition(m_initialTransform);
+			m_currentState = WAITING;
+		}
 		break;
 	}
 	case WAITING:
