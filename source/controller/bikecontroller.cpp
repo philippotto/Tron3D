@@ -73,7 +73,7 @@ void BikeController::registerCollision(btScalar impulse)
 
 float BikeController::increaseHealth(float diff)
 {
-	m_health += diff;
+	m_health = clamp(0,BIKE_DEFAULT_HEALTH,m_health + diff);
 	return m_health;
 }
 
@@ -308,9 +308,11 @@ void BikeController::updateModel(long double time)
 	case RESPAWN:
 	{
 		std::static_pointer_cast<BikeModel>(m_model)->freeze();
+		updateFov(0);
 		if (time > m_respawnTime)
 		{
-			reset();
+			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
+			//std::static_pointer_cast<BikeView>(m_view)->m_pat->setAttitude(attitude);
 			moveBikeToPosition(m_initialTransform);
 			m_currentState = WAITING;
 		}
@@ -318,7 +320,9 @@ void BikeController::updateModel(long double time)
 	}
 	case WAITING:
 	{
-		if (time > m_respawnTime + 2000)
+		reset();
+		updateFov(0);
+		if (time > m_respawnTime + 1000)
 		{
 			m_currentState = DRIVING;
 		}

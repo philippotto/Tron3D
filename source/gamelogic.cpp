@@ -184,7 +184,7 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 		//resetBike(bike);
 		//m_troenGame->pauseSimulation();
 		//restartLevel();
-		bike->setState(BikeController::BIKESTATE::RESPAWN, g_currentTime+3000);
+		bike->setState(BikeController::BIKESTATE::RESPAWN, g_currentTime + 2000);
 	}
 }
 
