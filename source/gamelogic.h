@@ -21,6 +21,13 @@ namespace troen
 			std::vector<std::shared_ptr<BikeController>> bikeControllers);
 
 		void attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld);
+		void step(const long double gameloopTime, const long double gameTime);
+
+		typedef enum enum_GAMESTATE {
+			GAME_START,
+			GAME_RUNNING,
+			GAME_OVER
+		} GAMESTATE;
 
 		// collision event functions
 		virtual void collisionEvent(btRigidBody* pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold);
@@ -49,5 +56,11 @@ namespace troen
 		std::shared_ptr<sound::AudioManager>m_audioManager;
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
         bool m_limitedFenceMode;
+		
+		GAMESTATE m_currentGameState;
+		long double m_gameStartTime;
+		void stepGameStart(const long double gameloopTime, const long double gameTime);
+		void stepGameRunning(const long double gameloopTime, const long double gameTime);
+		void stepGameOver(const long double gameloopTime, const long double gameTime);
 	};
 }

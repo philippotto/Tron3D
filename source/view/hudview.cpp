@@ -181,7 +181,7 @@ public:
         {
             if ( 0 == node.getNumParents() ) // no parents
             {
-                wcMatrix->set( osg::computeLocalToWorld(this->getNodePath()) );
+                wcMatrix->set( osg::computeLocalToWorld(this->getNodePath()));
                 done = true;
             }
             traverse(node);

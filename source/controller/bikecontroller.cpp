@@ -40,7 +40,7 @@ m_health(BIKE_DEFAULT_HEALTH),
 m_points(0),
 m_speed(0),
 m_timeOfLastCollision(-1),
-m_currentState(BIKESTATE::DRIVING),
+m_currentState(BIKESTATE::WAITING),
 m_respawnTime(-1),
 m_keyboardHandler(nullptr),
 m_pollingThread(nullptr)
@@ -311,29 +311,31 @@ void BikeController::updateModel(long double time)
 	{
 		std::static_pointer_cast<BikeModel>(m_model)->freeze();
 		updateFov(0);
-		if (time > m_respawnTime + 2000)
+		if (time > m_respawnTime + RESPAWN_DURATION*2.f/3.f)
 		{
 			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
 			//std::static_pointer_cast<BikeView>(m_view)->m_pat->setAttitude(attitude);
 			moveBikeToPosition(m_initialTransform);
-			m_currentState = WAITING;
+			m_currentState = RESPAWN_PART_2;
 		}
 		break;
 	}
-	case WAITING:
+	case RESPAWN_PART_2:
 	{
 		reset();
 		updateFov(0);
-		if (time > m_respawnTime + 3000)
+		if (time > m_respawnTime + RESPAWN_DURATION)
 		{
 			m_currentState = DRIVING;
 		}
 		break;
 	}
+	case WAITING_FOR_GAMESTART:
+	case WAITING:
+		break;
 	default:
 		break;
 	}
-
 
 	// turbo should be only applied in one frame
 	if (m_turboInitiated)

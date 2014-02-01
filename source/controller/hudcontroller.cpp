@@ -22,7 +22,7 @@ void HUDController::attachSceneToRadarCamera(osg::Group* scene)
 	std::static_pointer_cast<HUDView>(m_view)->attachSceneToRadarCamera(scene);
 }
 
-void HUDController::update(double currentTime)
+void HUDController::update(const long double currentGameloopTime, const long double currentGameTime)
 {
 	float speed = m_bikeController.lock()->getSpeed();
 	std::static_pointer_cast<HUDView>(m_view)->setSpeedText(speed);
@@ -35,15 +35,21 @@ void HUDController::update(double currentTime)
 	std::static_pointer_cast<HUDView>(m_view)->setPointsText(points);
 
 	BikeController::BIKESTATE state = m_bikeController.lock()->getState();
-	if (state == BikeController::BIKESTATE::RESPAWN || state == BikeController::BIKESTATE::WAITING)
+	if (state == BikeController::BIKESTATE::RESPAWN || state == BikeController::BIKESTATE::RESPAWN_PART_2)
 	{
 		double respawnTime = m_bikeController.lock()->getRespawnTime();
-		std::static_pointer_cast<HUDView>(m_view)->setCountdownText((int)(respawnTime - currentTime + 3000)/1000 + 1);
+		std::static_pointer_cast<HUDView>(m_view)->setCountdownText((int)(respawnTime - currentGameTime + RESPAWN_DURATION) / 1000 + 1);
+	}
+	else if (state == BikeController::BIKESTATE::WAITING_FOR_GAMESTART)
+	{
+		double respawnTime = m_bikeController.lock()->getRespawnTime();
+		std::static_pointer_cast<HUDView>(m_view)->setCountdownText((int)(respawnTime - currentGameloopTime + GAME_START_COUNTDOWN_DURATION) / 1000 + 1);
 	}
 	else
 	{
 		std::static_pointer_cast<HUDView>(m_view)->setCountdownText(-1);
 	}
+
 }
 
 void HUDController::setTrackNode(osg::Node* trackNode)

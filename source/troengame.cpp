@@ -438,11 +438,8 @@ bool TroenGame::initializePhysicsWorld()
 
 	// attach world
 	for (auto bikeController : m_bikeControllers)
-	{
 		bikeController->attachWorld(m_physicsWorld);
-	}
 	m_levelController->attachWorld(m_physicsWorld);
-
 
 	m_gameLogic->attachPhysicsWorld(m_physicsWorld);
 	return true;
@@ -476,81 +473,64 @@ void TroenGame::startGameLoop()
 	bool nearPlaneAdapted = false;
 
 	// GAME LOOP
+	// - AI
+	// - network
+	// - checkForUserInput and updateModels 
+	// - physics + updateViews
+	// - render;
+
 	// terminates when first viewer is closed
 	while (!m_viewers[0]->done())
 	{
-		long double currTime = m_gameTimer->elapsed();
-		g_currentTime = currTime;
-		std::cout << currTime << std::endl;
+		long double currGameloopTime = m_gameloopTimer->elapsed();
+		long double currGameTime = m_gameTimer->elapsed();
+		g_currentTime = currGameTime;
 
 		// are we significantly behind? if yes, "resync", force rendering
-		if ((currTime - nextTime) > maxMillisecondsBetweenFrames)
-			nextTime = currTime;
+		if ((currGameloopTime - nextTime) > maxMillisecondsBetweenFrames)
+			nextTime = currGameloopTime;
 		// is it time to render the next frame?
-		if (m_testPerformance || currTime >= nextTime)
+		if (m_testPerformance || currGameloopTime >= nextTime)
 		{
-			//std::cout << "difference: " << currTime - nextTime << std::endl;
 			// assign the time for the next update
 			nextTime += minMillisecondsBetweenFrames;
 
 			// LOOP REALLY STARTS HERE:
-			/* FROM GameProg Info session:
-			runAI()
-			// (network / multiplayer)
-			updateModels() and checkForUserInput()
-			stepSimulation() (Physics) + updateViews()
-			//render();*/
-			if (!m_gameTimer->paused())
+			m_gameLogic->step(currGameloopTime, currGameTime);
+			if (!m_gameTimer->paused()) 
 			{
 				for (auto bikeController : m_bikeControllers)
-				{
-					bikeController->updateModel(currTime);
-				}
-				m_physicsWorld->stepSimulation(currTime);
+					bikeController->updateModel(currGameTime);
+				m_physicsWorld->stepSimulation(currGameTime);
 			}
 
-			m_audioManager->Update(currTime / 1000);
+			m_audioManager->Update(currGameloopTime / 1000);
 			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
-
-			if (m_postProcessing)
-				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
+			if (m_postProcessing) m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
-			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
+			if (currGameloopTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
 				for (int i = 0; i < m_viewers.size(); i++)
-					m_HUDControllers[i]->update(currTime);
-
-				for (auto viewer : m_viewers) {
+					m_HUDControllers[i]->update(currGameloopTime, currGameTime);
+				for (auto viewer : m_viewers)
 					viewer->frame();
-				}
-
-				if (!nearPlaneAdapted) {
-					// TODO: find a way to eleminate this workaround
-					// doesn't work if it's executed earlier
-					for (auto gameView : m_gameViews) {
+				// TODO: find a way to eleminate this workaround
+				// doesn't work if it's executed earlier
+				if (!nearPlaneAdapted)
+					for (auto gameView : m_gameViews)
 						fixCulling(gameView);
-					}
-				}
-
 				skippedFrames = 0;
 			}
 			else
-			{
 				skippedFrames++;
-			}
 		}
 		else // WAIT
 		{
 			// calculate the time to sleep
-			long double sleepTime = (nextTime - currTime);
-			// sanity check
-			if (sleepTime > 0)
-			{
-				// sleep until nextTime
-				//std::cout << "sleep for: " << sleepTime << std::endl;
+			long double sleepTime = (nextTime - currGameloopTime);
+			if (sleepTime > 0)	// sanity check, sleep until nextTime
 				if (!m_testPerformance) m_gameThread->msleep(sleepTime);
-			}
 		}
 	}
 
@@ -565,6 +545,7 @@ bool TroenGame::shutdown()
 	//timer
 	m_gameloopTimer.reset();
 	m_gameTimer.reset();
+	
 	//input
 
 	// physics & gamelogic
@@ -576,7 +557,6 @@ bool TroenGame::shutdown()
 	for (auto gameView : m_gameViews)
 		gameView = nullptr;
 	m_gameViews.clear();
-
 	m_statsHandler = nullptr;
 
 	// models & scenegraph
@@ -588,7 +568,6 @@ bool TroenGame::shutdown()
 	// TODO: is this still necessary if we clear the vector?
 	for (auto hudController : m_HUDControllers)
 		hudController.reset();
-
 	m_HUDControllers.clear();
 
 	m_playerNodes.clear();

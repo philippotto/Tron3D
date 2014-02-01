@@ -27,6 +27,8 @@ namespace troen
 		{
 			DRIVING,
 			RESPAWN,
+			RESPAWN_PART_2,
+			WAITING_FOR_GAMESTART,
 			WAITING
 		} BIKESTATE;
 

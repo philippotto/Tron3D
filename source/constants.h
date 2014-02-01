@@ -23,6 +23,10 @@ namespace troen
 	extern const float FOVY_ADDITION_MAX;
 	extern const float FOVY_DELTA_MAX;
 
+	// LOGIC
+	extern const double RESPAWN_DURATION;
+	extern const double GAME_START_COUNTDOWN_DURATION;
+
 	//PHYSIS
 	extern const btVector3 DEFAULT_GRAVITY;
 

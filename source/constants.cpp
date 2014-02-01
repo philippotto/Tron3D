@@ -20,6 +20,10 @@ namespace troen
 	
 	const int NUM_MULTISAMPLES(8);
 
+	// LOGIC
+	const double RESPAWN_DURATION(5000);
+	const double GAME_START_COUNTDOWN_DURATION(6000);
+
 	//PHYSIS
 	const btVector3 DEFAULT_GRAVITY(0,0,-98);
 

@@ -28,12 +28,61 @@ m_levelController(levelController),
 m_bikeControllers(bikeControllers),
 m_troenGame(game),
 m_limitedFenceMode(true),
-m_audioManager(audioManager)
+m_audioManager(audioManager),
+m_currentGameState(GAMESTATE::GAME_START),
+m_gameStartTime(-1)
 {}
 
 void GameLogic::attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld)
 {
 	m_physicsWorld = physicsWorld;
+}
+
+void GameLogic::step(const long double gameloopTime, const long double gameTime)
+{
+	switch (m_currentGameState)
+	{
+	case GAME_START:
+		stepGameStart(gameloopTime, gameTime);
+		break;
+	case GAME_RUNNING:
+		stepGameRunning(gameloopTime, gameTime);
+		break;
+	case GAME_OVER:
+		stepGameOver(gameloopTime, gameTime);
+		break;
+	default:
+		break;
+	}
+}
+
+void GameLogic::stepGameStart(const long double gameloopTime, const long double gameTime)
+{
+	if (m_gameStartTime == -1)
+	{
+		m_gameStartTime = gameloopTime + GAME_START_COUNTDOWN_DURATION;
+		for (auto bikeController : m_bikeControllers)
+			bikeController->setState(BikeController::BIKESTATE::WAITING_FOR_GAMESTART,gameloopTime);
+	}
+
+	if (gameloopTime > m_gameStartTime)
+	{
+		for (auto bikeController : m_bikeControllers)
+			bikeController->setState(BikeController::BIKESTATE::DRIVING);
+		m_currentGameState = GAMESTATE::GAME_RUNNING;
+		m_gameStartTime = -1;
+		m_troenGame->unpauseSimulation();
+	}
+}
+
+void GameLogic::stepGameRunning(const long double gameloopTime, const long double gameTime)
+{
+	;
+}
+
+void GameLogic::stepGameOver(const long double gameloopTime, const long double gameTime)
+{
+	;
 }
 
 
