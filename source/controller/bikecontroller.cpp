@@ -291,6 +291,9 @@ float BikeController::getTurboInitiation()
 
 void BikeController::setState(BIKESTATE newState, double respawnTime /*=-1*/)
 {
+	if (m_currentState == newState)
+		return;
+
 	m_currentState = newState;
 	m_respawnTime = respawnTime;
 }
