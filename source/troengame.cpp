@@ -40,7 +40,6 @@ extern long double g_currentTime;
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
-m_simulationPaused(true),
 m_numberOfBikes(0),
 m_splitscreen(false),
 m_fullscreen(false),
@@ -68,7 +67,7 @@ void TroenGame::switchSoundVolumeEvent()
 
 void TroenGame::pauseEvent()
 {
-	if (!m_simulationPaused)
+	if (!m_gameTimer->paused())
 		pauseSimulation();
 	else
 		unpauseSimulation();
@@ -76,13 +75,11 @@ void TroenGame::pauseEvent()
 
 void TroenGame::pauseSimulation()
 {
-	m_simulationPaused = true;
 	m_gameTimer->pause();
 }
 
 void TroenGame::unpauseSimulation()
 {
-	m_simulationPaused = false;
 	m_gameTimer->start();
 }
 
@@ -192,6 +189,11 @@ bool TroenGame::initializeSound()
 	m_audioManager->LoadSong("data/sound/theGameHasChanged.mp3");
 	m_audioManager->LoadEngineSound();
 	m_audioManager->SetSongsVolume(0.5);
+
+	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
+	m_audioManager->PlayEngineSound();
+	m_audioManager->SetMasterVolume(0.f);
+
 	return true;
 }
 
@@ -458,10 +460,6 @@ void TroenGame::startGameLoop()
 	m_gameTimer->start();
 	m_gameTimer->pause();
 
-	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
-	m_audioManager->PlayEngineSound();
-	m_audioManager->SetMasterVolume(0.f);
-
 	if (m_useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 
@@ -502,7 +500,7 @@ void TroenGame::startGameLoop()
 			updateModels() and checkForUserInput()
 			stepSimulation() (Physics) + updateViews()
 			//render();*/
-			if (!m_simulationPaused)
+			if (!m_gameTimer->paused())
 			{
 				for (auto bikeController : m_bikeControllers)
 				{

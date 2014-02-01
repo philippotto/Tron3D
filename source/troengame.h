@@ -109,8 +109,6 @@ namespace troen
 
 		ResourcePool m_resourcePool;
 
-		bool m_simulationPaused;
-
 		// Startup Options
 		int m_numberOfBikes;
 		bool m_splitscreen;
