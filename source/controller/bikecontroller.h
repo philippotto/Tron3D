@@ -41,7 +41,7 @@ namespace troen
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
 
 		void setState(const BIKESTATE newState, const double respawnTime = -1);
-		void updateModel(const long double time);
+		void updateModel(const long double gameTime);
 		void updateUniforms();
 
 		// getters
@@ -97,7 +97,7 @@ namespace troen
 		float m_timeOfLastCollision;
 		double m_respawnTime;
 		bool m_fenceLimitActivated;
-		BIKESTATE m_currentState;
+		BIKESTATE m_state;
 		
 		
 		bool m_hasGameView = false;

@@ -67,7 +67,9 @@ void TroenGame::switchSoundVolumeEvent()
 
 void TroenGame::pauseEvent()
 {
-	if (!m_gameTimer->paused())
+	if (m_gameLogic->getGameState() == GameLogic::GAMESTATE::GAME_START)
+		return;
+	else if (!m_gameTimer->paused())
 		pauseSimulation();
 	else
 		unpauseSimulation();

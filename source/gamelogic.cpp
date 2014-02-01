@@ -29,7 +29,7 @@ m_bikeControllers(bikeControllers),
 m_troenGame(game),
 m_limitedFenceMode(true),
 m_audioManager(audioManager),
-m_currentGameState(GAMESTATE::GAME_START),
+m_gameState(GAMESTATE::GAME_START),
 m_gameStartTime(-1)
 {}
 
@@ -40,7 +40,7 @@ void GameLogic::attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld)
 
 void GameLogic::step(const long double gameloopTime, const long double gameTime)
 {
-	switch (m_currentGameState)
+	switch (m_gameState)
 	{
 	case GAME_START:
 		stepGameStart(gameloopTime, gameTime);
@@ -69,7 +69,7 @@ void GameLogic::stepGameStart(const long double gameloopTime, const long double 
 	{
 		for (auto bikeController : m_bikeControllers)
 			bikeController->setState(BikeController::BIKESTATE::DRIVING);
-		m_currentGameState = GAMESTATE::GAME_RUNNING;
+		m_gameState = GAMESTATE::GAME_RUNNING;
 		m_gameStartTime = -1;
 		m_troenGame->unpauseSimulation();
 	}

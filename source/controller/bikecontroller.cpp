@@ -40,7 +40,7 @@ m_health(BIKE_DEFAULT_HEALTH),
 m_points(0),
 m_speed(0),
 m_timeOfLastCollision(-1),
-m_currentState(BIKESTATE::WAITING),
+m_state(BIKESTATE::WAITING),
 m_respawnTime(-1),
 m_keyboardHandler(nullptr),
 m_pollingThread(nullptr)
@@ -291,35 +291,46 @@ float BikeController::getTurboInitiation()
 
 void BikeController::setState(BIKESTATE newState, double respawnTime /*=-1*/)
 {
-	if (m_currentState == newState)
+	if (m_state == newState)
 		return;
 
-	m_currentState = newState;
+	m_state = newState;
 	m_respawnTime = respawnTime;
 }
 
-
-void BikeController::updateModel(long double time)
+BikeController::BIKESTATE BikeController::getState()
 {
-	switch (m_currentState)
+	return m_state;
+}
+
+double BikeController::getRespawnTime()
+{
+	return m_respawnTime;
+}
+
+void BikeController::updateModel(const long double gameTime)
+{
+	switch (m_state)
 	{
 	case DRIVING:
 	{
-		double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
+		double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(gameTime);
 		increasePoints(speed / 1000);
 		updateFov(speed);
+		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": DRIVING" << std::endl;
 		break;
 	}
 	case RESPAWN:
 	{
 		std::static_pointer_cast<BikeModel>(m_model)->freeze();
 		updateFov(0);
-		if (time > m_respawnTime + RESPAWN_DURATION*2.f/3.f)
+		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN" << std::endl;
+		if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
 		{
 			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
 			//std::static_pointer_cast<BikeView>(m_view)->m_pat->setAttitude(attitude);
 			moveBikeToPosition(m_initialTransform);
-			m_currentState = RESPAWN_PART_2;
+			m_state = RESPAWN_PART_2;
 		}
 		break;
 	}
@@ -327,9 +338,11 @@ void BikeController::updateModel(long double time)
 	{
 		reset();
 		updateFov(0);
-		if (time > m_respawnTime + RESPAWN_DURATION)
+		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN_PART_2" << std::endl;
+		if (gameTime > m_respawnTime + RESPAWN_DURATION)
 		{
-			m_currentState = DRIVING;
+			//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": start Driving" << std::endl;
+			m_state = DRIVING;
 		}
 		break;
 	}
@@ -350,7 +363,6 @@ void BikeController::updateModel(long double time)
 	}
 
 	updateUniforms();
-
 }
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
@@ -422,14 +434,4 @@ void BikeController::updateFov(double speed)
 		float currentFovy = getFovy();
 		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 	}
-}
-
-BikeController::BIKESTATE BikeController::getState()
-{
-	return m_currentState;
-}
-
-double BikeController::getRespawnTime()
-{
-	return m_respawnTime;
 }

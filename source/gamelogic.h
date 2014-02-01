@@ -29,6 +29,8 @@ namespace troen
 			GAME_OVER
 		} GAMESTATE;
 
+		inline GAMESTATE getGameState() { return m_gameState; };
+
 		// collision event functions
 		virtual void collisionEvent(btRigidBody* pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold);
 		virtual void separationEvent(btRigidBody * pBody0, btRigidBody * pBody1);
@@ -57,7 +59,7 @@ namespace troen
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
         bool m_limitedFenceMode;
 		
-		GAMESTATE m_currentGameState;
+		GAMESTATE m_gameState;
 		long double m_gameStartTime;
 		void stepGameStart(const long double gameloopTime, const long double gameTime);
 		void stepGameRunning(const long double gameloopTime, const long double gameTime);
