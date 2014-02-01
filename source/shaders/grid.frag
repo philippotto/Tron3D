@@ -32,7 +32,7 @@ void main()
 	vec4 vClipReflection = gl_ModelViewProjectionMatrix * vec4(vertex_objCoords.xy, 10.0 , 1.0);
 	vec2 vDeviceReflection = vClipReflection.xy / vClipReflection.w;
 	vec2 vTextureReflection = vec2(0.5) + 0.5 * vDeviceReflection;
-	vec4 reflected_height = texture(reflectionAttrib,vTextureReflection).b;
+	vec4 reflected_height = vec4(texture(reflectionAttrib,vTextureReflection).b);
 	vec4 scene_reflection = mix(texture(reflectionTex, vTextureReflection), vec4(0.0), reflected_height);
 	
 	float xy_dist = length(v_eye) / 400.0;
