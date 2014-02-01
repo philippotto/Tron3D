@@ -59,7 +59,7 @@ namespace troen
 		bool initializeControllers();
 		bool initializeInput();
 		bool composeSceneGraph();
-		bool initializeTimer();
+		bool initializeTimers();
 		bool initializeShaders();
 		bool initializeGameLogic();
 		bool initializePhysicsWorld();
@@ -89,8 +89,6 @@ namespace troen
 		osg::ref_ptr<osg::Group>			m_sceneNode;
 		osg::ref_ptr<osg::LightSource>		m_sunLightSource;
 		
-
-
 		// Controllers
 		std::shared_ptr<LevelController>	m_levelController;
 		std::vector<std::shared_ptr<BikeController>> m_bikeControllers;
@@ -99,7 +97,8 @@ namespace troen
 		std::vector<osg::ref_ptr<osg::Group>> m_playerNodes;
 		
 		QThread*							m_gameThread;
-		std::shared_ptr<util::ChronoTimer>	m_timer;
+		std::shared_ptr<util::ChronoTimer>	m_gameloopTimer;
+		std::shared_ptr<util::ChronoTimer>	m_gameTimer;
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 		std::shared_ptr<GameLogic>			m_gameLogic;
 		std::shared_ptr<sound::AudioManager> m_audioManager;

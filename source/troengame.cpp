@@ -55,8 +55,6 @@ m_useReflection(false)
 	}
 	moveToThread(m_gameThread);
 	m_gameThread->start(QThread::HighestPriority);
-
-
 }
 
 TroenGame::~TroenGame()
@@ -70,17 +68,22 @@ void TroenGame::switchSoundVolumeEvent()
 
 void TroenGame::pauseEvent()
 {
-	m_simulationPaused = !m_simulationPaused;
+	if (!m_simulationPaused)
+		pauseSimulation();
+	else
+		unpauseSimulation();
 }
 
 void TroenGame::pauseSimulation()
 {
 	m_simulationPaused = true;
+	m_gameTimer->pause();
 }
 
 void TroenGame::unpauseSimulation()
 {
 	m_simulationPaused = false;
+	m_gameTimer->start();
 }
 
 void TroenGame::resize(int width, int height){
@@ -127,14 +130,13 @@ bool TroenGame::initialize()
 {
 	m_rootNode = new osg::Group;
 
-
 	// careful about the order of initialization
 	osg::DisplaySettings::instance()->setNumMultiSamples(NUM_MULTISAMPLES);
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 
 	std::cout << "[TroenGame::initialize] timer ..." << std::endl;
-	initializeTimer();
+	initializeTimers();
 
 	std::cout << "[TroenGame::initialize] shaders ..." << std::endl;
 	initializeShaders();
@@ -158,8 +160,6 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] postprocessing & scenegraph ..." << std::endl;
 	composeSceneGraph();
 
-
-
 	std::cout << "[TroenGame::initialize] input ..." << std::endl;
 	initializeInput();
 
@@ -172,9 +172,10 @@ bool TroenGame::initialize()
 	return true;
 }
 
-bool TroenGame::initializeTimer()
+bool TroenGame::initializeTimers()
 {
-	m_timer = std::make_shared<util::ChronoTimer>(false, true);
+	m_gameloopTimer = std::make_shared<util::ChronoTimer>(false, true);
+	m_gameTimer = std::make_shared<util::ChronoTimer>(false, true);
 	return true;
 }
 
@@ -453,11 +454,12 @@ void TroenGame::startGameLoop()
 	// INITIALIZATION
 	initialize();
 
-	m_timer->start();
+	m_gameloopTimer->start();
+	m_gameTimer->start();
+	m_gameTimer->pause();
 
 	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
 	m_audioManager->PlayEngineSound();
-
 	m_audioManager->SetMasterVolume(0.f);
 
 	if (m_useDebugView)
@@ -467,7 +469,7 @@ void TroenGame::startGameLoop()
 	m_levelController->addItemBox(itemBoxVector);
 
 	// GAME LOOP VARIABLES
-	long double nextTime = m_timer->elapsed();
+	long double nextTime = m_gameloopTimer->elapsed();
 	const double minMillisecondsBetweenFrames = 16.7; // vSync to 60 fps
 	const double maxMillisecondsBetweenFrames = 4 * minMillisecondsBetweenFrames + 1;
 	int skippedFrames = 0;
@@ -479,8 +481,9 @@ void TroenGame::startGameLoop()
 	// terminates when first viewer is closed
 	while (!m_viewers[0]->done())
 	{
-		long double currTime = m_timer->elapsed();
+		long double currTime = m_gameTimer->elapsed();
 		g_currentTime = currTime;
+		std::cout << currTime << std::endl;
 
 		// are we significantly behind? if yes, "resync", force rendering
 		if ((currTime - nextTime) > maxMillisecondsBetweenFrames)
@@ -562,7 +565,8 @@ bool TroenGame::shutdown()
 	// clean up in reverse order from initialization
 
 	//timer
-	m_timer.reset();
+	m_gameloopTimer.reset();
+	m_gameTimer.reset();
 	//input
 
 	// physics & gamelogic
