@@ -23,12 +23,12 @@ using namespace troen;
 
 HUDView::HUDView(const osg::Vec4 playerColor) :
 AbstractView(),
-m_trackNode(nullptr),
-m_playerColor(playerColor),
-m_speedText(new osgText::Text()),
 m_healthText(new osgText::Text()),
+m_speedText(new osgText::Text()),
 m_pointsText(new osgText::Text()),
-m_countdownText(new osgText::Text())
+m_countdownText(new osgText::Text()),
+m_trackNode(nullptr),
+m_playerColor(playerColor)
 {
 	m_node->addChild(createHUD());
 	m_node->addChild(createRadar());

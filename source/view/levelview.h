@@ -14,7 +14,7 @@ namespace troen
 	class LevelView : public AbstractView
 	{
 	public:
-		LevelView(std::shared_ptr<LevelModel>& model);
+		LevelView(std::shared_ptr<LevelModel> model);
 		osg::ref_ptr<osg::Group> getFloor();
 
 		void addItemBox(osg::Vec3 position);

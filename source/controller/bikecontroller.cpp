@@ -32,18 +32,19 @@ BikeController::BikeController(
 	ResourcePool *m_resourcePool,
 	bool hasGameView) :
 AbstractController(),
-m_initialTransform(initialTransform),
-m_hasGameView(hasGameView),
-m_turboInitiated(false),
+m_keyboardHandler(nullptr),
+m_pollingThread(nullptr),
 m_playerColor(playerColor),
+m_initialTransform(initialTransform),
 m_health(BIKE_DEFAULT_HEALTH),
 m_points(0),
 m_speed(0),
+m_turboInitiated(false),
 m_timeOfLastCollision(-1),
-m_state(BIKESTATE::WAITING),
 m_respawnTime(-1),
-m_keyboardHandler(nullptr),
-m_pollingThread(nullptr)
+m_fenceLimitActivated(true),
+m_state(BIKESTATE::WAITING),
+m_hasGameView(hasGameView)
 {
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
 

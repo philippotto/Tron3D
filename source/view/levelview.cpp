@@ -23,7 +23,7 @@
 using namespace troen;
 
 
-LevelView::LevelView(std::shared_ptr<LevelModel>& model) :
+LevelView::LevelView(std::shared_ptr<LevelModel> model) :
 AbstractView()
 {
 	m_model = model;
