@@ -14,17 +14,28 @@ namespace troen
 			center = centerVec;
 			dimensions = dimensionsVec;
 			rotation = btQuaternion(0, 0, 0, 1);
+			name = "default";
+
 		};
 
 		BoxModel(btVector3 centerVec, btVector3 dimensionsVec, btQuaternion rotationQuat) {
 			center = centerVec;
 			dimensions = dimensionsVec;
 			rotation = rotationQuat;
+			name = "default";
+		}
+
+		BoxModel(btVector3 centerVec, btVector3 dimensionsVec, btQuaternion rotationQuat, std::string modelName) {
+			center = centerVec;
+			dimensions = dimensionsVec;
+			rotation = rotationQuat;
+			name = modelName;
 		}
 
 		btVector3 center;
 		btVector3 dimensions;
 		btQuaternion rotation;
+		std::string name;
 	};
 
 	

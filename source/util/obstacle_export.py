@@ -13,9 +13,17 @@ class LevelExporter():
 	def __init__(self):
 		# obstacle has to be named Cube_XXX to be registered as an obstacle
 		self.obstacles = []
-		for object in bpy.data.scenes['Scene'].objects:
+		for object in bpy.context.selected_objects:
 			if object.name.startswith("Cube"):
 				self.obstacles.append(object)
+				bpy.context.scene.objects.active = object
+				#bpy.ops.mesh.uv_texture_add()
+				if len(object.data.uv_textures) == 0:
+					bpy.ops.mesh.uv_texture_add()
+				object.scale.z = abs(object.scale.z)
+				object.scale.y = abs(object.scale.y)
+				object.scale.x = abs(object.scale.x)
+	
 	
 		#with open(VIEW_PATH,"w") as output_file:
 		#	output_file.write(self.levelView_template().format(auto_gen_code=self.get_view_autogen()))
@@ -39,7 +47,8 @@ class LevelExporter():
 														  quat_x=str(obstacle.rotation_quaternion.x),
 														  quat_y=str(obstacle.rotation_quaternion.y),
 														  quat_z=str(obstacle.rotation_quaternion.z),
-														  quat_w=str(obstacle.rotation_quaternion.w) )
+														  quat_w=str(obstacle.rotation_quaternion.w),
+                                                          name=str(obstacle.name))
 			if ob_index < len(self.obstacles) -1:
 				auto_gen_code += ",\n"
 		return auto_gen_code
@@ -49,7 +58,8 @@ class LevelExporter():
 			{{
 				btVector3({pos_x}, {pos_y},{pos_z}),
 				btVector3({length_x}, {length_y}, {length_z}),
-				btQuaternion({quat_x},{quat_y},{quat_z},{quat_w})
+				btQuaternion({quat_x},{quat_y},{quat_z},{quat_w}),
+                std::string("{name}")
 			}}"""
 
 
