@@ -158,9 +158,11 @@ void HUDView::resizeHudComponents(const int width, const int height)
 	m_countdownText->setCharacterSize(height / 3);
 	m_timeText->setCharacterSize(height / 8);
 	
-	for (size_t i = 0; i < 6; i++)
+	const int textNum = sizeof(m_deathCountTexts) / sizeof(m_deathCountTexts[0]);
+	for (size_t i = 0; i < textNum; i++)
 	{
-		m_deathCountTexts[i]->setCharacterSize(height / 15);
+		if (m_deathCountTexts[i].valid())
+			m_deathCountTexts[i]->setCharacterSize(height / 15);
 	}
 }
 

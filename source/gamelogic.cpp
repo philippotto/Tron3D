@@ -79,7 +79,7 @@ void GameLogic::stepGameStart(const long double gameloopTime, const long double 
 
 void GameLogic::stepGameRunning(const long double gameloopTime, const long double gameTime)
 {
-	if (gameTime >= m_timeLimit)
+	if (gameTime >= m_timeLimit && m_timeLimit != 0)
 	{
 		m_gameState = GAMESTATE::GAME_OVER;
 		m_troenGame->pauseSimulation();
