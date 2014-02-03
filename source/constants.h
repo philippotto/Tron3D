@@ -10,7 +10,6 @@
 namespace troen
 {
 	// GENERAL
-	// extern const long double g_currentTime;
 
 	// GAME
 	extern const int DEFAULT_WINDOW_WIDTH;

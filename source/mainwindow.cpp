@@ -216,10 +216,7 @@ void MainWindow::prepareGameStart()
 	{
 		config.playerInputTypes[i] = m_playerComboBoxes.at(i)->currentIndex();
 		config.playerNames[i] = m_playerNameLineEdits[i]->text();
-	}
-	for (int j = 0; j < config.numberOfBikes; j++)
-	{
-		config.playerColors[j] = m_playerColors[j];
+		config.playerColors[i] = m_playerColors[i];
 	}
 	config.splitscreen = m_splitscreenCheckBox->isChecked();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();

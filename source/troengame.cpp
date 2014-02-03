@@ -110,14 +110,17 @@ void TroenGame::prepareAndStartGame(const GameConfig& config)
 	m_useReflection = config.reflection;
 
 	m_playerInputTypes.clear();
-	for (int i = 0; i < m_numberOfBikes; i++)
-		m_playerInputTypes.push_back(config.playerInputTypes[i]);
-
 	m_playerColors.clear();
-	for (int j = 0; j < m_numberOfBikes; j++)
+	for (int i = 0; i < m_numberOfBikes; i++)
 	{
-		osg::Vec3 col = osg::Vec3(config.playerColors[j].red(), config.playerColors[j].green(), config.playerColors[j].blue());
+		//input
+		m_playerInputTypes.push_back(config.playerInputTypes[i]);
+		//color
+		osg::Vec3 col = osg::Vec3(config.playerColors[i].red(), config.playerColors[i].green(), config.playerColors[i].blue());
 		m_playerColors.push_back(col);
+		//name
+		QString playerName = config.playerNames[i];
+		m_playerNames.push_back(playerName);
 	}
 
 	for (int i = 0; i < MAX_BIKES; i++) {
@@ -218,7 +221,7 @@ bool TroenGame::initializeControllers()
 			(input::BikeInputState::InputDevice)m_playerInputTypes[i],
 			m_levelController->getSpawnPointForBikeWithIndex(i),
 			m_playerColors[i],
-			"Player_" + std::to_string(i),
+			m_playerNames[i].toStdString(),
 			&m_resourcePool, m_ownView[i])
 			);
 	}
@@ -227,7 +230,7 @@ bool TroenGame::initializeControllers()
 		// only attach a HUD if a corresponding gameview exists
 		if (m_bikeControllers[i]->hasGameView())
 		{
-			m_HUDControllers.push_back(std::make_shared<HUDController>(m_bikeControllers[i], osg::Vec4(m_playerColors[i], 1)));
+			m_HUDControllers.push_back(std::make_shared<HUDController>(i,m_bikeControllers));
 		}
 	}
 

@@ -46,7 +46,7 @@ m_state(BIKESTATE::WAITING),
 m_hasGameView(hasGameView),
 m_killCount(0),
 m_deathCount(0),
-m_playerName("Default")
+m_playerName(playerName)
 {
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
 

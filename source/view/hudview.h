@@ -12,7 +12,7 @@ namespace troen
 	class HUDView : public AbstractView
 	{
 	public:
-		HUDView(const osg::Vec4 playerColor);
+		HUDView(const int i, const std::vector<std::shared_ptr<BikeController>>& bikeControllers);
 
 		// initialization
 		void attachSceneToRadarCamera(osg::Group* scene);
@@ -29,10 +29,10 @@ namespace troen
 		void setCountdownText(const int countdown);
 		void setCountdownText(const std::string text);
 		void setTimeText(const double gameTime, const int timeLimit);
-		void setDeathCountText(const int deathCount);
+		void setDeathCountText(const int i, const std::string& playerName, const int deathCount);
 
 	private:
-		osg::Camera* createHUD();
+		osg::Camera* createHUD(const std::vector<std::shared_ptr<BikeController>>& bikeControllers);
 		osg::Camera* createRadar();
 
 		void resizeHudComponents(const int width, const int height);
@@ -48,7 +48,7 @@ namespace troen
 		osg::ref_ptr<osgText::Text> m_pointsText;
 		osg::ref_ptr<osgText::Text> m_countdownText;
 		osg::ref_ptr<osgText::Text> m_timeText;
-		osg::ref_ptr<osgText::Text> m_deathCountText;
+		osg::ref_ptr<osgText::Text> m_deathCountTexts[6];
 
 		osg::Vec4 m_playerColor;
 	};

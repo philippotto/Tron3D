@@ -11,7 +11,7 @@ namespace troen
 	class HUDController : public AbstractController
 	{
 	public:
-		HUDController(std::shared_ptr<BikeController> bikeController, const osg::Vec4 playerColor);
+		HUDController(const int index, const std::vector<std::shared_ptr<BikeController>>& bikeController);
 		
 		void attachSceneToRadarCamera(osg::Group* scene);
 		void resize(const int width, const int height);

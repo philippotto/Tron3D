@@ -7,13 +7,13 @@
 
 using namespace troen;
 
-HUDController::HUDController(std::shared_ptr<BikeController> bikeController, const osg::Vec4 playerColor) : AbstractController()
+HUDController::HUDController(const int i, const std::vector<std::shared_ptr<BikeController>>& bikeControllers) : AbstractController()
 {
-	m_view = std::static_pointer_cast<HUDView>(std::make_shared<HUDView>(playerColor));
-	m_bikeController = bikeController;
+	m_view = std::static_pointer_cast<HUDView>(std::make_shared<HUDView>(i, bikeControllers));
+	m_bikeController = bikeControllers[i];
 }
 
-void HUDController::resize(int width, int height)
+void HUDController::resize(const int width, const int height)
 {
 	std::static_pointer_cast<HUDView>(m_view)->resize(width, height);
 }
@@ -62,7 +62,12 @@ void HUDController::update(
 	}
 
 	std::static_pointer_cast<HUDView>(m_view)->setTimeText(currentGameTime, timeLimit);
-	std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(bikeController->getDeathCount());
+
+	//std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(bikeController->getDeathCount());
+	for (int i = 0; i < bikeControllers.size(); i++)
+	{
+		std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(i,bikeControllers[i]->getPlayerName(),bikeControllers[i]->getDeathCount());
+	}
 }
 
 void HUDController::setTrackNode(osg::Node* trackNode)

@@ -68,6 +68,8 @@ namespace troen
 		float getPoints();
 		BIKESTATE getState();
 		double getRespawnTime();
+		osg::Vec3 getPlayerColor() { return m_playerColor; };
+		const std::string getPlayerName() { return m_playerName; };
 
 		float increaseHealth(const float diff);
 		float increasePoints(const float diff);
