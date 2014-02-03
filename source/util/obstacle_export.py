@@ -5,7 +5,7 @@ import bpy
 
 #please modify to your own path, for now
 VIEW_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\source\view\auto_levelview.cpp"
-MODEL_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\source\model\auto_levelmodel.cpp"
+MODEL_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\data\models\simple_level.obj"
 #scale blender units by
 SCALE = 10.0
 
@@ -30,6 +30,14 @@ class LevelExporter():
 
 		with open(MODEL_PATH,"w") as output_file:
 			output_file.write(self.levelModel_template().format(auto_gen_code=self.get_model_autogen()))
+
+		bpy.ops.export_scene.obj(filepath=MODEL_PATH, check_existing=False, filter_glob="*.obj;*.mtl", use_selection=True,
+		 use_animation=False, use_mesh_modifiers=True, use_edges=True,
+		  use_smooth_groups=False, use_normals=True, use_uvs=True,
+		   use_materials=True, use_triangles=True, use_nurbs=False, 
+		   use_vertex_groups=False, use_blen_objects=True, group_by_object=False,
+		    group_by_material=False, keep_vertex_order=False, axis_forward='-Z',
+		     axis_up='Y', global_scale=10.0, path_mode='AUTO')
 
 
 	def get_model_autogen(self):
