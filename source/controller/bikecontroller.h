@@ -16,11 +16,12 @@ namespace troen
 	{
 	public:
 		BikeController(
-			input::BikeInputState::InputDevice inputDevice,
-			btTransform initialPosition,
-			osg::Vec3 playerColor,
+			const input::BikeInputState::InputDevice& inputDevice,
+			const btTransform initialPosition,
+			const osg::Vec3 playerColor,
+			const std::string playerName,
 			ResourcePool *resourcePool,
-			bool hasGameView);
+			const bool hasGameView);
 		~BikeController();
 
 		typedef enum enum_BIKESTATE

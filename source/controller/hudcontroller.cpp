@@ -23,7 +23,12 @@ void HUDController::attachSceneToRadarCamera(osg::Group* scene)
 	std::static_pointer_cast<HUDView>(m_view)->attachSceneToRadarCamera(scene);
 }
 
-void HUDController::update(const long double currentGameloopTime, const long double currentGameTime, const int timeLimit, const GameLogic::GAMESTATE gameState)
+void HUDController::update(
+	const long double currentGameloopTime,
+	const long double currentGameTime,
+	const int timeLimit,
+	const GameLogic::GAMESTATE gameState,
+	const std::vector<std::shared_ptr<BikeController>>& bikeControllers)
 {
 	std::shared_ptr<BikeController> bikeController = m_bikeController.lock();
 	float speed = bikeController->getSpeed();

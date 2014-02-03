@@ -15,7 +15,12 @@ namespace troen
 		
 		void attachSceneToRadarCamera(osg::Group* scene);
 		void resize(const int width, const int height);
-		void update(const long double currentGameloopTime, const long double currentGameTime, const int timeLimit, const GameLogic::GAMESTATE gameState);
+		void update(
+			const long double currentGameloopTime,
+			const long double currentGameTime,
+			const int timeLimit,
+			const GameLogic::GAMESTATE gameState,
+			const std::vector<std::shared_ptr<BikeController>>& bikeControllers);
         
 		void setTrackNode(osg::Node* trackNode);
 		std::weak_ptr<BikeController> getBikeController();

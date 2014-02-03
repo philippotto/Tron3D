@@ -23,12 +23,11 @@
 
 using namespace troen;
 
-
-
 BikeController::BikeController(
-	input::BikeInputState::InputDevice inputDevice,
-	btTransform initialTransform,
-	osg::Vec3 playerColor,
+	const input::BikeInputState::InputDevice& inputDevice,
+	const btTransform initialTransform,
+	const osg::Vec3 playerColor,
+	const std::string playerName,
 	ResourcePool *m_resourcePool,
 	bool hasGameView) :
 AbstractController(),

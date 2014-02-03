@@ -148,7 +148,7 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] controllers (models & views) ..." << std::endl;
 	initializeSkyDome();
 	initializeControllers();
-	initializeLighting();
+	//initializeLighting();
 
 	std::cout << "[TroenGame::initialize] gameLogic ..." << std::endl;
 	initializeGameLogic();
@@ -214,17 +214,19 @@ bool TroenGame::initializeControllers()
 
 	for (int i = 0; i < m_numberOfBikes; i++)
 	{
-		m_bikeControllers.push_back(std::make_shared<BikeController>((
-			input::BikeInputState::InputDevice)m_playerInputTypes[i],
+		m_bikeControllers.push_back(std::make_shared<BikeController>(
+			(input::BikeInputState::InputDevice)m_playerInputTypes[i],
 			m_levelController->getSpawnPointForBikeWithIndex(i),
 			m_playerColors[i],
+			"Player_" + std::to_string(i),
 			&m_resourcePool, m_ownView[i])
 			);
 	}
 
 	for (int i = 0; i < m_bikeControllers.size(); i++) {
 		// only attach a HUD if a corresponding gameview exists
-		if (m_bikeControllers[i]->hasGameView()) {
+		if (m_bikeControllers[i]->hasGameView())
+		{
 			m_HUDControllers.push_back(std::make_shared<HUDController>(m_bikeControllers[i], osg::Vec4(m_playerColors[i], 1)));
 		}
 	}
@@ -517,7 +519,7 @@ void TroenGame::startGameLoop()
 			if (currGameloopTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
 				for (int i = 0; i < m_viewers.size(); i++)
-					m_HUDControllers[i]->update(currGameloopTime, currGameTime, m_timeLimit,m_gameLogic->getGameState());
+					m_HUDControllers[i]->update(currGameloopTime, currGameTime, m_timeLimit,m_gameLogic->getGameState(),m_bikeControllers);
 				for (auto viewer : m_viewers)
 					viewer->frame();
 				// TODO: find a way to eleminate this workaround

@@ -20,6 +20,7 @@ typedef struct s_GameConfig
 	int timeLimit;
 	int* playerInputTypes;
 	QColor* playerColors;
+	QString* playerNames;
 	bool splitscreen;
 	bool fullscreen;
 	bool usePostProcessing;

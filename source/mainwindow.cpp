@@ -8,6 +8,7 @@
 #include <QKeyEvent>
 #include <QCoreApplication>
 #include <QSignalMapper>
+#include <QLineEdit>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -75,9 +76,16 @@ MainWindow::MainWindow(QWidget * parent)
 		playerInputWidget->setLayout(playerInputLayout);
 		playerInputLayout->setMargin(1);
 
-		QString playerString = QString("Player ") + QString::number(i);
+		QString playerString = QString("Player_") + QString::number(i);
 		QLabel* playerInputLabel = new QLabel(playerString);
 		playerInputLayout->addWidget(playerInputLabel);
+
+		QLineEdit* playerNameLineEdit = new QLineEdit;
+		playerNameLineEdit->setText(playerString);
+		playerNameLineEdit->setMaximumWidth(75);
+		playerNameLineEdit->setMaxLength(10);
+		m_playerNameLineEdits.push_back(playerNameLineEdit);
+		playerInputLayout->addWidget(playerNameLineEdit);
 
 		QComboBox* playerComboBox = new QComboBox;
 		playerComboBox->addItem("Keyboard WASD");
@@ -203,9 +211,11 @@ void MainWindow::prepareGameStart()
 	config.timeLimit = m_timeLimitSpinBox->value();
 	config.playerInputTypes = new int[config.numberOfBikes];
 	config.playerColors = new QColor[config.numberOfBikes];
+	config.playerNames = new QString[config.numberOfBikes];
 	for (int i = 0; i < config.numberOfBikes; i++)
 	{
 		config.playerInputTypes[i] = m_playerComboBoxes.at(i)->currentIndex();
+		config.playerNames[i] = m_playerNameLineEdits[i]->text();
 	}
 	for (int j = 0; j < config.numberOfBikes; j++)
 	{
@@ -316,9 +326,15 @@ void MainWindow::loadSettings()
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
+		//name
+		QString playerName = settings.value("player" + QString::number(i) + "name").toString();
+		if (playerName.isEmpty()) playerName = QString("Player_") + QString::number(i);
+		m_playerNameLineEdits[i]->setText(playerName);
+		//input
 		int playerInput =
 			settings.value("player" + QString::number(i) + "input").toInt();
 		m_playerComboBoxes[i]->setCurrentIndex(playerInput);
+		//color
 		m_playerColors[i] =
 			settings.value("player" + QString::number(i) + "color").value<QColor>();
 		m_playerColors[i] = m_playerColors[i].value() == 0 ? initialColors[i] : m_playerColors[i];
@@ -343,6 +359,8 @@ void MainWindow::saveSettings()
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
+		settings.setValue("player" + QString::number(i) + "name",
+			m_playerNameLineEdits[i]->text());
 		settings.setValue("player" + QString::number(i) + "input",
 			m_playerComboBoxes[i]->currentIndex());
 		settings.setValue("player" + QString::number(i) + "color",

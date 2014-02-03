@@ -310,8 +310,8 @@ void HUDView::setTimeText(const double gameTime, const int timeLimit)
 	}
 	else
 	{
-		int minutes = timeLimit - 1 - floor((gameTime) / 1000 / 60);
-		int seconds = 60 - mod(floor((gameTime) / 1000), 60);
+		int minutes = timeLimit - ceil((gameTime) / 1000 / 60);
+		int seconds = 59 - mod(floor((gameTime) / 1000), 60);
 		//int milliSeconds = mod(time/10, 100);
 		std::string timeString = std::to_string(minutes) + ":" + std::to_string(seconds);// +":" + std::to_string(milliSeconds);
 		m_timeText->setText(timeString);
@@ -320,5 +320,5 @@ void HUDView::setTimeText(const double gameTime, const int timeLimit)
 
 void HUDView::setDeathCountText(const int deathCount)
 {
-	m_deathCountText->setText("Deaths:" + std::to_string(deathCount));
+	m_deathCountText->setText("Deaths: " + std::to_string(deathCount));
 }

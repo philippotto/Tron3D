@@ -50,6 +50,7 @@ namespace troen
 		QVector<QComboBox*>	m_playerComboBoxes;
 		QVector<QColor> m_playerColors;
 		QVector<QPushButton*> m_colorButtons;
+		QVector<QLineEdit*> m_playerNameLineEdits;
 		QCheckBox*		m_splitscreenCheckBox;
 		QCheckBox*		m_fullscreenCheckBox;
 		QCheckBox*		m_postProcessingCheckBox;
