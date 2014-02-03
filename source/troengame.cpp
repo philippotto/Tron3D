@@ -507,28 +507,17 @@ void TroenGame::startGameLoop()
 			if (!m_gameTimer->paused()) 
 			{
 				for (auto bikeController : m_bikeControllers)
-<<<<<<< HEAD
 				{
-					bikeController->updateModel(currTime);
-				}
-				m_physicsWorld->stepSimulation(currTime);
-				m_levelController->update();
-=======
 					bikeController->updateModel(currGameTime);
+				}
 				m_physicsWorld->stepSimulation(currGameTime);
->>>>>>> b4b4eefca4494329e0b86ff28a5616e2f414b935
+				m_levelController->update();
 			}
 
 			m_audioManager->Update(currGameloopTime / 1000);
 			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
-<<<<<<< HEAD
 
-
-			if (m_postProcessing)
-				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
-=======
 			if (m_postProcessing) m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
->>>>>>> b4b4eefca4494329e0b86ff28a5616e2f414b935
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (currGameloopTime < nextTime || (skippedFrames > maxSkippedFrames))
