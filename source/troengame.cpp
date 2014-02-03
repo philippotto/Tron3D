@@ -41,6 +41,7 @@ extern long double g_currentTime;
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
 m_numberOfBikes(0),
+m_timeLimit(0),
 m_splitscreen(false),
 m_fullscreen(false),
 m_usePostProcessing(false),
@@ -77,12 +78,12 @@ void TroenGame::pauseEvent()
 
 void TroenGame::pauseSimulation()
 {
-	m_gameTimer->pause();
+	if(!m_gameTimer->paused()) m_gameTimer->pause();
 }
 
 void TroenGame::unpauseSimulation()
 {
-	m_gameTimer->start();
+	if(m_gameTimer->paused()) m_gameTimer->start();
 }
 
 void TroenGame::resize(int width, int height){
@@ -97,9 +98,10 @@ void TroenGame::resize(int width, int height){
 }
 
 
-void TroenGame::prepareAndStartGame(GameConfig config)
+void TroenGame::prepareAndStartGame(const GameConfig& config)
 {
 	m_numberOfBikes = config.numberOfBikes;
+	m_timeLimit = config.timeLimit;
 	m_splitscreen = config.splitscreen;
 	m_fullscreen = config.fullscreen;
 	m_usePostProcessing = config.usePostProcessing;
@@ -245,7 +247,7 @@ bool TroenGame::initializeLighting()
 
 bool TroenGame::initializeGameLogic()
 {
-	m_gameLogic = std::make_shared<GameLogic>(this, m_audioManager, m_levelController, m_bikeControllers);
+	m_gameLogic = std::make_shared<GameLogic>(this, m_audioManager, m_levelController, m_bikeControllers, m_timeLimit);
 	return true;
 }
 
@@ -486,7 +488,8 @@ void TroenGame::startGameLoop()
 	{
 		long double currGameloopTime = m_gameloopTimer->elapsed();
 		long double currGameTime = m_gameTimer->elapsed();
-		g_currentTime = currGameTime;
+		g_gameTime = currGameTime;
+		g_gameLoopTime = currGameloopTime;
 
 		// are we significantly behind? if yes, "resync", force rendering
 		if ((currGameloopTime - nextTime) > maxMillisecondsBetweenFrames)
@@ -514,7 +517,7 @@ void TroenGame::startGameLoop()
 			if (currGameloopTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
 				for (int i = 0; i < m_viewers.size(); i++)
-					m_HUDControllers[i]->update(currGameloopTime, currGameTime);
+					m_HUDControllers[i]->update(currGameloopTime, currGameTime, m_timeLimit);
 				for (auto viewer : m_viewers)
 					viewer->frame();
 				// TODO: find a way to eleminate this workaround

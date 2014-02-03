@@ -18,7 +18,6 @@
 // troen
 #include "../constants.h"
 
-
 using namespace troen;
 
 HUDView::HUDView(const osg::Vec4 playerColor) :
@@ -27,6 +26,7 @@ m_healthText(new osgText::Text()),
 m_speedText(new osgText::Text()),
 m_pointsText(new osgText::Text()),
 m_countdownText(new osgText::Text()),
+m_timeText(new osgText::Text()),
 m_trackNode(nullptr),
 m_playerColor(playerColor)
 {
@@ -106,6 +106,17 @@ osg::Camera* HUDView::createHUD()
 			m_countdownText->setAlignment(osgText::Text::AlignmentType::CENTER_CENTER);
 			m_countdownText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
 			m_countdownText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 3);
+		}
+		{
+			geode->addDrawable(m_timeText);
+
+			m_timeText->setFont("fonts/arial.ttf");
+			m_timeText->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset, 0.f));
+			m_timeText->setColor(m_playerColor);
+			setTimeText(-1,-1);
+			m_timeText->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
+			m_timeText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+			m_timeText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
 		}
 		m_camera->addChild(geode);
 	}
@@ -258,5 +269,31 @@ void HUDView::setCountdownText(const int countdown)
 	{
 		std::string countdownString = std::to_string(countdown);
 		m_countdownText->setText(countdownString);
+	}
+}
+
+void HUDView::setTimeText(const double gameTime, const int timeLimit)
+{
+
+	if (gameTime <= 0)
+	{
+		m_timeText->setText("");
+	}
+	else if ((gameTime/60/1000) >= timeLimit)
+	{
+		//m_timeText->setText("0:00");
+		int minutes = abs(timeLimit - floor((gameTime) / 1000 / 60));
+		int seconds = mod(floor((gameTime) / 1000), 60);
+		//int milliSeconds = mod(time/10, 100);
+		std::string timeString = "-" + std::to_string(minutes) + ":" + std::to_string(seconds);// +":" + std::to_string(milliSeconds);
+		m_timeText->setText(timeString);
+	}
+	else
+	{
+		int minutes = timeLimit - 1 - floor((gameTime) / 1000 / 60);
+		int seconds = 60 - mod(floor((gameTime) / 1000), 60);
+		//int milliSeconds = mod(time/10, 100);
+		std::string timeString = std::to_string(minutes) + ":" + std::to_string(seconds);// +":" + std::to_string(milliSeconds);
+		m_timeText->setText(timeString);
 	}
 }

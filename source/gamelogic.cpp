@@ -23,13 +23,15 @@ GameLogic::GameLogic(
 	TroenGame* game,
 	std::shared_ptr<sound::AudioManager>& audioManager,
 	std::shared_ptr<LevelController> levelController,
-	std::vector<std::shared_ptr<BikeController>> bikeControllers) :
+	std::vector<std::shared_ptr<BikeController>> bikeControllers,
+	const int timeLimit):
 m_levelController(levelController),
 m_bikeControllers(bikeControllers),
 m_troenGame(game),
 m_limitedFenceMode(true),
 m_audioManager(audioManager),
 m_gameState(GAMESTATE::GAME_START),
+m_timeLimit(timeLimit*1000*60),
 m_gameStartTime(-1)
 {}
 
@@ -77,7 +79,11 @@ void GameLogic::stepGameStart(const long double gameloopTime, const long double 
 
 void GameLogic::stepGameRunning(const long double gameloopTime, const long double gameTime)
 {
-	;
+	if (gameTime >= m_timeLimit)
+	{
+		m_gameState = GAMESTATE::GAME_OVER;
+		m_troenGame->pauseSimulation();
+	}
 }
 
 void GameLogic::stepGameOver(const long double gameloopTime, const long double gameTime)
@@ -233,7 +239,7 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 		//resetBike(bike);
 		//m_troenGame->pauseSimulation();
 		//restartLevel();
-		bike->setState(BikeController::BIKESTATE::RESPAWN, g_currentTime);
+		bike->setState(BikeController::BIKESTATE::RESPAWN, g_gameTime);
 	}
 }
 

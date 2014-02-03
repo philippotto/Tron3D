@@ -17,6 +17,7 @@
 typedef struct s_GameConfig
 {
 	int numberOfBikes;
+	int timeLimit;
 	int* playerInputTypes;
 	QColor* playerColors;
 	bool splitscreen;
@@ -50,7 +51,7 @@ namespace troen
 		void resize(const int width,const int height);
 
 	public slots:
-		void prepareAndStartGame(const GameConfig config);
+		void prepareAndStartGame(const GameConfig& config);
 
 	private:
 		bool initialize();
@@ -111,6 +112,7 @@ namespace troen
 
 		// Startup Options
 		int m_numberOfBikes;
+		int m_timeLimit;
 		bool m_splitscreen;
 		bool m_fullscreen;
 		bool m_usePostProcessing;

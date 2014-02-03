@@ -22,7 +22,7 @@ void HUDController::attachSceneToRadarCamera(osg::Group* scene)
 	std::static_pointer_cast<HUDView>(m_view)->attachSceneToRadarCamera(scene);
 }
 
-void HUDController::update(const long double currentGameloopTime, const long double currentGameTime)
+void HUDController::update(const long double currentGameloopTime, const long double currentGameTime, const int timeLimit)
 {
 	float speed = m_bikeController.lock()->getSpeed();
 	std::static_pointer_cast<HUDView>(m_view)->setSpeedText(speed);
@@ -50,6 +50,7 @@ void HUDController::update(const long double currentGameloopTime, const long dou
 		std::static_pointer_cast<HUDView>(m_view)->setCountdownText(-1);
 	}
 
+	std::static_pointer_cast<HUDView>(m_view)->setTimeText(currentGameTime, timeLimit);
 }
 
 void HUDController::setTrackNode(osg::Node* trackNode)

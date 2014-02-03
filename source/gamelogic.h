@@ -18,7 +18,8 @@ namespace troen
 			TroenGame* game,
 			std::shared_ptr<sound::AudioManager>& audioManager,
 			std::shared_ptr<LevelController> levelController,
-			std::vector<std::shared_ptr<BikeController>> bikeControllers);
+			std::vector<std::shared_ptr<BikeController>> bikeControllers,
+			const int timeLimit = 5);
 
 		void attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld);
 		void step(const long double gameloopTime, const long double gameTime);
@@ -60,6 +61,7 @@ namespace troen
         bool m_limitedFenceMode;
 		
 		GAMESTATE m_gameState;
+		long double m_timeLimit;
 		long double m_gameStartTime;
 		void stepGameStart(const long double gameloopTime, const long double gameTime);
 		void stepGameRunning(const long double gameloopTime, const long double gameTime);

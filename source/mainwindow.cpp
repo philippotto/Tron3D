@@ -47,6 +47,24 @@ MainWindow::MainWindow(QWidget * parent)
 		vBoxLayout->addWidget(bikeNumberWidget);
 	}
 
+	// timeLimit
+	{
+		QWidget* timeLimitWidget = new QWidget;
+		QHBoxLayout* timeLimitLayout = new QHBoxLayout;
+		timeLimitWidget->setLayout(timeLimitLayout);
+
+		QLabel* timeLimitLabel = new QLabel("TimeLimit: ");
+		timeLimitLayout->addWidget(timeLimitLabel);
+
+		m_timeLimitSpinBox = new QSpinBox;
+		m_timeLimitSpinBox->setMinimum(0);
+		m_timeLimitSpinBox->setMaximum(10);
+		m_timeLimitSpinBox->setValue(0);
+		timeLimitLayout->addWidget(m_timeLimitSpinBox);
+
+		vBoxLayout->addWidget(timeLimitWidget);
+	}
+
 	QSignalMapper* signalMapper = new QSignalMapper(this);
 
 	// bikeInputs
@@ -146,7 +164,7 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(m_fullscreenCheckBox, SIGNAL(stateChanged(int)), this, SLOT(fullscreenToggled()));
 	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(bikeNumberChanged(int)));
 
-	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(GameConfig)));
+	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(const GameConfig&)));
 }
 
 MainWindow::~MainWindow()
@@ -182,6 +200,7 @@ void MainWindow::prepareGameStart()
 {
 	GameConfig config;
 	config.numberOfBikes = m_bikeNumberSpinBox->value();
+	config.timeLimit = m_timeLimitSpinBox->value();
 	config.playerInputTypes = new int[config.numberOfBikes];
 	config.playerColors = new QColor[config.numberOfBikes];
 	for (int i = 0; i < config.numberOfBikes; i++)
@@ -288,6 +307,7 @@ void MainWindow::loadSettings()
 		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) };
 
 	m_bikeNumberSpinBox->setValue(settings.value("bikeNumber").toInt());
+	m_timeLimitSpinBox->setValue(settings.value("timeLimit").toInt());
 	m_splitscreenCheckBox->setChecked(settings.value("splitscreen").toBool());
 	m_postProcessingCheckBox->setChecked(settings.value("postProcessing").toBool());
 	m_testPerformanceCheckBox->setChecked(settings.value("vSyncOff").toBool());
@@ -314,6 +334,7 @@ void MainWindow::saveSettings()
 	QSettings settings(m_settingsFileName, QSettings::IniFormat);
 
 	settings.setValue("bikeNumber", QString::number(m_bikeNumberSpinBox->value()));
+	settings.setValue("timeLimit", QString::number(m_timeLimitSpinBox->value()));
 	settings.setValue("splitscreen", QString::number(m_splitscreenCheckBox->isChecked()));
 	settings.setValue("postProcessing", QString::number(m_postProcessingCheckBox->isChecked()));
 	settings.setValue("vSyncOff", QString::number(m_testPerformanceCheckBox->isChecked()));

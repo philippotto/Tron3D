@@ -70,7 +70,7 @@ void BikeController::reset()
 void BikeController::registerCollision(btScalar impulse)
 {
 	if (impulse > 0) {
-		m_timeOfLastCollision = g_currentTime;
+		m_timeOfLastCollision = g_gameTime;
 	}
 }
 
@@ -360,7 +360,7 @@ void BikeController::updateModel(const long double gameTime)
 
 	if (m_pollingThread != nullptr)
 	{
-		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
+		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_gameTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
 	}
 
 	updateUniforms();
@@ -425,7 +425,7 @@ osg::ref_ptr<osgViewer::View> BikeController::getGameView()
 void BikeController::updateUniforms()
 {
 	if (m_hasGameView) {
-		m_timeOfCollisionUniform->set((float)g_currentTime - m_timeOfLastCollision);
+		m_timeOfCollisionUniform->set((float)g_gameTime - m_timeOfLastCollision);
 	}
 }
 

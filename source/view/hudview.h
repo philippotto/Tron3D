@@ -20,6 +20,7 @@ namespace troen
 		void setHealthText(const float health);
 		void setPointsText(const float points);
 		void setCountdownText(const int countdown);
+		void setTimeText(const double gameTime, const int timeLimit);
 
 		void updateRadarCamera();
         void setTrackNode(osg::Node* trackNode);
@@ -37,6 +38,7 @@ namespace troen
 		osg::ref_ptr<osgText::Text> m_speedText;
 		osg::ref_ptr<osgText::Text> m_pointsText;
 		osg::ref_ptr<osgText::Text> m_countdownText;
+		osg::ref_ptr<osgText::Text> m_timeText;
 
 		osg::Geode* m_savedGeode;
         osg::Node* m_trackNode;
