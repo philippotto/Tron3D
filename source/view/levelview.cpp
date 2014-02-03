@@ -82,7 +82,6 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 
 	osg::ref_ptr<osg::Node> obstacles = osgDB::readNodeFile("data/models/simple_level.obj");
 	obstacles->setCullingActive(false);
-	//osgDB::writeNodeFile(*obstacles, std::string("file.osg"));
 
 	//osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles()); 
 	osg::StateSet *obstaclesStateSet =  obstacles->getOrCreateStateSet();
