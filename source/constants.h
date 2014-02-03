@@ -51,6 +51,9 @@ namespace troen
 	extern const int POLLING_DELAY_MS;
 	extern const int VIBRATION_TIME_MS;
 
+	// LEVEL
+	extern const int LEVEL_SIZE;
+
 	// FENCE
 	// determines how accurate the fence will be
 	extern const float FENCE_HEIGHT_MODEL;

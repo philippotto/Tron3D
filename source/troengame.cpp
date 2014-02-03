@@ -443,9 +443,7 @@ void TroenGame::startGameLoop()
 
 	if (m_useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
-
-    btVector3 itemBoxVector(500, 255, +0.5);
-	m_levelController->addItemBox(itemBoxVector);
+    
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_timer->elapsed();
@@ -487,10 +485,12 @@ void TroenGame::startGameLoop()
 					bikeController->updateModel(currTime);
 				}
 				m_physicsWorld->stepSimulation(currTime);
+				m_levelController->update();
 			}
 
 			m_audioManager->Update(currTime/1000);
 			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
+
 
 			if (m_postProcessing)
 				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
