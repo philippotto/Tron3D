@@ -138,7 +138,7 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 
 bool TroenGame::initialize()
 {
-	initializeOculus();
+	// initializeOculus();
 
 	m_rootNode = new osg::Group;
 

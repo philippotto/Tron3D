@@ -290,7 +290,8 @@ set(sources
 	source/util/gldebugdrawer.h
 	source/util/gldebugdrawer.cpp
 
-
+	source/oculus/oculusdevice.cpp
+	source/oculus/oculusdevice.h
 )
 
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source"

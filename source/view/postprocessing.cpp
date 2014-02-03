@@ -19,6 +19,9 @@
 // troen
 
 #include "shaders.h"
+
+#include "../oculus/oculusdevice.h"
+
 // ugly but convenient global statics for shaders    
 static osg::ref_ptr<osg::Uniform> g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
 #include "nearfarcallback.h"
@@ -40,9 +43,11 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 
 	
 	if (m_useOculus) {
+
+		m_device = new OculusDevice;
+
 		unsigned int pass = 0;
 		
-
 		// TODO: deactivate this and implement proper culling!
 		m_root->setCullingActive(false);
 		m_sceneNode->setCullingActive(false);
@@ -377,37 +382,42 @@ osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 
 
 	// for stereo rendering.
-	OVR::Util::Render::StereoConfig stereo;
-	stereo.SetFullViewport(OVR::Util::Render::Viewport(0, 0, m_width, m_height));
-	stereo.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
-	stereo.SetHMDInfo(*m_hmd);
-	stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
-	float renderScale = stereo.GetDistortionScale();
-	
+	//OVR::Util::Render::StereoConfig stereo;
+	//stereo.SetFullViewport(OVR::Util::Render::Viewport(0, 0, m_width, m_height));
+	//stereo.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
+	//stereo.SetHMDInfo(*m_hmd);
+	//stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
+	//float renderScale = stereo.GetDistortionScale();
+	//
 
 
-	OVR::Util::Render::StereoEye eye = left ? OVR::Util::Render::StereoEye_Left : OVR::Util::Render::StereoEye_Right;
+	//OVR::Util::Render::StereoEye eye = left ? OVR::Util::Render::StereoEye_Left : OVR::Util::Render::StereoEye_Right;
 
-	
-	OVR::Util::Render::StereoEyeParams eyeParams = stereo.GetEyeRenderParams(eye);
-	OVR::Util::Render::Viewport eyeVP = eyeParams.VP;
-	OVR::Matrix4f eyeProjection = eyeParams.Projection;
-	OVR::Matrix4f eyeViewAdjust = eyeParams.ViewAdjust;
-		
-	osg::Matrixf eyeProjectionOSG(*eyeProjection.M);
-	osg::Matrixf eyeViewAdjustOSG(*eyeViewAdjust.M);
+	//
+	//OVR::Util::Render::StereoEyeParams eyeParams = stereo.GetEyeRenderParams(eye);
+	//OVR::Util::Render::Viewport eyeVP = eyeParams.VP;
+	//OVR::Matrix4f eyeProjection = eyeParams.Projection;
+	//OVR::Matrix4f eyeViewAdjust = eyeParams.ViewAdjust;
+	//	
+	//osg::Matrixf eyeProjectionOSG(*eyeProjection.M);
+	//osg::Matrixf eyeViewAdjustOSG(*eyeViewAdjust.M);
 
-	//osg::Matrixf v = m_camera->getViewMatrix();
-	//osg::Matrixf p = m_camera->getProjectionMatrix();
+	////osg::Matrixf v = m_camera->getViewMatrix();
+	////osg::Matrixf p = m_camera->getProjectionMatrix();
 
-	//cam->setProjectionMatrix(leftProjectionOSG);
+	////cam->setProjectionMatrix(leftProjectionOSG);
 
 
 	osg::ref_ptr<osg::StateSet>	state = cam->getOrCreateStateSet();
 
 	state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_EYE], osg::StateAttribute::ON);
 
+
+	osg::Matrixf eyeViewAdjustOSG = m_device->viewMatrix(left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE);
 	state->addUniform(new osg::Uniform("occViewAdjust", eyeViewAdjustOSG));
+	osg::Matrixf eyeProjectionOSG = m_device->projectionMatrix(left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE);
+
+
 	state->addUniform(new osg::Uniform("occProjection", eyeProjectionOSG));
 
 	//cam->setViewport(leftVP.x, leftVP.y, leftVP.w, leftVP.h);

@@ -15,7 +15,7 @@
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
 
-
+#include "../oculus/oculusdevice.h"
 #include <OVR.h>
 
 namespace troen
@@ -42,9 +42,9 @@ namespace troen
 		osg::Uniform* m_timeSinceLastBeat;
 		void setBeat(float beat);
 
-
 		// Oculus specific Code
 		bool m_useOculus = true;
+		OculusDevice* m_device;
 		OVR::HMDInfo* m_hmd;
 		osg::View * m_view;
 
