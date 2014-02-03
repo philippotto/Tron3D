@@ -15,7 +15,7 @@ namespace troen
 	const float DEFAULT_SOUND_VOLUME(1.f);
 
 	const float FOVY_INITIAL(29.1484f);
-	const float FOVY_ADDITION_MAX(25.f);
+	const float FOVY_ADDITION_MAX(30.f);
 	const float FOVY_DELTA_MAX(.7f);
 	
 	const int NUM_MULTISAMPLES(8);

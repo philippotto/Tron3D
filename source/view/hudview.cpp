@@ -27,6 +27,7 @@ m_speedText(new osgText::Text()),
 m_pointsText(new osgText::Text()),
 m_countdownText(new osgText::Text()),
 m_timeText(new osgText::Text()),
+m_deathCountText(new osgText::Text()),
 m_trackNode(nullptr),
 m_playerColor(playerColor)
 {
@@ -94,12 +95,12 @@ osg::Camera* HUDView::createHUD()
 			setPointsText(0);
 			m_pointsText->setAlignment(osgText::Text::AlignmentType::LEFT_TOP);
 			m_pointsText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-			m_pointsText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 10);
+			m_pointsText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
 		}
 		{
 			geode->addDrawable(m_countdownText);
 
-			m_countdownText->setFont("fonts/arial.ttf");
+			m_countdownText->setFont(font);
 			m_countdownText->setPosition(osg::Vec3(HUD_PROJECTION_SIZE / 2, HUD_PROJECTION_SIZE / 2, 0.f));
 			m_countdownText->setColor(m_playerColor);
 			setCountdownText(-1);
@@ -110,13 +111,24 @@ osg::Camera* HUDView::createHUD()
 		{
 			geode->addDrawable(m_timeText);
 
-			m_timeText->setFont("fonts/arial.ttf");
+			m_timeText->setFont(font);
 			m_timeText->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset, 0.f));
 			m_timeText->setColor(m_playerColor);
 			setTimeText(-1,-1);
 			m_timeText->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
 			m_timeText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-			m_timeText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
+			m_timeText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 8);
+		}
+		{
+			geode->addDrawable(m_deathCountText);
+
+			m_deathCountText->setFont(font);
+			m_deathCountText->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset * 3, 0.f));
+			m_deathCountText->setColor(m_playerColor);
+			setDeathCountText(0);
+			m_deathCountText->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
+			m_deathCountText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+			m_deathCountText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
 		}
 		m_camera->addChild(geode);
 	}
@@ -140,8 +152,10 @@ void HUDView::resizeHudComponents(const int width, const int height)
 {
 	m_speedText->setCharacterSize(height / 15);
 	m_healthText->setCharacterSize(height / 15);
-	m_pointsText->setCharacterSize(height / 10);
+	m_pointsText->setCharacterSize(height / 15);
 	m_countdownText->setCharacterSize(height / 3);
+	m_timeText->setCharacterSize(height / 8);
+	m_deathCountText->setCharacterSize(height / 15);
 }
 
 osg::Camera* HUDView::createRadar()
@@ -263,7 +277,7 @@ void HUDView::setCountdownText(const int countdown)
 {
 	if (countdown == -1)
 	{
-		m_countdownText->setText(" ");
+		m_countdownText->setText("");
 	}
 	else
 	{
@@ -272,12 +286,18 @@ void HUDView::setCountdownText(const int countdown)
 	}
 }
 
+void HUDView::setCountdownText(const std::string text)
+{
+	m_countdownText->setText(text);
+}
+
+
 void HUDView::setTimeText(const double gameTime, const int timeLimit)
 {
 
 	if (gameTime <= 0)
 	{
-		m_timeText->setText("");
+		m_timeText->setText("0:00");
 	}
 	else if ((gameTime/60/1000) >= timeLimit)
 	{
@@ -296,4 +316,9 @@ void HUDView::setTimeText(const double gameTime, const int timeLimit)
 		std::string timeString = std::to_string(minutes) + ":" + std::to_string(seconds);// +":" + std::to_string(milliSeconds);
 		m_timeText->setText(timeString);
 	}
+}
+
+void HUDView::setDeathCountText(const int deathCount)
+{
+	m_deathCountText->setText("Deaths:" + std::to_string(deathCount));
 }
