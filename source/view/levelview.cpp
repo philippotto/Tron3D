@@ -136,16 +136,13 @@ osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel>
 		hints->setTessellationMode(osg::TessellationHints::USE_TARGET_NUM_FACES);
 
 		osg::ref_ptr<osg::ShapeDrawable> boxDrawable
-			= new osg::ShapeDrawable(new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z()), hints.get());
+			= new osg::ShapeDrawable(new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z()));// , hints.get());
 
 
-
-
-
-
-		osg::ref_ptr<osg::Geode> boxGeode
-			= createCube(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z());// new osg::Geode();
-		//boxGeode->addDrawable(boxDrawable);
+		//osg::ref_ptr<osg::Geode> boxGeode
+		//	= createCube(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z());// new osg::Geode();
+		osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
+		boxGeode->addDrawable(boxDrawable);
 		//boxGeode->getOrCreateStateSet()->setAttribute(new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
 
 		// place objects in world space
