@@ -4,7 +4,7 @@
 class ObjectInfo
 {
 public:
-	ObjectInfo(void* userPointer, int userIndex) {
+	ObjectInfo(void* userPointer, const int userIndex) {
 		m_userPointer = userPointer;
 		m_userIndex = userIndex;
 	};

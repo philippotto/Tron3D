@@ -39,9 +39,9 @@ namespace troen
 		std::vector<BoxModel>& getObstacles() { return m_obstacles; };
 
 	private:
-		void addWalls(float levelSize, float yPosition);
-		void addFloor(float size, float yPosition);
-		void addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type);
+		void addWalls(const float levelSize, const float yPosition);
+		void addFloor(const float size, const float yPosition);
+		void addBoxes(std::vector<BoxModel> &boxes, const COLLISIONTYPE type);
 
 		void auto_addObstacles();
 

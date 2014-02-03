@@ -38,6 +38,8 @@ namespace troen
                 case osgGA::GUIEventAdapter::KEY_Shift_L:
 					m_troenGame->pauseEvent();
 					return true;
+				case osgGA::GUIEventAdapter::KEY_Delete:
+					m_gameLogic.lock()->restartLevel();
 				default:
 					break;
 				}

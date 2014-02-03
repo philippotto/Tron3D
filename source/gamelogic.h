@@ -18,9 +18,19 @@ namespace troen
 			TroenGame* game,
 			std::shared_ptr<sound::AudioManager>& audioManager,
 			std::shared_ptr<LevelController> levelController,
-			std::vector<std::shared_ptr<BikeController>> bikeControllers);
+			std::vector<std::shared_ptr<BikeController>> bikeControllers,
+			const int timeLimit = 5);
 
 		void attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld);
+		void step(const long double gameloopTime, const long double gameTime);
+
+		typedef enum enum_GAMESTATE {
+			GAME_START,
+			GAME_RUNNING,
+			GAME_OVER
+		} GAMESTATE;
+
+		inline GAMESTATE getGameState() { return m_gameState; };
 
 		// collision event functions
 		virtual void collisionEvent(btRigidBody* pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold);
@@ -49,5 +59,12 @@ namespace troen
 		std::shared_ptr<sound::AudioManager>m_audioManager;
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
         bool m_limitedFenceMode;
+		
+		GAMESTATE m_gameState;
+		long double m_timeLimit;
+		long double m_gameStartTime;
+		void stepGameStart(const long double gameloopTime, const long double gameTime);
+		void stepGameRunning(const long double gameloopTime, const long double gameTime);
+		void stepGameOver(const long double gameloopTime, const long double gameTime);
 	};
 }

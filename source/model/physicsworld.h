@@ -21,7 +21,7 @@ namespace troen
 		virtual ~PhysicsWorld();
 
 		void initializeWorld();
-		void stepSimulation(long double currentTime);
+		void stepSimulation(const long double currentTime);
 
 		void addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies, const short group = 0, const short mask = 0);
 		void addRigidBody(btRigidBody *body, const short group = 0, const short mask = 0);
