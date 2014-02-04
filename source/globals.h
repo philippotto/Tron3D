@@ -5,5 +5,6 @@
 
 namespace troen
 {
-	EXTERN long double g_currentTime;
+	EXTERN long double g_gameTime;
+	EXTERN long double g_gameLoopTime;
 }

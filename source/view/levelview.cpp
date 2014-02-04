@@ -25,9 +25,9 @@
 using namespace troen;
 
 
-LevelView::LevelView(std::shared_ptr<LevelModel> model)
+LevelView::LevelView(std::shared_ptr<LevelModel> model) :
+AbstractView()
 {
-	AbstractView();
 	m_model = model;
 
 	int levelSize = m_model->getLevelSize();
@@ -42,9 +42,10 @@ LevelView::LevelView(std::shared_ptr<LevelModel> model)
 osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
 {
 	osg::ref_ptr<osg::Group> wallsGroup = new osg::Group();
+	wallsGroup->setName("wallsGroup");
 
     osg::ref_ptr<osg::Group> walls = constructGroupForBoxes(m_model->getWalls());
-	addShaderAndUniforms(walls, shaders::OUTER_WALL, levelSize, DEFAULT);
+	addShaderAndUniforms(static_cast<osg::ref_ptr<osg::Node>>(walls), shaders::OUTER_WALL, levelSize, DEFAULT);
 	walls->setNodeMask(CAMERA_MASK_MAIN);
 	wallsGroup->addChild(walls);
 
@@ -61,17 +62,25 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
 
-	osg::ref_ptr<osg::Node> floors = osgDB::readNodeFile("data/models/floor_highres.ive"); 
-	
+
+	osg::ref_ptr<osg::Node> floors = osgDB::readNodeFile("data/models/floor_highres.ive");
 	floors->setNodeMask(CAMERA_MASK_MAIN);
-	
+
+	 //osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
+	floors->setName("floorsNode");
+
 	osg::StateSet *obstaclesStateSet = floors->getOrCreateStateSet();
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
 	setTexture(obstaclesStateSet, "data/textures/floor.tga", 0);
-	addShaderAndUniforms(floorsGroup, shaders::GRID, levelSize, GLOW);
+
+	//will be overwritten if reflection is used
+	addShaderAndUniforms(static_cast<osg::ref_ptr<osg::Node>>(floors), shaders::GRID_NOREFLECTION, levelSize, GLOW);
+
+
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
+
 
 	osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());
 	radarFloors->setNodeMask(CAMERA_MASK_RADAR);
@@ -84,10 +93,15 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 {
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
+	obstaclesGroup->setName("obstaclesGroup");
 
-	osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles());
-	osg::StateSet *obstaclesStateSet = obstacles->getOrCreateStateSet();
+	osg::ref_ptr<osg::Node> obstacles = osgDB::readNodeFile("data/models/simple_level.obj");
+	obstacles->setCullingActive(false);
+
+	//osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles()); 
+	osg::StateSet *obstaclesStateSet =  obstacles->getOrCreateStateSet();
 	obstaclesStateSet->ref();
+	//obstacles->setStateSet(obstaclesStateSet);
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
 	setTexture(obstaclesStateSet, "data/textures/box.tga", 0);
@@ -104,9 +118,11 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 	return obstaclesGroup;
 }
 
-void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Group>& group, int shaderIndex, int levelSize, int modelID)
+
+
+void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node>& node, int shaderIndex, int levelSize, int modelID)
 {
-	osg::StateSet *stateSet = group->getOrCreateStateSet();
+	osg::StateSet *stateSet = node->getOrCreateStateSet();
 	stateSet->ref();
 
 	stateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaderIndex], osg::StateAttribute::ON);
@@ -248,98 +264,8 @@ void LevelView::addItemBox(osg::Vec3 position)
 }
 
 
-osg::ref_ptr<osg::Geode>  LevelView::createCube(osg::Vec3 center, float lengthX, float lengthY, float lengthZ)
+osg::ref_ptr<osg::Group>  LevelView::getFloor()
 {
-	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
-
-	osg::Geometry* geometry = new osg::Geometry;
-	geode->addDrawable(geometry);
-
-	osg::Vec3Array* vertices = new osg::Vec3Array;
-	geometry->setVertexArray(vertices);
-
-	osg::Vec3Array* normals = new osg::Vec3Array;
-	geometry->setNormalArray(normals, osg::Array::BIND_PER_VERTEX);
-
-	osg::Vec4Array* colours = new osg::Vec4Array;
-	geometry->setColorArray(colours, osg::Array::BIND_OVERALL);
-	colours->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
-	osg::Vec3 dx(lengthX, 0.0f, 0.0f);
-	osg::Vec3 dy(0.0f, lengthY, 0.0f);
-	osg::Vec3 dz(0.0f, 0.0f, lengthZ);
-
-	osg::Vec3 px(1.0f, 0.0, 0.0f);
-	osg::Vec3 nx(-1.0f, 0.0, 0.0f);
-	osg::Vec3 py(0.0f, 1.0f, 0.0f);
-	osg::Vec3 ny(0.0f, -1.0f, 0.0f);
-	osg::Vec3 pz(0.0f, 0.0f, 1.0f);
-	osg::Vec3 nz(0.0f, 0.0f, -1.0f);
-
-
-	// front face
-	vertices->push_back(center);
-	vertices->push_back(center + dx);
-	vertices->push_back(center + dx + dz);
-	vertices->push_back(center + dz);
-	normals->push_back(ny);
-	normals->push_back(ny);
-	normals->push_back(ny);
-	normals->push_back(ny);
-
-	// back face
-	vertices->push_back(center + dy);
-	vertices->push_back(center + dy + dz);
-	vertices->push_back(center + dy + dx + dz);
-	vertices->push_back(center + dy + dx);
-	normals->push_back(py);
-	normals->push_back(py);
-	normals->push_back(py);
-	normals->push_back(py);
-
-	// left face
-	vertices->push_back(center + dy);
-	vertices->push_back(center);
-	vertices->push_back(center + dz);
-	vertices->push_back(center + dy + dz);
-	normals->push_back(nx);
-	normals->push_back(nx);
-	normals->push_back(nx);
-	normals->push_back(nx);
-
-
-	// right face
-	vertices->push_back(center + dx + dy);
-	vertices->push_back(center + dx + dy + dz);
-	vertices->push_back(center + dx + dz);
-	vertices->push_back(center + dx);
-	normals->push_back(px);
-	normals->push_back(px);
-	normals->push_back(px);
-	normals->push_back(px);
-
-	// top face
-	vertices->push_back(center + dz);
-	vertices->push_back(center + dz + dx);
-	vertices->push_back(center + dz + dx + dy);
-	vertices->push_back(center + dz + dy);
-	normals->push_back(pz);
-	normals->push_back(pz);
-	normals->push_back(pz);
-	normals->push_back(pz);
-
-	// bottom face
-	vertices->push_back(center);
-	vertices->push_back(center + dy);
-	vertices->push_back(center + dx + dy);
-	vertices->push_back(center + dx);
-	normals->push_back(nz);
-	normals->push_back(nz);
-	normals->push_back(nz);
-	normals->push_back(nz);
-
-	geometry->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0, vertices->size()));
-
-	return geode;
+	return m_node;
 }
 

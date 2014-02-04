@@ -85,11 +85,12 @@ namespace troen
 	class BikeView;
 	class LevelView;
 	class FenceView;
-	class AbstractView;	
+	class AbstractView;
 	class HUDView;
 	class SkyDome;
 	class PostProcessing;
 	class NodeFollowCameraManipulator;
+	class Reflection;
 	class ResourcePool;
 	class SplineDeformationRendering;
 

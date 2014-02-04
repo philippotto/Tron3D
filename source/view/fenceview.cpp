@@ -1,6 +1,12 @@
 #include "fenceview.h"
 // OSG
 #include <osg/ShapeDrawable>
+#include <osg/Geode>
+#include <osg/Group>
+#include <osg/Vec4>
+#include <osg/PositionAttitudeTransform>
+#include <osg/ref_ptr>
+
 // troen
 #include "../constants.h"
 #include "shaders.h"
@@ -15,6 +21,7 @@ FenceView::FenceView(FenceController* fenceController, osg::Vec3 color, std::sha
 	m_playerColor = color;
 	m_model = std::static_pointer_cast<FenceModel>(model);
 	m_node = new osg::Group();
+
 	m_fenceController = fenceController;
 
 	initializeFence();
@@ -52,6 +59,8 @@ void FenceView::initializeFence()
 
 	m_node->addChild(m_geode);
 	m_node->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+	m_node->setName("fenceGroup");
+	
 }
 
 void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
