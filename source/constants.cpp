@@ -15,10 +15,14 @@ namespace troen
 	const float DEFAULT_SOUND_VOLUME(1.f);
 
 	const float FOVY_INITIAL(29.1484f);
-	const float FOVY_ADDITION_MAX(25.f);
+	const float FOVY_ADDITION_MAX(30.f);
 	const float FOVY_DELTA_MAX(.7f);
 	
 	const int NUM_MULTISAMPLES(8);
+
+	// LOGIC
+	const double RESPAWN_DURATION(5000);
+	const double GAME_START_COUNTDOWN_DURATION(6000);
 
 	//PHYSIS
 	const btVector3 DEFAULT_GRAVITY(0,0,-98);
@@ -34,6 +38,7 @@ namespace troen
 	const int BIKE_VELOCITY_MIN(BIKE_DIMENSIONS.y() * 30);
 	const float BIKE_VELOCITY_DAMPENING_TERM(.3f);
 	const float BIKE_ACCELERATION_FACTOR_MAX(1.5f);
+	const float BIKE_DECELERATION_FACTOR(4.f);
 	const float BIKE_TURN_FACTOR_MAX(15);
 	const float BIKE_ANGULAR_DAMPENING_TERM(0.001f);
 
@@ -64,6 +69,8 @@ namespace troen
 	const float CAMERA_ROTATION_OFFSET(.05f);
 	const osg::Vec3 CAMERA_EYE_POSITION(0.f,-BIKE_DIMENSIONS.y()*5.5f,BIKE_DIMENSIONS.z()*.8f);
 	const float CAMERA_TILT_FACTOR(16.f);
+	const int HUD_PROJECTION_SIZE(1000);
+
 
 	const unsigned int CAMERA_MASK_MAIN(0x1);
 	const unsigned int CAMERA_MASK_RADAR(0x2);

@@ -23,9 +23,9 @@
 using namespace troen;
 
 
-LevelView::LevelView(std::shared_ptr<LevelModel> model)
+LevelView::LevelView(std::shared_ptr<LevelModel> model) :
+AbstractView()
 {
-	AbstractView();
 	m_model = model;
 
 	int levelSize = m_model->getLevelSize();
@@ -58,12 +58,15 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
 	osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
-	floors->setName("debugFloorsNode");
+	floors->setName("floorsNode");
 	osg::StateSet *obstaclesStateSet = floors->getOrCreateStateSet();
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
 	setTexture(obstaclesStateSet, "data/textures/floor.tga", 0);
-	addShaderAndUniforms(static_cast<osg::ref_ptr<osg::Node>>(floors), shaders::GRID, levelSize, GLOW);
+
+	//will be overwritten if reflection is used
+	addShaderAndUniforms(static_cast<osg::ref_ptr<osg::Node>>(floors), shaders::GRID_NOREFLECTION, levelSize, GLOW);
+
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
 

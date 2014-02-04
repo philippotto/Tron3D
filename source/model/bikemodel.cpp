@@ -17,9 +17,9 @@ BikeModel::BikeModel(
 	osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<FenceController> fenceController,
 	BikeController* bikeController) :
+AbstractModel(),
 m_lastUpdateTime(0)
 {
-	AbstractModel();
 	resetState();
 
 	m_bikeController = bikeController;
@@ -219,9 +219,16 @@ btVector3 BikeModel::getPositionBt()
 	return trans.getOrigin();
 }
 
+
 void BikeModel::moveBikeToPosition(btTransform position)
 {
 	m_rigidBodies[0]->setWorldTransform(position);
+	m_rigidBodies[0]->setAngularVelocity(btVector3(0, 0, 0));
+	m_rigidBodies[0]->setLinearVelocity(btVector3(0, 0, 0));
+}
+
+void BikeModel::freeze()
+{
 	m_rigidBodies[0]->setAngularVelocity(btVector3(0, 0, 0));
 	m_rigidBodies[0]->setLinearVelocity(btVector3(0, 0, 0));
 }

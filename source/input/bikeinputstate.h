@@ -19,14 +19,17 @@ namespace input
 		BikeInputState();
 		float getAngle();
 		float getAcceleration();
-		void setAngle(float angle);
-		void setAcceleration(float acceleration);
-		void setTurboPressed(bool pressed);
+		void setAngle(const float angle);
+		void setAcceleration(const float acceleration);
+		void setTurboPressed(const bool pressed);
 		bool getTurboPressed();
+		void setViewingAngle(float angle);
+		float getViewingAngle();
 	private:
 		float m_acceleration;
 		float m_angle;
-		float m_turboPressed;
+		bool m_turboPressed;
+		float m_viewingAngle;
 	};
 }
 }
