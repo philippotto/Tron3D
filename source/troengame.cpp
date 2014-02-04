@@ -261,7 +261,17 @@ bool TroenGame::initializeGameLogic()
 bool TroenGame::initializeReflection()
 {
 	if (m_useReflection)
-		m_reflection = std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameViews[0], m_skyDome->getSkyboxTexture());
+	{
+
+		for (int playerID = 0; playerID < m_playerNodes.size(); playerID++)
+		{
+			m_reflections.push_back(std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameViews[playerID], m_skyDome->getSkyboxTexture(),playerID));
+			m_playerNodes[playerID]->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));
+
+		}
+
+
+	}
 	return true;
 }
 
@@ -395,8 +405,11 @@ bool TroenGame::composeSceneGraph()
 	if (m_useReflection)
 	{
 		//sceneNode has to be added to reflection after adding all (non hud) objects
-		m_reflection->addSceneNode(m_sceneNode);
-		m_rootNode->addChild(m_reflection->getReflectionCameraGroup());
+		for (int playerID = 0; playerID < m_playerNodes.size(); playerID++)
+		{
+			m_reflections[playerID]->addSceneNode(m_sceneNode);
+			m_playerNodes[playerID]->addChild(m_reflections[playerID]->getReflectionCameraGroup());
+		}
 	}
 
 	int currentIndex = -1;
