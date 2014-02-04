@@ -55,7 +55,7 @@ namespace osgAnimation
 
     struct InBounceFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             OutBounceFunction::getValueAt(1-t, result);
             result = 1 - result;
@@ -64,7 +64,7 @@ namespace osgAnimation
 
     struct InOutBounceFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             if (t < 0.5)
             {
@@ -82,18 +82,18 @@ namespace osgAnimation
     /// Linear function
     struct LinearFunction
     {
-        inline static void getValueAt(float t, float& result) { result = t;}
+        inline static void getValueAt(const float t, float& result) { result = t;}
     };
 
     /// Quad function
     struct OutQuadFunction
     {
-        inline static void getValueAt(float t, float& result) { result = - (t * (t -2.0));}
+        inline static void getValueAt(const float t, float& result) { result = - (t * (t -2.0));}
     };
 
     struct InQuadFunction
     {
-        inline static void getValueAt(float t, float& result) { result = t*t;}
+        inline static void getValueAt(const float t, float& result) { result = t*t;}
     };
 
     struct InOutQuadFunction
@@ -119,7 +119,7 @@ namespace osgAnimation
 
     struct InCubicFunction
     {
-        inline static void getValueAt(float t, float& result) { result = t*t*t;}
+        inline static void getValueAt(const float t, float& result) { result = t*t*t;}
     };
 
     struct InOutCubicFunction
@@ -139,7 +139,7 @@ namespace osgAnimation
     /// Quart function
     struct InQuartFunction
     {
-        inline static void getValueAt(float t, float& result) { result = t*t*t*t*t;}
+        inline static void getValueAt(const float t, float& result) { result = t*t*t*t*t;}
     };
 
     struct OutQuartFunction
@@ -165,7 +165,7 @@ namespace osgAnimation
     /// Elastic function
     struct OutElasticFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             result = pow(2.0f, -10.0f * t) * sinf((t - 0.3f / 4.0f) * (2.0f * PI) / 0.3f) + 1.0f;
         }
@@ -173,7 +173,7 @@ namespace osgAnimation
 
     struct InElasticFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             OutElasticFunction::getValueAt(1.0f - t, result);
             result = 1.0f - result;
@@ -201,7 +201,7 @@ namespace osgAnimation
     // Sine function
     struct OutSineFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             result = sinf(t * (PI / 2.0f));
         }
@@ -209,7 +209,7 @@ namespace osgAnimation
 
     struct InSineFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             result = -cosf(t * (PI / 2.0f)) + 1.0f;
         }
@@ -217,7 +217,7 @@ namespace osgAnimation
 
     struct InOutSineFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             result = -0.5f * (cosf((PI * t)) - 1.0f);
         }
@@ -235,7 +235,7 @@ namespace osgAnimation
 
     struct InBackFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             result = t * t * ((1.70158 + 1.0f) * t - 1.70158);
         }
@@ -271,7 +271,7 @@ namespace osgAnimation
 
     struct InCircFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             result = -(sqrt(1.0f - (t * t)) - 1.0f);
         }
@@ -297,7 +297,7 @@ namespace osgAnimation
     // Expo function
     struct OutExpoFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             if(t == 1.0f)
             {
@@ -312,7 +312,7 @@ namespace osgAnimation
 
     struct InExpoFunction
     {
-        inline static void getValueAt(float t, float& result)
+        inline static void getValueAt(const float t, float& result)
         {
             if(t == 0.0f)
             {

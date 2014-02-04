@@ -23,8 +23,8 @@ namespace troen
 		protected:
 			osg::ref_ptr<osg::Group> m_node;
 
-			osg::ref_ptr<osg::Group>				cameraGroup;
-			osg::ref_ptr<osg::Camera>				reflectionCamera;
+			osg::ref_ptr<osg::Group>			cameraGroup;
+			osg::ref_ptr<osg::Camera>			reflectionCamera;
 			osg::ref_ptr<osg::MatrixTransform>	reflectionTransform;
 			osg::ref_ptr<osg::Group>			reflectionObjectsGroup;
 			osg::ref_ptr<osg::ClipNode>			m_reflectionClipNode;

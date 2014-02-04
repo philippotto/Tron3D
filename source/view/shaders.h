@@ -38,8 +38,6 @@ namespace troen
 							SKYDOME,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
-
-
 	}
 
 }

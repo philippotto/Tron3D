@@ -23,9 +23,9 @@
 using namespace troen;
 
 
-LevelView::LevelView(std::shared_ptr<LevelModel> model)
+LevelView::LevelView(std::shared_ptr<LevelModel> model) :
+AbstractView()
 {
-	AbstractView();
 	m_model = model;
 
 	int levelSize = m_model->getLevelSize();

@@ -5,16 +5,9 @@
 
 using namespace troen;
 
-ResourcePool::ResourcePool() {
+ResourcePool::ResourcePool() {}
 
-
-
-}
-
-ResourcePool::~ResourcePool()
-{
-
-}
+ResourcePool::~ResourcePool() {}
 
 void ResourcePool::readData()
 {

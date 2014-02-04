@@ -8,6 +8,7 @@
 #include <QKeyEvent>
 #include <QCoreApplication>
 #include <QSignalMapper>
+#include <QLineEdit>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -47,6 +48,24 @@ MainWindow::MainWindow(QWidget * parent)
 		vBoxLayout->addWidget(bikeNumberWidget);
 	}
 
+	// timeLimit
+	{
+		QWidget* timeLimitWidget = new QWidget;
+		QHBoxLayout* timeLimitLayout = new QHBoxLayout;
+		timeLimitWidget->setLayout(timeLimitLayout);
+
+		QLabel* timeLimitLabel = new QLabel("TimeLimit: ");
+		timeLimitLayout->addWidget(timeLimitLabel);
+
+		m_timeLimitSpinBox = new QSpinBox;
+		m_timeLimitSpinBox->setMinimum(0);
+		m_timeLimitSpinBox->setMaximum(10);
+		m_timeLimitSpinBox->setValue(0);
+		timeLimitLayout->addWidget(m_timeLimitSpinBox);
+
+		vBoxLayout->addWidget(timeLimitWidget);
+	}
+
 	QSignalMapper* signalMapper = new QSignalMapper(this);
 
 	// bikeInputs
@@ -57,9 +76,16 @@ MainWindow::MainWindow(QWidget * parent)
 		playerInputWidget->setLayout(playerInputLayout);
 		playerInputLayout->setMargin(1);
 
-		QString playerString = QString("Player ") + QString::number(i);
+		QString playerString = QString("Player_") + QString::number(i);
 		QLabel* playerInputLabel = new QLabel(playerString);
 		playerInputLayout->addWidget(playerInputLabel);
+
+		QLineEdit* playerNameLineEdit = new QLineEdit;
+		playerNameLineEdit->setText(playerString);
+		playerNameLineEdit->setMaximumWidth(75);
+		playerNameLineEdit->setMaxLength(10);
+		m_playerNameLineEdits.push_back(playerNameLineEdit);
+		playerInputLayout->addWidget(playerNameLineEdit);
 
 		QComboBox* playerComboBox = new QComboBox;
 		playerComboBox->addItem("Keyboard WASD");
@@ -146,7 +172,7 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(m_fullscreenCheckBox, SIGNAL(stateChanged(int)), this, SLOT(fullscreenToggled()));
 	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(bikeNumberChanged(int)));
 
-	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(GameConfig)));
+	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(const GameConfig&)));
 }
 
 MainWindow::~MainWindow()
@@ -182,15 +208,15 @@ void MainWindow::prepareGameStart()
 {
 	GameConfig config;
 	config.numberOfBikes = m_bikeNumberSpinBox->value();
+	config.timeLimit = m_timeLimitSpinBox->value();
 	config.playerInputTypes = new int[config.numberOfBikes];
 	config.playerColors = new QColor[config.numberOfBikes];
+	config.playerNames = new QString[config.numberOfBikes];
 	for (int i = 0; i < config.numberOfBikes; i++)
 	{
 		config.playerInputTypes[i] = m_playerComboBoxes.at(i)->currentIndex();
-	}
-	for (int j = 0; j < config.numberOfBikes; j++)
-	{
-		config.playerColors[j] = m_playerColors[j];
+		config.playerNames[i] = m_playerNameLineEdits[i]->text();
+		config.playerColors[i] = m_playerColors[i];
 	}
 	config.splitscreen = m_splitscreenCheckBox->isChecked();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();
@@ -288,6 +314,7 @@ void MainWindow::loadSettings()
 		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) };
 
 	m_bikeNumberSpinBox->setValue(settings.value("bikeNumber").toInt());
+	m_timeLimitSpinBox->setValue(settings.value("timeLimit").toInt());
 	m_splitscreenCheckBox->setChecked(settings.value("splitscreen").toBool());
 	m_postProcessingCheckBox->setChecked(settings.value("postProcessing").toBool());
 	m_testPerformanceCheckBox->setChecked(settings.value("vSyncOff").toBool());
@@ -296,9 +323,15 @@ void MainWindow::loadSettings()
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
+		//name
+		QString playerName = settings.value("player" + QString::number(i) + "name").toString();
+		if (playerName.isEmpty()) playerName = QString("Player_") + QString::number(i);
+		m_playerNameLineEdits[i]->setText(playerName);
+		//input
 		int playerInput =
 			settings.value("player" + QString::number(i) + "input").toInt();
 		m_playerComboBoxes[i]->setCurrentIndex(playerInput);
+		//color
 		m_playerColors[i] =
 			settings.value("player" + QString::number(i) + "color").value<QColor>();
 		m_playerColors[i] = m_playerColors[i].value() == 0 ? initialColors[i] : m_playerColors[i];
@@ -314,6 +347,7 @@ void MainWindow::saveSettings()
 	QSettings settings(m_settingsFileName, QSettings::IniFormat);
 
 	settings.setValue("bikeNumber", QString::number(m_bikeNumberSpinBox->value()));
+	settings.setValue("timeLimit", QString::number(m_timeLimitSpinBox->value()));
 	settings.setValue("splitscreen", QString::number(m_splitscreenCheckBox->isChecked()));
 	settings.setValue("postProcessing", QString::number(m_postProcessingCheckBox->isChecked()));
 	settings.setValue("vSyncOff", QString::number(m_testPerformanceCheckBox->isChecked()));
@@ -322,6 +356,8 @@ void MainWindow::saveSettings()
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
+		settings.setValue("player" + QString::number(i) + "name",
+			m_playerNameLineEdits[i]->text());
 		settings.setValue("player" + QString::number(i) + "input",
 			m_playerComboBoxes[i]->currentIndex());
 		settings.setValue("player" + QString::number(i) + "color",

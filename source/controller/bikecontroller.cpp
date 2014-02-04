@@ -23,24 +23,31 @@
 
 using namespace troen;
 
-
-
 BikeController::BikeController(
-	input::BikeInputState::InputDevice inputDevice,
-	btTransform initialTransform,
-	osg::Vec3 playerColor,
+	const input::BikeInputState::InputDevice& inputDevice,
+	const btTransform initialTransform,
+	const osg::Vec3 playerColor,
+	const std::string playerName,
 	ResourcePool *m_resourcePool,
 	bool hasGameView) :
-	m_initialTransform(initialTransform), m_hasGameView(hasGameView)
+AbstractController(),
+m_keyboardHandler(nullptr),
+m_pollingThread(nullptr),
+m_playerColor(playerColor),
+m_initialTransform(initialTransform),
+m_health(BIKE_DEFAULT_HEALTH),
+m_points(0),
+m_speed(0),
+m_turboInitiated(false),
+m_timeOfLastCollision(-1),
+m_respawnTime(-1),
+m_fenceLimitActivated(true),
+m_state(BIKESTATE::WAITING),
+m_hasGameView(hasGameView),
+m_killCount(0),
+m_deathCount(0),
+m_playerName(playerName)
 {
-	AbstractController();
-	m_playerColor = playerColor;
-
-	m_health = BIKE_DEFAULT_HEALTH;
-	m_points = 0;
-	m_speed = 0;
-	m_timeOfLastCollision = -1;
-
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
 
 	m_fenceController = std::make_shared<FenceController>(this, m_playerColor, m_initialTransform);
@@ -65,13 +72,13 @@ void BikeController::reset()
 void BikeController::registerCollision(btScalar impulse)
 {
 	if (impulse > 0) {
-		m_timeOfLastCollision = g_currentTime;
+		m_timeOfLastCollision = g_gameTime;
 	}
 }
 
 float BikeController::increaseHealth(float diff)
 {
-	m_health += diff;
+	m_health = clamp(0,BIKE_DEFAULT_HEALTH,m_health + diff);
 	return m_health;
 }
 
@@ -289,9 +296,69 @@ float BikeController::getTurboInitiation()
 	return m_turboInitiated;
 }
 
-void BikeController::updateModel(long double time)
+void BikeController::setState(BIKESTATE newState, double respawnTime /*=-1*/)
 {
-	double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(time);
+	if (m_state == newState)
+		return;
+
+	m_state = newState;
+	m_respawnTime = respawnTime;
+}
+
+BikeController::BIKESTATE BikeController::getState()
+{
+	return m_state;
+}
+
+double BikeController::getRespawnTime()
+{
+	return m_respawnTime;
+}
+
+void BikeController::updateModel(const long double gameTime)
+{
+	switch (m_state)
+	{
+	case DRIVING:
+	{
+		double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(gameTime);
+		increasePoints(speed / 1000);
+		updateFov(speed);
+		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": DRIVING" << std::endl;
+		break;
+	}
+	case RESPAWN:
+	{
+		std::static_pointer_cast<BikeModel>(m_model)->freeze();
+		updateFov(0);
+		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN" << std::endl;
+		if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
+		{
+			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
+			//std::static_pointer_cast<BikeView>(m_view)->m_pat->setAttitude(attitude);
+			moveBikeToPosition(m_initialTransform);
+			m_state = RESPAWN_PART_2;
+		}
+		break;
+	}
+	case RESPAWN_PART_2:
+	{
+		reset();
+		updateFov(0);
+		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN_PART_2" << std::endl;
+		if (gameTime > m_respawnTime + RESPAWN_DURATION)
+		{
+			//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": start Driving" << std::endl;
+			m_state = DRIVING;
+		}
+		break;
+	}
+	case WAITING_FOR_GAMESTART:
+	case WAITING:
+		break;
+	default:
+		break;
+	}
 
 	// turbo should be only applied in one frame
 	if (m_turboInitiated)
@@ -299,17 +366,10 @@ void BikeController::updateModel(long double time)
 
 	if (m_pollingThread != nullptr)
 	{
-		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_currentTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
+		m_pollingThread->setVibration(m_timeOfLastCollision != -1 && g_gameTime - m_timeOfLastCollision < VIBRATION_TIME_MS);
 	}
 
 	updateUniforms();
-	increasePoints(speed / 1000);
-
-	if (m_gameView.valid()) {
-		float currentFovy = getFovy();
-		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
-	}
-
 }
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
@@ -368,9 +428,17 @@ osg::ref_ptr<osgViewer::View> BikeController::getGameView()
 	return m_gameView;
 };
 
-void troen::BikeController::updateUniforms()
+void BikeController::updateUniforms()
 {
 	if (m_hasGameView) {
-		m_timeOfCollisionUniform->set((float)g_currentTime - m_timeOfLastCollision);
+		m_timeOfCollisionUniform->set((float)g_gameTime - m_timeOfLastCollision);
+	}
+}
+
+void BikeController::updateFov(double speed)
+{
+	if (m_gameView.valid()) {
+		float currentFovy = getFovy();
+		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 	}
 }

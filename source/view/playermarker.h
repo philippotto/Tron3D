@@ -14,7 +14,7 @@ namespace troen
 	class PlayerMarker : public AbstractView
 	{
 	public:
-		PlayerMarker(osg::Vec3 color);
+		PlayerMarker(const osg::Vec3 color);
 		osg::ref_ptr<osg::Group> getNode();
 
 	private:

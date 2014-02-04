@@ -17,23 +17,25 @@
 #include <osg/Quat>
 // troen
 #include "../constants.h"
-
+#include "../controller/bikecontroller.h"
 
 using namespace troen;
 
-HUDView::HUDView(const osg::Vec4 playerColor) : AbstractView(), m_trackNode(nullptr), m_playerColor(playerColor)
+HUDView::HUDView(const int i, const std::vector<std::shared_ptr<BikeController>>& bikeControllers) :
+AbstractView(),
+m_healthText(new osgText::Text()),
+m_speedText(new osgText::Text()),
+m_pointsText(new osgText::Text()),
+m_countdownText(new osgText::Text()),
+m_timeText(new osgText::Text()),
+m_trackNode(nullptr),
+m_playerColor(osg::Vec4(bikeControllers[i]->getPlayerColor(),1))
 {
-	m_speedText = new osgText::Text();
-	m_healthText = new osgText::Text();
-	m_pointsText = new osgText::Text();
-
-	m_node = new osg::Group();
-
-	m_node->addChild(createHUD());
+	m_node->addChild(createHUD(bikeControllers));
 	m_node->addChild(createRadar());
 }
 
-osg::Camera* HUDView::createHUD()
+osg::Camera* HUDView::createHUD(const std::vector<std::shared_ptr<BikeController>>& bikeControllers)
 {
 	// create a camera to set up the projection and model view matrices, and the subgraph to draw in the HUD
 	m_camera = new osg::Camera;
@@ -88,14 +90,48 @@ osg::Camera* HUDView::createHUD()
 			geode->addDrawable(m_pointsText);
 
 			m_pointsText->setFont(font);
-			m_pointsText->setPosition(osg::Vec3(offset, HUD_PROJECTION_SIZE - offset ,0.f));
+			m_pointsText->setPosition(osg::Vec3(offset, HUD_PROJECTION_SIZE - offset, 0.f));
 			m_pointsText->setColor(m_playerColor);
 			setPointsText(0);
 			m_pointsText->setAlignment(osgText::Text::AlignmentType::LEFT_TOP);
 			m_pointsText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-			m_pointsText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 10);
+			m_pointsText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
 		}
+		{
+			geode->addDrawable(m_countdownText);
 
+			m_countdownText->setFont(font);
+			m_countdownText->setPosition(osg::Vec3(HUD_PROJECTION_SIZE / 2, HUD_PROJECTION_SIZE / 2, 0.f));
+			m_countdownText->setColor(m_playerColor);
+			setCountdownText(-1);
+			m_countdownText->setAlignment(osgText::Text::AlignmentType::CENTER_CENTER);
+			m_countdownText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+			m_countdownText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 3);
+		}
+		{
+			geode->addDrawable(m_timeText);
+
+			m_timeText->setFont(font);
+			m_timeText->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset, 0.f));
+			m_timeText->setColor(m_playerColor);
+			setTimeText(-1,-1);
+			m_timeText->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
+			m_timeText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+			m_timeText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 8);
+		}
+		for (int i = 0; i < bikeControllers.size(); i++)
+		{
+			m_deathCountTexts[i] = new osgText::Text();
+			geode->addDrawable(m_deathCountTexts[i]);
+
+			m_deathCountTexts[i]->setFont(font);
+			m_deathCountTexts[i]->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset * (3 + i), 0.f));
+			m_deathCountTexts[i]->setColor(osg::Vec4(bikeControllers[i]->getPlayerColor(),1));
+			setDeathCountText(i,bikeControllers[i]->getPlayerName(), 0);
+			m_deathCountTexts[i]->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
+			m_deathCountTexts[i]->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+			m_deathCountTexts[i]->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
+		}
 		m_camera->addChild(geode);
 	}
 
@@ -118,7 +154,16 @@ void HUDView::resizeHudComponents(const int width, const int height)
 {
 	m_speedText->setCharacterSize(height / 15);
 	m_healthText->setCharacterSize(height / 15);
-	m_pointsText->setCharacterSize(height / 10);
+	m_pointsText->setCharacterSize(height / 15);
+	m_countdownText->setCharacterSize(height / 3);
+	m_timeText->setCharacterSize(height / 8);
+	
+	const int textNum = sizeof(m_deathCountTexts) / sizeof(m_deathCountTexts[0]);
+	for (size_t i = 0; i < textNum; i++)
+	{
+		if (m_deathCountTexts[i].valid())
+			m_deathCountTexts[i]->setCharacterSize(height / 15);
+	}
 }
 
 osg::Camera* HUDView::createRadar()
@@ -169,7 +214,7 @@ public:
         {
             if ( 0 == node.getNumParents() ) // no parents
             {
-                wcMatrix->set( osg::computeLocalToWorld(this->getNodePath()) );
+                wcMatrix->set( osg::computeLocalToWorld(this->getNodePath()));
                 done = true;
             }
             traverse(node);
@@ -234,4 +279,54 @@ void HUDView::setPointsText(float points)
 {
 	std::string pointsString = std::to_string((int)points);
 	m_pointsText->setText("Points: " + pointsString);
+}
+
+void HUDView::setCountdownText(const int countdown)
+{
+	if (countdown == -1)
+	{
+		m_countdownText->setText("");
+	}
+	else
+	{
+		std::string countdownString = std::to_string(countdown);
+		m_countdownText->setText(countdownString);
+	}
+}
+
+void HUDView::setCountdownText(const std::string text)
+{
+	m_countdownText->setText(text);
+}
+
+
+void HUDView::setTimeText(const double gameTime, const int timeLimit)
+{
+
+	if (gameTime <= 0)
+	{
+		m_timeText->setText("0:00");
+	}
+	else if ((gameTime/60/1000) >= timeLimit)
+	{
+		//m_timeText->setText("0:00");
+		int minutes = abs(timeLimit - floor((gameTime) / 1000 / 60));
+		int seconds = mod(floor((gameTime) / 1000), 60);
+		//int milliSeconds = mod(time/10, 100);
+		std::string timeString = "-" + std::to_string(minutes) + ":" + std::to_string(seconds);// +":" + std::to_string(milliSeconds);
+		m_timeText->setText(timeString);
+	}
+	else
+	{
+		int minutes = timeLimit - ceil((gameTime) / 1000 / 60);
+		int seconds = 59 - mod(floor((gameTime) / 1000), 60);
+		//int milliSeconds = mod(time/10, 100);
+		std::string timeString = std::to_string(minutes) + ":" + std::to_string(seconds);// +":" + std::to_string(milliSeconds);
+		m_timeText->setText(timeString);
+	}
+}
+
+void HUDView::setDeathCountText(const int i, const std::string& playerName , const int deathCount)
+{
+	m_deathCountTexts[i]->setText(playerName + ": " + std::to_string(deathCount));
 }
