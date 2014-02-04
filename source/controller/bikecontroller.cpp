@@ -186,6 +186,7 @@ bool BikeController::hasKeyboardHandler()
 
 void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
+	m_bikeInputState = bikeInputState;
 	std::static_pointer_cast<BikeModel>(m_model)->setInputState(bikeInputState);
 }
 
@@ -200,6 +201,10 @@ void BikeController::attachTrackingCameras(
 	manipulator->setTrackNode(pat->getChild(0));
 	if (hudController != nullptr)
 		hudController->setTrackNode(pat->getChild(0));
+
+
+	// set the bikeInputState
+	manipulator->setBikeInputState(m_bikeInputState);
 
 
 	// set camera position

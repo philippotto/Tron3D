@@ -94,6 +94,8 @@ namespace troen
 		osg::ref_ptr<input::Keyboard>		m_keyboardHandler;
 		std::shared_ptr<input::PollingDevice> m_pollingThread;
 
+		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
+
 		bool m_hasGameView = false;
 		// the following attributes only exist if the bikeController has a corresponding gameview
 		osg::Uniform*	m_timeOfCollisionUniform;

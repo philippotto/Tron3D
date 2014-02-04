@@ -97,7 +97,8 @@ protected:
 };
 
 
-Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap)
+Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap, int playerID )
+
 {
 	//osg::Group		*group = new osg::Group();
 	int texSize = 1024;
@@ -132,11 +133,11 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
 
 
-	osg::ref_ptr<osg::Texture2D>	idTexture = new osg::Texture2D();
-	idTexture->setTextureSize(texSize, texSize);
-	idTexture->setInternalFormat(GL_RGB);
+	//osg::ref_ptr<osg::Texture2D>	idTexture = new osg::Texture2D();
+	//idTexture->setTextureSize(texSize, texSize);
+	//idTexture->setInternalFormat(GL_RGB);
 	reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER0, texture);
-	reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER1, idTexture);
+	//reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER1, idTexture);
 
 	reflectionCamera->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
 	reflectionTransform->setMatrix(osg::Matrix::scale(1.0, 1.0, -1.0));
@@ -153,10 +154,12 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	levelView->accept(findReflecting);
 	reflectSurface = static_cast<osg::Group*>(findReflecting.getNode())->getChild(0);
 
-	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(1, texture,
+
+	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(4 + playerID, texture,
 		osg::StateAttribute::ON);
 
-	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 1));
+	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));
+
 	//sreflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
 
 	reflectSurface->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID_NOREFLECTION], osg::StateAttribute::OFF);
@@ -168,8 +171,8 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 
 	reflectSurface->getOrCreateStateSet()->addUniform(g_cameraEyeU);
 
-	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(3, idTexture, osg::StateAttribute::ON);
-	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionAttrib", 3));
+	//reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(3, idTexture, osg::StateAttribute::ON);
+	//reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionAttrib", 3));
 
 }
 

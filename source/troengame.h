@@ -55,6 +55,7 @@ namespace troen
 			return m_deformationRendering;
 		}
 
+
 	public slots:
 		void prepareAndStartGame(const GameConfig& config);
 
@@ -78,10 +79,11 @@ namespace troen
 		void startGameLoop();
 
 		void fixCulling(osg::ref_ptr<osgViewer::View>& view);
-
-		// TODO
-		// implement some kind of menu to start the game from
-		//osg::ref_ptr<osgViewer::View>		m_menuView;
+		// fullscreen handling
+		void setupForFullScreen();
+		void returnFromFullScreen();
+		uint m_originalWidth;
+		uint m_originalHeight;
 
 		// OSG Components
 		std::vector<osg::ref_ptr<SampleOSGViewer>>	m_viewers;
@@ -108,13 +110,16 @@ namespace troen
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 		std::shared_ptr<GameLogic>			m_gameLogic;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
-		std::shared_ptr<Reflection>			m_reflection;
+
+		std::vector<std::shared_ptr<Reflection>>		m_reflections;
+
 
 		std::vector<int> m_playerInputTypes;
 		std::vector<osg::Vec3> m_playerColors;
 		std::vector<QString> m_playerNames;
 
 		ResourcePool m_resourcePool;
+
 
 		// BendedViews
 		SplineDeformationRendering* m_deformationRendering;

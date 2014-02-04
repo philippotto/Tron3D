@@ -14,5 +14,7 @@ void main(void)
 
 	mainDeform();
 
+	//gl_Position = gl_ModelViewProjectionMatrix  * gl_Vertex;
 	return;
+
 }

@@ -35,7 +35,9 @@
 #include "view/nodefollowcameramanipulator.h"
 #include "view/reflection.h"
 
+
 #include "BendedViews/src/SplineDeformationRendering.h"
+
 
 #include "globals.h"
 
@@ -264,9 +266,20 @@ bool TroenGame::initializeGameLogic()
 bool TroenGame::initializeReflection()
 {
 	if (m_useReflection)
-		m_reflection = std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameViews[0], m_skyDome->getSkyboxTexture());
+	{
+
+		for (int playerID = 0; playerID < m_playerNodes.size(); playerID++)
+		{
+			m_reflections.push_back(std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameViews[playerID], m_skyDome->getSkyboxTexture(),playerID));
+			m_playerNodes[playerID]->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));
+
+		}
+
+
+	}
 	return true;
 }
+
 
 
 bool TroenGame::initializeViews()
@@ -398,8 +411,11 @@ bool TroenGame::composeSceneGraph()
 	if (m_useReflection)
 	{
 		//sceneNode has to be added to reflection after adding all (non hud) objects
-		m_reflection->addSceneNode(m_sceneNode);
-		m_rootNode->addChild(m_reflection->getReflectionCameraGroup());
+		for (int playerID = 0; playerID < m_playerNodes.size(); playerID++)
+		{
+			m_reflections[playerID]->addSceneNode(m_sceneNode);
+			m_playerNodes[playerID]->addChild(m_reflections[playerID]->getReflectionCameraGroup());
+		}
 	}
 
 	int currentIndex = -1;
@@ -419,6 +435,7 @@ bool TroenGame::composeSceneGraph()
 	for (auto bikeController : m_bikeControllers)
 		radarScene->addChild(bikeController->getViewNode());
 	radarScene->addChild(m_levelController->getViewNode());
+
 
 	// extract to own method? BB should be calculated either before adding the skybox OR by adding the skybox to another node
 	const osg::BoundingSphere& bs = m_sceneNode->getBound();
@@ -476,15 +493,19 @@ void TroenGame::startGameLoop()
 	// INITIALIZATION
 	initialize();
 
-	m_gameloopTimer->start();
-	m_gameTimer->start();
-	m_gameTimer->pause();
 
 	if (m_useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 
+	if (m_fullscreen)
+		setupForFullScreen();
+
 	btVector3 itemBoxVector(500, 255, +0.5);
 	m_levelController->addItemBox(itemBoxVector);
+
+	m_gameloopTimer->start();
+	m_gameTimer->start();
+	m_gameTimer->pause();
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_gameloopTimer->elapsed();
@@ -505,38 +526,36 @@ void TroenGame::startGameLoop()
 	// terminates when first viewer is closed
 	while (!m_viewers[0]->done())
 	{
-		long double currGameloopTime = m_gameloopTimer->elapsed();
-		long double currGameTime = m_gameTimer->elapsed();
-		g_gameTime = currGameTime;
-		g_gameLoopTime = currGameloopTime;
+		g_gameLoopTime = m_gameloopTimer->elapsed();
+		g_gameTime = m_gameTimer->elapsed();
 
 		// are we significantly behind? if yes, "resync", force rendering
-		if ((currGameloopTime - nextTime) > maxMillisecondsBetweenFrames)
-			nextTime = currGameloopTime;
+		if ((g_gameLoopTime - nextTime) > maxMillisecondsBetweenFrames)
+			nextTime = g_gameLoopTime;
 		// is it time to render the next frame?
-		if (m_testPerformance || currGameloopTime >= nextTime)
+		if (m_testPerformance || g_gameLoopTime >= nextTime)
 		{
 			// assign the time for the next update
 			nextTime += minMillisecondsBetweenFrames;
 
 			// LOOP REALLY STARTS HERE:
-			m_gameLogic->step(currGameloopTime, currGameTime);
-			if (!m_gameTimer->paused())
+			m_gameLogic->step(g_gameLoopTime, g_gameTime);
+			if (!m_gameTimer->paused()) 
 			{
 				for (auto bikeController : m_bikeControllers)
-					bikeController->updateModel(currGameTime);
-				m_physicsWorld->stepSimulation(currGameTime);
+					bikeController->updateModel(g_gameTime);
+				m_physicsWorld->stepSimulation(g_gameTime);
 			}
 
-			m_audioManager->Update(currGameloopTime / 1000);
+			m_audioManager->Update(g_gameLoopTime / 1000);
 			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
 			if (m_postProcessing) m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
-			if (currGameloopTime < nextTime || (skippedFrames > maxSkippedFrames))
+			if (g_gameLoopTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
 				for (int i = 0; i < m_viewers.size(); i++)
-					m_HUDControllers[i]->update(currGameloopTime, currGameTime, m_timeLimit,m_gameLogic->getGameState(),m_bikeControllers);
+					m_HUDControllers[i]->update(g_gameLoopTime, g_gameTime, m_timeLimit, m_gameLogic->getGameState(), m_bikeControllers);
 				for (auto viewer : m_viewers)
 					viewer->frame();
 				// TODO: find a way to eleminate this workaround
@@ -552,11 +571,14 @@ void TroenGame::startGameLoop()
 		else // WAIT
 		{
 			// calculate the time to sleep
-			long double sleepTime = (nextTime - currGameloopTime);
+			long double sleepTime = (nextTime - g_gameLoopTime);
 			if (sleepTime > 0)	// sanity check, sleep until nextTime
 				if (!m_testPerformance) m_gameThread->msleep(sleepTime);
 		}
 	}
+
+	if (m_fullscreen)
+		returnFromFullScreen();
 
 	// SHUTDOWN
 	shutdown();
@@ -615,4 +637,31 @@ void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View>& view)
 	view->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 	znear = 1.0;
 	view->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-};
+}
+
+void TroenGame::setupForFullScreen()
+{
+	osg::GraphicsContext::WindowingSystemInterface* wsi =
+	osg::GraphicsContext::getWindowingSystemInterface();
+	if (!wsi)
+	{
+		std::cout << "[TroenGame::setupForFullScreen] error ..." << std::endl;
+		return;
+	}
+	wsi->getScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), m_originalWidth, m_originalHeight);
+
+	//wsi->setScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), 1024, 768);
+	this->resize(m_originalWidth, m_originalHeight);
+}
+
+void TroenGame::returnFromFullScreen()
+{
+	osg::GraphicsContext::WindowingSystemInterface* wsi =
+		osg::GraphicsContext::getWindowingSystemInterface();
+	if (!wsi)
+	{
+		std::cout << "[TroenGame::returnFromFullScreen] error ..." << std::endl;
+		return;
+	}
+	wsi->setScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), m_originalWidth, m_originalHeight);
+}
