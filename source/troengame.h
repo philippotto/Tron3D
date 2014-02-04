@@ -74,10 +74,11 @@ namespace troen
 		void startGameLoop();
 
 		void fixCulling(osg::ref_ptr<osgViewer::View>& view);
-
-		// TODO
-		// implement some kind of menu to start the game from
-		//osg::ref_ptr<osgViewer::View>		m_menuView;
+		// fullscreen handling
+		void setupForFullScreen();
+		void returnFromFullScreen();
+		uint m_originalWidth;
+		uint m_originalHeight;
 
 		// OSG Components
 		std::vector<osg::ref_ptr<SampleOSGViewer>>	m_viewers;
