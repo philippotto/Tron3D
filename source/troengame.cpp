@@ -396,7 +396,7 @@ bool TroenGame::composeSceneGraph()
 	double nearD = 0.1;
 	m_deformationRendering = new SplineDeformationRendering(m_sceneNode);
 	m_deformationRendering->setDeformationStartEnd(nearD, radius);
-	m_deformationRendering->setPreset(1);
+	m_deformationRendering->setPreset(4);
 
 	for (auto hudController : m_HUDControllers) {
 		hudController->attachSceneToRadarCamera(radarScene);
@@ -503,8 +503,13 @@ void TroenGame::startGameLoop()
 				m_physicsWorld->stepSimulation(currTime);
 			}
 
+			// Hack: normalize and use the speed to control the deformation
+			float bikeSpeed = m_bikeControllers[0]->getSpeed();
+			float maxSpeed = 400.f;
 			m_audioManager->Update(currTime/1000);
-			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
+			m_audioManager->setMotorSpeed(bikeSpeed);
+
+			m_deformationRendering->setInterpolationSkalar(double(bikeSpeed / maxSpeed));
 
 			if (m_postProcessing)
 				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());

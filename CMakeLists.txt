@@ -170,6 +170,8 @@ foreach(package ${QT_PACKAGES})
 	find_package(${package} 5.1 REQUIRED)
 endforeach(package)
 
+
+
 # OpenGL
 find_package(OpenGL REQUIRED)
 
@@ -306,6 +308,19 @@ set(sources
 	BendedViews/src/deformentities/preset.h
 	BendedViews/src/deformentities/tagpoint.cpp
 	BendedViews/src/deformentities/tagpoint.h
+	
+	##################################################
+	# Bended Views GUI
+	##################################################
+	BendedViews/src/ui/DeformationConfigWidget.ui
+	BendedViews/src/ui/DeformationConfigWidget.h
+	BendedViews/src/ui/DeformationConfigWidget.cpp
+	BendedViews/src/ui/ControlPointItem.h
+	BendedViews/src/ui/ControlPointItem.cpp
+	BendedViews/src/ui/SplineItem.h
+	BendedViews/src/ui/SplineItem.cpp
+	BendedViews/src/ui/SplineSceneItem.h
+	BendedViews/src/ui/SplineSceneItem.cpp
 
 )
 
@@ -322,6 +337,7 @@ set(target troen)
 add_executable(${target} ${sources})
 
 qt5_use_modules(${target} Core OpenGL Gui Widgets)
+qt5_wrap_ui(${target} BendedViews/src/ui/DeformationConfigWidget.ui)
 
 include_directories(
 	${CMAKE_SOURCE_DIR}
@@ -329,6 +345,7 @@ include_directories(
 	${BULLET_INCLUDE_DIRS}
 	${FMOD_INCLUDE_DIRS}
 	${HIDAPI_INCLUDE_DIRS}
+	${PROJECT_BINARY_DIR} #for the generated files
 )
 
 target_link_libraries( ${target}
