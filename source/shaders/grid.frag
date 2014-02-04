@@ -1,7 +1,7 @@
 #version 130
 
 uniform sampler2D reflectionTex;
-uniform sampler2D reflectionAttrib;
+//uniform sampler2D reflectionAttrib;
 uniform samplerCube skyDome;
 uniform sampler2D diffuseTexture;
 
@@ -32,10 +32,10 @@ void main()
 	vec4 vClipReflection = gl_ModelViewProjectionMatrix * vec4(vertex_objCoords.xy, 10.0 , 1.0);
 	vec2 vDeviceReflection = vClipReflection.xy / vClipReflection.w;
 	vec2 vTextureReflection = vec2(0.5) + 0.5 * vDeviceReflection;
-	vec4 reflected_height = vec4(texture(reflectionAttrib,vTextureReflection).b);
-	vec4 scene_reflection = mix(texture(reflectionTex, vTextureReflection), vec4(0.0), reflected_height);
+	// vec4 reflected_height = vec4(texture(reflectionAttrib,vTextureReflection).b);
+	vec4 scene_reflection = texture(reflectionTex, vTextureReflection); //mix(texture(reflectionTex, vTextureReflection), vec4(0.0), reflected_height);
 	
-	float xy_dist = length(v_eye) / 400.0;
+	float xy_dist = length(v_eye) / 330.0;
 	float skybox_blend = clamp(smoothstep(0.0, 0.2, xy_dist) * xy_dist, 0.0, 0.6);
 	//occlude skybox, when reflection occludes it
 	float occlusion_fac = (1.0 - scene_reflection.a);
