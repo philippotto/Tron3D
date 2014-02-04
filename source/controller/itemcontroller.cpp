@@ -45,6 +45,10 @@ void ItemController::remove()
 {
 	std::static_pointer_cast<ItemModel>(m_model)->remove();
 	std::static_pointer_cast<ItemView>(m_view)->remove();
+
+	m_model.reset();
+	m_view.reset();
+
 	delete this;
 }
 

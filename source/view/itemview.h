@@ -16,6 +16,6 @@ namespace troen
 		void remove();
 	private:
 		osg::ref_ptr<osg::MatrixTransform> m_matrixTransform;
-
+		LevelView* m_levelView;
 	};
 }

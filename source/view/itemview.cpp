@@ -19,6 +19,8 @@ ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelVie
 {
 	AbstractView();
 
+	m_levelView = levelView;
+
 	osg::ref_ptr<osg::Box> box
 		= new osg::Box(osg::Vec3(0.0, 0.0, 0.0), dimensions.x(), dimensions.y(), dimensions.z());
 
@@ -49,5 +51,6 @@ ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelVie
 
 void ItemView::remove()
 {
+	m_levelView->removeItemBox(m_matrixTransform);
 	m_matrixTransform = NULL;
 }

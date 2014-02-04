@@ -523,7 +523,7 @@ void TroenGame::startGameLoop()
 			if (currGameloopTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
 				for (int i = 0; i < m_viewers.size(); i++)
-					m_HUDControllers[i]->update(currGameloopTime, currGameTime, m_timeLimit,m_gameLogic->getGameState(),m_bikeControllers);
+					m_HUDControllers[i]->update(currGameloopTime, currGameTime, m_timeLimit, m_gameLogic->getGameState(), m_bikeControllers);
 				for (auto viewer : m_viewers)
 					viewer->frame();
 				// TODO: find a way to eleminate this workaround

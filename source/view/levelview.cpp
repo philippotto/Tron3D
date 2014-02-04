@@ -206,9 +206,16 @@ void LevelView::addItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform)
 }
 
 
+void troen::LevelView::removeItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform)
+{
+	m_node->removeChild(matrixTransform);
+}
+
 
 osg::ref_ptr<osg::Group>  LevelView::getFloor()
 {
 	return m_node;
 }
+
+
 

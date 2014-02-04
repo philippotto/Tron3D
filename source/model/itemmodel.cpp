@@ -34,6 +34,5 @@ ItemModel::ItemModel(btVector3 dimensions, btVector3 position, std::weak_ptr<Phy
 
 void ItemModel::remove()
 {
-	m_pTrigger;
 	m_world.lock()->removeCollisionObject(m_pTrigger);
 }
