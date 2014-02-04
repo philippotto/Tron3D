@@ -105,7 +105,7 @@ namespace troen
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 		std::shared_ptr<GameLogic>			m_gameLogic;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
-		std::shared_ptr<Reflection>			m_reflection;
+		std::vector<std::shared_ptr<Reflection>>		m_reflections;
 
 		std::vector<int> m_playerInputTypes;
 		std::vector<osg::Vec3> m_playerColors;
