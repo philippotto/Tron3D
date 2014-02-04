@@ -23,10 +23,13 @@ namespace input
 		void setAcceleration(float acceleration);
 		void setTurboPressed(bool pressed);
 		bool getTurboPressed();
+		void setViewingAngle(float angle);
+		float getViewingAngle();
 	private:
 		float m_acceleration;
 		float m_angle;
-		float m_turboPressed;
+		bool m_turboPressed;
+		float m_viewingAngle;
 	};
 }
 }

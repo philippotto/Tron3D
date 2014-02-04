@@ -212,7 +212,7 @@ bool TroenGame::initializeControllers()
 			m_levelController->getSpawnPointForBikeWithIndex(i),
 			m_playerColors[i],
 			&m_resourcePool, m_ownView[i])
-			);
+		);
 	}
 
 	for (int i = 0; i < m_bikeControllers.size(); i++) {
