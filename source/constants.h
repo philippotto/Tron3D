@@ -10,7 +10,6 @@
 namespace troen
 {
 	// GENERAL
-	// extern const long double g_currentTime;
 
 	// GAME
 	extern const int DEFAULT_WINDOW_WIDTH;
@@ -22,6 +21,10 @@ namespace troen
 	extern const float FOVY_INITIAL;
 	extern const float FOVY_ADDITION_MAX;
 	extern const float FOVY_DELTA_MAX;
+
+	// LOGIC
+	extern const double RESPAWN_DURATION;
+	extern const double GAME_START_COUNTDOWN_DURATION;
 
 	//PHYSIS
 	extern const btVector3 DEFAULT_GRAVITY;
@@ -64,6 +67,7 @@ namespace troen
 	extern const float CAMERA_ROTATION_OFFSET;
 	extern const osg::Vec3 CAMERA_EYE_POSITION;
 	extern const float CAMERA_TILT_FACTOR;
+	extern const int HUD_PROJECTION_SIZE;
 
 	extern const unsigned int CAMERA_MASK_MAIN;
 	extern const unsigned int CAMERA_MASK_RADAR;

@@ -90,8 +90,8 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		// higher resolution
 		if (i == ID)
 		{
-			m_fboTextures[i]->setInternalFormat(GL_RG);
-			m_fboTextures[i]->setSourceFormat(GL_RG);
+			m_fboTextures[i]->setInternalFormat(GL_RGB);
+			m_fboTextures[i]->setSourceFormat(GL_RGB);
 			m_fboTextures[i]->setSourceType(GL_FLOAT);
 		}
 		else

@@ -23,9 +23,9 @@
 using namespace troen;
 
 
-LevelView::LevelView(std::shared_ptr<LevelModel> model)
+LevelView::LevelView(std::shared_ptr<LevelModel> model) :
+AbstractView()
 {
-	AbstractView();
 	m_model = model;
 
 	int levelSize = m_model->getLevelSize();
@@ -40,6 +40,7 @@ LevelView::LevelView(std::shared_ptr<LevelModel> model)
 osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
 {
 	osg::ref_ptr<osg::Group> wallsGroup = new osg::Group();
+	wallsGroup->setName("wallsGroup");
 
     osg::ref_ptr<osg::Group> walls = constructGroupForBoxes(m_model->getWalls());
 	addShaderAndUniforms(walls, shaders::OUTER_WALL, levelSize, DEFAULT);
@@ -59,17 +60,23 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
 
-	osg::ref_ptr<osg::Node> floors = osgDB::readNodeFile("data/models/floor_highres.ive"); 
-	
+	osg::ref_ptr<osg::Node> floors = osgDB::readNodeFile("data/models/floor_highres.ive");
 	floors->setNodeMask(CAMERA_MASK_MAIN);
-	
+
+	 //osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
+	floors->setName("floorsNode");
+
 	osg::StateSet *obstaclesStateSet = floors->getOrCreateStateSet();
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
 	setTexture(obstaclesStateSet, "data/textures/floor.tga", 0);
-	addShaderAndUniforms(floorsGroup, shaders::GRID, levelSize, GLOW);
+
+	// will be overwritten if reflection is used
+	addShaderAndUniforms(floorsGroup, shaders::GRID_NOREFLECTION, levelSize, GLOW);
+
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
+
 
 	osg::ref_ptr<osg::Group> radarFloors = constructRadarElementsForBoxes(m_model->getFloors());
 	radarFloors->setNodeMask(CAMERA_MASK_RADAR);
@@ -82,6 +89,7 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 {
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
+	obstaclesGroup->setName("obstaclesGroup");
 
 	osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles());
 	osg::StateSet *obstaclesStateSet = obstacles->getOrCreateStateSet();
@@ -236,3 +244,11 @@ void LevelView::addItemBox(osg::Vec3 position)
 
 	m_node->addChild(matrixTransform);
 }
+
+
+
+osg::ref_ptr<osg::Group>  LevelView::getFloor()
+{
+	return m_node;
+}
+

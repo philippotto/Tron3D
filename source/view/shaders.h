@@ -28,6 +28,7 @@ namespace troen
 							DEFAULT,
 							BIKE,
 							GRID,
+							GRID_NOREFLECTION,
 							FENCE,
 							GBUFFER,
 							HBLUR,
@@ -38,8 +39,6 @@ namespace troen
 							SKYDOME,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
-
-
 	}
 
 }

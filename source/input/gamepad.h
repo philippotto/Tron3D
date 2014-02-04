@@ -27,7 +27,7 @@ namespace input
 		XINPUT_GAMEPAD* getState();
 		bool checkConnection();
 		void run() override;
-		bool isPressed(unsigned short button);
+		bool isPressed(const unsigned short button);
 
 		void vibrate();
 
