@@ -15,7 +15,7 @@ namespace troen
 			dimensions = dimensionsVec;
 			rotation = btQuaternion(0, 0, 0, 1);
 			name = "default";
-			collisionType = 1;
+			collisionType = LEVELOBSTACLETYPE;
 
 		};
 
@@ -24,10 +24,10 @@ namespace troen
 			dimensions = dimensionsVec;
 			rotation = rotationQuat;
 			name = "default";
-			collisionType = 1;
+			collisionType = LEVELOBSTACLETYPE;
 		}
 
-		BoxModel(btVector3 centerVec, btVector3 dimensionsVec, btQuaternion rotationQuat, std::string modelName, int collision_type) {
+		BoxModel(btVector3 centerVec, btVector3 dimensionsVec, btQuaternion rotationQuat, std::string modelName, troen::COLLISIONTYPE collision_type) {
 			center = centerVec;
 			dimensions = dimensionsVec;
 			rotation = rotationQuat;
@@ -39,7 +39,7 @@ namespace troen
 		btVector3 dimensions;
 		btQuaternion rotation;
 		std::string name;
-		int collisionType;
+		troen::COLLISIONTYPE collisionType;
 	};
 
 	
@@ -58,7 +58,7 @@ namespace troen
 	private:
 		void addWalls(float levelSize, float yPosition);
 		void addFloor(float size, float yPosition);
-		void addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type);
+		void addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type = ABSTRACTTYPE);
 
 		void auto_addObstacles();
 

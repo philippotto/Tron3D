@@ -22,7 +22,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1388"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -30,7 +30,7 @@
 				btVector3(529.6404647827148, 461.7601776123047, 12.254399061203003),
 				btQuaternion(-4.367650063841211e-08,-0.9845066666603088,0.17534898221492767,-1.7463129831085666e-09),
                 std::string("Cube.1387"),
-                int(0)
+                LEVELGROUNDTYPE
 			},
 
 			{
@@ -38,7 +38,7 @@
 				btVector3(531.1703491210938, 531.1703491210938, 8.43999981880188),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1386"),
-                int(0)
+                LEVELGROUNDTYPE
 			},
 
 			{
@@ -46,7 +46,7 @@
 				btVector3(288.5529136657715, 2405.4783630371094, 11.89049243927002),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1385"),
-                int(0)
+                LEVELGROUNDTYPE
 			},
 
 			{
@@ -54,7 +54,7 @@
 				btVector3(683.0246734619141, 321.9303894042969, 19.53296184539795),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1384"),
-                int(0)
+                LEVELGROUNDTYPE
 			},
 
 			{
@@ -62,7 +62,7 @@
 				btVector3(1020.994873046875, 898.2110595703125, 6.920419335365295),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1383"),
-                int(0)
+                LEVELGROUNDTYPE
 			},
 
 			{
@@ -70,7 +70,7 @@
 				btVector3(20.000009536743164, 20.000009536743164, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1382"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -78,7 +78,7 @@
 				btVector3(20.000009536743164, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1381"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -86,7 +86,7 @@
 				btVector3(20.000009536743164, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1380"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -94,7 +94,7 @@
 				btVector3(20.000009536743164, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1379"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -102,7 +102,7 @@
 				btVector3(20.000009536743164, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1378"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -110,7 +110,7 @@
 				btVector3(20.000009536743164, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1377"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -118,7 +118,7 @@
 				btVector3(20.000009536743164, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1376"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -126,7 +126,7 @@
 				btVector3(20.000009536743164, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1375"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -134,7 +134,7 @@
 				btVector3(20.000009536743164, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1374"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -142,7 +142,7 @@
 				btVector3(20.000009536743164, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1373"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -150,7 +150,7 @@
 				btVector3(20.0, 20.000009536743164, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1372"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -158,7 +158,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1371"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -166,7 +166,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1370"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -174,7 +174,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1369"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -182,7 +182,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1368"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -190,7 +190,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1367"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -198,7 +198,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1366"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -206,7 +206,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1365"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -214,7 +214,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1364"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -222,7 +222,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1363"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -230,7 +230,7 @@
 				btVector3(20.0, 20.000009536743164, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1362"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -238,7 +238,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1361"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -246,7 +246,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1360"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -254,7 +254,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1359"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -262,7 +262,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1358"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -270,7 +270,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1357"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -278,7 +278,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1356"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -286,7 +286,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1355"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -294,7 +294,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1354"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -302,7 +302,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1353"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -310,7 +310,7 @@
 				btVector3(20.0, 20.000009536743164, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1352"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -318,7 +318,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1351"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -326,7 +326,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1350"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -334,7 +334,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1349"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -342,7 +342,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1348"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -350,7 +350,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1347"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -358,7 +358,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1346"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -366,7 +366,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1345"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -374,7 +374,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1344"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -382,7 +382,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1343"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -390,7 +390,7 @@
 				btVector3(20.0, 20.000009536743164, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1342"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -398,7 +398,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1341"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -406,7 +406,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1340"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -414,7 +414,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1339"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -422,7 +422,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1338"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -430,7 +430,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1337"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -438,7 +438,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1336"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -446,7 +446,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1335"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -454,7 +454,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1334"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -462,7 +462,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1333"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -470,7 +470,7 @@
 				btVector3(20.0, 20.000009536743164, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1332"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -478,7 +478,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1331"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -486,7 +486,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1330"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -494,7 +494,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1329"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -502,7 +502,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1328"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -510,7 +510,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1327"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -518,7 +518,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1326"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -526,7 +526,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1325"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -534,7 +534,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1324"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -542,7 +542,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1323"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -550,7 +550,7 @@
 				btVector3(20.0, 20.000009536743164, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1322"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -558,7 +558,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1321"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -566,7 +566,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1320"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -574,7 +574,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1319"),
-                int(0)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -582,7 +582,7 @@
 				btVector3(184.14979934692383, 184.14979934692383, 600.5661010742188),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1318"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -590,7 +590,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1317"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -598,7 +598,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1316"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -606,7 +606,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1315"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -614,7 +614,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1314"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -622,7 +622,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1313"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -630,7 +630,7 @@
 				btVector3(20.0, 20.000009536743164, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1312"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -638,7 +638,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1311"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -646,7 +646,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1310"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -654,7 +654,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1309"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -662,7 +662,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1308"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -670,7 +670,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1307"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -678,7 +678,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1306"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -686,7 +686,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1305"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -694,7 +694,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1304"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -702,7 +702,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1303"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -710,7 +710,7 @@
 				btVector3(20.0, 20.000009536743164, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1302"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -718,7 +718,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1301"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -726,7 +726,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1300"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -734,7 +734,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1299"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -742,7 +742,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1298"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -750,7 +750,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1297"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -758,7 +758,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1296"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -766,7 +766,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1295"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -774,7 +774,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1294"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -782,7 +782,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1293"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -790,7 +790,7 @@
 				btVector3(20.0, 20.000009536743164, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1292"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -798,7 +798,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1291"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -806,7 +806,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1290"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -814,7 +814,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1289"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -822,7 +822,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1288"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -830,7 +830,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1287"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -838,7 +838,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1286"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -846,7 +846,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1285"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -854,7 +854,7 @@
 				btVector3(20.0, 20.0, 20.0),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1284"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -862,7 +862,7 @@
 				btVector3(184.14979934692383, 184.14979934692383, 600.5661010742188),
 				btQuaternion(0.0,0.0,0.0,1.0),
                 std::string("Cube.1283"),
-                int(1)
+                LEVELOBSTACLETYPE
 			},
 
 			{
@@ -870,7 +870,7 @@
 				btVector3(5342.999267578125, 75.45332908630371, 198.79688262939453),
 				btQuaternion(0.0,0.0,0.7071067690849304,-0.7071067690849304),
                 std::string("Cube.1282"),
-                int(1)
+                LEVELWALLTYPE
 			},
 
 			{
@@ -878,7 +878,7 @@
 				btVector3(5356.6680908203125, 75.45376300811768, 211.36653900146484),
 				btQuaternion(0.0,0.0,0.7071067690849304,-0.7071067690849304),
                 std::string("Cube.1281"),
-                int(1)
+                LEVELWALLTYPE
 			},
 
 			{
@@ -886,7 +886,7 @@
 				btVector3(5356.66748046875, 75.45375347137451, 211.36653900146484),
 				btQuaternion(0.0,0.0,5.960464477539063e-08,-0.9999999403953552),
                 std::string("Cube.1280"),
-                int(1)
+                LEVELWALLTYPE
 			},
 
 			{
@@ -894,12 +894,12 @@
 				btVector3(5342.998046875, 75.45331954956055, 198.79688262939453),
 				btQuaternion(0.0,0.0,5.960464477539063e-08,-0.9999999403953552),
                 std::string("Cube.1279"),
-                int(1)
+                LEVELWALLTYPE
 			} 
 
 			};
 			m_obstacles.insert(m_obstacles.end(), newObstacles.begin(), newObstacles.end());
 		
-			addBoxes(m_obstacles, LEVELOBSTACLETYPE);
+			addBoxes(m_obstacles);
 		}
 	
