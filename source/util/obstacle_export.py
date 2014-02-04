@@ -57,7 +57,7 @@ class LevelExporter():
 														  quat_z=str(obstacle.rotation_quaternion.z),
 														  quat_w=str(obstacle.rotation_quaternion.w),
                                                           name=str(obstacle.name),
-                                                          collisionType=obstacle["CollisionType"])
+                                                          collisionType=str(obstacle["CollisionType"]))
 			if ob_index < len(self.obstacles) -1:
 				auto_gen_code += ",\n"
 		return auto_gen_code
@@ -69,7 +69,7 @@ class LevelExporter():
 				btVector3({length_x}, {length_y}, {length_z}),
 				btQuaternion({quat_x},{quat_y},{quat_z},{quat_w}),
                 std::string("{name}"),
-                int({collisionType})
+                {collisionType}
 			}}"""
 
 
@@ -98,7 +98,7 @@ class LevelExporter():
 			}};
 			m_obstacles.insert(m_obstacles.end(), newObstacles.begin(), newObstacles.end());
 		
-			addBoxes(m_obstacles, LEVELOBSTACLETYPE);
+			addBoxes(m_obstacles);
 		}}
 	"""
 if __name__ == '__main__':
