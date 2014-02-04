@@ -4,8 +4,8 @@ import bpy
 ## all cubes have to be prefixed by "Cube"
 
 #please modify to your own path, for now
-VIEW_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\source\view\auto_levelview.cpp"
-MODEL_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\data\models\simple_level.obj"
+MODEL_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\source\model\auto_levelmodel.cpp"
+OBJ_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\data\models\simple_level.obj"
 #scale blender units by
 SCALE = 10.0
 
@@ -31,13 +31,13 @@ class LevelExporter():
 		with open(MODEL_PATH,"w") as output_file:
 			output_file.write(self.levelModel_template().format(auto_gen_code=self.get_model_autogen()))
 
-		bpy.ops.export_scene.obj(filepath=MODEL_PATH, check_existing=False, filter_glob="*.obj;*.mtl", use_selection=True,
+		bpy.ops.export_scene.obj(filepath=OBJ_PATH, check_existing=False, filter_glob="*.obj;*.mtl", use_selection=True,
 		 use_animation=False, use_mesh_modifiers=True, use_edges=True,
 		  use_smooth_groups=False, use_normals=True, use_uvs=True,
 		   use_materials=True, use_triangles=True, use_nurbs=False, 
 		   use_vertex_groups=False, use_blen_objects=True, group_by_object=False,
 		    group_by_material=False, keep_vertex_order=False, axis_forward='-Z',
-		     axis_up='Y', global_scale=10.0, path_mode='AUTO')
+		     axis_up='Y', global_scale=SCALE, path_mode='AUTO')
 
 
 	def get_model_autogen(self):
@@ -56,7 +56,8 @@ class LevelExporter():
 														  quat_y=str(obstacle.rotation_quaternion.y),
 														  quat_z=str(obstacle.rotation_quaternion.z),
 														  quat_w=str(obstacle.rotation_quaternion.w),
-                                                          name=str(obstacle.name))
+                                                          name=str(obstacle.name),
+                                                          collisionType=obstacle["CollisionType"])
 			if ob_index < len(self.obstacles) -1:
 				auto_gen_code += ",\n"
 		return auto_gen_code
@@ -67,7 +68,8 @@ class LevelExporter():
 				btVector3({pos_x}, {pos_y},{pos_z}),
 				btVector3({length_x}, {length_y}, {length_z}),
 				btQuaternion({quat_x},{quat_y},{quat_z},{quat_w}),
-                std::string("{name}")
+                std::string("{name}"),
+                int({collisionType})
 			}}"""
 
 

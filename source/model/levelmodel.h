@@ -15,6 +15,7 @@ namespace troen
 			dimensions = dimensionsVec;
 			rotation = btQuaternion(0, 0, 0, 1);
 			name = "default";
+			collisionType = 1;
 
 		};
 
@@ -23,19 +24,22 @@ namespace troen
 			dimensions = dimensionsVec;
 			rotation = rotationQuat;
 			name = "default";
+			collisionType = 1;
 		}
 
-		BoxModel(btVector3 centerVec, btVector3 dimensionsVec, btQuaternion rotationQuat, std::string modelName) {
+		BoxModel(btVector3 centerVec, btVector3 dimensionsVec, btQuaternion rotationQuat, std::string modelName, int collision_type) {
 			center = centerVec;
 			dimensions = dimensionsVec;
 			rotation = rotationQuat;
 			name = modelName;
+			collisionType = collision_type;
 		}
 
 		btVector3 center;
 		btVector3 dimensions;
 		btQuaternion rotation;
 		std::string name;
+		int collisionType;
 	};
 
 	
