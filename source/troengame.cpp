@@ -2,6 +2,7 @@
 // OSG
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
+#include <osgUtil/Optimizer>
 
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
@@ -31,6 +32,7 @@
 #include "view/postprocessing.h"
 #include "view/nodefollowcameramanipulator.h"
 #include "view/reflection.h"
+
 
 #include "globals.h"
 
@@ -418,6 +420,12 @@ bool TroenGame::composeSceneGraph()
 	for (auto hudController : m_HUDControllers) {
 		hudController->attachSceneToRadarCamera(radarScene);
 	}
+
+
+	osgUtil::Optimizer optimizer;
+	optimizer.optimize(m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
+		optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS | 
+		optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
 
 	return true;
 }
