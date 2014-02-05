@@ -21,8 +21,8 @@ namespace troen
 	const int NUM_MULTISAMPLES(8);
 
 	// LOGIC
-	const double RESPAWN_DURATION(5000);
-	const double GAME_START_COUNTDOWN_DURATION(6000);
+	const double RESPAWN_DURATION(3000);
+	const double GAME_START_COUNTDOWN_DURATION(4000);
 
 	//PHYSIS
 	const btVector3 DEFAULT_GRAVITY(0,0,-98);
@@ -41,6 +41,8 @@ namespace troen
 	const float BIKE_DECELERATION_FACTOR(4.f);
 	const float BIKE_TURN_FACTOR_MAX(15);
 	const float BIKE_ANGULAR_DAMPENING_TERM(0.001f);
+
+	const float TURBO_PHASE_LENGTH(1000);
 
 	// BIKE_TILT_DAMPENING = 1 would lead to immediate/unsmooth tilt
 	// 1 / BIKE_TILT_MAX specifies angle in radiant
