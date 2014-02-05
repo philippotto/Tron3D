@@ -4,8 +4,8 @@ import bpy
 ## all cubes have to be prefixed by "Cube"
 
 #please modify to your own path, for now
-VIEW_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\source\view\auto_levelview.cpp"
 MODEL_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\source\model\auto_levelmodel.cpp"
+OBJ_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\data\models\simple_level.obj"
 #scale blender units by
 SCALE = 10.0
 
@@ -13,15 +13,31 @@ class LevelExporter():
 	def __init__(self):
 		# obstacle has to be named Cube_XXX to be registered as an obstacle
 		self.obstacles = []
-		for object in bpy.data.scenes['Scene'].objects:
+		for object in bpy.context.selected_objects:
 			if object.name.startswith("Cube"):
 				self.obstacles.append(object)
+				bpy.context.scene.objects.active = object
+				#bpy.ops.mesh.uv_texture_add()
+				if len(object.data.uv_textures) == 0:
+					bpy.ops.mesh.uv_texture_add()
+				object.scale.z = abs(object.scale.z)
+				object.scale.y = abs(object.scale.y)
+				object.scale.x = abs(object.scale.x)
+	
 	
 		#with open(VIEW_PATH,"w") as output_file:
 		#	output_file.write(self.levelView_template().format(auto_gen_code=self.get_view_autogen()))
 
 		with open(MODEL_PATH,"w") as output_file:
 			output_file.write(self.levelModel_template().format(auto_gen_code=self.get_model_autogen()))
+
+		bpy.ops.export_scene.obj(filepath=OBJ_PATH, check_existing=False, filter_glob="*.obj;*.mtl", use_selection=True,
+		 use_animation=False, use_mesh_modifiers=True, use_edges=True,
+		  use_smooth_groups=False, use_normals=True, use_uvs=True,
+		   use_materials=True, use_triangles=True, use_nurbs=False, 
+		   use_vertex_groups=False, use_blen_objects=True, group_by_object=False,
+		    group_by_material=False, keep_vertex_order=False, axis_forward='-Z',
+		     axis_up='Y', global_scale=SCALE, path_mode='AUTO')
 
 
 	def get_model_autogen(self):
@@ -39,7 +55,9 @@ class LevelExporter():
 														  quat_x=str(obstacle.rotation_quaternion.x),
 														  quat_y=str(obstacle.rotation_quaternion.y),
 														  quat_z=str(obstacle.rotation_quaternion.z),
-														  quat_w=str(obstacle.rotation_quaternion.w) )
+														  quat_w=str(obstacle.rotation_quaternion.w),
+                                                          name=str(obstacle.name),
+                                                          collisionType=str(obstacle["CollisionType"]))
 			if ob_index < len(self.obstacles) -1:
 				auto_gen_code += ",\n"
 		return auto_gen_code
@@ -49,7 +67,9 @@ class LevelExporter():
 			{{
 				btVector3({pos_x}, {pos_y},{pos_z}),
 				btVector3({length_x}, {length_y}, {length_z}),
-				btQuaternion({quat_x},{quat_y},{quat_z},{quat_w})
+				btQuaternion({quat_x},{quat_y},{quat_z},{quat_w}),
+                std::string("{name}"),
+                {collisionType}
 			}}"""
 
 
@@ -78,7 +98,7 @@ class LevelExporter():
 			}};
 			m_obstacles.insert(m_obstacles.end(), newObstacles.begin(), newObstacles.end());
 		
-			addBoxes(m_obstacles, LEVELOBSTACLETYPE);
+			addBoxes(m_obstacles);
 		}}
 	"""
 if __name__ == '__main__':

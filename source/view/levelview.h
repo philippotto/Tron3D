@@ -31,7 +31,7 @@ namespace troen
 
 		void setTexture(osg::ref_ptr<osg::StateSet> stateset, const std::string filePath, const int unit);
 
-		void addShaderAndUniforms(osg::ref_ptr<osg::Group>& group, const int shaderIndex,  const int levelSize, const int modelID);
+		void addShaderAndUniforms(osg::ref_ptr<osg::Node>& node, const int shaderIndex, const int levelSize, const int modelID);
 
 		std::shared_ptr<LevelModel> m_model;
 	};

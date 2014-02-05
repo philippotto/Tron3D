@@ -38,6 +38,7 @@ namespace troen
 	const int BIKE_VELOCITY_MIN(BIKE_DIMENSIONS.y() * 30);
 	const float BIKE_VELOCITY_DAMPENING_TERM(.3f);
 	const float BIKE_ACCELERATION_FACTOR_MAX(1.5f);
+	const float BIKE_DECELERATION_FACTOR(4.f);
 	const float BIKE_TURN_FACTOR_MAX(15);
 	const float BIKE_ANGULAR_DAMPENING_TERM(0.001f);
 
