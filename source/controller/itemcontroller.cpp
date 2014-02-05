@@ -22,9 +22,10 @@ ItemController::ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> w
 
 	osg::Vec3 viewDimensions = getDimensions();
 	btVector3 modelDimensions(viewDimensions.x(), viewDimensions.y(), 10);
+	position.setZ(position.z() + viewDimensions.z() / 2.f);
 
 	m_model = std::make_shared<ItemModel>(modelDimensions, position, world, this);
-	m_view = std::make_shared<ItemView>(getDimensions(), btToOSGVec3(position), levelView);
+	m_view = std::make_shared<ItemView>(getDimensions(), btToOSGVec3(position), levelView, m_type);
 }
 
 
@@ -57,5 +58,5 @@ osg::Vec3 ItemController::getDimensions()
 	if (m_type == troen::ItemController::TURBOSTRIP)
 		return osg::Vec3(100, 100, 0.1);
 	else
-		return osg::Vec3(10, 10, 10);
+		return osg::Vec3(8, 8, 8);
 }
