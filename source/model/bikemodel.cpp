@@ -106,8 +106,7 @@ void BikeModel::updateTurboFactor(float newVelocity, float time)
 			m_turboFactor = -1.f;
 		}
 		else {
-			const float turboPhaseLength = 2000;
-			m_turboFactor = 1 - (time - m_timeOfLastTurboInitiation) / turboPhaseLength;
+			m_turboFactor = 1 - (time - m_timeOfLastTurboInitiation) / TURBO_PHASE_LENGTH;
 			m_turboFactor = std::max(0.f, m_turboFactor);
 		}
 	}
