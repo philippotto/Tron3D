@@ -10,6 +10,7 @@
 namespace troen
 {
 	// GENERAL
+	// extern const long double g_currentTime;
 
 	// GAME
 	extern const int DEFAULT_WINDOW_WIDTH;
@@ -39,6 +40,7 @@ namespace troen
 	extern const int BIKE_VELOCITY_MIN;
 	extern const float BIKE_VELOCITY_DAMPENING_TERM;
 	extern const float BIKE_ACCELERATION_FACTOR_MAX;
+	extern const float BIKE_DECELERATION_FACTOR;
 	extern const float BIKE_TURN_FACTOR_MAX;
 	extern const float BIKE_ANGULAR_DAMPENING_TERM;
 	extern const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE;

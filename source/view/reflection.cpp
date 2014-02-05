@@ -97,7 +97,7 @@ protected:
 };
 
 
-Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap)
+Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap, int playerID )
 {
 	//osg::Group		*group = new osg::Group();
 	int texSize = 1024;
@@ -153,10 +153,10 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	levelView->accept(findReflecting);
 	reflectSurface = static_cast<osg::Group*>(findReflecting.getNode())->getChild(0);
 
-	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(1, texture,
+	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(4 + playerID, texture,
 		osg::StateAttribute::ON);
 
-	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 1));
+	/*reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));*/
 	//sreflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
 
 	reflectSurface->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID_NOREFLECTION], osg::StateAttribute::OFF);
