@@ -12,7 +12,7 @@ namespace troen
 	class ItemController : public AbstractController
 	{
 	public:
-		ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> world, LevelView* view);
+		ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> world, TroenGame* troenGame, LevelView* view);
 
 		osg::Vec3 getDimensions();
 
@@ -28,5 +28,7 @@ namespace troen
 		Type m_type;
 		btVector3 m_position;
 		void remove();
+
+		TroenGame* m_troenGame;
 	};
 }

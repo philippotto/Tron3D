@@ -220,7 +220,7 @@ bool TroenGame::initializeSkyDome()
 
 bool TroenGame::initializeControllers()
 {
-	m_levelController = std::make_shared<LevelController>();
+	m_levelController = std::make_shared<LevelController>(this);
 
 	for (int i = 0; i < m_numberOfBikes; i++)
 	{
@@ -441,6 +441,7 @@ bool TroenGame::composeSceneGraph()
 	const osg::BoundingSphere& bs = m_sceneNode->getBound();
 	// todo: the magic number (0.25) can be used to control the length of the deformation and must be possibly adjusted after the scene graph tweaks
 	float radius = bs.radius() * 0.20;
+	std::cout << "radius ############" << radius << std::endl;
 	double nearD = 0.1;
 	m_deformationRendering = new SplineDeformationRendering(m_sceneNode);
 	m_deformationRendering->setDeformationStartEnd(nearD, radius);
@@ -519,6 +520,8 @@ void TroenGame::startGameLoop()
 	// - checkForUserInput and updateModels
 	// - physics + updateViews
 	// - render;
+	m_deformationRendering->setDeformationStartEnd(0.1, 100000);
+
 
 	// terminates when first viewer is closed
 	while (!m_viewers[0]->done())
@@ -555,6 +558,14 @@ void TroenGame::startGameLoop()
 			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
 
 			m_deformationRendering->setInterpolationSkalar(double(bikeSpeed / maxSpeed));
+			
+			double currentBending = m_deformationRendering->getDeformationEnd();
+			const double targetBlending = m_deformationEnd;
+			currentBending += (targetBlending - currentBending) / 250;
+			m_deformationRendering->setDeformationStartEnd(0.1, currentBending);
+
+			m_deformationEnd += (10000 - m_deformationEnd) / 5000;
+
 
 			if (m_postProcessing)
 				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());

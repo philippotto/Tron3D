@@ -55,6 +55,12 @@ namespace troen
 			return m_deformationRendering;
 		}
 
+		void setDeformationEnd(double end) {
+			m_deformationEnd = end;
+		}
+
+		double m_deformationEnd = 10000;
+
 
 	public slots:
 		void prepareAndStartGame(const GameConfig& config);

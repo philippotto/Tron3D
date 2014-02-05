@@ -11,7 +11,7 @@ namespace troen
 	class LevelController : public AbstractController
 	{
 	public:
-		LevelController();
+		LevelController(TroenGame* troenGame);
 
 
 		virtual btTransform getSpawnPointForBikeWithIndex(const int index);
@@ -29,5 +29,8 @@ namespace troen
 		std::vector<btTransform> m_initialBikePositionTransforms;
 		virtual void initializeSpawnPoints();
 		std::weak_ptr<PhysicsWorld> m_world;
+
+		TroenGame* m_troenGame;
+
 	};
 }

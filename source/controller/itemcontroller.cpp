@@ -11,14 +11,18 @@
 #include "../model/itemmodel.h"
 #include "../view/itemview.h"
 
+#include "../troengame.h"
+
+
 using namespace troen;
 
 
-ItemController::ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> world, LevelView* levelView)
+ItemController::ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> world, TroenGame* troenGame, LevelView* levelView)
 {
 	AbstractController();
 	m_type = (ItemController::Type) (randf(0, 10) <= 5 ? 0 : 1);
 	m_position = position;
+	m_troenGame = troenGame;
 
 	osg::Vec3 viewDimensions = getDimensions();
 	btVector3 modelDimensions(viewDimensions.x(), viewDimensions.y(), 10);
@@ -30,6 +34,8 @@ ItemController::ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> w
 
 void ItemController::triggerOn(BikeController* bikeController)
 {
+	m_troenGame->setDeformationEnd(1200);
+
 	if (m_type == HEALTHUP)
 	{
 		bikeController->increaseHealth(BIKE_DEFAULT_HEALTH / 2);
