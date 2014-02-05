@@ -53,8 +53,6 @@ namespace troen
 		std::vector<BoxModel>& getFloors() { return m_floors; };
 		std::vector<BoxModel>& getObstacles() { return m_obstacles; };
 
-		btCollisionObject* createItemBox(btVector3 &position);
-
 	private:
 
 		void addBoxes(std::vector<BoxModel> &boxes,const COLLISIONTYPE type = ABSTRACTTYPE);

@@ -500,9 +500,6 @@ void TroenGame::startGameLoop()
 	if (m_fullscreen)
 		setupForFullScreen();
 
-	btVector3 itemBoxVector(500, 255, +0.5);
-	m_levelController->addItemBox(itemBoxVector);
-
 	m_gameloopTimer->start();
 	m_gameTimer->start();
 	m_gameTimer->pause();
@@ -540,11 +537,14 @@ void TroenGame::startGameLoop()
 
 			// LOOP REALLY STARTS HERE:
 			m_gameLogic->step(g_gameLoopTime, g_gameTime);
-			if (!m_gameTimer->paused()) 
+			if (!m_gameTimer->paused())
 			{
 				for (auto bikeController : m_bikeControllers)
+				{
 					bikeController->updateModel(g_gameTime);
+				}
 				m_physicsWorld->stepSimulation(g_gameTime);
+				m_levelController->update();
 			}
 
 
@@ -564,6 +564,7 @@ void TroenGame::startGameLoop()
 			{
 				for (int i = 0; i < m_viewers.size(); i++)
 					m_HUDControllers[i]->update(g_gameLoopTime, g_gameTime, m_timeLimit, m_gameLogic->getGameState(), m_bikeControllers);
+
 				for (auto viewer : m_viewers)
 					viewer->frame();
 				// TODO: find a way to eleminate this workaround
