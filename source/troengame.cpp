@@ -265,7 +265,6 @@ bool TroenGame::initializeReflection()
 		{
 			m_reflections.push_back(std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameViews[playerID], m_skyDome->getSkyboxTexture(),playerID));
 			m_playerNodes[playerID]->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));
-
 		}
 
 

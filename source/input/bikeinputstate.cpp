@@ -51,5 +51,9 @@ float BikeInputState::getViewingAngle()
 
 void BikeInputState::setViewingAngle(float angle)
 {
-	m_viewingAngle = angle;
+	float viewingAngleRotationFactor = 0.02;
+	float viewingAngleSmoothing = 0.01;
+	m_viewingAngle += angle != 0.f || m_viewingAngle == 0.f ? angle * viewingAngleRotationFactor : -sign(m_viewingAngle) * viewingAngleSmoothing;
+	m_viewingAngle = m_viewingAngle > PI ? -PI + m_viewingAngle - PI : (m_viewingAngle < -PI ? PI + m_viewingAngle + PI : m_viewingAngle);
+	m_viewingAngle = abs(m_viewingAngle) < viewingAngleSmoothing ? 0.f : m_viewingAngle;
 }
