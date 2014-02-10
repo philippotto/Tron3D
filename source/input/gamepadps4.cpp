@@ -118,7 +118,7 @@ void GamepadPS4::run()
 				m_bikeInputState->setAngle(0);
 				m_bikeInputState->setAcceleration(0);
 				m_bikeInputState->setTurboPressed(false);
-				return;
+				continue;
 			};
 		}
 

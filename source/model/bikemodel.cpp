@@ -180,12 +180,16 @@ float BikeModel::updateState(long double time)
 	m_oldVelocity = speed;
 
 	// adapt velocity vector to real direction
-
-	float quat =  bikeRigidBody->getOrientation().getAngle();
+	float angle =  bikeRigidBody->getOrientation().getAngle();
 	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
 
+	// restrict the drifting angle and increase friction if it gets too big
+	if (abs(currentVelocityVectorXY.angle(front.rotate(axis, angle))) > PI_4) {
+		m_bikeFriction = 0.1 * timeFactor;
+	}
+
 	// let the bike drift, if the friction is low
-	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, quat) * speed).normalized() * speed;
+	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed).normalized() * speed;
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
