@@ -111,6 +111,7 @@ void TroenGame::prepareAndStartGame(const GameConfig& config)
 
 	m_playerInputTypes.clear();
 	m_playerColors.clear();
+	m_reflections.clear();
 	for (int i = 0; i < m_numberOfBikes; i++)
 	{
 		//input
