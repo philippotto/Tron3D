@@ -18,7 +18,7 @@ namespace troen
 
 		enum Type
 		{
-			TURBOSTRIP, COIN, HEALTHUP
+			TURBOSTRIP, HEALTHUP, COIN
 		};
 
 

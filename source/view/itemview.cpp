@@ -1,6 +1,9 @@
 #include "itemview.h"
 // OSG
 #include <osg/ShapeDrawable>
+#include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
+#include <osg/Texture2D>
 // troen
 #include "../constants.h"
 #include "shaders.h"
@@ -15,7 +18,7 @@
 
 using namespace troen;
 
-ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelView)
+ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelView, ItemController::Type type)
 {
 	AbstractView();
 
@@ -33,11 +36,15 @@ ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelVie
 	obstaclesStateSet->ref();
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
-	// setTexture(obstaclesStateSet, "data/textures/turbostrip.tga", 0);
+	if (type == ItemController::TURBOSTRIP)
+		setTexture(obstaclesStateSet, "data/textures/turbostrip.tga", 0);
+	else
+		setTexture(obstaclesStateSet, "data/textures/box_health.tga", 0);
 
 	obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
 	obstaclesStateSet->addUniform(new osg::Uniform("levelSize", LEVEL_SIZE));
-	obstaclesStateSet->addUniform(new osg::Uniform("modelID", AbstractView::DEFAULT));
+	obstaclesStateSet->addUniform(new osg::Uniform("modelID", AbstractView::GLOW));
+	obstaclesStateSet->addUniform(new osg::Uniform("trueColor", true));
 
 	osg::Matrixd initialTransform;
 	initialTransform = initialTransform.translate(position);
@@ -47,6 +54,21 @@ ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelVie
 
 	
 	levelView->addItemBox(m_matrixTransform);
+}
+
+void ItemView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit)
+{
+
+	osg::Image* image = osgDB::readImageFile(filePath);
+	if (!image)
+		std::cout << "[TroenGame::levelView]  File \"" << filePath << "\" not found." << std::endl;
+	else
+	{
+		osg::Texture2D* texture = new osg::Texture2D;
+		texture->setImage(image);
+		texture->setResizeNonPowerOfTwoHint(false);
+		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
+	}
 }
 
 void ItemView::remove()
