@@ -2,10 +2,13 @@
 // OSG
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
+
 // todo bended:
 // #include <osg/BoundingSphere>
 // #include <osgViewer/ViewerEventHandlers>
 // #include <osgDB/ReadFile>
+#include <osgUtil/Optimizer>
+
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>
@@ -303,6 +306,7 @@ bool TroenGame::initializeViews()
 
 		osg::ref_ptr<osgViewer::View> newGameView = new osgViewer::View();
 		newGameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
+		newGameView->getCamera()->getOrCreateStateSet()->addUniform(new osg::Uniform("isReflecting", false));
 		newGameView->setSceneData(playerNode);
 
 		osg::ref_ptr<NodeFollowCameraManipulator> manipulator
@@ -450,6 +454,12 @@ bool TroenGame::composeSceneGraph()
 	for (auto hudController : m_HUDControllers) {
 		hudController->attachSceneToRadarCamera(radarScene);
 	}
+
+
+	osgUtil::Optimizer optimizer;
+	optimizer.optimize(m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
+		optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS | 
+		optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
 
 	return true;
 }
