@@ -32,11 +32,15 @@ void FenceView::initializeFence()
 {
 	m_fenceHeight = FENCE_HEIGHT_VIEW;
 
-	m_coordinates = new osg::Vec3Array;
+	m_coordinates = new osg::Vec3Array();
 	m_coordinates->setDataVariance(osg::Object::DYNAMIC);
 
-	m_relativeHeights = new osg::FloatArray;
+	m_relativeHeights = new osg::FloatArray();
 	m_relativeHeights->setDataVariance(osg::Object::DYNAMIC);
+
+	// this value could need adaption; will avoid time-intensive array resizing
+	m_coordinates->reserveArray(10000);
+	m_relativeHeights->reserveArray(10000);
 
 	m_geometry = new osg::Geometry();
 	m_geometry->setVertexArray(m_coordinates);
@@ -110,6 +114,7 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 	// remove if no disadvantages seem necessary?
 	// m_geometry->dirtyBound();
 	m_drawArrays->setCount(m_coordinates->size());
+	
 }
 
 void FenceView::removeAllFences()
@@ -129,6 +134,8 @@ void FenceView::enforceFencePartsLimit()
 	{
 		for (int i = 0; i < (currentFenceParts - maxFenceParts); i++)
 			removeFirstFencePart();
+
+		std::cout << "currentFenceParts: " << currentFenceParts << std::endl;
 	}
 }
 
