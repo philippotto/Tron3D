@@ -52,7 +52,6 @@ TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
 m_numberOfBikes(0),
 m_timeLimit(0),
-m_splitscreen(false),
 m_fullscreen(false),
 m_usePostProcessing(false),
 m_testPerformance(false),
@@ -112,7 +111,6 @@ void TroenGame::prepareAndStartGame(const GameConfig& config)
 {
 	m_numberOfBikes = config.numberOfBikes;
 	m_timeLimit = config.timeLimit;
-	m_splitscreen = config.splitscreen;
 	m_fullscreen = config.fullscreen;
 	m_usePostProcessing = config.usePostProcessing;
 	m_useDebugView = config.useDebugView;
@@ -121,6 +119,7 @@ void TroenGame::prepareAndStartGame(const GameConfig& config)
 
 	m_playerInputTypes.clear();
 	m_playerColors.clear();
+	m_reflections.clear();
 	for (int i = 0; i < m_numberOfBikes; i++)
 	{
 		//input

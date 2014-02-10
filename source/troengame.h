@@ -21,7 +21,6 @@ typedef struct s_GameConfig
 	int* playerInputTypes;
 	QColor* playerColors;
 	QString* playerNames;
-	bool splitscreen;
 	bool fullscreen;
 	bool usePostProcessing;
 	bool useDebugView;
@@ -133,7 +132,6 @@ namespace troen
 		// Startup Options
 		int m_numberOfBikes;
 		int m_timeLimit;
-		bool m_splitscreen;
 		bool m_fullscreen;
 		bool m_usePostProcessing;
 		bool m_useDebugView;

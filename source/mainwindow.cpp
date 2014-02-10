@@ -118,12 +118,6 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(chooseColor(int)));
 	updatePlayerInputBoxes();
 
-	// splitscreenCheckBox
-	m_splitscreenCheckBox = new QCheckBox("&Splitscreen");
-	m_splitscreenCheckBox->setChecked(false);
-	m_splitscreenCheckBox->setDisabled(true);
-	vBoxLayout->addWidget(m_splitscreenCheckBox, 0, Qt::AlignLeft);
-
 	//fullscreenCheckBox
 	m_fullscreenCheckBox = new QCheckBox("&Fullscreen");
 	vBoxLayout->addWidget(m_fullscreenCheckBox, 0, Qt::AlignLeft);
@@ -168,8 +162,6 @@ MainWindow::MainWindow(QWidget * parent)
 
 	connect(m_gameStartButton, SIGNAL(clicked()), this, SLOT(prepareGameStart()));
 	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updatePlayerInputBoxes()));
-	connect(m_splitscreenCheckBox, SIGNAL(stateChanged(int)), this, SLOT(splitscreenToggled()));
-	connect(m_fullscreenCheckBox, SIGNAL(stateChanged(int)), this, SLOT(fullscreenToggled()));
 	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(bikeNumberChanged(int)));
 
 	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(const GameConfig&)));
@@ -218,7 +210,6 @@ void MainWindow::prepareGameStart()
 		config.playerNames[i] = m_playerNameLineEdits[i]->text();
 		config.playerColors[i] = m_playerColors[i];
 	}
-	config.splitscreen = m_splitscreenCheckBox->isChecked();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	config.useDebugView = m_debugViewCheckBox->isChecked();
@@ -235,34 +226,9 @@ void MainWindow::prepareGameStart()
 	emit startGame(config);
 }
 
-void MainWindow::splitscreenToggled()
-{
-	if (m_splitscreenCheckBox->isChecked())
-		m_fullscreenCheckBox->setChecked(false);
-}
-
-void MainWindow::fullscreenToggled()
-{
-	if (m_fullscreenCheckBox->isChecked())
-		m_splitscreenCheckBox->setChecked(false);
-}
-
 void MainWindow::bikeNumberChanged(int newBikeNumber)
 {
-	if (newBikeNumber < 2)
-	{
-		m_splitscreenCheckBox->setChecked(false);
-		m_splitscreenCheckBox->setCheckable(false);
-		m_splitscreenCheckBox->setDisabled(true);
-	}
-	else
-	{
-		m_splitscreenCheckBox->setCheckable(true);
-		m_splitscreenCheckBox->setDisabled(false);
-	}
-
-
-	for (int i = 0; i < MAX_BIKES; i++)
+	for (int i = 1; i < MAX_BIKES; i++)
 	{
 		if (i < newBikeNumber) {
 			m_ownViewCheckboxes[i]->setDisabled(false);
@@ -315,7 +281,6 @@ void MainWindow::loadSettings()
 
 	m_bikeNumberSpinBox->setValue(settings.value("bikeNumber").toInt());
 	m_timeLimitSpinBox->setValue(settings.value("timeLimit").toInt());
-	m_splitscreenCheckBox->setChecked(settings.value("splitscreen").toBool());
 	m_postProcessingCheckBox->setChecked(settings.value("postProcessing").toBool());
 	m_testPerformanceCheckBox->setChecked(settings.value("vSyncOff").toBool());
 	m_debugViewCheckBox->setChecked(settings.value("debugView").toBool());
@@ -337,9 +302,12 @@ void MainWindow::loadSettings()
 		m_playerColors[i] = m_playerColors[i].value() == 0 ? initialColors[i] : m_playerColors[i];
 		QString colorString = QString("background-color: %1").arg(m_playerColors[i].name());
 		m_colorButtons[i]->setStyleSheet(colorString);
+		//own view
+		m_ownViewCheckboxes[i]->setChecked(settings.value("player" + QString::number(i) + "ownView").toBool());
 	}
 
 	updatePlayerInputBoxes();
+	bikeNumberChanged(m_bikeNumberSpinBox->value());
 }
 
 void MainWindow::saveSettings()
@@ -348,7 +316,6 @@ void MainWindow::saveSettings()
 
 	settings.setValue("bikeNumber", QString::number(m_bikeNumberSpinBox->value()));
 	settings.setValue("timeLimit", QString::number(m_timeLimitSpinBox->value()));
-	settings.setValue("splitscreen", QString::number(m_splitscreenCheckBox->isChecked()));
 	settings.setValue("postProcessing", QString::number(m_postProcessingCheckBox->isChecked()));
 	settings.setValue("vSyncOff", QString::number(m_testPerformanceCheckBox->isChecked()));
 	settings.setValue("debugView", QString::number(m_debugViewCheckBox->isChecked()));
@@ -362,6 +329,8 @@ void MainWindow::saveSettings()
 			m_playerComboBoxes[i]->currentIndex());
 		settings.setValue("player" + QString::number(i) + "color",
 			m_playerColors[i]);
+		settings.setValue("player" + QString::number(i) + "ownView",
+			m_ownViewCheckboxes[i]->isChecked());
 	}
 
 	settings.sync();
