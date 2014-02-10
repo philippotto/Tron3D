@@ -17,12 +17,12 @@ namespace troen
 	const float FOVY_INITIAL(29.1484f);
 	const float FOVY_ADDITION_MAX(30.f);
 	const float FOVY_DELTA_MAX(.7f);
-	
+
 	const int NUM_MULTISAMPLES(8);
 
 	// LOGIC
 	const double RESPAWN_DURATION(3000);
-	const double GAME_START_COUNTDOWN_DURATION(4000);
+	const double GAME_START_COUNTDOWN_DURATION(3000);
 
 	//PHYSIS
 	const btVector3 DEFAULT_GRAVITY(0,0,-98);
@@ -86,7 +86,7 @@ namespace troen
 
 
 	const float BIKE_DEFAULT_HEALTH(5 * BIKE_FENCE_IMPACT_THRESHOLD_HIGH);
-	
+
 	// AUDIO
 	const int ENGINE_FREQUENCY_LOW(50000);
 	const int ENGINE_FREQUENCY_HIGH(120000);
