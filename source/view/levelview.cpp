@@ -236,6 +236,8 @@ void LevelView::addItemBox(osg::Vec3 position)
 
 	osg::ref_ptr<osg::MatrixTransform> matrixTransform = new osg::MatrixTransform(initialTransform);
 	matrixTransform->addChild(boxGeode);
+	matrixTransform->setName("itemGeode");
+
 
 	m_node->addChild(matrixTransform);
 }
