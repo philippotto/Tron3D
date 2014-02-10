@@ -133,7 +133,7 @@ float BikeModel::updateState(long double time)
 	float acceleration = m_bikeInputState->getAcceleration();
 
 	// if the handbrake is pulled, reduce friction to allow drifting
-	m_bikeFriction = (abs(m_steering) > BIKE_ROTATION_VALUE) ? 0.03 * timeFactor : fmin((1.f + timeFactor * 0.13f) * m_bikeFriction, 1.0);
+	m_bikeFriction = (abs(m_steering) > BIKE_ROTATION_VALUE) ? 0.05 * timeFactor : fmin((1.f + timeFactor * 0.10f) * m_bikeFriction, 1.0);
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
 

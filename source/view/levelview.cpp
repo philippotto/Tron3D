@@ -83,7 +83,7 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
 	obstaclesGroup->setName("obstaclesGroup");
 
-	osg::ref_ptr<osg::Node> obstacles = osgDB::readNodeFile("data/models/simple_level.obj");
+	osg::ref_ptr<osg::Node> obstacles = osgDB::readNodeFile("data/models/simple_level.ive");
 	obstacles->setCullingActive(false);
 
 	//osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles()); 
