@@ -303,7 +303,7 @@ void MainWindow::loadSettings()
 		QString colorString = QString("background-color: %1").arg(m_playerColors[i].name());
 		m_colorButtons[i]->setStyleSheet(colorString);
 		//own view
-		m_ownViewCheckboxes[i]->setChecked(settings.value("player" + QString::number(i) + "ownView").toBool());
+		m_ownViewCheckboxes[i]->setChecked(settings.value("player" + QString::number(i) + "ownView").toBool() || i == 0);
 	}
 
 	updatePlayerInputBoxes();
