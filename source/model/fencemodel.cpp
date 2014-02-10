@@ -22,22 +22,41 @@ void FenceModel::attachWorld(std::shared_ptr<PhysicsWorld>& world)
 void FenceModel::addFencePart(btVector3 a, btVector3 b)
 {
 	btVector3 fenceVector = b - a;
-	std::shared_ptr<btBoxShape> fenceShape = std::make_shared<btBoxShape>(btVector3(FENCE_PART_WIDTH / 2, fenceVector.length() / 2, FENCE_HEIGHT_MODEL / 2));
+	btVector3 fenceVectorXY = btVector3(fenceVector.getX(), fenceVector.getY(), 0);
+	
+	const btVector3 yAxis = btVector3(0, 1, 0);
+	const btScalar angle = fenceVectorXY.angle(yAxis);
+	const btScalar inverseAngle = fenceVectorXY.angle(-1 * yAxis);
 
-	const btVector3 forward = btVector3(0, 1, 0);
-	const btScalar angle = fenceVector.angle(forward);
-	const btScalar inverseAngle = fenceVector.angle(-1 * forward);
+	const btScalar zAngle = fenceVectorXY.angle(fenceVector);
 
-	btQuaternion rotationQuat;
+	btQuaternion rotationQuatXY;
+	btQuaternion roatationQuat;
 	if (angle != 0 && inverseAngle != 0) {
-		btVector3 axis = fenceVector.cross(-forward).normalized();
-		rotationQuat = btQuaternion(axis, angle);
+		btVector3 axis = fenceVector.cross(-yAxis).normalized();
+		axis.setX(0);
+		axis.setY(0);
+		axis.normalize();
+		rotationQuatXY = btQuaternion(axis, angle);
+		//std::cout << axis.x() << " " << axis.y() << " " << axis.z() << std::endl;
 	}
 	else {
-		rotationQuat = btQuaternion(0, 0, 0, 1);
+		rotationQuatXY = btQuaternion(0, 0, 0, 1);
+		std::cout << "other:" << std::endl;
 	}
 
-	std::shared_ptr<btDefaultMotionState> fenceMotionState = std::make_shared<btDefaultMotionState>(btTransform(rotationQuat, (a + b) / 2 + btVector3(0, 0, FENCE_HEIGHT_MODEL / 2)));
+	//
+	// try using euler angles
+	//pitch is asin(y), if y is up.Once you have pitch, you have yaw as acos(x / r) where r = cos(pitch).
+	//
+	//btScalar roll = 0;
+	//btScalar pitch = asin(fenceVector.normalized().z());
+	//btScalar yaw = acos(fenceVector.normalized().x() / cos(pitch));
+	//std::cout << yaw << " " << pitch << " " << roll << std::endl;
+	//btQuaternion eulerQuaternion(yaw,pitch,roll);
+
+	std::shared_ptr<btBoxShape> fenceShape = std::make_shared<btBoxShape>(btVector3(FENCE_PART_WIDTH / 2, fenceVector.length() / 2, FENCE_HEIGHT_MODEL / 2));
+	std::shared_ptr<btDefaultMotionState> fenceMotionState = std::make_shared<btDefaultMotionState>(btTransform(rotationQuatXY, (a + b) / 2 + btVector3(0, 0, FENCE_HEIGHT_MODEL / 2)));
 
 	const btScalar mass = 0;
 	const btVector3 fenceInertia(0, 0, 0);
