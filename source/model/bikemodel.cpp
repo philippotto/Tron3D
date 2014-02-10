@@ -133,7 +133,7 @@ float BikeModel::updateState(long double time)
 	float acceleration = m_bikeInputState->getAcceleration();
 
 	// if the handbrake is pulled, reduce friction to allow drifting
-	m_bikeFriction = (abs(m_steering) > BIKE_ROTATION_VALUE) ? 0.05 * timeFactor : fmin((1.f + timeFactor * 0.10f) * m_bikeFriction, 1.0);
+	m_bikeFriction = (abs(m_steering) > BIKE_ROTATION_VALUE) ? 0.03 * timeFactor : fmin((1.f + timeFactor * 0.13f) * m_bikeFriction, 1.0);
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
 
@@ -181,12 +181,16 @@ float BikeModel::updateState(long double time)
 	m_oldVelocity = speed;
 
 	// adapt velocity vector to real direction
-
-	float quat =  bikeRigidBody->getOrientation().getAngle();
+	float angle =  bikeRigidBody->getOrientation().getAngle();
 	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
 
+	// restrict the drifting angle and increase friction if it gets too big
+	if (abs(currentVelocityVectorXY.angle(front.rotate(axis, angle))) > PI_4) {
+		m_bikeFriction = 0.1 * timeFactor;
+	}
+
 	// let the bike drift, if the friction is low
-	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, quat) * speed).normalized() * speed;
+	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed).normalized() * speed;
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
