@@ -55,10 +55,12 @@ namespace troen
 		float getTurboInitiation();
 		void registerCollision(btScalar impulse);
 		void reset();
+
 		// controlling the FenceController
 		void removeAllFences();
 		void setLimitFence(const bool boolean);
 		int getFenceLimit();
+
 
 		// getters & setters & attributes
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;

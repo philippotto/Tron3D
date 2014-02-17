@@ -19,6 +19,9 @@ namespace troen
 		void removeAllFences();
 		int getFenceLimit();
 
+		void showFencesInRadarForPlayer(const int id);
+		void hideFencesInRadarForPlayer(const int id);
+
 		void setLastPosition(btQuaternion rotation, const btVector3 position);
 
 	private:

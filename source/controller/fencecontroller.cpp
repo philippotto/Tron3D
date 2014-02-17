@@ -75,3 +75,15 @@ void FenceController::setLastPosition(const btQuaternion rotation, btVector3 pos
 	adjustPositionUsingFenceOffset(rotation, position);
 	m_lastPosition = position;
 }
+
+
+void FenceController::showFencesInRadarForPlayer(const int id)
+{
+	std::static_pointer_cast<FenceView>(m_view)->showFencesInRadarForPlayer(id);
+}
+
+void FenceController::hideFencesInRadarForPlayer(const int id)
+{
+	std::static_pointer_cast<FenceView>(m_view)->hideFencesInRadarForPlayer(id);
+}
+
