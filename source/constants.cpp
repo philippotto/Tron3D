@@ -70,7 +70,7 @@ namespace troen
 	const osg::Vec3 CAMERA_POSITION_OFFSET(0, 0, BIKE_DIMENSIONS.y());
 	const float CAMERA_ROTATION_OFFSET(.05f);
 	const osg::Vec3 CAMERA_EYE_POSITION(0.f,-BIKE_DIMENSIONS.y()*5.5f,BIKE_DIMENSIONS.z()*.8f);
-	const float CAMERA_TILT_FACTOR(16.f);
+	const float CAMERA_TILT_FACTOR(4.f);
 	const int HUD_PROJECTION_SIZE(1000);
 
 
