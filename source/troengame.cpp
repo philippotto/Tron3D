@@ -139,27 +139,27 @@ m_useReflection(false)
 
 	MyInterface obj;
 
-	ScriptEnvironment scripting;
-	scripting.registerObject("testobj", &obj);
+	g_scripting = new ScriptEnvironment();
+	g_scripting->registerObject("testobj", &obj);
 
 	Value value;
 
-	value = scripting.evaluate("1 + 2");
+	value = g_scripting->evaluate("1 + 2");
 	std::cout << "--> " << value.toString() << "\n";
 
-	value = scripting.evaluate("testobj.prompt = 'Welcome!';");
+	value = g_scripting->evaluate("testobj.prompt = 'Welcome!';");
 	std::cout << "--> " << value.toString() << "\n";
 
-	value = scripting.evaluate("testobj.helloWorld() + 1;");
+	value = g_scripting->evaluate("testobj.helloWorld() + 1;");
 	std::cout << "--> " << value.toString() << "\n";
 
-	value = scripting.evaluate("testobj.test();");
+	value = g_scripting->evaluate("testobj.test();");
 	std::cout << "--> " << value.toString() << "\n";
 
-	value = scripting.evaluate("testobj.bottlesOfBeer(120, 3.5, 10);");
+	value = g_scripting->evaluate("testobj.bottlesOfBeer(120, 3.5, 10);");
 	std::cout << "--> " << value.toString() << "\n";
 
-	value = scripting.evaluate("testobj.bottlesOfBeer();");
+	value = g_scripting->evaluate("testobj.bottlesOfBeer();");
 	std::cout << "--> " << value.toString() << "\n";
 
 
