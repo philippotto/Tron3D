@@ -15,7 +15,7 @@ std::vector <int> Gamepad::freePorts(XUSER_MAX_COUNT);
 std::vector <int>* Gamepad::getFreePorts()
 {
 	// initialize freePorts
-	if (Gamepad::freePorts.at(XUSER_MAX_COUNT - 1) == 0){
+	if (Gamepad::freePorts.back() == 0){
 		std::iota(Gamepad::freePorts.begin(), Gamepad::freePorts.end(), 0);
 	}
 	return &Gamepad::freePorts;
@@ -39,11 +39,11 @@ int Gamepad::getPort()
 
 bool Gamepad::checkConnection()
 {
-	std::vector <int> freePorts = *Gamepad::getFreePorts();
+	std::vector <int>* freePorts = Gamepad::getFreePorts();
 	m_isConnected = false;
 
 	if (m_controllerId == -1) {
-		for (auto i : freePorts)
+		for (auto i : *freePorts)
 		{
 			ZeroMemory(&m_state, sizeof(XINPUT_STATE));
 
@@ -51,7 +51,7 @@ bool Gamepad::checkConnection()
 				m_controllerId = i;
 				m_isConnected = true;
 				// remove element with value i from vector
-				freePorts.erase(std::remove(freePorts.begin(), freePorts.end(), i), freePorts.end());
+				freePorts->erase(std::remove(freePorts->begin(), freePorts->end(), i), freePorts->end());
 				break;
 			}
 		}
