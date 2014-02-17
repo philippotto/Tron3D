@@ -101,6 +101,7 @@ namespace troen
 		osg::Uniform*	m_timeOfCollisionUniform;
 		osg::Uniform*	m_velocityUniform;
 		osg::Uniform*	m_timeFactorUniform;
+		osg::Uniform*	m_healthUniform;
 		osg::Group*		m_playerNode;
 
 		// behaviour attributes

@@ -358,6 +358,8 @@ void BikeController::updateModel(const long double gameTime)
 		break;
 	}
 
+	//increaseHealth()
+
 	// turbo should be only applied in one frame
 	if (m_turboInitiated)
 		m_turboInitiated = false;
@@ -390,10 +392,11 @@ void BikeController::setPlayerNode(osg::Group* playerNode)
 	m_timeOfCollisionUniform = new osg::Uniform("timeSinceLastHit", 100000.f);
 	m_velocityUniform = new osg::Uniform("velocity", 0.f);
 	m_timeFactorUniform = new osg::Uniform("timeFactor", 1.f);
+	m_healthUniform = new osg::Uniform("healthNormalized", m_health / BIKE_DEFAULT_HEALTH);
 	m_playerNode->getOrCreateStateSet()->addUniform(m_timeOfCollisionUniform);
 	m_playerNode->getOrCreateStateSet()->addUniform(m_velocityUniform);
 	m_playerNode->getOrCreateStateSet()->addUniform(m_timeFactorUniform);
-
+	m_playerNode->getOrCreateStateSet()->addUniform(m_healthUniform);
 }
 
 void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
@@ -442,6 +445,7 @@ void BikeController::updateUniforms()
 		m_timeOfCollisionUniform->set((float) g_gameTime - m_timeOfLastCollision);
 		m_velocityUniform->set(std::static_pointer_cast<BikeModel>(m_model)->getVelocity());
 		m_timeFactorUniform->set((float) getTimeFactor());
+		m_healthUniform->set(m_health/BIKE_DEFAULT_HEALTH);
 	}
 }
 

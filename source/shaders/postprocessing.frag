@@ -4,7 +4,7 @@ uniform sampler2D sceneLayer;
 uniform sampler2D idLayer;
 uniform sampler2D pongLayer;
 uniform sampler2D oldLayer;
-uniform float timeSinceLastHit;
+uniform float healthNormalized;
 uniform float time;
 uniform float velocity;
 uniform float timeFactor;
@@ -153,12 +153,13 @@ void main(void)
 
 	st = 1 * (st - vec2(0.5));
 
-	float enableDamageHUD = 1 - clamp(timeSinceLastHit / 1000, 0, 1);
+	float enableDamageHUD = healthNormalized;
 	float circleTransparency = st.x * st.x + st.y * st.y;
-	circleTransparency = enableDamageHUD * 2 * min(1, 5 * pow(circleTransparency, 1.5));
+	circleTransparency = (1-enableDamageHUD) * 5 *  min(1, 5 * circleTransparency);
 
 	vec3 hsl = RGBToHSL((sceneColor + pongColor).xyz);
 	hsl.x = mix(hsl.x, 1, 0.99); // .x is hue, .y is saturation, .z is brightness
+	hsl.z *= 0.7;
 	vec3 reddedColor = HSLToRGB(hsl);
 	// BlendPhoenix could be used for a some special mode
 	// color = BlendPhoenix(color, pongColor);
