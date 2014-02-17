@@ -80,6 +80,8 @@ namespace troen
 	const unsigned int CAMERA_MASK_MAIN(1 << 0);
 	const unsigned int CAMERA_MASK_RADAR(1 << 1);
 	const unsigned int CAMERA_MASK_PLAYER[6] {1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7};
+	const unsigned int CAMERA_MASK_NONE(0);
+
 
 
 	// PHYSICS

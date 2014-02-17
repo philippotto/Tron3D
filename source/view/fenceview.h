@@ -21,8 +21,8 @@ namespace troen
 		void enforceFencePartsLimit();
 		void updateFenceGap(const osg::Vec3 lastPosition, const osg::Vec3 position);
 
-		void showFencesInRadar();
-		void hideFencesInRadar();
+		void showFencesInRadarForPlayer(const int id);
+		void hideFencesInRadarForPlayer(const int id);
 
 	private:
 		void initializeFence();

@@ -62,7 +62,7 @@ void FenceView::initializeFence()
 	m_node->setName("fenceGroup");
 
 	m_radarElementsGroup = new osg::Group();
-	m_radarElementsGroup->setNodeMask(CAMERA_MASK_PLAYER[0]);
+	m_radarElementsGroup->setNodeMask(CAMERA_MASK_NONE);
 	m_node->addChild(m_radarElementsGroup);
 }
 
@@ -175,12 +175,15 @@ void FenceView::enforceFencePartsLimit()
 	}
 }
 
-void FenceView::showFencesInRadar()
+void FenceView::showFencesInRadarForPlayer(const int id)
 {
-	m_node->addChild(m_radarElementsGroup);
+	osg::Node::NodeMask currentMask = m_radarElementsGroup->getNodeMask();
+	osg::Node::NodeMask newMask = currentMask | CAMERA_MASK_PLAYER[id];
+	m_radarElementsGroup->setNodeMask(newMask);
 }
 
-void FenceView::hideFencesInRadar()
-{
-	m_node->removeChild(m_radarElementsGroup);
+void FenceView::hideFencesInRadarForPlayer(const int id)
+{	
+	osg::Node::NodeMask currentMask = m_radarElementsGroup->getNodeMask();
+	osg::Node::NodeMask newMask = currentMask & ~CAMERA_MASK_PLAYER[id];
 }

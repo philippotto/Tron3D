@@ -29,7 +29,8 @@ BikeController::BikeController(
 	const osg::Vec3 playerColor,
 	const std::string playerName,
 	ResourcePool *m_resourcePool,
-	bool hasGameView) :
+	bool hasGameView,
+	const int id) :
 AbstractController(),
 m_keyboardHandler(nullptr),
 m_pollingThread(nullptr),
@@ -46,7 +47,8 @@ m_state(BIKESTATE::WAITING),
 m_hasGameView(hasGameView),
 m_killCount(0),
 m_deathCount(0),
-m_playerName(playerName)
+m_playerName(playerName),
+m_id(id)
 {
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
 

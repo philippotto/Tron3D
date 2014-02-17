@@ -21,7 +21,8 @@ namespace troen
 			const osg::Vec3 playerColor,
 			const std::string playerName,
 			ResourcePool *resourcePool,
-			const bool hasGameView);
+			const bool hasGameView,
+			const int id);
 		~BikeController();
 
 		typedef enum enum_BIKESTATE
@@ -70,6 +71,7 @@ namespace troen
 		double getRespawnTime();
 		osg::Vec3 getPlayerColor() { return m_playerColor; };
 		const std::string getPlayerName() { return m_playerName; };
+		const int getId() { return m_id; };
 
 		float increaseHealth(const float diff);
 		float increasePoints(const float diff);
@@ -116,5 +118,6 @@ namespace troen
 		float	m_points;
 		int		m_killCount;
 		int		m_deathCount;
+		int		m_id;
 	};
 }
