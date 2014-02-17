@@ -14,19 +14,9 @@ uniform vec2 Scale;
 uniform vec2 ScaleIn;
 uniform vec4 HmdWarpParam;
 
-
-
-
-// varying vec2 Texcoord;
-
-
-
-
-
-
 void main(void)
 {
-vec4 warpParameters = vec4(1.0f, 0.22f, 0.24f, 0.0f);
+	vec4 warpParameters = vec4(1.0f, 0.22f, 0.24f, 0.0f);
 	vec2 Texcoord = gl_TexCoord[0].st;
 
 	vec2 LensCenter = vec2(0.5f, 0.5f);
@@ -80,17 +70,5 @@ vec4 warpParameters = vec4(1.0f, 0.22f, 0.24f, 0.0f);
 		gl_FragColor = texture2D(left, tc) + texture2D(right, tc);
 	}
 
-	// gl_FragColor = vec4(1.f);
 	return;
-}
-
-
-
-void mainOld(void)
-{
-	vec2 st = gl_TexCoord[0].st;
-
-	vec4 color = texture2D(left, vec2(st.x, st.y));
-
-	gl_FragColor = color;
 }

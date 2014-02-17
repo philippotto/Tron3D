@@ -344,75 +344,23 @@ bool PostProcessing::handleGuiEvents(const osgGA::GUIEventAdapter& ea, osgGA::GU
 
 osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 {
-	// /////////////
 	osg::ref_ptr<osg::Camera> cam = new osg::Camera();
 	TEXTURE_CONTENT SIDE = left ? LEFT : RIGHT;
+	OculusDevice::EyeSide eye = left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE;
 
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0), m_fboTextures[SIDE]);
 	cam->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Configure fboCamera to draw fullscreen textured quad
-	// black clear color
 	cam->setClearColor(osg::Vec4(0.0, 0.0, 0.5, 1.0));
 	cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
-
 	cam->setReferenceFrame(osg::Camera::RELATIVE_RF);
 	cam->setRenderOrder( osg::Camera::PRE_RENDER, 0);
-
 	cam->addChild(m_sceneNode);
-
-
-
-	// calculation
-
-
-	// for stereo rendering.
-	//OVR::Util::Render::StereoConfig stereo;
-	//stereo.SetFullViewport(OVR::Util::Render::Viewport(0, 0, m_width, m_height));
-	//stereo.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
-	//stereo.SetHMDInfo(*m_hmd);
-	//stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
-	//float renderScale = stereo.GetDistortionScale();
-	//
-
-
-	//OVR::Util::Render::StereoEye eye = left ? OVR::Util::Render::StereoEye_Left : OVR::Util::Render::StereoEye_Right;
-
-	//
-	//OVR::Util::Render::StereoEyeParams eyeParams = stereo.GetEyeRenderParams(eye);
-	//OVR::Util::Render::Viewport eyeVP = eyeParams.VP;
-	//OVR::Matrix4f eyeProjection = eyeParams.Projection;
-	//OVR::Matrix4f eyeViewAdjust = eyeParams.ViewAdjust;
-	//
-	//osg::Matrixf eyeProjectionOSG(*eyeProjection.M);
-	//osg::Matrixf eyeViewAdjustOSG(*eyeViewAdjust.M);
-
-	////osg::Matrixf v = m_camera->getViewMatrix();
-	////osg::Matrixf p = m_camera->getProjectionMatrix();
-
-	////cam->setProjectionMatrix(leftProjectionOSG);
-
 
 	osg::ref_ptr<osg::StateSet>	state = cam->getOrCreateStateSet();
 
-state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_EYE], osg::StateAttribute::ON);
-
-	//osg::Matrixf eyeViewAdjustOSG = m_device->viewMatrix(left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE);
-	//state->addUniform(new osg::Uniform("occViewAdjust", eyeViewAdjustOSG));
-	//osg::Matrixf eyeProjectionOSG = m_device->projectionMatrix(left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE);
-
-
-	//state->addUniform(new osg::Uniform("occProjection", eyeProjectionOSG));
-	//cam->setViewport(leftVP.x, leftVP.y, leftVP.w, leftVP.h);
-
-
-	OculusDevice::EyeSide eye = left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE;
-
+	state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_EYE], osg::StateAttribute::ON);
 	state->addUniform(new osg::Uniform("occViewAdjust", m_device->viewMatrix(eye)));
 	state->addUniform(new osg::Uniform("occProjection", m_device->projectionOffsetMatrix(eye)));
-
-
-
 
 	return cam;
 }
@@ -422,34 +370,24 @@ osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes()
 {
 	osg::ref_ptr<osg::Camera> postRenderCamera(new osg::Camera());
 
-	// input textures
-	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + PING), m_fboTextures[PING]);
-	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
-
-	// configure postRenderCamera to draw fullscreen textured quad
 	postRenderCamera->setClearColor(osg::Vec4(0.0, 0.5, 0.0, 1)); // should never see this.
 	postRenderCamera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
 	postRenderCamera->setRenderOrder(osg::Camera::POST_RENDER, 3);
 
-	// geometry
-	/*geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));*/
-
+	// two half screen-aligned-quads for both eyes
 	osg::Geode* geodeLeft(new osg::Geode());
 	geodeLeft->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(1, 0, 0), osg::Vec3(0, 2, 0)));
 	geodeLeft->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+	postRenderCamera->addChild(geodeLeft);
 
 	osg::Geode* geodeRight(new osg::Geode());
 	geodeRight->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(0, -1, 0), osg::Vec3(1, 0, 0), osg::Vec3(0, 2, 0)));
 	geodeRight->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-
-	postRenderCamera->addChild(geodeLeft);
 	postRenderCamera->addChild(geodeRight);
 
 
-	// attach shader program
 	osg::ref_ptr<osg::StateSet>	state = postRenderCamera->getOrCreateStateSet();
 	state->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-
 	state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_MERGE], osg::StateAttribute::ON);
 
 
@@ -461,50 +399,5 @@ osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes()
 	stateRight->addUniform(new osg::Uniform("right", RIGHT));
 	stateRight->setTextureAttributeAndModes(RIGHT, m_fboTextures[RIGHT], osg::StateAttribute::ON);
 
-
-
-
-
-	// remove
-
-	/*OVR::Util::Render::StereoConfig stereo;
-	stereo.SetFullViewport(OVR::Util::Render::Viewport(0, 0, m_width, m_height));
-	stereo.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
-	stereo.SetHMDInfo(*m_hmd);
-	stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
-	float renderScale = stereo.GetDistortionScale();*/
-
-
-	// OVR::Util::Render::StereoEye eye = left ? OVR::Util::Render::StereoEye_Left : OVR::Util::Render::StereoEye_Right;
-
-	//OVR::Util::Render::StereoEyeParams eyeParams = stereo.GetEyeRenderParams(eye);
-	/*OVR::Util::Render::Viewport eyeVP = eyeParams.VP;
-	OVR::Matrix4f eyeProjection = eyeParams.Projection;
-	OVR::Matrix4f eyeViewAdjust = eyeParams.ViewAdjust;
-
-	osg::Matrixf eyeProjectionOSG(*eyeProjection.M);
-	osg::Matrixf eyeViewAdjustOSG(*eyeViewAdjust.M);*/
-
-	//osg::Matrixf v = m_camera->getViewMatrix();
-	//osg::Matrixf p = m_camera->getProjectionMatrix();
-
-	//cam->setProjectionMatrix(leftProjectionOSG);
-
-
-	// remove end
-
-
-
-
-
-
-
-
-
 	return postRenderCamera;
 }
-
-
-
-
-
