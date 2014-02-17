@@ -11,29 +11,29 @@ std::vector<osg::ref_ptr<osg::Program> > shaders::m_allShaderPrograms;
 
 void shaders::reloadShaders()
 {
+
+	std::string oculusShader = "source/shaders/oculuseye.vert";
+
 	shaders::m_allShaderPrograms.resize(SHADER_NAME_COUNT);
-	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "source/shaders/default.frag", "source/shaders/oculuseye.vert"); //"source/shaders/default.vert");
-	reloadShader(shaders::m_allShaderPrograms[BIKE], "source/shaders/bike.frag", "source/shaders/oculuseye.vert"); //"source/shaders/bike.vert");
-	reloadShader(shaders::m_allShaderPrograms[GRID], "source/shaders/grid.frag", "source/shaders/oculuseye.vert"); //"source/shaders/grid.vert");
-	reloadShader(shaders::m_allShaderPrograms[FENCE], "source/shaders/fence.frag", "source/shaders/oculuseye.vert"); //"source/shaders/fence.vert");
-	reloadShader(shaders::m_allShaderPrograms[GBUFFER], "source/shaders/gbuffer.frag", "source/shaders/gbuffer.vert");
-	reloadShader(shaders::m_allShaderPrograms[HBLUR], "source/shaders/Blur.frag", "source/shaders/HBlur.vert");
-	reloadShader(shaders::m_allShaderPrograms[VBLUR], "source/shaders/Blur.frag", "source/shaders/VBlur.vert");
-	reloadShader(shaders::m_allShaderPrograms[POST_PROCESSING], "source/shaders/postprocessing.frag", "");
-	reloadShader(shaders::m_allShaderPrograms[OUTER_WALL], "source/shaders/outer_wall.frag", "source/shaders/oculuseye.vert"); //"source/shaders/outer_wall.vert");
-	reloadShader(shaders::m_allShaderPrograms[SELECT_GLOW_OBJECTS], "source/shaders/selectglowobjects.frag", "");
-	reloadShader(shaders::m_allShaderPrograms[OCULUS_MERGE], "source/shaders/oculusmerge.frag", "");
-
-	//reloadShader(shaders::m_allShaderPrograms[OCULUS_EYE], "source/shaders/oculuseye.vert", "");
-
-
+	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "source/shaders/default.frag", oculusShader, "source/shaders/default.vert");
+	reloadShader(shaders::m_allShaderPrograms[BIKE], "source/shaders/bike.frag", oculusShader, "source/shaders/bike.vert");
+	reloadShader(shaders::m_allShaderPrograms[GRID], "source/shaders/grid.frag", oculusShader, "source/shaders/grid.vert");
+	reloadShader(shaders::m_allShaderPrograms[FENCE], "source/shaders/fence.frag", oculusShader, "source/shaders/fence.vert");
+	reloadShader(shaders::m_allShaderPrograms[GBUFFER], "source/shaders/gbuffer.frag", "source/shaders/gbuffer.vert", "");
+	reloadShader(shaders::m_allShaderPrograms[HBLUR], "source/shaders/Blur.frag", "source/shaders/HBlur.vert", "");
+	reloadShader(shaders::m_allShaderPrograms[VBLUR], "source/shaders/Blur.frag", "source/shaders/VBlur.vert", "");
+	reloadShader(shaders::m_allShaderPrograms[POST_PROCESSING], "source/shaders/postprocessing.frag", "", "");
+	reloadShader(shaders::m_allShaderPrograms[OUTER_WALL], "source/shaders/outer_wall.frag", oculusShader, "source/shaders/outer_wall.vert");
+	reloadShader(shaders::m_allShaderPrograms[SELECT_GLOW_OBJECTS], "source/shaders/selectglowobjects.frag", "", "");
+	reloadShader(shaders::m_allShaderPrograms[OCULUS_MERGE], "source/shaders/oculusmerge.frag", "", "");
 
 }
 
 void shaders::reloadShader(
 	osg::ref_ptr<osg::Program> & program,
 	std::string fragmentFileName,
-	std::string vertexFileName)
+	std::string vertexFileName,
+	std::string secondVertexFileName)
 {
 	// reload shader files, if necessary
 	if (program)
@@ -45,6 +45,9 @@ void shaders::reloadShader(
 			loadShaderSource(program->getShader(1), vertexFileName);
 		}
 
+		if (secondVertexFileName != "")
+			loadShaderSource(program->getShader(2), secondVertexFileName);
+
 	}
 	else
 	{
@@ -54,12 +57,20 @@ void shaders::reloadShader(
 		loadShaderSource(fragShader, fragmentFileName);
 		program->addShader(fragShader);
 
-
 		if (vertexFileName != "")
 		{
 			osg::ref_ptr<osg::Shader> vertShader = new osg::Shader(osg::Shader::VERTEX);
 			loadShaderSource(vertShader, vertexFileName);
 			program->addShader(vertShader);
+		}
+
+
+		if (secondVertexFileName != "")
+		{
+			osg::ref_ptr<osg::Shader> vertShader = new osg::Shader(osg::Shader::VERTEX);
+			loadShaderSource(vertShader, secondVertexFileName);
+			program->addShader(vertShader);
+
 		}
 
 		std::string *mystr;

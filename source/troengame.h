@@ -9,6 +9,7 @@
 #include <osgGA/GUIEventAdapter>
 // troen
 #include "forwarddeclarations.h"
+#include "oculus/oculusdevice.h"
 
 #include "resourcepool.h"
 
@@ -122,9 +123,10 @@ namespace troen
 		bool m_testPerformance;
 
 
+		OculusDevice* m_od;
 
-		OVR::SensorFusion *m_SFusion;
+		/*OVR::SensorFusion *m_SFusion;
 		OVR::SensorDevice *m_pSensor;
-		OVR::HMDInfo* m_hmd;
+		OVR::HMDInfo* m_hmd;*/
 	};
 }

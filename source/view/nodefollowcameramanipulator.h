@@ -2,17 +2,17 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osg/Matrixd>
 
-#include <OVR.h>
+#include "../oculus/oculusdevice.h"
+
 
 namespace troen
 {
 	class NodeFollowCameraManipulator : public osgGA::NodeTrackerManipulator
 	{
 	public:
-		NodeFollowCameraManipulator::NodeFollowCameraManipulator(OVR::SensorFusion* SFusion = nullptr) : osgGA::NodeTrackerManipulator()
+		NodeFollowCameraManipulator::NodeFollowCameraManipulator(OculusDevice* device) : osgGA::NodeTrackerManipulator()
 		{
-
-			m_SFusion = SFusion;
+			m_device = device;
 		}
 
 		virtual osg::Matrixd getMatrix() const;
@@ -26,7 +26,7 @@ namespace troen
 		osg::Vec3 rollPitchYaw(float x, float y, float z, float w) const;
 
 	private:
-		OVR::SensorFusion* m_SFusion;
+		OculusDevice* m_device;
 
 	};
 }

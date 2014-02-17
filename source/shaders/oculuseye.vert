@@ -4,7 +4,7 @@ uniform mat4 occViewAdjust;
 uniform mat4 occProjection;
 
 
-void main()
+void oculusDeform()
 {
 
 
@@ -17,10 +17,11 @@ void main()
 
 
 	mat4 moddedProj = occProjection;
-	moddedProj[2][2] = 1.f;
-	moddedProj[3][3] = 1.f;
-	gl_Position = gl_ProjectionMatrix * (occViewAdjust * (modelView * gl_Vertex));
+	// moddedProj[2][2] = 1.f;
+	// moddedProj[3][3] = 1.f;
+	gl_Position = occProjection * gl_ProjectionMatrix * (occViewAdjust * (modelView * gl_Vertex));
 
+	// gl_Position = vec4(1.f);
 
 	// associative
 	// m1 * m2 * v === (m1 * m2) * v == m1 * (m2 * v)
@@ -35,5 +36,8 @@ void main()
 
 
 	// gl_Position = vec4(0.f);
-
 }
+
+// void main() {
+// 	oculusDeform();
+// }

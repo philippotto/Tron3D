@@ -24,7 +24,7 @@ namespace troen
 	class PostProcessing : public AbstractView //, public osg::Referenced
 	{
 	public:
-		PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height, OVR::HMDInfo* hmd, osg::View * view);
+		PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height, OculusDevice *od, osg::View * view);
 		
 		
 		enum TEXTURE_CONTENT { COLOR, ID, PING, PONG, OLDCOLOR, LEFT, RIGHT, TEXTURE_CONTENT_SIZE };
@@ -45,7 +45,8 @@ namespace troen
 		// Oculus specific Code
 		bool m_useOculus = true;
 		OculusDevice* m_device;
-		OVR::HMDInfo* m_hmd;
+		/*OVR::HMDInfo* m_hmd;*/
+
 		osg::View * m_view;
 
 	protected:

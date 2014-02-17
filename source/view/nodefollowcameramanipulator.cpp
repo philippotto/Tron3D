@@ -59,7 +59,7 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 		nodeCenter = osg::Vec3d(nodePath.back()->getBound().center())*localToWorld + CAMERA_POSITION_OFFSET;
 	}
 	else
-		nodeCenter = osg::Vec3d(0.0f, 0.0f, 0.0f)*localToWorld;
+		nodeCenter = osg::Vec3d(0.0f, 0.0f, 0.0f) * localToWorld;
 
 	// rotation
 	osg::Matrixd coordinateFrame = getCoordinateFrame(nodeCenter);
@@ -80,18 +80,9 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 	
 	rotationOfFrame = coordinateFrame.getRotate();
 
-	if (m_SFusion) {
-		// or getOrientation()
-		Quatf hmdOrient = m_SFusion->GetOrientation();
+	nodeRotation = nodeRollRelToFrame * nodeYawRelToFrame * rotationOfFrame;
 
-		float angle;
-		OVR::Vector3<float> axis;
-		hmdOrient.GetAxisAngle(&axis, &angle);
-
-		osg::Vec3f vec3fAxis(axis.x, axis.z, axis.y);
-		nodeRotation = osg::Quat(angle, vec3fAxis);
-	} else {
-		nodeRotation = nodeRollRelToFrame*nodeYawRelToFrame*rotationOfFrame;
+	if (m_device) {
+		nodeRotation = m_device->getOrientation() * nodeRotation;
 	}
-	
 }

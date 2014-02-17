@@ -1,6 +1,7 @@
 #version 130
 
-uniform sampler2D side;
+uniform sampler2D left;
+uniform sampler2D right;
 
 //////////////////////////////////////////////////////////////////////////
 // Final Color Composition
@@ -76,10 +77,11 @@ vec4 warpParameters = vec4(1.0f, 0.22f, 0.24f, 0.0f);
 			gl_FragColor = vec4(1.f);
 		else
 			gl_FragColor = vec4(0.5);
-		gl_FragColor = texture2D(side, tc);
+		gl_FragColor = texture2D(left, tc) + texture2D(right, tc);
 	}
 
-
+	// gl_FragColor = vec4(1.f);
+	return;
 }
 
 
@@ -88,7 +90,7 @@ void mainOld(void)
 {
 	vec2 st = gl_TexCoord[0].st;
 
-	vec4 color = texture2D(side, vec2(st.x, st.y));
+	vec4 color = texture2D(left, vec2(st.x, st.y));
 
 	gl_FragColor = color;
 }

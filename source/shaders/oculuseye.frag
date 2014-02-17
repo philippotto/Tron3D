@@ -1,8 +1,7 @@
 #version 130
 
 
-
-void main()
+void main(void)
 {
-	gl_FragData[0] = texture(cubemap, gl_TexCoord[0].xyz);
+	gl_FragColor = vec4(1.f);
 }

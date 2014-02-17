@@ -245,11 +245,19 @@ osg::Quat OculusDevice::getOrientation() const
 
 		if (m_sensorFusion->IsPredictionEnabled()) {
 			quat = m_sensorFusion->GetPredictedOrientation(m_predictionDelta);
-		} else {
+		}
+		else {
 			quat = m_sensorFusion->GetOrientation();
 		}
+		
+		float angle;
+		OVR::Vector3<float> axis;
+		quat.GetAxisAngle(&axis, &angle);
 
-		osgQuat.set(quat.x, quat.y, quat.z, -quat.w);
+		osg::Vec3f vec3fAxis(axis.x, axis.z, axis.y);
+		return osg::Quat(angle, vec3fAxis);
+		
+		// osgQuat.set(quat.x, quat.y, quat.z, -quat.w);
 	}
 
 	return osgQuat;

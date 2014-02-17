@@ -138,7 +138,7 @@ void TroenGame::prepareAndStartGame(GameConfig config)
 
 bool TroenGame::initialize()
 {
-	// initializeOculus();
+	initializeOculus();
 
 	m_rootNode = new osg::Group;
 
@@ -269,7 +269,7 @@ bool TroenGame::initializeViews()
 	//m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN | CAMERA_MASK_RADAR);
 
 	osg::ref_ptr<NodeFollowCameraManipulator> manipulator
-		= new NodeFollowCameraManipulator(m_SFusion);
+		= new NodeFollowCameraManipulator(m_od);
 	m_bikeControllers[0]->attachTrackingCameras(manipulator,m_HUDController);
 	m_gameView->setCameraManipulator(manipulator.get());	
 		
@@ -304,7 +304,7 @@ bool TroenGame::initializeViews()
 		m_gameView2->getCamera()->setCullMask(CAMERA_MASK_MAIN);
 
 		osg::ref_ptr<NodeFollowCameraManipulator> manipulator2
-			= new NodeFollowCameraManipulator();
+			= new NodeFollowCameraManipulator(m_od);
 		m_bikeControllers[1]->attachTrackingCamera(manipulator2);
 		m_gameView2->setCameraManipulator(manipulator2.get());
 
@@ -364,7 +364,7 @@ bool TroenGame::composeSceneGraph()
 	if (m_usePostProcessing)
 	{
 		osg::Viewport * viewport = m_gameView->getCamera()->getViewport();
-		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height(), m_hmd, m_gameView);
+		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height(), m_od, m_gameView);
 
 		m_sceneNode = m_postProcessing->getSceneNode();
 
@@ -600,7 +600,10 @@ bool TroenGame::shutdown()
 
 void troen::TroenGame::initializeOculus()
 {
-	System::Init(Log::ConfigureDefaultLog(LogMask_All));
+	m_od = new OculusDevice();
+	
+	return;
+	/*System::Init(Log::ConfigureDefaultLog(LogMask_All));
 	Ptr<DeviceManager> pManager;
 	Ptr<HMDDevice> pHMD;
 	pManager = *DeviceManager::Create();
@@ -632,5 +635,5 @@ void troen::TroenGame::initializeOculus()
 	}
 	else {
 		std::cout << "didnt work :(" << std::endl;
-	}
+	}*/
 }

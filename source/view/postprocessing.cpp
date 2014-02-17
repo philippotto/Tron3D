@@ -31,8 +31,8 @@ static osg::ref_ptr<osg::Uniform> g_nearFarUniform = new osg::Uniform("nearFar",
 
 using namespace troen;
 
-PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height, OVR::HMDInfo* hmd, osg::View* view)
-:m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height), m_hmd(hmd), m_view(view)
+PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int height, OculusDevice *od, osg::View* view)
+:m_root(rootNode), m_sceneNode(new osg::Group()), m_width(width), m_height(height), m_device(od), m_view(view)
 {
 	AbstractView();
 	// init textures, will be recreated when screen size changes
@@ -43,8 +43,6 @@ PostProcessing::PostProcessing(osg::ref_ptr<osg::Group> rootNode, int width, int
 
 	
 	if (m_useOculus) {
-
-		m_device = new OculusDevice;
 
 		unsigned int pass = 0;
 		
@@ -410,17 +408,23 @@ osg::ref_ptr<osg::Camera> PostProcessing::oculusPass(bool left)
 
 	osg::ref_ptr<osg::StateSet>	state = cam->getOrCreateStateSet();
 
-	state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_EYE], osg::StateAttribute::ON);
+state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_EYE], osg::StateAttribute::ON);
+
+	//osg::Matrixf eyeViewAdjustOSG = m_device->viewMatrix(left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE);
+	//state->addUniform(new osg::Uniform("occViewAdjust", eyeViewAdjustOSG));
+	//osg::Matrixf eyeProjectionOSG = m_device->projectionMatrix(left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE);
 
 
-	osg::Matrixf eyeViewAdjustOSG = m_device->viewMatrix(left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE);
-	state->addUniform(new osg::Uniform("occViewAdjust", eyeViewAdjustOSG));
-	osg::Matrixf eyeProjectionOSG = m_device->projectionMatrix(left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE);
-
-
-	state->addUniform(new osg::Uniform("occProjection", eyeProjectionOSG));
-
+	//state->addUniform(new osg::Uniform("occProjection", eyeProjectionOSG));
 	//cam->setViewport(leftVP.x, leftVP.y, leftVP.w, leftVP.h);
+
+
+	OculusDevice::EyeSide eye = left ? OculusDevice::EyeSide::LEFT_EYE : OculusDevice::EyeSide::RIGHT_EYE;
+
+	state->addUniform(new osg::Uniform("occViewAdjust", m_device->viewMatrix(eye)));
+	state->addUniform(new osg::Uniform("occProjection", m_device->projectionOffsetMatrix(eye)));
+
+
 
 	
 	return cam;
@@ -463,11 +467,11 @@ osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes()
 
 
 	osg::ref_ptr<osg::StateSet>	stateLeft = geodeLeft->getOrCreateStateSet();
-	stateLeft->addUniform(new osg::Uniform("side", LEFT));
+	stateLeft->addUniform(new osg::Uniform("left", LEFT));
 	stateLeft->setTextureAttributeAndModes(LEFT, m_fboTextures[LEFT], osg::StateAttribute::ON);
 	
 	osg::ref_ptr<osg::StateSet>	stateRight = geodeRight->getOrCreateStateSet();
-	stateRight->addUniform(new osg::Uniform("side", RIGHT));
+	stateRight->addUniform(new osg::Uniform("right", RIGHT));
 	stateRight->setTextureAttributeAndModes(RIGHT, m_fboTextures[RIGHT], osg::StateAttribute::ON);
 
 
@@ -476,39 +480,30 @@ osg::ref_ptr<osg::Camera> PostProcessing::mergeEyes()
 
 	// remove
 
-	OVR::Util::Render::StereoConfig stereo;
+	/*OVR::Util::Render::StereoConfig stereo;
 	stereo.SetFullViewport(OVR::Util::Render::Viewport(0, 0, m_width, m_height));
 	stereo.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
 	stereo.SetHMDInfo(*m_hmd);
 	stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
-	float renderScale = stereo.GetDistortionScale();
+	float renderScale = stereo.GetDistortionScale();*/
 
 
-	bool left = true;
-	OVR::Util::Render::StereoEye eye = left ? OVR::Util::Render::StereoEye_Left : OVR::Util::Render::StereoEye_Right;
-
-
-	OVR::Util::Render::StereoEyeParams eyeParams = stereo.GetEyeRenderParams(eye);
-	OVR::Util::Render::Viewport eyeVP = eyeParams.VP;
+	// OVR::Util::Render::StereoEye eye = left ? OVR::Util::Render::StereoEye_Left : OVR::Util::Render::StereoEye_Right;
+	
+	//OVR::Util::Render::StereoEyeParams eyeParams = stereo.GetEyeRenderParams(eye);
+	/*OVR::Util::Render::Viewport eyeVP = eyeParams.VP;
 	OVR::Matrix4f eyeProjection = eyeParams.Projection;
 	OVR::Matrix4f eyeViewAdjust = eyeParams.ViewAdjust;
 
 	osg::Matrixf eyeProjectionOSG(*eyeProjection.M);
-	osg::Matrixf eyeViewAdjustOSG(*eyeViewAdjust.M);
+	osg::Matrixf eyeViewAdjustOSG(*eyeViewAdjust.M);*/
 
 	//osg::Matrixf v = m_camera->getViewMatrix();
 	//osg::Matrixf p = m_camera->getProjectionMatrix();
 
 	//cam->setProjectionMatrix(leftProjectionOSG);
 
-
-
-	state->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::OCULUS_EYE], osg::StateAttribute::ON);
-
-	state->addUniform(new osg::Uniform("occViewAdjust", eyeViewAdjustOSG));
-	state->addUniform(new osg::Uniform("occProjection", eyeProjectionOSG));
-
-
+	
 	// remove end
 
 

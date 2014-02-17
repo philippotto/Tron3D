@@ -8,13 +8,15 @@ uniform vec3 playerColor;
 
 out vec2 texCoord;
 
-out vec3 diffuseColor; 
+out vec3 diffuseColor;
 // the diffuse Phong lighting computed in the vertex shader
 
 out vec3 normalDirection;
 out vec3 viewDirection;
 out float attenuation;
 out vec3 lightDirection;
+
+void oculusDeform();
 
 const vec4 lightPosition = vec4(0.0,-50.0,0.0,1.0) ;
 const vec3 diffuseLight = vec3(1.0,1.0,1.0);
@@ -40,24 +42,24 @@ lightSource light0 = lightSource(
 
 void main()
 {
-	
+
 	normalDirection = normalize(gl_NormalMatrix * gl_Normal);
-	viewDirection = -normalize(vec3(gl_ModelViewMatrix * gl_Vertex)); 
-	
+	viewDirection = -normalize(vec3(gl_ModelViewMatrix * gl_Vertex));
+
 	vec3 vertexToLightSource =   vec4(light0.position
 	- gl_ModelViewMatrix * gl_Vertex).xyz;
-	
-	
+
+
 	float distance = length(light0.position);
-	
+
 	attenuation = 1.0;
-	
+
 	lightDirection = normalize(vertexToLightSource);
 
-	vec3 ambientLighting = ambientMaterialColor.xyz * gl_LightModel.ambient.xyz  ; 
+	vec3 ambientLighting = ambientMaterialColor.xyz * gl_LightModel.ambient.xyz  ;
 	// without material color!
 
-	vec3 diffuseReflection = attenuation 
+	vec3 diffuseReflection = attenuation
 		* diffuseLight.xyz
 		//* max(0.0, dot(normalDirection, lightDirection))
 		* diffuseMaterialColor.xyz;
@@ -68,4 +70,7 @@ void main()
 
 	texCoord = gl_MultiTexCoord0.xy;
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+
+	oculusDeform();
+	return;
 }
