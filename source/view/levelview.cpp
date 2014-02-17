@@ -114,7 +114,7 @@ void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node>& node, int shaderIn
 	stateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaderIndex], osg::StateAttribute::ON);
 	stateSet->addUniform(new osg::Uniform("levelSize", levelSize));
 	stateSet->addUniform(new osg::Uniform("modelID", modelID));
-	stateSet->addUniform(new osg::Uniform("trueColor", false));
+	stateSet->addUniform(new osg::Uniform("trueColor", 0.f));
 	if (modelID == GLOW)
 		stateSet->addUniform(new osg::Uniform("glowIntensity", 1.f));
 

@@ -2,19 +2,18 @@
 uniform sampler2D diffuseTexture;
 uniform int modelID;
 uniform float glowIntensity;
-uniform bool trueColor;
+uniform float trueColor;
 
 in vec2 uv;
 in float scaled_height;
 
 void main() {
-	vec4 default_tex =  texture(diffuseTexture, uv);
-	if (trueColor) {
-		gl_FragData[0] = default_tex;
-	} else {
-		gl_FragData[0] = vec4(default_tex.x,default_tex.x / 2.0, default_tex.x, 1.0);
-	}
-	//vec4(1.0 - scaled_height / 50.0);
+	vec4 diffuseColor =  texture(diffuseTexture, uv);
+	vec4 adjustedColor = vec4(diffuseColor.x, diffuseColor.x / 2.0, diffuseColor.x, 1.0);
+
+	// decide whether to use the original or adjusted color, based on the trueColor uniform
+	gl_FragData[0] = mix(adjustedColor, diffuseColor, trueColor);
+
 	//3channels: select_group, attribute (f.e glowintensity for glow group), height in world coords
 	gl_FragData[1] = vec4(modelID, glowIntensity,  scaled_height / 200.0, 0);
 }
