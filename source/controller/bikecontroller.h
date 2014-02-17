@@ -97,7 +97,7 @@ namespace troen
 
 		bool m_hasGameView = false;
 		// the following attributes only exist if the bikeController has a corresponding gameview
-		osg::Uniform*	m_timeOfCollisionUniform;
+		osg::Uniform*	m_healthUniform;
 		osg::Group*		m_playerNode;
 
 		// behaviour attributes
