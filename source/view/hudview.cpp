@@ -144,9 +144,12 @@ void HUDView::resize(const int width,const int height)
 	osg::ref_ptr<osg::Viewport> hudViewport = new osg::Viewport(0, 0, width, height);
 	m_camera->setViewport(hudViewport);
 	resizeHudComponents(width, height);
-	int offset = height / 20;
-	int size = height / 2.5;
-	osg::ref_ptr<osg::Viewport> radarViewport = new osg::Viewport(offset, offset * 4, size, size);
+
+	int smallerBound = height < width ? height : width;
+	int offsetX = smallerBound / 20;
+	int offsetY = height / 10;
+	int size = smallerBound / 3;
+	osg::ref_ptr<osg::Viewport> radarViewport = new osg::Viewport(offsetX, offsetY, size, size);
 	m_radarCamera->setViewport(radarViewport);
 }
 
@@ -175,7 +178,7 @@ osg::Camera* HUDView::createRadar()
 	m_radarCamera->setClearMask(GL_DEPTH_BUFFER_BIT);
 	m_radarCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	int offset = DEFAULT_WINDOW_HEIGHT / 20;
-	int size = DEFAULT_WINDOW_HEIGHT / 2.5;
+	int size = DEFAULT_WINDOW_HEIGHT / 3;
 	m_radarCamera->setViewport(offset, offset * 2, size, size);
 
 	m_radarCamera->setViewMatrix(osg::Matrixd::lookAt(osg::Vec3(0.0f, 0.0f, 500.0f), osg::Vec3(0.f, 0.f, 0.f), osg::Y_AXIS));
