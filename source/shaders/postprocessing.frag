@@ -4,6 +4,10 @@ uniform sampler2D sceneLayer;
 uniform sampler2D idLayer;
 uniform sampler2D pongLayer;
 uniform sampler2D oldLayer;
+uniform float healthNormalized;
+uniform float time;
+uniform float velocity;
+uniform float timeFactor;
 
 /*
 ** Copyright (c) 2012, Romain Dura romain@shazbits.com
@@ -142,17 +146,20 @@ void main(void)
 
 	vec4 oldColor = texture2D(oldLayer, st);
 
-	const float oldFrameWeight = 0.5;
-	const float newFrameWeight = 1 - oldFrameWeight;
+	// motion blur is framerate independent
+	float motionBlurFactor = smoothstep(300.0, 450.0, velocity);
+	float oldFrameWeight = max(0.1, pow(motionBlurFactor * 0.8, timeFactor));
+	float newFrameWeight = 1 - oldFrameWeight;
 
 	st = 1 * (st - vec2(0.5));
 
-	const int enableDamageHUD = 0;
+	float enableDamageHUD = healthNormalized;
 	float circleTransparency = st.x * st.x + st.y * st.y;
-	circleTransparency = enableDamageHUD * min(1, 5 * pow(circleTransparency, 1.5));
+	circleTransparency = (1-enableDamageHUD) * 5 *  min(1, 5 * circleTransparency);
 
 	vec3 hsl = RGBToHSL((sceneColor + pongColor).xyz);
 	hsl.x = mix(hsl.x, 1, 0.99); // .x is hue, .y is saturation, .z is brightness
+	hsl.z *= 0.7;
 	vec3 reddedColor = HSLToRGB(hsl);
 	// BlendPhoenix could be used for a some special mode
 	// color = BlendPhoenix(color, pongColor);

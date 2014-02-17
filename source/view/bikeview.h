@@ -18,8 +18,8 @@ namespace troen
 	class BikeView : public AbstractView
 	{
 	public:
-		BikeView(osg::Vec3 color, ResourcePool* resourcePool);
-		void setTexture(osg::ref_ptr<osg::StateSet> stateset, ResourcePool::TextureResource textureName, int unit);
+		BikeView(const osg::Vec3 color, ResourcePool* resourcePool);
+		void setTexture(osg::ref_ptr<osg::StateSet> stateset, const ResourcePool::TextureResource textureName, const int unit);
 
 		osg::ref_ptr<osg::Node> createCyclePart(
 			ResourcePool::ModelResource objName,
@@ -33,7 +33,7 @@ namespace troen
 		osg::ref_ptr<osg::Node> m_MovieCycle_Body;
 
 		void update();
-		void createPlayerMarker(osg::Vec3 color);
+		void createPlayerMarker(const osg::Vec3 color);
 
 	private:
 		osg::Vec3 m_playerColor;

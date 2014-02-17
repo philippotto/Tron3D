@@ -116,8 +116,8 @@ void PostProcessing::setupTextures(const unsigned int & width, const unsigned in
 		// higher resolution
 		if (i == ID)
 		{
-			m_fboTextures[i]->setInternalFormat(GL_RG);
-			m_fboTextures[i]->setSourceFormat(GL_RG);
+			m_fboTextures[i]->setInternalFormat(GL_RGB);
+			m_fboTextures[i]->setSourceFormat(GL_RGB);
 			m_fboTextures[i]->setSourceType(GL_FLOAT);
 		}
 		else
@@ -288,6 +288,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	state->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(PONG, m_fboTextures[PONG], osg::StateAttribute::ON);
 	state->setTextureAttributeAndModes(OLDCOLOR, m_fboTextures[OLDCOLOR], osg::StateAttribute::ON);
+
 
 	return postRenderCamera;
 }

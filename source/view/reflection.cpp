@@ -19,21 +19,19 @@
 #include <osg/Camera>
 #include <osg/LightModel>
 #include <osg/ClipNode>
-
-
+#include <osg/ClipPlane>
 //troen
 #include "reflection.h"
 #include "shaders.h"
 #include "skydome.h"
 #include "../constants.h"
-
 /*
 **
 */
 using namespace troen;
 
+
 static osg::ref_ptr<osg::Uniform> g_cameraEyeU = new osg::Uniform("cameraEye", osg::Vec3(0.0, 0.0,0.0));
-static osg::ref_ptr<osg::Uniform> g_cameraViewU = new osg::Uniform("cameraViewMatrix", osg::Matrixd());
 
 class CUpdateCameraCallback : public osg::NodeCallback
 {
@@ -68,6 +66,7 @@ public:
 	}
 };
 
+
 class FindNamedNode : public osg::NodeVisitor
 {
 public:
@@ -98,11 +97,10 @@ protected:
 };
 
 
-Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap)
+Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap, int playerID )
 {
-
 	//osg::Group		*group = new osg::Group();
-	int texSize = 512;
+	int texSize = 1024;
 	// Set up the reflection camera
 	cameraGroup = new osg::Group();
 	reflectionCamera = new osg::Camera();
@@ -125,12 +123,20 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 	m_ReflectionClipPlane = new osg::ClipPlane(0, osg::Vec4d(0.0, 0.0, 1.0, 0.0));
 	m_reflectionClipNode = new osg::ClipNode;
 	m_reflectionClipNode->addClipPlane(m_ReflectionClipPlane);
-	
+
 
 	osg::ref_ptr<osg::Texture2D>	texture = new osg::Texture2D();
 	texture->setTextureSize(texSize, texSize);
 	texture->setInternalFormat(GL_RGBA);
+	texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
+	texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
+
+
+	//osg::ref_ptr<osg::Texture2D>	idTexture = new osg::Texture2D();
+	//idTexture->setTextureSize(texSize, texSize);
+	//idTexture->setInternalFormat(GL_RGBA);
 	reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER0, texture);
+	//reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER1, idTexture);
 
 	reflectionCamera->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
 	reflectionTransform->setMatrix(osg::Matrix::scale(1.0, 1.0, -1.0));
@@ -142,14 +148,19 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 
 
 	// Set reflection textures
+	osg::ref_ptr<osg::Node> reflectSurface;
+	FindNamedNode findReflecting("floorsNode");
+	levelView->accept(findReflecting);
+	reflectSurface = static_cast<osg::Group*>(findReflecting.getNode())->getChild(0);
 
-	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(1, texture,
+	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(4 + playerID, texture,
 		osg::StateAttribute::ON);
 
-	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 1));
+	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));
 	//sreflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
 
-	//reflectNode->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
+	reflectSurface->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID_NOREFLECTION], osg::StateAttribute::OFF);
+	reflectSurface->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
 
 	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(2, cubeMap, osg::StateAttribute::ON);
 
@@ -157,8 +168,10 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osg
 
 	reflectSurface->getOrCreateStateSet()->addUniform(g_cameraEyeU);
 
-}
+	//reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(3, idTexture, osg::StateAttribute::ON);
+	//reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionAttrib", 3));
 
+}
 
 
 bool Reflection::addSceneNode(osg::ref_ptr<osg::Group> sceneNode)

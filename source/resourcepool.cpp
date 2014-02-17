@@ -5,16 +5,9 @@
 
 using namespace troen;
 
-ResourcePool::ResourcePool() {
+ResourcePool::ResourcePool() {}
 
-
-
-}
-
-ResourcePool::~ResourcePool()
-{
-
-}
+ResourcePool::~ResourcePool() {}
 
 void ResourcePool::readData()
 {
@@ -49,7 +42,11 @@ void ResourcePool::readData()
 	for (int i = 0; i < m_textureCount; ++i)
 	{
 		const std::string filePath = folder + textureFileNames[i];
-		m_images[i] = osgDB::readImageFile(filePath);
+		//m_images[i] = osgDB::readImageFile(filePath);
+		
+		osg::ref_ptr<osg::Image> img = osgDB::readImageFile(filePath);
+		m_images[i] = img.release();
+		
 	}
 
 
@@ -77,6 +74,11 @@ osg::Image* ResourcePool::getImage(TextureResource texture)
 {
 	if (!m_dataAlreadyRead)
 		readData();
+
+	if (!m_images[texture]->valid() || !m_images[texture] || m_images[texture]->getImageSizeInBytes() <= 0) {
+		std::cout << "rereading data for texture: " << texture << std::endl;
+		readData();	
+	}
 
 	return m_images[texture];
 }

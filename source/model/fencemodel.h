@@ -11,7 +11,7 @@ namespace troen
 		FenceModel(FenceController* fenceController);
 		void attachWorld(std::shared_ptr<PhysicsWorld>& world);
 
-		void addFencePart(btVector3 a, btVector3 b);
+		void addFencePart(const btVector3 a, const btVector3 b);
 		void removeFirstFencePart();
 		void removeAllFences();
 		void enforceFencePartsLimit();

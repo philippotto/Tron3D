@@ -21,13 +21,14 @@ namespace troen
 		virtual ~PhysicsWorld();
 
 		void initializeWorld();
-		void stepSimulation(long double currentTime);
+		void stepSimulation(const long double currentTime);
 
 		void addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies, const short group = 0, const short mask = 0);
 		void addRigidBody(btRigidBody *body, const short group = 0, const short mask = 0);
 		void removeRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies);
 		void removeRigidBody(btRigidBody* body);
 		void addCollisionObject(btCollisionObject* obj);
+		void removeCollisionObject(btCollisionObject* obj);
 		// debugview
 		util::GLDebugDrawer* m_debug;
 

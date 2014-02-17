@@ -6,16 +6,23 @@
 #include "../constants.h"
 // other
 #include <WinBase.h>
+#include <numeric>
 
 using namespace troen::input;
 
-int Gamepad::getPort()
+std::vector <int> Gamepad::freePorts(XUSER_MAX_COUNT);
+
+std::vector <int>* Gamepad::getFreePorts()
 {
-	return m_controllerId + 1;
+	// initialize freePorts
+	if (Gamepad::freePorts.back() == 0){
+		std::iota(Gamepad::freePorts.begin(), Gamepad::freePorts.end(), 0);
+	}
+	return &Gamepad::freePorts;
 }
 
 Gamepad::~Gamepad() {
-	if (m_controllerId > 0) {
+	if (m_controllerId >= 0) {
 		setVibration(false);
 	}
 }
@@ -25,21 +32,39 @@ XINPUT_GAMEPAD* Gamepad::getState()
 	return &m_state.Gamepad;
 }
 
+int Gamepad::getPort()
+{
+	return m_controllerId;
+}
+
 bool Gamepad::checkConnection()
 {
-	int cId = -1;
+	std::vector <int>* freePorts = Gamepad::getFreePorts();
+	m_isConnected = false;
 
-	for (int i = 0; i < XUSER_MAX_COUNT && cId == -1; i++)
-	{
+	if (m_controllerId == -1) {
+		for (auto i : *freePorts)
+		{
+			ZeroMemory(&m_state, sizeof(XINPUT_STATE));
+
+			if (XInputGetState(i, &m_state) == ERROR_SUCCESS) {
+				m_controllerId = i;
+				m_isConnected = true;
+				// remove element with value i from vector
+				freePorts->erase(std::remove(freePorts->begin(), freePorts->end(), i), freePorts->end());
+				break;
+			}
+		}
+	}
+	else {
 		ZeroMemory(&m_state, sizeof(XINPUT_STATE));
 
-		if (XInputGetState(i, &m_state) == ERROR_SUCCESS)
-			cId = i;
+		if (XInputGetState(m_controllerId, &m_state) == ERROR_SUCCESS) {
+			m_isConnected = true;
+		}
 	}
 
-	m_controllerId = cId;
-
-	return m_controllerId != -1;
+	return m_isConnected;
 }
 
 // Returns false if the controller has been disconnected
@@ -50,18 +75,20 @@ void Gamepad::run()
 	while (m_pollingEnabled)
 	{
 
-		if (m_controllerId == -1)
+		if (!m_isConnected)
 			checkConnection();
 	
-		if (m_controllerId != -1)
+		if (m_isConnected)
 		{
 			ZeroMemory(&m_state, sizeof(XINPUT_STATE));
 			if (XInputGetState(m_controllerId, &m_state) != ERROR_SUCCESS)
 			{
 				m_bikeInputState->setAngle(0);
 				m_bikeInputState->setAcceleration(0);
-				m_controllerId = -1;
-				return;
+				m_bikeInputState->setTurboPressed(false);
+				m_bikeInputState->setViewingAngle(0);
+				m_isConnected = false;
+				continue;
 			}
 
 			float normLX = fmaxf(-1, (float)m_state.Gamepad.sThumbLX / 32767);
@@ -88,12 +115,21 @@ void Gamepad::run()
 			float handbrakePressed = isPressed(XINPUT_GAMEPAD_X);
 			bool turboPressed = isPressed(XINPUT_GAMEPAD_A);
 
+			float viewingAngle;
+			if (m_rightStickX != 0.0 || m_rightStickY != 0.0) {
+				float relativeAngle = atan(m_rightStickX / m_rightStickY);// *abs(m_rightStickX);
+				viewingAngle = (m_rightStickY < 0.f ? m_rightStickX < 0 ? -PI + relativeAngle : PI + relativeAngle : relativeAngle);
+			}
+			else {
+				viewingAngle = 0.f;
+			}
+
 			m_bikeInputState->setAcceleration(m_rightTrigger - m_leftTrigger);
 			m_bikeInputState->setAngle(-m_leftStickX - m_leftStickX * handbrakePressed * BIKE_HANDBRAKE_FACTOR);
 			m_bikeInputState->setTurboPressed(turboPressed);
+			m_bikeInputState->setViewingAngle(-viewingAngle);
 
 			vibrate();
-
 		}
 
 		this->msleep(POLLING_DELAY_MS);

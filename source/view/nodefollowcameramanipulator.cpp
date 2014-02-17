@@ -3,6 +3,8 @@
 #include <osg/PositionAttitudeTransform>
 // troen
 #include "../constants.h"
+#include "../input/bikeinputstate.h"
+
 using namespace troen;
 
 
@@ -40,6 +42,11 @@ void NodeFollowCameraManipulator::setByInverseMatrix(const osg::Matrixd& matrix)
 		_distance = abs((eye - center).length());
 }
 
+void NodeFollowCameraManipulator::setBikeInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
+{
+	m_bikeInputState = bikeInputState;
+}
+
 void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeCenter, osg::Quat& nodeRotation) const
 {
 	osg::Matrixd localToWorld, worldToLocal;
@@ -68,10 +75,14 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 	double roll = atan2(-localToFrame(0, 2), sqrt(pow(localToFrame(1, 2), 2) + pow(localToFrame(2, 2), 2)));
 	nodeRollRelToFrame.makeRotate(roll / CAMERA_TILT_FACTOR,osg::Y_AXIS);
 
+	osg::Quat playerViewingRotation;
+	float angle = m_bikeInputState->getViewingAngle();
+	playerViewingRotation.makeRotate(angle, osg::Z_AXIS);
+
 	// jd: camera pitch rotation not wanted so far, maybe useful for later
 	//double pitch = atan2(localToFrame(1, 2), localToFrame(2, 2));
 	//nodePitchRelToFrame.makeRotate(pitch, osg::X_AXIS);
 	
 	rotationOfFrame = coordinateFrame.getRotate();
-	nodeRotation = nodeRollRelToFrame*nodeYawRelToFrame*rotationOfFrame;
+	nodeRotation = playerViewingRotation*nodeRollRelToFrame*nodeYawRelToFrame*rotationOfFrame;
 }

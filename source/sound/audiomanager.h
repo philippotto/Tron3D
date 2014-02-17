@@ -26,14 +26,14 @@ namespace sound
 		void PlayEngineSound();
 		void StopSFXs();
 		void StopSongs();
-		void SetMasterVolume(float volume);
+		void SetMasterVolume(const float volume);
 		float GetMasterVolume();
-		void SetSFXsVolume(float volume);
-		void SetSongsVolume(float volume);
-		void detectBeat(float tickCount);
+		void SetSFXsVolume(const float volume);
+		void SetSongsVolume(const float volume);
+		void detectBeat(const float tickCount);
 
 		float getTimeSinceLastBeat();
-		void setMotorSpeed(float speed);
+		void setMotorSpeed(const float speed);
 
 
 		void setFrequencyHandles(osg::ref_ptr<osg::FloatArray> frequencies, osg::Uniform* frequenciesU) {
@@ -45,7 +45,7 @@ namespace sound
 		typedef std::map<std::string, FMOD::Sound*> SoundMap;
 		enum Category { CATEGORY_SFX, CATEGORY_SONG, CATEGORY_ENGINE, CATEGORY_COUNT };
 
-		void Load(Category type, const std::string& path);
+		void Load(const Category type, const std::string& path);
 
 		FMOD::System* system;
 		FMOD::ChannelGroup* master;

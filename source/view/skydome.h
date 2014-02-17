@@ -21,7 +21,7 @@ namespace troen {
 		SkyDome(const SkyDome& copy, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
 		META_Node(a3d, SkyDome);
 		osg::ref_ptr<osg::TextureCubeMap> readCubeMap();
-		osg::ref_ptr<osg::TextureCubeMap> SkyDome::getSkyboxTexture();
+		osg::ref_ptr<osg::TextureCubeMap> getSkyboxTexture();
 	protected:
 		virtual ~SkyDome();
 		osg::ref_ptr<osg::TextureCubeMap> m_texture;

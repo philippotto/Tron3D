@@ -32,13 +32,15 @@ void FenceView::initializeFence()
 {
 	m_fenceHeight = FENCE_HEIGHT_VIEW;
 
-	m_coordinates = new osg::Vec3Array;
+	m_coordinates = new osg::Vec3Array();
 	m_coordinates->setDataVariance(osg::Object::DYNAMIC);
 
-
-	m_relativeHeights = new osg::FloatArray;
+	m_relativeHeights = new osg::FloatArray();
 	m_relativeHeights->setDataVariance(osg::Object::DYNAMIC);
 
+	// this value could need adaption; will avoid time-intensive array resizing
+	m_coordinates->reserveArray(10000);
+	m_relativeHeights->reserveArray(10000);
 
 	m_geometry = new osg::Geometry();
 	m_geometry->setVertexArray(m_coordinates);
@@ -49,7 +51,7 @@ void FenceView::initializeFence()
 
 	// seems to be important so that we won't crash after 683 fence parts
 	m_geometry->setUseDisplayList(false);
-	
+
 	// use the shared normal array.
 	// polyGeom->setNormalArray(shared_normals.get(), osg::Array::BIND_OVERALL);
 
@@ -62,7 +64,7 @@ void FenceView::initializeFence()
 	m_node->addChild(m_geode);
 	m_node->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
 	m_node->setName("fenceGroup");
-	
+
 }
 
 void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
@@ -105,13 +107,14 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 	m_coordinates->push_back(osg::Vec3(currentPosition.x(), currentPosition.y(), currentPosition.z() + m_fenceHeight));
 	m_relativeHeights->push_back(0.f);
 	m_relativeHeights->push_back(1.f);
-	
+
 	enforceFencePartsLimit();
 
 	// TODO
 	// remove if no disadvantages seem necessary?
 	// m_geometry->dirtyBound();
 	m_drawArrays->setCount(m_coordinates->size());
+
 }
 
 void FenceView::removeAllFences()
@@ -126,7 +129,7 @@ void FenceView::enforceFencePartsLimit()
 
 	// the quad strip contains two more vertices for the beginning of the fence
 	int currentFenceParts = (m_coordinates->size() - 2) / 2;
-	
+
 	if (maxFenceParts != 0 && currentFenceParts > maxFenceParts)
 	{
 		for (int i = 0; i < (currentFenceParts - maxFenceParts); i++)

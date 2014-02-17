@@ -10,6 +10,7 @@ BikeInputState::BikeInputState()
 	m_acceleration = 0.0;
 	m_angle = 0.0;
 	m_turboPressed = false;
+	m_viewingAngle = 0.0;
 }
 
 float BikeInputState::getAngle()
@@ -19,7 +20,8 @@ float BikeInputState::getAngle()
 
 float BikeInputState::getAcceleration()
 {
-	return m_acceleration;
+	// deceleration is stronger than acceleration
+	return m_acceleration < 0 ? m_acceleration * BIKE_DECELERATION_FACTOR : m_acceleration;
 }
 
 void BikeInputState::setAngle(float angle)
@@ -42,3 +44,12 @@ void BikeInputState::setTurboPressed(bool pressed)
 	m_turboPressed = pressed;
 }
 
+float BikeInputState::getViewingAngle()
+{
+	return m_viewingAngle;
+}
+
+void BikeInputState::setViewingAngle(float angle)
+{
+	m_viewingAngle = angle;
+}

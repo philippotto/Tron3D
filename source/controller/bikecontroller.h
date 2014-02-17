@@ -16,11 +16,24 @@ namespace troen
 	{
 	public:
 		BikeController(
-			input::BikeInputState::InputDevice inputDevice,
-			btTransform initialPosition,
-			osg::Vec3 playerColor,
-			ResourcePool *resourcePool);
+			const input::BikeInputState::InputDevice& inputDevice,
+			const btTransform initialPosition,
+			const osg::Vec3 playerColor,
+			const std::string playerName,
+			ResourcePool *resourcePool,
+			const bool hasGameView);
 		~BikeController();
+
+		typedef enum enum_BIKESTATE
+		{
+			DRIVING,
+			RESPAWN,
+			RESPAWN_PART_2,
+			WAITING_FOR_GAMESTART,
+			WAITING
+		} BIKESTATE;
+
+		// initialization & communication
 		void attachTrackingCameras
 			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator,
              std::shared_ptr<HUDController>& hudController);
@@ -28,54 +41,84 @@ namespace troen
             (osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
+		void setPlayerNode(osg::Group* playerNode);
+		osg::ref_ptr<osgViewer::View> getGameView();
+		inline bool hasGameView() { return m_hasGameView; };
 
-		void updateModel(long double time);
+		// logic events
+		void updateModel(const long double gameTime);
+		void updateUniforms();
+		void setState(const BIKESTATE newState, const double respawnTime = -1);
+		void moveBikeToPosition(btTransform position);
+		void activateTurbo();
+		float getTurboInitiation();
+		void registerCollision(btScalar impulse);
+		void reset();
+		// controlling the FenceController
+		void removeAllFences();
+		void setLimitFence(const bool boolean);
+		int getFenceLimit();
 
-		// getters
+		// getters & setters & attributes
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
-		osg::ref_ptr<input::Keyboard> getEventHandler();
-		bool hasEventHandler();
+		osg::ref_ptr<input::Keyboard> getKeyboardHandler();
+		bool hasKeyboardHandler();
 		float getSpeed();
 		float getHealth();
 		float getPoints();
+		BIKESTATE getState();
+		double getRespawnTime();
+		osg::Vec3 getPlayerColor() { return m_playerColor; };
+		const std::string getPlayerName() { return m_playerName; };
 
-		// logic events
-		void moveBikeToPosition(btTransform position);
+		float increaseHealth(const float diff);
+		float increasePoints(const float diff);
+		int getDeathCount() { return m_deathCount; };
+		int getKillCount() { return m_killCount; };
+		void increaseDeathCount() { m_deathCount++; };
+		void increaseKillCount() { m_killCount++; };
 
-		// controlling the FenceController
-		void removeAllFences();
-		void setLimitFence(bool boolean);
-		int getFenceLimit();
-
-		void activateTurbo();
-		float getTurboInitiation();
-
-		float increaseHealth(float diff);
-		float increasePoints(float diff);
-		void registerCollision(btScalar impulse);
-		void reset();
 	private:
-		void setFovy(float newFovy);
+		// field of view methods
+		void updateFov(const double speed);
+		void setFovy(const float newFovy);
 		float getFovy();
-		float computeFovyDelta(float speed, float currentFovy);
+		float computeFovyDelta(const float speed, const float currentFovy);
 
-		void initializeInput(input::BikeInputState::InputDevice inputDevice);
+		void initializeInput(const input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
+		long double getTimeFactor();
+		
+		// communication links
+		osg::ref_ptr<osgViewer::View>		m_gameView;
+		std::shared_ptr<FenceController>	m_fenceController;
+		osg::ref_ptr<input::Keyboard>		m_keyboardHandler;
+		std::shared_ptr<input::PollingDevice> m_pollingThread;
+		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 
-		std::shared_ptr<FenceController> m_fenceController;
-		osg::ref_ptr<input::Keyboard> m_keyboardHandler = nullptr;
-		std::shared_ptr<input::PollingDevice> m_pollingThread = nullptr;
+		bool m_hasGameView = false;
+		// the following attributes only exist if the bikeController has a corresponding gameview
+		osg::Uniform*	m_timeOfCollisionUniform;
+		osg::Uniform*	m_velocityUniform;
+		osg::Uniform*	m_timeFactorUniform;
+		osg::Uniform*	m_healthUniform;
+		osg::Group*		m_playerNode;
 
-		osg::ref_ptr<osgViewer::View> m_gameView;
-		osg::Vec3 m_playerColor;
-		btTransform m_initialTransform;
+		// behaviour attributes
+		btTransform	m_initialTransform;
+		BIKESTATE	m_state;
+		float		m_speed;
+		bool		m_turboInitiated = false;
+		float		m_timeOfLastCollision;
+		double		m_respawnTime;
+		bool		m_fenceLimitActivated;
 
-		float m_health;
-		float m_points;
-		float m_speed;
-		bool m_turboInitiated = false;
-		float m_timeOfLastCollision;
-		bool m_fenceLimitActivated;
-
+		// player attributes
+		osg::Vec3	m_playerColor;
+		std::string m_playerName;
+		float	m_health;
+		float	m_points;
+		int		m_killCount;
+		int		m_deathCount;
 	};
 }
