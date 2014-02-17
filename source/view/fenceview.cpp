@@ -145,6 +145,7 @@ void FenceView::removeAllFences()
 	{
 		m_radarElementsGroup->removeChild(radarFenceBox);
 	}
+	m_radarFenceBoxes.clear();
 	initializeFence();
 }
 
@@ -159,18 +160,17 @@ void FenceView::enforceFencePartsLimit()
 	{
 		for (int i = 0; i < (currentFenceParts - maxFenceParts); i++)
 		{
-			removeFirstFencePart();
+			m_coordinates->erase(m_coordinates->begin(), m_coordinates->begin() + 2);
+			m_relativeHeights->erase(m_relativeHeights->begin(), m_relativeHeights->begin() + 2);
 		}
 	}
-}
-
-
-void FenceView::removeFirstFencePart()
-{
-	m_coordinates->erase(m_coordinates->begin(), m_coordinates->begin() + 2);
-	m_relativeHeights->erase(m_relativeHeights->begin(), m_relativeHeights->begin() + 2);
-
-	m_radarElementsGroup->removeChild(m_radarFenceBoxes.front());
-	m_radarFenceBoxes.pop_front();
-
+	// radar fence boxes
+	if (maxFenceParts != 0 && m_radarFenceBoxes.size() > maxFenceParts)
+	{
+		for (int i = 0; i < (m_radarFenceBoxes.size() - maxFenceParts); i++)
+		{
+			m_radarElementsGroup->removeChild(m_radarFenceBoxes.front());
+			m_radarFenceBoxes.pop_front();		
+		}
+	}
 }
