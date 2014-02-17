@@ -53,7 +53,7 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView()
 	osg::ref_ptr<osg::Node> MovieCycle_Player_Body = createCyclePart(ResourcePool::MG_MovieCycle_PlayerBody_MI,
 		ResourcePool::MG_Player_Body_SPEC,
 		ResourcePool::MG_Player_Body_EMSS,
-		ResourcePool::MG_Player_Body_NORM, GLOW, 0.1f);
+		ResourcePool::MG_Player_Body_NORM, GLOW, 0.5f);
 
 	osg::ref_ptr<osg::Node> MovieCycle_Tire = createCyclePart(ResourcePool::MG_MovieCycle_Tire_MI,
 		ResourcePool::MG_MovieCycle_Tire_DIFF,
@@ -94,6 +94,8 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView()
 	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Engine);
 	m_MovieCycle_Body->asGroup()->addChild(MovieCycle_Player_Baton);
 	matrixTransform->addChild(m_MovieCycle_Body);
+	m_pat->setName("bikeGroup");
+
 
 #endif
 #ifdef false
@@ -113,12 +115,16 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView()
 
 	osg::ref_ptr<osg::ShapeDrawable> debugShape = new osg::ShapeDrawable;
 	debugShape->setShape(new osg::Box(osg::Vec3(), 2 ,4, 2));
+
+	debugShape->setColor(osg::Vec4f(1,1,1,1));
+
 	//debugShape->setColor(osg::Vec4f(1,1,1,1));
 	osg::ref_ptr<osg::Geode> debugNode = new osg::Geode;
 	debugNode->addDrawable(debugShape.get());
 
 	debugNode->getOrCreateStateSet()->setAttributeAndModes(material.get(), osg::StateAttribute::OVERRIDE | osg::StateAttribute::MATERIAL);
 
+	matrixTransform->setName("bikeGroup");
 	matrixTransform->addChild(debugNode);
 
 	pat->addChild(matrixTransform);

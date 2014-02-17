@@ -19,8 +19,17 @@ Set up BULLET_PHYSICS:
 
 Set up HIDAPI
 - Copy the hidapi folder (in our Dropbox) to
-%ProjectDir%\3rdParty\hidapi
+%ProjectDir%\3rdParty\
 - add %ProjectDir%\3rdParty\hidapi to your PATH
+
+Set up V8 & Scriptzeug
+- Copy the scriptzeug and v8 folder (in our Dropbox) to 
+%ProjectDir%\3rdParty\
+- create the environment variable %V8_ROOT% and set it to %ProjectDir%\3rdParty\v8
+- add the following to your path:
+- %V8_ROOT%\bin
+- %ProjectDir%\3rdParty\scriptzeug\lib
+
 
 Set up correct Working Directory:
 - in MSVC goto DEBUG->properties->ConfigurationProperties->Debugging and set WorkingDirectory to ".." (without the quotes)

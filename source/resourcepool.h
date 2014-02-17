@@ -1,6 +1,4 @@
 #pragma once
-// OSG
-
 // troen
 #include "forwarddeclarations.h"
 
@@ -8,12 +6,9 @@ namespace troen
 {
 	class ResourcePool
 	{
-
-
 	public:
 		ResourcePool();
 		~ResourcePool();
-
 
 		enum TextureResource
 		{
@@ -55,8 +50,8 @@ namespace troen
 
 		void readData();
 
-		osg::Image* getImage(TextureResource texture);
-		osg::Node* getNode(ModelResource model);
+		osg::Image* getImage(const TextureResource texture);
+		osg::Node* getNode(const ModelResource model);
 
 	private:
 		static const int m_textureCount = 21;
@@ -66,6 +61,5 @@ namespace troen
 		osg::Node *m_objects[m_objectCount];
 
 		bool m_dataAlreadyRead = false;
-
 	};
 }

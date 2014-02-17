@@ -9,9 +9,9 @@
 namespace troen
 {
 	namespace shaders
-	{		
+	{
 		#ifndef _SHADERS_H
-		#define _SHADERS_H 
+		#define _SHADERS_H
 				extern std::vector<osg::ref_ptr<osg::Program> > m_allShaderPrograms;
 		#endif
 
@@ -30,6 +30,7 @@ namespace troen
 							DEFAULT,
 							BIKE,
 							GRID,
+							GRID_NOREFLECTION,
 							FENCE,
 							GBUFFER,
 							HBLUR,
@@ -39,10 +40,9 @@ namespace troen
 							OUTER_WALL,
 							OCULUS_MERGE,
 							OCULUS_EYE,
+							SKYDOME,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
-
-
 	}
 
 }

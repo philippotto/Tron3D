@@ -15,9 +15,11 @@ void shaders::reloadShaders()
 	std::string oculusShader = "source/shaders/oculuseye.vert";
 
 	shaders::m_allShaderPrograms.resize(SHADER_NAME_COUNT);
+
 	reloadShader(shaders::m_allShaderPrograms[DEFAULT], "source/shaders/default.frag", oculusShader, "source/shaders/default.vert");
 	reloadShader(shaders::m_allShaderPrograms[BIKE], "source/shaders/bike.frag", oculusShader, "source/shaders/bike.vert");
 	reloadShader(shaders::m_allShaderPrograms[GRID], "source/shaders/grid.frag", oculusShader, "source/shaders/grid.vert");
+	reloadShader(shaders::m_allShaderPrograms[GRID_NOREFLECTION], "source/shaders/grid_noreflection.frag", oculusShader, "source/shaders/grid.vert");
 	reloadShader(shaders::m_allShaderPrograms[FENCE], "source/shaders/fence.frag", oculusShader, "source/shaders/fence.vert");
 	reloadShader(shaders::m_allShaderPrograms[GBUFFER], "source/shaders/gbuffer.frag", "source/shaders/gbuffer.vert", "");
 	reloadShader(shaders::m_allShaderPrograms[HBLUR], "source/shaders/Blur.frag", "source/shaders/HBlur.vert", "");
@@ -26,7 +28,7 @@ void shaders::reloadShaders()
 	reloadShader(shaders::m_allShaderPrograms[OUTER_WALL], "source/shaders/outer_wall.frag", oculusShader, "source/shaders/outer_wall.vert");
 	reloadShader(shaders::m_allShaderPrograms[SELECT_GLOW_OBJECTS], "source/shaders/selectglowobjects.frag", "", "");
 	reloadShader(shaders::m_allShaderPrograms[OCULUS_MERGE], "source/shaders/oculusmerge.frag", "", "");
-
+	reloadShader(shaders::m_allShaderPrograms[SKYDOME], "source/shaders/skydome.frag", "", "");
 }
 
 void shaders::reloadShader(

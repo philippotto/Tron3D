@@ -1,12 +1,19 @@
 #version 130
-
 uniform sampler2D diffuseTexture;
 uniform int modelID;
+uniform float glowIntensity;
+uniform float trueColor;
+
 in vec2 uv;
+in float scaled_height;
 
 void main() {
-	gl_FragData[0] = texture(diffuseTexture, uv);
-	
-	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
-	gl_FragData[1] = vec4(modelID, 100,0,0);
+	vec4 diffuseColor =  texture(diffuseTexture, uv);
+	vec4 adjustedColor = vec4(diffuseColor.x, diffuseColor.x / 2.0, diffuseColor.x, 1.0);
+
+	// decide whether to use the original or adjusted color, based on the trueColor uniform
+	gl_FragData[0] = mix(adjustedColor, diffuseColor, trueColor);
+
+	//3channels: select_group, attribute (f.e glowintensity for glow group), height in world coords
+	gl_FragData[1] = vec4(modelID, glowIntensity,  scaled_height / 200.0, 0);
 }

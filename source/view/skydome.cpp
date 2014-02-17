@@ -12,6 +12,8 @@
 #include <osgDB/ReadFile>
 #include <osgUtil/CullVisitor>
 
+#include "shaders.h"
+
 using namespace troen;
 
 SkyDome::SkyDome() :
@@ -25,12 +27,14 @@ SkyDome::SkyDome() :
     geode->setCullingActive(false);
     geode->setCullCallback(new SkyboxTexMatCallback);
     geode->addDrawable(drawable.get());
+
+	m_texture = readCubeMap();
     //geode->setNodeMask(CameraMask::kMain);
 
     osg::StateSet* stateset = geode->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     stateset->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
-    stateset->setTextureAttributeAndModes(0, readCubeMap(), osg::StateAttribute::ON);
+    stateset->setTextureAttributeAndModes(0,m_texture, osg::StateAttribute::ON);
     stateset->setTextureAttributeAndModes(0, new osg::TexEnv(osg::TexEnv::REPLACE), osg::StateAttribute::ON);
     stateset->setTextureAttributeAndModes(0, new osg::TexMat, osg::StateAttribute::ON);
 
@@ -38,13 +42,9 @@ SkyDome::SkyDome() :
     texGen->setMode(osg::TexGen::NORMAL_MAP);
     stateset->setTextureAttributeAndModes(0, texGen.get(), osg::StateAttribute::ON);
 
-    osg::ref_ptr<osg::Program> program = new osg::Program;
-    program->addShader(osgDB::readShaderFile("source/shaders/skydome.frag"));
-    //program->addShader(osgDB::readShaderFile("shader/TypeId.frag"));
-    stateset->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
-    stateset->addUniform(new osg::Uniform("cubemap", 0));
-
-	stateset->addUniform(new osg::Uniform("modelID", AbstractView::BACKGROUND));
+	stateset->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::SKYDOME], osg::StateAttribute::ON);
+	stateset->addUniform(new osg::Uniform("cubemap", 0));
+	stateset->addUniform(new osg::Uniform("modelID", shaders::DEFAULT));
 
     // clear the depth to the far plane.
     osg::ref_ptr<osg::Depth> depth = new osg::Depth(osg::Depth::ALWAYS, 1.0, 1.0);
@@ -64,7 +64,7 @@ SkyDome::SkyDome(const SkyDome& copy, const osg::CopyOp& copyop) :
 SkyDome::~SkyDome() {
 }
 
-osg::TextureCubeMap* SkyDome::readCubeMap() {
+osg::ref_ptr<osg::TextureCubeMap> SkyDome::readCubeMap() {
 	#define SKYBOX_FILENAME(face) "data/textures/skybox/" #face ".bmp"
 
     osg::ref_ptr<osg::TextureCubeMap> cubemap = new osg::TextureCubeMap();
@@ -96,12 +96,21 @@ osg::TextureCubeMap* SkyDome::readCubeMap() {
 		//OSG_NOTICE << "Skybox: Loaded correctly.\n";
     } else OSG_NOTICE << "Skybox: Error while loading image files!\n";
 
-    return cubemap.release();
+    return cubemap;
+}
+
+osg::ref_ptr<osg::TextureCubeMap> SkyDome::getSkyboxTexture()
+{
+	return m_texture;
 }
 
 SkyboxTexMatCallback::SkyboxTexMatCallback() :
         osg::NodeCallback() {
 }
+
+
+
+
 
 SkyboxTexMatCallback::SkyboxTexMatCallback(const SkyboxTexMatCallback& copy, const osg::CopyOp& copyop) :
         osg::NodeCallback(copy, copyop) {

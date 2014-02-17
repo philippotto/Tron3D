@@ -8,6 +8,7 @@
 #include <QKeyEvent>
 #include <QCoreApplication>
 #include <QSignalMapper>
+#include <QLineEdit>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -47,6 +48,24 @@ MainWindow::MainWindow(QWidget * parent)
 		vBoxLayout->addWidget(bikeNumberWidget);
 	}
 
+	// timeLimit
+	{
+		QWidget* timeLimitWidget = new QWidget;
+		QHBoxLayout* timeLimitLayout = new QHBoxLayout;
+		timeLimitWidget->setLayout(timeLimitLayout);
+
+		QLabel* timeLimitLabel = new QLabel("TimeLimit: ");
+		timeLimitLayout->addWidget(timeLimitLabel);
+
+		m_timeLimitSpinBox = new QSpinBox;
+		m_timeLimitSpinBox->setMinimum(0);
+		m_timeLimitSpinBox->setMaximum(10);
+		m_timeLimitSpinBox->setValue(0);
+		timeLimitLayout->addWidget(m_timeLimitSpinBox);
+
+		vBoxLayout->addWidget(timeLimitWidget);
+	}
+
 	QSignalMapper* signalMapper = new QSignalMapper(this);
 
 	// bikeInputs
@@ -57,15 +76,22 @@ MainWindow::MainWindow(QWidget * parent)
 		playerInputWidget->setLayout(playerInputLayout);
 		playerInputLayout->setMargin(1);
 
-		QString playerString = QString("Player ") + QString::number(i);
+		QString playerString = QString("Player_") + QString::number(i);
 		QLabel* playerInputLabel = new QLabel(playerString);
 		playerInputLayout->addWidget(playerInputLabel);
 
+		QLineEdit* playerNameLineEdit = new QLineEdit;
+		playerNameLineEdit->setText(playerString);
+		playerNameLineEdit->setMaximumWidth(75);
+		playerNameLineEdit->setMaxLength(10);
+		m_playerNameLineEdits.push_back(playerNameLineEdit);
+		playerInputLayout->addWidget(playerNameLineEdit);
+
 		QComboBox* playerComboBox = new QComboBox;
-		playerComboBox->addItem("KEYBOARD_wasd");
-		playerComboBox->addItem("KEYBOARD_arrows");
-		playerComboBox->addItem("GAMEPAD");
-		playerComboBox->addItem("GAMEPADPS4");
+		playerComboBox->addItem("Keyboard WASD");
+		playerComboBox->addItem("Keyboard Arrows");
+		playerComboBox->addItem("Gamepad XBox");
+		playerComboBox->addItem("GAMEPAD PS4");
 		playerComboBox->addItem("AI");
 		playerInputLayout->addWidget(playerComboBox);
 		m_playerComboBoxes.push_back(playerComboBox);
@@ -78,29 +104,19 @@ MainWindow::MainWindow(QWidget * parent)
 		m_playerColors.push_back(QColor());
 		m_colorButtons.push_back(colorButton);
 
-		switch (i)
-		{
-		case 0:
-			playerComboBox->setCurrentIndex(0);
-			break;
-		case 1:
-			playerComboBox->setCurrentIndex(1);
-			break;
-		default:
-			playerComboBox->setCurrentIndex(3);
-			break;
-		}
+		// own view
+		QCheckBox* ownViewCheckBox = new QCheckBox("&Own view");
+		bool isFirstPlayer = i == 0;
+		ownViewCheckBox->setChecked(isFirstPlayer);
+		ownViewCheckBox->setDisabled(isFirstPlayer);
+		m_ownViewCheckboxes.push_back(ownViewCheckBox);
+		playerInputLayout->addWidget(ownViewCheckBox);
 
+		playerComboBox->setCurrentIndex(i < 2 ? i : 3);	
 		vBoxLayout->addWidget(playerInputWidget);
 	}
 	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(chooseColor(int)));
 	updatePlayerInputBoxes();
-
-	// splitscreenCheckBox
-	m_splitscreenCheckBox = new QCheckBox("&Splitscreen");
-	m_splitscreenCheckBox->setChecked(false);
-	m_splitscreenCheckBox->setDisabled(true);
-	vBoxLayout->addWidget(m_splitscreenCheckBox, 0, Qt::AlignLeft);
 
 	//fullscreenCheckBox
 	m_fullscreenCheckBox = new QCheckBox("&Fullscreen");
@@ -120,6 +136,11 @@ MainWindow::MainWindow(QWidget * parent)
 	m_debugViewCheckBox = new QCheckBox("&DebugView");
 	vBoxLayout->addWidget(m_debugViewCheckBox, 0, Qt::AlignLeft);
 	m_debugViewCheckBox->setChecked(false);
+
+	//reflectionCheckBox
+	m_reflectionCheckBox = new QCheckBox("&Reflection");
+	vBoxLayout->addWidget(m_reflectionCheckBox, 0, Qt::AlignLeft);
+	m_reflectionCheckBox->setChecked(true);
 
 	// gameStartButton
 	m_gameStartButton = new QPushButton(QString("start Game"));
@@ -141,11 +162,9 @@ MainWindow::MainWindow(QWidget * parent)
 
 	connect(m_gameStartButton, SIGNAL(clicked()), this, SLOT(prepareGameStart()));
 	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updatePlayerInputBoxes()));
-	connect(m_splitscreenCheckBox, SIGNAL(stateChanged(int)), this, SLOT(splitscreenToggled()));
-	connect(m_fullscreenCheckBox, SIGNAL(stateChanged(int)), this, SLOT(fullscreenToggled()));
 	connect(m_bikeNumberSpinBox, SIGNAL(valueChanged(int)), this, SLOT(bikeNumberChanged(int)));
 
-	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(GameConfig)));
+	connect(this, SIGNAL(startGame(GameConfig)), m_troenGame, SLOT(prepareAndStartGame(const GameConfig&)));
 }
 
 MainWindow::~MainWindow()
@@ -181,50 +200,43 @@ void MainWindow::prepareGameStart()
 {
 	GameConfig config;
 	config.numberOfBikes = m_bikeNumberSpinBox->value();
+	config.timeLimit = m_timeLimitSpinBox->value();
 	config.playerInputTypes = new int[config.numberOfBikes];
 	config.playerColors = new QColor[config.numberOfBikes];
+	config.playerNames = new QString[config.numberOfBikes];
 	for (int i = 0; i < config.numberOfBikes; i++)
 	{
 		config.playerInputTypes[i] = m_playerComboBoxes.at(i)->currentIndex();
+		config.playerNames[i] = m_playerNameLineEdits[i]->text();
+		config.playerColors[i] = m_playerColors[i];
 	}
-	for (int j = 0; j < config.numberOfBikes; j++)
-	{
-		config.playerColors[j] = m_playerColors[j];
-	}
-	config.splitscreen = m_splitscreenCheckBox->isChecked();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	config.useDebugView = m_debugViewCheckBox->isChecked();
 	config.testPerformance = m_testPerformanceCheckBox->isChecked();
+	config.reflection = m_reflectionCheckBox->isChecked();
+
+	int i = 0;
+	for (auto ownViewCheckbox : m_ownViewCheckboxes) {
+		config.ownView[i] = ownViewCheckbox->isChecked();
+		i++;
+	}
 
 	saveSettings();
 	emit startGame(config);
 }
 
-void MainWindow::splitscreenToggled()
-{
-	if (m_splitscreenCheckBox->isChecked())
-		m_fullscreenCheckBox->setChecked(false);
-}
-
-void MainWindow::fullscreenToggled()
-{
-	if (m_fullscreenCheckBox->isChecked())
-		m_splitscreenCheckBox->setChecked(false);
-}
-
 void MainWindow::bikeNumberChanged(int newBikeNumber)
 {
-	if (newBikeNumber < 2)
+	for (int i = 1; i < MAX_BIKES; i++)
 	{
-		m_splitscreenCheckBox->setChecked(false);
-		m_splitscreenCheckBox->setCheckable(false);
-		m_splitscreenCheckBox->setDisabled(true);
-	}
-	else
-	{
-		m_splitscreenCheckBox->setCheckable(true);
-		m_splitscreenCheckBox->setDisabled(false);
+		if (i < newBikeNumber) {
+			m_ownViewCheckboxes[i]->setDisabled(false);
+		}
+		else {
+			m_ownViewCheckboxes[i]->setChecked(false);
+			m_ownViewCheckboxes[i]->setDisabled(true);
+		}
 	}
 }
 
@@ -268,24 +280,34 @@ void MainWindow::loadSettings()
 		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) };
 
 	m_bikeNumberSpinBox->setValue(settings.value("bikeNumber").toInt());
-	m_splitscreenCheckBox->setChecked(settings.value("splitscreen").toBool());
+	m_timeLimitSpinBox->setValue(settings.value("timeLimit").toInt());
 	m_postProcessingCheckBox->setChecked(settings.value("postProcessing").toBool());
 	m_testPerformanceCheckBox->setChecked(settings.value("vSyncOff").toBool());
 	m_debugViewCheckBox->setChecked(settings.value("debugView").toBool());
+	m_reflectionCheckBox->setChecked(settings.value("reflection").toBool());
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
+		//name
+		QString playerName = settings.value("player" + QString::number(i) + "name").toString();
+		if (playerName.isEmpty()) playerName = QString("Player_") + QString::number(i);
+		m_playerNameLineEdits[i]->setText(playerName);
+		//input
 		int playerInput =
 			settings.value("player" + QString::number(i) + "input").toInt();
 		m_playerComboBoxes[i]->setCurrentIndex(playerInput);
+		//color
 		m_playerColors[i] =
 			settings.value("player" + QString::number(i) + "color").value<QColor>();
 		m_playerColors[i] = m_playerColors[i].value() == 0 ? initialColors[i] : m_playerColors[i];
 		QString colorString = QString("background-color: %1").arg(m_playerColors[i].name());
 		m_colorButtons[i]->setStyleSheet(colorString);
+		//own view
+		m_ownViewCheckboxes[i]->setChecked(settings.value("player" + QString::number(i) + "ownView").toBool() || i == 0);
 	}
 
 	updatePlayerInputBoxes();
+	bikeNumberChanged(m_bikeNumberSpinBox->value());
 }
 
 void MainWindow::saveSettings()
@@ -293,17 +315,22 @@ void MainWindow::saveSettings()
 	QSettings settings(m_settingsFileName, QSettings::IniFormat);
 
 	settings.setValue("bikeNumber", QString::number(m_bikeNumberSpinBox->value()));
-	settings.setValue("splitscreen", QString::number(m_splitscreenCheckBox->isChecked()));
+	settings.setValue("timeLimit", QString::number(m_timeLimitSpinBox->value()));
 	settings.setValue("postProcessing", QString::number(m_postProcessingCheckBox->isChecked()));
 	settings.setValue("vSyncOff", QString::number(m_testPerformanceCheckBox->isChecked()));
 	settings.setValue("debugView", QString::number(m_debugViewCheckBox->isChecked()));
+	settings.setValue("reflection", QString::number(m_reflectionCheckBox->isChecked()));
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
+		settings.setValue("player" + QString::number(i) + "name",
+			m_playerNameLineEdits[i]->text());
 		settings.setValue("player" + QString::number(i) + "input",
 			m_playerComboBoxes[i]->currentIndex());
 		settings.setValue("player" + QString::number(i) + "color",
 			m_playerColors[i]);
+		settings.setValue("player" + QString::number(i) + "ownView",
+			m_ownViewCheckboxes[i]->isChecked());
 	}
 
 	settings.sync();

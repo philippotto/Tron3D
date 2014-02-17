@@ -4,6 +4,7 @@
 // troen
 #include "abstractcontroller.h"
 #include "../forwarddeclarations.h"
+#include "itemcontroller.h"
 
 namespace troen
 {
@@ -12,10 +13,17 @@ namespace troen
 	public:
 		LevelController();
 
-		virtual btTransform getSpawnPointForBikeWithIndex(int index);
+
+		virtual btTransform getSpawnPointForBikeWithIndex(const int index);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
-		void addItemBox(btVector3 &position);
+		void addItemBox();
+		void update();
+
 		btTransform getRandomSpawnPoint();
+		osg::ref_ptr<osg::Group>  getFloorView();
+
+		int m_currentItemCount;
+		int m_targetItemCount = 100;
 
 	private:
 		std::vector<btTransform> m_initialBikePositionTransforms;
