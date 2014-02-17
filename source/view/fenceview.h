@@ -1,7 +1,10 @@
 #pragma once
+// STD
+#include <deque>
 // OSG
 #include <osg/Geometry>
 #include <osg/Geode>
+#include <osg/MatrixTransform>
 // troen
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
@@ -29,6 +32,8 @@ namespace troen
 		osg::ref_ptr<osg::FloatArray>	m_relativeHeights;
 		osg::ref_ptr<osg::DrawArrays>	m_drawArrays;
 		osg::ref_ptr<osg::Geode>		m_geode;
+		osg::ref_ptr<osg::Group>		m_radarElementsGroup;
+		std::deque<osg::ref_ptr<osg::MatrixTransform>>	m_radarFenceBoxes;
 
 		std::weak_ptr<FenceModel>		m_model;
 

@@ -261,15 +261,12 @@ bool TroenGame::initializeReflection()
 {
 	if (m_useReflection)
 	{
-
 		for (int playerID = 0; playerID < m_playerNodes.size(); playerID++)
 		{
 			m_reflections.push_back(std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameViews[playerID], m_skyDome->getSkyboxTexture(),playerID));
 			m_playerNodes[playerID]->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));
 
 		}
-
-
 	}
 	return true;
 }
@@ -277,7 +274,6 @@ bool TroenGame::initializeReflection()
 
 bool TroenGame::initializeViews()
 {
-
 	m_statsHandler = new osgViewer::StatsHandler;
 	m_statsHandler->setKeyEventTogglesOnScreenStats(osgGA::GUIEventAdapter::KEY_T);
 	m_statsHandler->setKeyEventPrintsOutStats(osgGA::GUIEventAdapter::KEY_P);
@@ -285,10 +281,9 @@ bool TroenGame::initializeViews()
 
 	m_gameEventHandler = new GameEventHandler(this, m_gameLogic);
 
-
 	// iterate over hudcontrollers because they only exist, if the corresponding bike has an own gameView
-	for (auto hudController : m_HUDControllers) {
-
+	for (auto hudController : m_HUDControllers)
+	{
 		std::weak_ptr<BikeController> bikeController = hudController->getBikeController();
 
 		// TODO: is there a better place for this?
@@ -421,9 +416,7 @@ bool TroenGame::composeSceneGraph()
 	if (m_usePostProcessing)
 		m_rootNode->addChild(m_sceneNode);
 
-
 	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
-
 
 	for (auto bikeController : m_bikeControllers)
 		radarScene->addChild(bikeController->getViewNode());
@@ -432,7 +425,6 @@ bool TroenGame::composeSceneGraph()
 	for (auto hudController : m_HUDControllers) {
 		hudController->attachSceneToRadarCamera(radarScene);
 	}
-
 
 	osgUtil::Optimizer optimizer;
 	optimizer.optimize(m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |

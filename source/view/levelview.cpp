@@ -30,8 +30,6 @@ AbstractView()
 
 	int levelSize = m_model->getLevelSize();
 
-	m_node = new osg::Group();
-
 	m_node->addChild(constructObstacles(levelSize));
 	m_node->addChild(constructWalls(levelSize));
 	m_node->addChild(constructFloors(levelSize));
