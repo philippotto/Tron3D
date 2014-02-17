@@ -256,9 +256,7 @@ float BikeController::getFovy()
 
 float BikeController::computeFovyDelta(float speed, float currentFovy)
 {
-	long double timeSinceLastUpdate = std::static_pointer_cast<BikeModel>(m_model)->getTimeSinceLastUpdate();
-	long double timeFactor = timeSinceLastUpdate / 16.7f;
-
+	long double timeFactor = getTimeFactor();
 
 	m_speed = speed;
 
@@ -390,7 +388,11 @@ void BikeController::setPlayerNode(osg::Group* playerNode)
 
 	m_playerNode = playerNode;
 	m_timeOfCollisionUniform = new osg::Uniform("timeSinceLastHit", 100000.f);
+	m_velocityUniform = new osg::Uniform("velocity", 0.f);
+	m_timeFactorUniform = new osg::Uniform("timeFactor", 1.f);
 	m_playerNode->getOrCreateStateSet()->addUniform(m_timeOfCollisionUniform);
+	m_playerNode->getOrCreateStateSet()->addUniform(m_velocityUniform);
+	m_playerNode->getOrCreateStateSet()->addUniform(m_timeFactorUniform);
 
 }
 
@@ -416,6 +418,12 @@ int BikeController::getFenceLimit() {
 		return 0;
 }
 
+long double BikeController::getTimeFactor()
+{
+	long double timeSinceLastUpdate = std::static_pointer_cast<BikeModel>(m_model)->getTimeSinceLastUpdate();
+	return timeSinceLastUpdate / 16.7f;
+}
+
 void BikeController::moveBikeToPosition(btTransform transform)
 {
 	std::static_pointer_cast<BikeModel>(m_model)->moveBikeToPosition(transform);
@@ -431,7 +439,9 @@ osg::ref_ptr<osgViewer::View> BikeController::getGameView()
 void BikeController::updateUniforms()
 {
 	if (m_hasGameView) {
-		m_timeOfCollisionUniform->set((float)g_gameTime - m_timeOfLastCollision);
+		m_timeOfCollisionUniform->set((float) g_gameTime - m_timeOfLastCollision);
+		m_velocityUniform->set(std::static_pointer_cast<BikeModel>(m_model)->getVelocity());
+		m_timeFactorUniform->set((float) getTimeFactor());
 	}
 }
 

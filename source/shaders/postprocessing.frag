@@ -6,6 +6,8 @@ uniform sampler2D pongLayer;
 uniform sampler2D oldLayer;
 uniform float timeSinceLastHit;
 uniform float time;
+uniform float velocity;
+uniform float timeFactor;
 
 /*
 ** Copyright (c) 2012, Romain Dura romain@shazbits.com
@@ -144,8 +146,10 @@ void main(void)
 
 	vec4 oldColor = texture2D(oldLayer, st);
 
-	const float oldFrameWeight = 0.5;
-	const float newFrameWeight = 1 - oldFrameWeight;
+	// motion blur is framerate independent
+	float motionBlurFactor = smoothstep(300.0, 450.0, velocity);
+	float oldFrameWeight = max(0.1, pow(motionBlurFactor * 0.8, timeFactor));
+	float newFrameWeight = 1 - oldFrameWeight;
 
 	st = 1 * (st - vec2(0.5));
 

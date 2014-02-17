@@ -40,7 +40,6 @@ namespace troen
 
 	private:
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
-		float m_velocity;
 		float m_oldVelocity;
 		float m_rotation;
 		float m_steering;

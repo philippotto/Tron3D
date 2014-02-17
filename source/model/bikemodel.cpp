@@ -72,7 +72,6 @@ void BikeModel::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState
 
 void BikeModel::resetState()
 {
-	m_velocity = 0.0;
 	m_oldVelocity = 0.0;
 	m_rotation = 0.0;
 	m_bikeFriction = 1.0;
@@ -203,7 +202,7 @@ float BikeModel::getRotation()
 
 float BikeModel::getVelocity()
 {
-	return m_velocity;
+	return m_oldVelocity;
 }
 
 osg::Vec3d BikeModel::getPositionOSG()

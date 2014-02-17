@@ -87,6 +87,7 @@ namespace troen
 
 		void initializeInput(const input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
+		long double getTimeFactor();
 		
 		// communication links
 		osg::ref_ptr<osgViewer::View>		m_gameView;
@@ -98,6 +99,8 @@ namespace troen
 		bool m_hasGameView = false;
 		// the following attributes only exist if the bikeController has a corresponding gameview
 		osg::Uniform*	m_timeOfCollisionUniform;
+		osg::Uniform*	m_velocityUniform;
+		osg::Uniform*	m_timeFactorUniform;
 		osg::Group*		m_playerNode;
 
 		// behaviour attributes
