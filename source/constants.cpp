@@ -47,13 +47,13 @@ namespace troen
 	// BIKE_TILT_DAMPENING = 1 would lead to immediate/unsmooth tilt
 	// 1 / BIKE_TILT_MAX specifies angle in radiant
 	const float BIKE_TILT_DAMPENING(20.f);
-	const float BIKE_TILT_MAX(16.f);
+	const float BIKE_TILT_MAX(BIKE_ROTATION_VALUE + BIKE_ROTATION_VALUE * BIKE_HANDBRAKE_FACTOR);
 	const float BIKE_WHEELY_TILT_MAX(2.f);
 	const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE(20.f);
 
 	//INPUT
 	const float BIKE_ROTATION_VALUE(10.0f);
-	const float BIKE_HANDBRAKE_FACTOR(0.8f);
+	const float BIKE_HANDBRAKE_FACTOR(1.5f);
 	// this should always be less than 1000/60FPS - the smaller, the more responsive is the input
 	const int POLLING_DELAY_MS(8);
 	const int VIBRATION_TIME_MS(500);

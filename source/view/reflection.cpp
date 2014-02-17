@@ -125,7 +125,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	m_reflectionClipNode->addClipPlane(m_ReflectionClipPlane);
 
 
-	osg::ref_ptr<osg::Texture2D>	texture = new osg::Texture2D();
+	osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D();
 	texture->setTextureSize(texSize, texSize);
 	texture->setInternalFormat(GL_RGBA);
 	texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
@@ -155,9 +155,6 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 
 	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(4 + playerID, texture,
 		osg::StateAttribute::ON);
-
-	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));
-	//sreflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
 
 	reflectSurface->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID_NOREFLECTION], osg::StateAttribute::OFF);
 	reflectSurface->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GRID], osg::StateAttribute::ON);
