@@ -33,7 +33,7 @@ namespace troen
 
 	private:
 		osg::Camera* createHUD(const std::vector<std::shared_ptr<BikeController>>& bikeControllers);
-		osg::Camera* createRadar();
+		osg::Camera* createRadar(const int index);
 
 		void resizeHudComponents(const int width, const int height);
 

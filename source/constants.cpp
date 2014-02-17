@@ -77,8 +77,10 @@ namespace troen
 	const int HUD_PROJECTION_SIZE(1000);
 
 
-	const unsigned int CAMERA_MASK_MAIN(0x1);
-	const unsigned int CAMERA_MASK_RADAR(0x2);
+	const unsigned int CAMERA_MASK_MAIN(1 << 0);
+	const unsigned int CAMERA_MASK_RADAR(1 << 1);
+	const unsigned int CAMERA_MASK_PLAYER[6] {1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7};
+
 
 	// PHYSICS
 	const float BIKE_FENCE_IMPACT_THRESHOLD_LOW(BIKE_MASS*BIKE_VELOCITY_MIN);

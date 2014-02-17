@@ -19,8 +19,10 @@ namespace troen
 		void addFencePart(const osg::Vec3 lastPosition, const osg::Vec3 currentPosition);
 		void removeAllFences();
 		void enforceFencePartsLimit();
-
 		void updateFenceGap(const osg::Vec3 lastPosition, const osg::Vec3 position);
+
+		void showFencesInRadar();
+		void hideFencesInRadar();
 
 	private:
 		void initializeFence();

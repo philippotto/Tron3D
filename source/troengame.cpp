@@ -282,9 +282,9 @@ bool TroenGame::initializeViews()
 	m_gameEventHandler = new GameEventHandler(this, m_gameLogic);
 
 	// iterate over hudcontrollers because they only exist, if the corresponding bike has an own gameView
-	for (auto hudController : m_HUDControllers)
+	for (int i = 0; i < m_HUDControllers.size(); i++)
 	{
-		std::weak_ptr<BikeController> bikeController = hudController->getBikeController();
+		std::weak_ptr<BikeController> bikeController = m_HUDControllers[i]->getBikeController();
 
 		// TODO: is there a better place for this?
 		osg::Group* playerNode = new osg::Group();
@@ -298,7 +298,7 @@ bool TroenGame::initializeViews()
 		osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 			= new NodeFollowCameraManipulator();
 
-		bikeController.lock()->attachTrackingCameras(manipulator, hudController);
+		bikeController.lock()->attachTrackingCameras(manipulator, m_HUDControllers[i]);
 		bikeController.lock()->attachGameView(newGameView);
 
 		newGameView->setCameraManipulator(manipulator.get());

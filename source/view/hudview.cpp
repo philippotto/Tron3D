@@ -32,7 +32,7 @@ m_trackNode(nullptr),
 m_playerColor(osg::Vec4(bikeControllers[i]->getPlayerColor(),1))
 {
 	m_node->addChild(createHUD(bikeControllers));
-	m_node->addChild(createRadar());
+	m_node->addChild(createRadar(i));
 }
 
 osg::Camera* HUDView::createHUD(const std::vector<std::shared_ptr<BikeController>>& bikeControllers)
@@ -169,7 +169,7 @@ void HUDView::resizeHudComponents(const int width, const int height)
 	}
 }
 
-osg::Camera* HUDView::createRadar()
+osg::Camera* HUDView::createRadar(const int i)
 {
 	m_radarCamera = new osg::Camera;
 	m_radarCamera->setClearColor(osg::Vec4(0.0f, 1.f, 0.0f, .5f));
@@ -183,7 +183,7 @@ osg::Camera* HUDView::createRadar()
 
 	m_radarCamera->setViewMatrix(osg::Matrixd::lookAt(osg::Vec3(0.0f, 0.0f, 500.0f), osg::Vec3(0.f, 0.f, 0.f), osg::Y_AXIS));
 	m_radarCamera->setProjectionMatrix(osg::Matrixd::ortho(-3000, 3000, -3000, 3000, 1.f, 600));
-	m_radarCamera->setCullMask(CAMERA_MASK_RADAR);
+	m_radarCamera->setCullMask(CAMERA_MASK_RADAR | CAMERA_MASK_PLAYER[i]);
 
 	return m_radarCamera;
 }
