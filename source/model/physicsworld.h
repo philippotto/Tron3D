@@ -28,6 +28,7 @@ namespace troen
 		void removeRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies);
 		void removeRigidBody(btRigidBody* body);
 		void addCollisionObject(btCollisionObject* obj);
+		void removeCollisionObject(btCollisionObject* obj);
 		// debugview
 		util::GLDebugDrawer* m_debug;
 

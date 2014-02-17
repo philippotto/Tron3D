@@ -58,6 +58,9 @@ namespace troen
 	const int POLLING_DELAY_MS(8);
 	const int VIBRATION_TIME_MS(500);
 
+	// LEVEL
+	const int LEVEL_SIZE(6000);
+
 	// FENCE
 	// determines how accurate the fence will be
 	const float FENCE_HEIGHT_MODEL(BIKE_DIMENSIONS.x() * 1.5f);

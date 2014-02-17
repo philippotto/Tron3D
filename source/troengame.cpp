@@ -488,9 +488,6 @@ void TroenGame::startGameLoop()
 	if (m_fullscreen)
 		setupForFullScreen();
 
-	btVector3 itemBoxVector(500, 255, +0.5);
-	m_levelController->addItemBox(itemBoxVector);
-
 	m_gameloopTimer->start();
 	m_gameTimer->start();
 	m_gameTimer->pause();
@@ -507,7 +504,7 @@ void TroenGame::startGameLoop()
 	// GAME LOOP
 	// - AI
 	// - network
-	// - checkForUserInput and updateModels 
+	// - checkForUserInput and updateModels
 	// - physics + updateViews
 	// - render;
 
@@ -528,15 +525,19 @@ void TroenGame::startGameLoop()
 
 			// LOOP REALLY STARTS HERE:
 			m_gameLogic->step(g_gameLoopTime, g_gameTime);
-			if (!m_gameTimer->paused()) 
+			if (!m_gameTimer->paused())
 			{
 				for (auto bikeController : m_bikeControllers)
+				{
 					bikeController->updateModel(g_gameTime);
+				}
 				m_physicsWorld->stepSimulation(g_gameTime);
+				m_levelController->update();
 			}
 
 			m_audioManager->Update(g_gameLoopTime / 1000);
 			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
+
 			if (m_postProcessing) m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
@@ -544,6 +545,7 @@ void TroenGame::startGameLoop()
 			{
 				for (int i = 0; i < m_viewers.size(); i++)
 					m_HUDControllers[i]->update(g_gameLoopTime, g_gameTime, m_timeLimit, m_gameLogic->getGameState(), m_bikeControllers);
+
 				for (auto viewer : m_viewers)
 					viewer->frame();
 				// TODO: find a way to eleminate this workaround
@@ -579,7 +581,7 @@ bool TroenGame::shutdown()
 	//timer
 	m_gameloopTimer.reset();
 	m_gameTimer.reset();
-	
+
 	//input
 
 	// physics & gamelogic

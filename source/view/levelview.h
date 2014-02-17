@@ -8,6 +8,7 @@
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
 #include "../model/levelmodel.h"
+#include "../controller/itemcontroller.h"
 
 namespace troen
 {
@@ -17,8 +18,8 @@ namespace troen
 		LevelView(std::shared_ptr<LevelModel> model);
 		osg::ref_ptr<osg::Group> getFloor();
 
-		void addItemBox(osg::Vec3 position);
-
+		void addItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform);
+		void removeItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform);
 	private:
 		osg::ref_ptr<osg::Group> constructWalls(const int levelSize);
 		osg::ref_ptr<osg::Group> constructFloors(const int levelSize);

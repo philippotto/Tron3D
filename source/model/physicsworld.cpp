@@ -81,6 +81,11 @@ void PhysicsWorld::removeRigidBody(btRigidBody* body)
 	m_world->removeRigidBody(body);
 }
 
+void PhysicsWorld::removeCollisionObject(btCollisionObject* obj)
+{
+	m_world->removeCollisionObject(obj);
+}
+
 void PhysicsWorld::addCollisionObject(btCollisionObject* obj)
 {
 	m_world->addCollisionObject(obj);

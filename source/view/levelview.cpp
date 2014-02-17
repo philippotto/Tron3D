@@ -114,6 +114,7 @@ void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node>& node, int shaderIn
 	stateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaderIndex], osg::StateAttribute::ON);
 	stateSet->addUniform(new osg::Uniform("levelSize", levelSize));
 	stateSet->addUniform(new osg::Uniform("modelID", modelID));
+	stateSet->addUniform(new osg::Uniform("trueColor", false));
 	if (modelID == GLOW)
 		stateSet->addUniform(new osg::Uniform("glowIntensity", 1.f));
 
@@ -207,45 +208,22 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 	}
 }
 
-void LevelView::addItemBox(osg::Vec3 position)
+void LevelView::addItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform)
 {
-
-	btVector3 dimensions = btVector3(10, 10, 0.1);
-
-	osg::ref_ptr<osg::Box> box
-		= new osg::Box(osg::Vec3(0.0, 0.0, 0.0), dimensions.x(), dimensions.y(), dimensions.z());
-
-	osg::ref_ptr<osg::ShapeDrawable> boxDrawable
-		= new osg::ShapeDrawable(box);
-
-	osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
-	boxGeode->addDrawable(boxDrawable);
-
-	osg::StateSet *obstaclesStateSet = boxGeode->getOrCreateStateSet();
-	obstaclesStateSet->ref();
-	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
-	obstaclesStateSet->addUniform(textureMapU);
-	setTexture(obstaclesStateSet, "data/textures/turbostrip.tga", 0);
-
-	obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
-	obstaclesStateSet->addUniform(new osg::Uniform("levelSize", m_model->getLevelSize()));
-	obstaclesStateSet->addUniform(new osg::Uniform("modelID", DEFAULT));
-
-	osg::Matrixd initialTransform;
-	initialTransform = initialTransform.translate(position);
-
-	osg::ref_ptr<osg::MatrixTransform> matrixTransform = new osg::MatrixTransform(initialTransform);
-	matrixTransform->addChild(boxGeode);
-	matrixTransform->setName("itemGeode");
-
-
 	m_node->addChild(matrixTransform);
 }
 
+
+void troen::LevelView::removeItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform)
+{
+	m_node->removeChild(matrixTransform);
+}
 
 
 osg::ref_ptr<osg::Group>  LevelView::getFloor()
 {
 	return m_node;
 }
+
+
 
