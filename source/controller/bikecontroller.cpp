@@ -328,6 +328,7 @@ void BikeController::updateModel(const long double gameTime)
 	case RESPAWN:
 	{
 		std::static_pointer_cast<BikeModel>(m_model)->freeze();
+		removeAllFencesFromModel();
 		updateFov(0);
 		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN" << std::endl;
 		if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
@@ -407,6 +408,10 @@ void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
 void BikeController::removeAllFences()
 {
 	m_fenceController->removeAllFences();
+}
+
+void BikeController::removeAllFencesFromModel() {
+	m_fenceController->removeAllFencesFromModel();
 }
 
 void BikeController::setLimitFence(bool boolean)

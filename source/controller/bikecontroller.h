@@ -56,6 +56,7 @@ namespace troen
 		void reset();
 		// controlling the FenceController
 		void removeAllFences();
+		void removeAllFencesFromModel();
 		void setLimitFence(const bool boolean);
 		int getFenceLimit();
 
