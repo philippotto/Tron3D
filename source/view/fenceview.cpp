@@ -57,17 +57,13 @@ void FenceView::initializeFence()
 	m_geode = new osg::Geode();
 	m_geode->addDrawable(m_geometry);
 
-	osg::ref_ptr<osg::Group> geodeGroup = new osg::Group();
-	geodeGroup->addChild(m_geode);
-
-	m_node->addChild(geodeGroup);
+	m_node->addChild(m_geode);
 	m_node->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
 	m_node->setName("fenceGroup");
 
 	m_radarElementsGroup = new osg::Group();
-	//m_radarElementsGroup->setNodeMask(CAMERA_MASK_RADAR);
+	m_radarElementsGroup->setNodeMask(CAMERA_MASK_RADAR);
 	m_node->addChild(m_radarElementsGroup);
-	
 }
 
 void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
@@ -145,6 +141,10 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 void FenceView::removeAllFences()
 {
 	m_node->removeChild(m_geode);
+	for (auto radarFenceBox : m_radarFenceBoxes)
+	{
+		m_radarElementsGroup->removeChild(radarFenceBox);
+	}
 	initializeFence();
 }
 
