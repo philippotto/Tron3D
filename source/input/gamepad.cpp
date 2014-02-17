@@ -21,6 +21,12 @@ std::vector <int>* Gamepad::getFreePorts()
 	return &Gamepad::freePorts;
 }
 
+void Gamepad::clearPorts()
+{
+	Gamepad::freePorts.clear();
+	Gamepad::freePorts.resize(XUSER_MAX_COUNT, 0);
+}
+
 Gamepad::~Gamepad() {
 	if (m_controllerId >= 0) {
 		setVibration(false);

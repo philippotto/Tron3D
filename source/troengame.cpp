@@ -16,6 +16,7 @@
 
 #include "input/bikeinputstate.h"
 #include "input/keyboard.h"
+#include "input/gamepad.h"
 
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
@@ -264,9 +265,8 @@ bool TroenGame::initializeReflection()
 
 		for (int playerID = 0; playerID < m_playerNodes.size(); playerID++)
 		{
-			m_reflections.push_back(std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameViews[playerID], m_skyDome->getSkyboxTexture(),playerID));
+			m_reflections.push_back(std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameViews[playerID], m_skyDome->getSkyboxTexture(), playerID));
 			m_playerNodes[playerID]->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));
-
 		}
 
 
@@ -583,6 +583,7 @@ bool TroenGame::shutdown()
 	m_gameTimer.reset();
 
 	//input
+	input::Gamepad::clearPorts();
 
 	// physics & gamelogic
 	m_physicsWorld.reset();
