@@ -2,6 +2,7 @@
 // OSG
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/LineWidth>
+#include <osgUtil/Optimizer>
 
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
@@ -30,6 +31,8 @@
 #include "view/skydome.h"
 #include "view/postprocessing.h"
 #include "view/nodefollowcameramanipulator.h"
+#include "view/reflection.h"
+
 
 #include "globals.h"
 
@@ -120,12 +123,12 @@ extern long double g_currentTime;
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 m_gameThread(thread),
-m_simulationPaused(true),
 m_numberOfBikes(0),
-m_splitscreen(false),
+m_timeLimit(0),
 m_fullscreen(false),
 m_usePostProcessing(false),
-m_testPerformance(false)
+m_testPerformance(false),
+m_useReflection(false)
 {
 	QObject();
 
@@ -169,8 +172,6 @@ m_testPerformance(false)
 
 	moveToThread(m_gameThread);
 	m_gameThread->start(QThread::HighestPriority);
-
-
 }
 
 TroenGame::~TroenGame()
@@ -184,17 +185,22 @@ void TroenGame::switchSoundVolumeEvent()
 
 void TroenGame::pauseEvent()
 {
-	m_simulationPaused = !m_simulationPaused;
+	if (m_gameLogic->getGameState() == GameLogic::GAMESTATE::GAME_START)
+		return;
+	else if (!m_gameTimer->paused())
+		pauseSimulation();
+	else
+		unpauseSimulation();
 }
 
 void TroenGame::pauseSimulation()
 {
-	m_simulationPaused = true;
+	if(!m_gameTimer->paused()) m_gameTimer->pause();
 }
 
 void TroenGame::unpauseSimulation()
 {
-	m_simulationPaused = false;
+	if(m_gameTimer->paused()) m_gameTimer->start();
 }
 
 void TroenGame::resize(int width, int height){
@@ -209,24 +215,29 @@ void TroenGame::resize(int width, int height){
 }
 
 
-void TroenGame::prepareAndStartGame(GameConfig config)
+void TroenGame::prepareAndStartGame(const GameConfig& config)
 {
 	m_numberOfBikes = config.numberOfBikes;
-	m_splitscreen = config.splitscreen;
+	m_timeLimit = config.timeLimit;
 	m_fullscreen = config.fullscreen;
 	m_usePostProcessing = config.usePostProcessing;
 	m_useDebugView = config.useDebugView;
 	m_testPerformance = config.testPerformance;
+	m_useReflection = config.reflection;
 
 	m_playerInputTypes.clear();
-	for (int i = 0; i < m_numberOfBikes; i++)
-		m_playerInputTypes.push_back(config.playerInputTypes[i]);
-
 	m_playerColors.clear();
-	for (int j = 0; j < m_numberOfBikes; j++)
+	m_reflections.clear();
+	for (int i = 0; i < m_numberOfBikes; i++)
 	{
-		osg::Vec3 col = osg::Vec3(config.playerColors[j].red(), config.playerColors[j].green(), config.playerColors[j].blue());
+		//input
+		m_playerInputTypes.push_back(config.playerInputTypes[i]);
+		//color
+		osg::Vec3 col = osg::Vec3(config.playerColors[i].red(), config.playerColors[i].green(), config.playerColors[i].blue());
 		m_playerColors.push_back(col);
+		//name
+		QString playerName = config.playerNames[i];
+		m_playerNames.push_back(playerName);
 	}
 
 	for (int i = 0; i < MAX_BIKES; i++) {
@@ -240,14 +251,13 @@ bool TroenGame::initialize()
 {
 	m_rootNode = new osg::Group;
 
-
 	// careful about the order of initialization
 	osg::DisplaySettings::instance()->setNumMultiSamples(NUM_MULTISAMPLES);
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 
 	std::cout << "[TroenGame::initialize] timer ..." << std::endl;
-	initializeTimer();
+	initializeTimers();
 
 	std::cout << "[TroenGame::initialize] shaders ..." << std::endl;
 	initializeShaders();
@@ -258,7 +268,7 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] controllers (models & views) ..." << std::endl;
 	initializeSkyDome();
 	initializeControllers();
-	initializeLighting();
+	//initializeLighting();
 
 	std::cout << "[TroenGame::initialize] gameLogic ..." << std::endl;
 	initializeGameLogic();
@@ -266,11 +276,10 @@ bool TroenGame::initialize()
 	std::cout << "[TroenGame::initialize] views & viewer ..." << std::endl;
 	initializeViews();
 	initializeViewer();
+	initializeReflection();
 
 	std::cout << "[TroenGame::initialize] postprocessing & scenegraph ..." << std::endl;
 	composeSceneGraph();
-
-
 
 	std::cout << "[TroenGame::initialize] input ..." << std::endl;
 	initializeInput();
@@ -284,9 +293,10 @@ bool TroenGame::initialize()
 	return true;
 }
 
-bool TroenGame::initializeTimer()
+bool TroenGame::initializeTimers()
 {
-	m_timer = std::make_shared<util::ChronoTimer>(false, true);
+	m_gameloopTimer = std::make_shared<util::ChronoTimer>(false, true);
+	m_gameTimer = std::make_shared<util::ChronoTimer>(false, true);
 	return true;
 }
 
@@ -303,6 +313,11 @@ bool TroenGame::initializeSound()
 	m_audioManager->LoadSong("data/sound/theGameHasChanged.mp3");
 	m_audioManager->LoadEngineSound();
 	m_audioManager->SetSongsVolume(0.5);
+
+	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
+	m_audioManager->PlayEngineSound();
+	m_audioManager->SetMasterVolume(0.f);
+
 	return true;
 }
 
@@ -319,18 +334,20 @@ bool TroenGame::initializeControllers()
 
 	for (int i = 0; i < m_numberOfBikes; i++)
 	{
-		m_bikeControllers.push_back(std::make_shared<BikeController>((
-			input::BikeInputState::InputDevice)m_playerInputTypes[i],
+		m_bikeControllers.push_back(std::make_shared<BikeController>(
+			(input::BikeInputState::InputDevice)m_playerInputTypes[i],
 			m_levelController->getSpawnPointForBikeWithIndex(i),
 			m_playerColors[i],
+			m_playerNames[i].toStdString(),
 			&m_resourcePool, m_ownView[i])
 		);
 	}
 
-	for (auto bikeController : m_bikeControllers) {
+	for (int i = 0; i < m_bikeControllers.size(); i++) {
 		// only attach a HUD if a corresponding gameview exists
-		if (bikeController->hasGameView()) {
-			m_HUDControllers.push_back(std::make_shared<HUDController>(bikeController));
+		if (m_bikeControllers[i]->hasGameView())
+		{
+			m_HUDControllers.push_back(std::make_shared<HUDController>(i,m_bikeControllers));
 		}
 	}
 
@@ -352,9 +369,27 @@ bool TroenGame::initializeLighting()
 
 bool TroenGame::initializeGameLogic()
 {
-	m_gameLogic = std::make_shared<GameLogic>(this, m_audioManager, m_levelController, m_bikeControllers);
+	m_gameLogic = std::make_shared<GameLogic>(this, m_audioManager, m_levelController, m_bikeControllers, m_timeLimit);
 	return true;
 }
+
+bool TroenGame::initializeReflection()
+{
+	if (m_useReflection)
+	{
+
+		for (int playerID = 0; playerID < m_playerNodes.size(); playerID++)
+		{
+			m_reflections.push_back(std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameViews[playerID], m_skyDome->getSkyboxTexture(),playerID));
+			m_playerNodes[playerID]->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));
+
+		}
+
+
+	}
+	return true;
+}
+
 
 bool TroenGame::initializeViews()
 {
@@ -366,12 +401,12 @@ bool TroenGame::initializeViews()
 
 	m_gameEventHandler = new GameEventHandler(this, m_gameLogic);
 
-	
+
 	// iterate over hudcontrollers because they only exist, if the corresponding bike has an own gameView
 	for (auto hudController : m_HUDControllers) {
-	
+
 		std::weak_ptr<BikeController> bikeController = hudController->getBikeController();
-		
+
 		// TODO: is there a better place for this?
 		osg::Group* playerNode = new osg::Group();
 		m_playerNodes.push_back(playerNode);
@@ -383,7 +418,7 @@ bool TroenGame::initializeViews()
 
 		osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 			= new NodeFollowCameraManipulator();
-		
+
 		bikeController.lock()->attachTrackingCameras(manipulator, hudController);
 		bikeController.lock()->attachGameView(newGameView);
 
@@ -435,19 +470,19 @@ bool TroenGame::initializeViewer()
 bool TroenGame::composeSceneGraph()
 {
 	/* Scene graph
-							  m_hudSwitch - HUDController
-							/
+	m_hudSwitch - HUDController
+	/
 	GameView#Camera - m_rootNode#Group
-							\
-							 m_postprocessing#Cameras - each camera child node to m_rootNode
-							 - SELECT_GLOW_OBJECTS
-									\
-									m_sceneNode#Group - Bike&LevelView
-							 - HBLUR
-							 - VBLUR
-							 - PostProcesingCamera
-									\
-									Quad#Geode
+	\
+	m_postprocessing#Cameras - each camera child node to m_rootNode
+	- SELECT_GLOW_OBJECTS
+	\
+	m_sceneNode#Group - Bike&LevelView
+	- HBLUR
+	- VBLUR
+	- PostProcesingCamera
+	\
+	Quad#Geode
 	*/
 
 	if (m_usePostProcessing)
@@ -481,29 +516,45 @@ bool TroenGame::composeSceneGraph()
 	}
 
 	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
-	
+
+	if (m_useReflection)
+	{
+		//sceneNode has to be added to reflection after adding all (non hud) objects
+		for (int playerID = 0; playerID < m_playerNodes.size(); playerID++)
+		{
+			m_reflections[playerID]->addSceneNode(m_sceneNode);
+			m_playerNodes[playerID]->addChild(m_reflections[playerID]->getReflectionCameraGroup());
+		}
+	}
+
 	int currentIndex = -1;
 	for (auto playerNode : m_playerNodes) {
 		currentIndex++;
 		playerNode->addChild(m_HUDControllers[currentIndex]->getViewNode());
 	}
 
-	
+
 	if (m_usePostProcessing)
 		m_rootNode->addChild(m_sceneNode);
-	
-	
+
+
 	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
-	
-	
+
+
 	for (auto bikeController : m_bikeControllers)
 		radarScene->addChild(bikeController->getViewNode());
 	radarScene->addChild(m_levelController->getViewNode());
-	
+
 	for (auto hudController : m_HUDControllers) {
 		hudController->attachSceneToRadarCamera(radarScene);
 	}
-	
+
+
+	osgUtil::Optimizer optimizer;
+	optimizer.optimize(m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
+		optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS | 
+		optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
+
 	return true;
 }
 
@@ -528,15 +579,12 @@ bool TroenGame::initializeInput()
 bool TroenGame::initializePhysicsWorld()
 {
 	m_physicsWorld = std::make_shared<PhysicsWorld>(m_gameLogic, m_useDebugView);
-	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies(),COLGROUP_LEVEL,COLMASK_LEVEL);
+	m_physicsWorld->addRigidBodies(m_levelController->getRigidBodies(), COLGROUP_LEVEL, COLMASK_LEVEL);
 
 	// attach world
 	for (auto bikeController : m_bikeControllers)
-	{
 		bikeController->attachWorld(m_physicsWorld);
-	}
 	m_levelController->attachWorld(m_physicsWorld);
-
 
 	m_gameLogic->attachPhysicsWorld(m_physicsWorld);
 	return true;
@@ -550,105 +598,93 @@ void TroenGame::startGameLoop()
 	// INITIALIZATION
 	initialize();
 
-	m_timer->start();
-
-	m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
-	m_audioManager->PlayEngineSound();
-
-	m_audioManager->SetMasterVolume(0.f);
-
 	if (m_useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
 
-    btVector3 itemBoxVector(500, 255, +0.5);
-	m_levelController->addItemBox(itemBoxVector);
+	if (m_fullscreen)
+		setupForFullScreen();
+
+	m_gameloopTimer->start();
+	m_gameTimer->start();
+	m_gameTimer->pause();
 
 	// GAME LOOP VARIABLES
-	long double nextTime = m_timer->elapsed();
+	long double nextTime = m_gameloopTimer->elapsed();
 	const double minMillisecondsBetweenFrames = 16.7; // vSync to 60 fps
-	const double maxMillisecondsBetweenFrames = 4* minMillisecondsBetweenFrames + 1;
+	const double maxMillisecondsBetweenFrames = 4 * minMillisecondsBetweenFrames + 1;
 	int skippedFrames = 0;
 	const int maxSkippedFrames = 4;
 
 	bool nearPlaneAdapted = false;
 
 	// GAME LOOP
+	// - AI
+	// - network
+	// - checkForUserInput and updateModels
+	// - physics + updateViews
+	// - render;
+
 	// terminates when first viewer is closed
 	while (!m_viewers[0]->done())
 	{
-		long double currTime = m_timer->elapsed();
-		g_currentTime = currTime;
+		g_gameLoopTime = m_gameloopTimer->elapsed();
+		g_gameTime = m_gameTimer->elapsed();
 
 		// are we significantly behind? if yes, "resync", force rendering
-		if ((currTime - nextTime) > maxMillisecondsBetweenFrames)
-			nextTime = currTime;
+		if ((g_gameLoopTime - nextTime) > maxMillisecondsBetweenFrames)
+			nextTime = g_gameLoopTime;
 		// is it time to render the next frame?
-		if (m_testPerformance || currTime >= nextTime)
+		if (m_testPerformance || g_gameLoopTime >= nextTime)
 		{
-			//std::cout << "difference: " << currTime - nextTime << std::endl;
 			// assign the time for the next update
 			nextTime += minMillisecondsBetweenFrames;
 
 			// LOOP REALLY STARTS HERE:
-			/* FROM GameProg Info session:
-			runAI()
-			// (network / multiplayer)
-			updateModels() and checkForUserInput()
-			stepSimulation() (Physics) + updateViews()
-			//render();*/
-			if (!m_simulationPaused)
+			m_gameLogic->step(g_gameLoopTime, g_gameTime);
+			if (!m_gameTimer->paused())
 			{
 				for (auto bikeController : m_bikeControllers)
 				{
-					bikeController->updateModel(currTime);
+					bikeController->updateModel(g_gameTime);
 				}
-				m_physicsWorld->stepSimulation(currTime);
+				m_physicsWorld->stepSimulation(g_gameTime);
+				m_levelController->update();
 			}
 
-			m_audioManager->Update(currTime/1000);
+			m_audioManager->Update(g_gameLoopTime / 1000);
 			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());
 
-			if (m_postProcessing)
-				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
+			if (m_postProcessing) m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
-			if (currTime < nextTime || (skippedFrames > maxSkippedFrames))
+			if (g_gameLoopTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
-				for (auto hudController : m_HUDControllers)
-					hudController->update();
+				for (int i = 0; i < m_viewers.size(); i++)
+					m_HUDControllers[i]->update(g_gameLoopTime, g_gameTime, m_timeLimit, m_gameLogic->getGameState(), m_bikeControllers);
 
-				for (auto viewer : m_viewers) {
+				for (auto viewer : m_viewers)
 					viewer->frame();
-				}
-
-				if (!nearPlaneAdapted) {
-					// TODO: find a way to eleminate this workaround
-					// doesn't work if it's executed earlier
-					for (auto gameView : m_gameViews) {
+				// TODO: find a way to eleminate this workaround
+				// doesn't work if it's executed earlier
+				if (!nearPlaneAdapted)
+					for (auto gameView : m_gameViews)
 						fixCulling(gameView);
-					}
-				}
-
 				skippedFrames = 0;
 			}
 			else
-			{
 				skippedFrames++;
-			}
 		}
 		else // WAIT
 		{
 			// calculate the time to sleep
-			long double sleepTime = (nextTime - currTime);
-			// sanity check
-			if (sleepTime > 0)
-			{
-				// sleep until nextTime
-				//std::cout << "sleep for: " << sleepTime << std::endl;
+			long double sleepTime = (nextTime - g_gameLoopTime);
+			if (sleepTime > 0)	// sanity check, sleep until nextTime
 				if (!m_testPerformance) m_gameThread->msleep(sleepTime);
-			}
 		}
 	}
+
+	if (m_fullscreen)
+		returnFromFullScreen();
 
 	// SHUTDOWN
 	shutdown();
@@ -659,7 +695,9 @@ bool TroenGame::shutdown()
 	// clean up in reverse order from initialization
 
 	//timer
-	m_timer.reset();
+	m_gameloopTimer.reset();
+	m_gameTimer.reset();
+
 	//input
 
 	// physics & gamelogic
@@ -671,7 +709,6 @@ bool TroenGame::shutdown()
 	for (auto gameView : m_gameViews)
 		gameView = nullptr;
 	m_gameViews.clear();
-
 	m_statsHandler = nullptr;
 
 	// models & scenegraph
@@ -680,11 +717,9 @@ bool TroenGame::shutdown()
 	m_levelController.reset();
 	m_bikeControllers.clear();
 
-
 	// TODO: is this still necessary if we clear the vector?
 	for (auto hudController : m_HUDControllers)
 		hudController.reset();
-
 	m_HUDControllers.clear();
 
 	m_playerNodes.clear();
@@ -708,4 +743,31 @@ void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View>& view)
 	view->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 	znear = 1.0;
 	view->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-};
+}
+
+void TroenGame::setupForFullScreen()
+{
+	osg::GraphicsContext::WindowingSystemInterface* wsi =
+	osg::GraphicsContext::getWindowingSystemInterface();
+	if (!wsi)
+	{
+		std::cout << "[TroenGame::setupForFullScreen] error ..." << std::endl;
+		return;
+	}
+	wsi->getScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), m_originalWidth, m_originalHeight);
+
+	//wsi->setScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), 1024, 768);
+	this->resize(m_originalWidth, m_originalHeight);
+}
+
+void TroenGame::returnFromFullScreen()
+{
+	osg::GraphicsContext::WindowingSystemInterface* wsi =
+		osg::GraphicsContext::getWindowingSystemInterface();
+	if (!wsi)
+	{
+		std::cout << "[TroenGame::returnFromFullScreen] error ..." << std::endl;
+		return;
+	}
+	wsi->setScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), m_originalWidth, m_originalHeight);
+}

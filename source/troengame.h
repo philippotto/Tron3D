@@ -17,13 +17,15 @@
 typedef struct s_GameConfig
 {
 	int numberOfBikes;
+	int timeLimit;
 	int* playerInputTypes;
 	QColor* playerColors;
-	bool splitscreen;
+	QString* playerNames;
 	bool fullscreen;
 	bool usePostProcessing;
 	bool useDebugView;
 	bool testPerformance;
+	bool reflection;
 	bool ownView[MAX_BIKES];
 } GameConfig;
 Q_DECLARE_METATYPE(s_GameConfig)
@@ -46,10 +48,10 @@ namespace troen
 		void pauseSimulation();
 		void unpauseSimulation();
 
-		void resize(int width, int height);
+		void resize(const int width,const int height);
 
 	public slots:
-		void prepareAndStartGame(GameConfig config);
+		void prepareAndStartGame(const GameConfig& config);
 
 	private:
 		bool initialize();
@@ -58,22 +60,24 @@ namespace troen
 		bool initializeControllers();
 		bool initializeInput();
 		bool composeSceneGraph();
-		bool initializeTimer();
+		bool initializeTimers();
 		bool initializeShaders();
 		bool initializeGameLogic();
 		bool initializePhysicsWorld();
 		bool initializeSound();
 		bool initializeSkyDome();
 		bool initializeLighting();
+		bool initializeReflection();
 
 		bool shutdown();
 		void startGameLoop();
 
 		void fixCulling(osg::ref_ptr<osgViewer::View>& view);
-
-		// TODO
-		// implement some kind of menu to start the game from
-		//osg::ref_ptr<osgViewer::View>		m_menuView;
+		// fullscreen handling
+		void setupForFullScreen();
+		void returnFromFullScreen();
+		uint m_originalWidth;
+		uint m_originalHeight;
 
 		// OSG Components
 		std::vector<osg::ref_ptr<SampleOSGViewer>>	m_viewers;
@@ -86,8 +90,7 @@ namespace troen
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
 		osg::ref_ptr<osg::LightSource>		m_sunLightSource;
-
-
+		
 		// Controllers
 		std::shared_ptr<LevelController>	m_levelController;
 		std::vector<std::shared_ptr<BikeController>> m_bikeControllers;
@@ -96,25 +99,27 @@ namespace troen
 		std::vector<osg::ref_ptr<osg::Group>> m_playerNodes;
 		
 		QThread*							m_gameThread;
-		std::shared_ptr<util::ChronoTimer>	m_timer;
+		std::shared_ptr<util::ChronoTimer>	m_gameloopTimer;
+		std::shared_ptr<util::ChronoTimer>	m_gameTimer;
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 		std::shared_ptr<GameLogic>			m_gameLogic;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
+		std::vector<std::shared_ptr<Reflection>>		m_reflections;
 
 		std::vector<int> m_playerInputTypes;
 		std::vector<osg::Vec3> m_playerColors;
+		std::vector<QString> m_playerNames;
 
 		ResourcePool m_resourcePool;
 
-		bool m_simulationPaused;
-
 		// Startup Options
 		int m_numberOfBikes;
-		bool m_splitscreen;
+		int m_timeLimit;
 		bool m_fullscreen;
 		bool m_usePostProcessing;
 		bool m_useDebugView;
 		bool m_testPerformance;
+		bool m_useReflection;
 		bool m_ownView[MAX_BIKES];
 	};
 }

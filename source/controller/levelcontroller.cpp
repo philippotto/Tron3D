@@ -9,6 +9,8 @@
 #include "../view/LevelView.h"
 #include "../model/physicsworld.h"
 
+#include "itemcontroller.h"
+
 using namespace troen;
 
 LevelController::LevelController()
@@ -16,6 +18,8 @@ LevelController::LevelController()
 	AbstractController();
 	m_model = std::make_shared<LevelModel>(this);
 	m_view = std::make_shared<LevelView>(std::static_pointer_cast<LevelModel>(m_model));
+	
+	m_currentItemCount = 0;
 
 	initializeSpawnPoints();
 }
@@ -42,15 +46,40 @@ void LevelController::initializeSpawnPoints()
 	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS,0), btVector3(-100, -100, BIKE_DIMENSIONS.z() / 2)));
 }
 
+
+
+osg::ref_ptr<osg::Group>  LevelController::getFloorView()
+{
+		return std::static_pointer_cast<LevelView>(m_view)->getFloor();
+
+}
 void LevelController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 {
 	m_world = world;
 }
 
-void LevelController::addItemBox(btVector3 &position)
+void LevelController::addItemBox()
 {
-	btCollisionObject *item = std::static_pointer_cast<LevelModel>(m_model)->createItemBox(position);
-	m_world.lock()->addCollisionObject(item);
+	float x = randf(0, LEVEL_SIZE) - LEVEL_SIZE / 2;
+	float y = randf(0, LEVEL_SIZE) - LEVEL_SIZE / 2;
+	btVector3 position(x, y, +0.5);
 
-	std::static_pointer_cast<LevelView>(m_view)->addItemBox(btToOSGVec3(position));
+	// the item controller will remove itself
+	new ItemController(position, m_world, std::static_pointer_cast<LevelView>(m_view).get());
+
+	m_currentItemCount++;
+}
+
+void troen::LevelController::update()
+{
+	if (m_currentItemCount >= m_targetItemCount) {
+		return;
+		m_targetItemCount = 0;
+	}
+		
+
+	// this method is called in each frame, so the amount of items will be refreshed relatively quickly
+	// creating all at once would cause a lag
+
+	addItemBox();
 }

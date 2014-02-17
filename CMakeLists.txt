@@ -252,6 +252,8 @@ set(sources
 	source/model/fencemodel.cpp
 	source/model/abstractmodel.h
 	source/model/abstractmodel.cpp
+	source/model/itemmodel.h
+	source/model/itemmodel.cpp
 	source/model/physicsworld.h
 	source/model/physicsworld.cpp
 	source/model/bikemotionstate.h
@@ -283,6 +285,8 @@ set(sources
 	source/view/shaders.cpp
 	source/view/hudview.h
 	source/view/hudview.cpp
+	source/view/itemview.h
+	source/view/itemview.cpp
 	source/view/skydome.h
 	source/view/skydome.cpp
 	source/view/postprocessing.cpp
@@ -294,6 +298,8 @@ set(sources
 	source/view/playermarker.h
 	source/view/playermarker.cpp
 	source/view/easemotion.h
+	source/view/reflection.h
+	source/view/reflection.cpp
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp

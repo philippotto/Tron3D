@@ -24,7 +24,7 @@ namespace troen
 		virtual ~MainWindow();
 
 	signals:
-		void startGame(GameConfig config);
+		void startGame(const GameConfig config);
 
 	public slots:
 		void updatePlayerInputBoxes();
@@ -35,10 +35,8 @@ namespace troen
 
 	private slots:
 		void prepareGameStart();
-		void splitscreenToggled();
-		void fullscreenToggled();
-		void bikeNumberChanged(int newBikeNumber);
-		void chooseColor(int i);
+		void bikeNumberChanged(const int newBikeNumber);
+		void chooseColor(const int i);
 
 	private:
 		void loadSettings();
@@ -50,12 +48,14 @@ namespace troen
 		QVector<QComboBox*>	m_playerComboBoxes;
 		QVector<QColor> m_playerColors;
 		QVector<QPushButton*> m_colorButtons;
-		QCheckBox*		m_splitscreenCheckBox;
+		QVector<QLineEdit*> m_playerNameLineEdits;
 		QCheckBox*		m_fullscreenCheckBox;
 		QCheckBox*		m_postProcessingCheckBox;
 		QCheckBox*		m_testPerformanceCheckBox;
 		QCheckBox*		m_debugViewCheckBox;
+		QCheckBox*		m_reflectionCheckBox;
 		std::vector<QCheckBox*> m_ownViewCheckboxes;
+		QSpinBox*		m_timeLimitSpinBox;
 
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;

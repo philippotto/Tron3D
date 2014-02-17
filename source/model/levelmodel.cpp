@@ -5,6 +5,7 @@
 
 #include "../controller/itemcontroller.h"
 #include "objectinfo.h"
+#include "../constants.h"
 
 using namespace troen;
 
@@ -75,7 +76,12 @@ void LevelModel::addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type)
 
 		std::shared_ptr<btRigidBody> wallRigidBody = std::make_shared<btRigidBody>(wallRigidBodyCI);
 
-		ObjectInfo* info = new ObjectInfo((void *) m_levelController, type);
+		ObjectInfo* info;
+		if (type == ABSTRACTTYPE)
+			info = new ObjectInfo((void *)m_levelController, boxes[i].collisionType);
+		else
+			info = new ObjectInfo((void *) m_levelController, type);
+		
 		wallRigidBody->setUserPointer(info);
 
 		m_collisionShapes.push_back(wallShape);
@@ -84,30 +90,9 @@ void LevelModel::addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type)
 	}
 }
 
-btCollisionObject* LevelModel::createItemBox(btVector3 &position)
-{
-	// create a trigger volume
-	btCollisionObject *m_pTrigger = new btCollisionObject();
-	
-	ItemController *itemController = new ItemController();
 
-	ObjectInfo* info = new ObjectInfo(itemController, ITEMTYPE);
-	m_pTrigger->setUserPointer(info);
-
-	// create a box for the trigger's shape
-	m_pTrigger->setCollisionShape(new btBoxShape(btVector3(10, 10, 10)));
-	// set the trigger's position
-	btTransform triggerTrans;
-	triggerTrans.setIdentity();
-	triggerTrans.setOrigin(position);
-	m_pTrigger->setWorldTransform(triggerTrans);
-	// flag the trigger to ignore contact responses
-	m_pTrigger->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
-	// add the trigger to our world
-	return m_pTrigger;
-}
 
 int LevelModel::getLevelSize() {
-	return 6000;
+	return LEVEL_SIZE;
 }
 

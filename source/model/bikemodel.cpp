@@ -17,9 +17,9 @@ BikeModel::BikeModel(
 	osg::ref_ptr<osg::Group> node,
 	std::shared_ptr<FenceController> fenceController,
 	BikeController* bikeController) :
+AbstractModel(),
 m_lastUpdateTime(0)
 {
-	AbstractModel();
 	resetState();
 
 	m_bikeController = bikeController;
@@ -106,8 +106,7 @@ void BikeModel::updateTurboFactor(float newVelocity, float time)
 			m_turboFactor = -1.f;
 		}
 		else {
-			const float turboPhaseLength = 2000;
-			m_turboFactor = 1 - (time - m_timeOfLastTurboInitiation) / turboPhaseLength;
+			m_turboFactor = 1 - (time - m_timeOfLastTurboInitiation) / TURBO_PHASE_LENGTH;
 			m_turboFactor = std::max(0.f, m_turboFactor);
 		}
 	}
@@ -181,12 +180,16 @@ float BikeModel::updateState(long double time)
 	m_oldVelocity = speed;
 
 	// adapt velocity vector to real direction
-
-	float quat =  bikeRigidBody->getOrientation().getAngle();
+	float angle =  bikeRigidBody->getOrientation().getAngle();
 	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
 
+	// restrict the drifting angle and increase friction if it gets too big
+	if (abs(currentVelocityVectorXY.angle(front.rotate(axis, angle))) > PI_4) {
+		m_bikeFriction = 0.1 * timeFactor;
+	}
+
 	// let the bike drift, if the friction is low
-	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, quat) * speed).normalized() * speed;
+	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed).normalized() * speed;
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
@@ -219,9 +222,16 @@ btVector3 BikeModel::getPositionBt()
 	return trans.getOrigin();
 }
 
+
 void BikeModel::moveBikeToPosition(btTransform position)
 {
 	m_rigidBodies[0]->setWorldTransform(position);
+	m_rigidBodies[0]->setAngularVelocity(btVector3(0, 0, 0));
+	m_rigidBodies[0]->setLinearVelocity(btVector3(0, 0, 0));
+}
+
+void BikeModel::freeze()
+{
 	m_rigidBodies[0]->setAngularVelocity(btVector3(0, 0, 0));
 	m_rigidBodies[0]->setLinearVelocity(btVector3(0, 0, 0));
 }

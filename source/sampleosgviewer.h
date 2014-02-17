@@ -9,21 +9,16 @@ namespace troen
 	public:
 		SampleOSGViewer(osg::GraphicsContext* context = nullptr);
 		virtual ~SampleOSGViewer();
-
-	private:
-		void resize(int width, int height);
 	};
 }
 
 #ifdef WIN32
 #include <osg/GL>
-
 #include <windows.h>
 
 class RealizeOperation : public osg::GraphicsOperation
 {
 public:
-
 	OpenThreads::Mutex  _mutex;
 	std::string         _errorMessage;
 

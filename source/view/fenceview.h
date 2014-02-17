@@ -11,14 +11,14 @@ namespace troen
 	class FenceView : public AbstractView
 	{
 	public:
-		FenceView(FenceController* fenceController, osg::Vec3 color, std::shared_ptr<AbstractModel>& model);
+		FenceView(FenceController* fenceController, const osg::Vec3 color, std::shared_ptr<AbstractModel>& model);
 
-		void addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition);
+		void addFencePart(const osg::Vec3 lastPosition, const osg::Vec3 currentPosition);
 		void removeAllFences();
 		void removeFirstFencePart();
 		void enforceFencePartsLimit();
 
-		void updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position);
+		void updateFenceGap(const osg::Vec3 lastPosition, const osg::Vec3 position);
 
 	private:
 		void initializeFence();
