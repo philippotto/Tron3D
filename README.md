@@ -30,7 +30,7 @@ Set up V8 & Scriptzeug
 - %V8_ROOT%\bin
 - %ProjectDir%\3rdParty\scriptzeug\lib
 
-Set up V8 & Scriptzeug
+Set up Oculus Rift
 - Copy the LibOVR (in our Dropbox) to
 %ProjectDir%\3rdParty\LibOVR
 - create the environment variable %OCULUS_ROOT% and set it to %ProjectDir%\3rdParty\LibOVR
