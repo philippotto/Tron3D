@@ -155,12 +155,14 @@ void main(void)
 
 	float enableDamageHUD = healthNormalized;
 	float circleTransparency = st.x * st.x + st.y * st.y;
-	circleTransparency = (1-enableDamageHUD) * 5 *  min(1, 5 * circleTransparency);
+	float pulsating = (sin(time*2.f) + 1.f)/4.f + 0.5;
+	circleTransparency = (1-enableDamageHUD)*pulsating* 0.5  *  min(1, 5 * circleTransparency);
 
-	vec3 hsl = RGBToHSL((sceneColor + pongColor).xyz);
-	hsl.x = mix(hsl.x, 1, 0.99); // .x is hue, .y is saturation, .z is brightness
-	hsl.z *= 0.7;
-	vec3 reddedColor = HSLToRGB(hsl);
+	//vec3 hsl = RGBToHSL((sceneColor + pongColor).xyz);
+	//hsl.x = mix(hsl.x, 1, 0.99); // .x is hue, .y is saturation, .z is brightness
+	//hsl.y *= 1.4;
+	//hsl.z *= 0.5;
+	vec3 reddedColor = vec4(1.0,0.0,0.0,1.0);//HSLToRGB(hsl);
 	// BlendPhoenix could be used for a some special mode
 	// color = BlendPhoenix(color, pongColor);
 
