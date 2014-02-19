@@ -359,7 +359,7 @@ void BikeController::updateModel(const long double gameTime)
 		break;
 	}
 
-	//increaseHealth()
+	increaseHealth(getTimeFactor() * 20.0);
 
 	// turbo should be only applied in one frame
 	if (m_turboInitiated)
