@@ -155,8 +155,8 @@ void main(void)
 
 	float enableDamageHUD = healthNormalized;
 	float circleTransparency = st.x * st.x + st.y * st.y;
-	float pulsating = (sin(time*2.f) + 1.f)/4.f + 0.5;
-	circleTransparency = (1-enableDamageHUD)*pulsating* 0.5  *  min(1, 5 * circleTransparency);
+	float pulsating = (sin(time*2.f) + 1.f)/3.f + 0.4;
+	circleTransparency = (1-enableDamageHUD)*pulsating *  min(1, 2 * circleTransparency);
 
 	//vec3 hsl = RGBToHSL((sceneColor + pongColor).xyz);
 	//hsl.x = mix(hsl.x, 1, 0.99); // .x is hue, .y is saturation, .z is brightness
