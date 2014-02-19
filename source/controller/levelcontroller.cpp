@@ -10,14 +10,17 @@
 #include "../model/physicsworld.h"
 
 #include "itemcontroller.h"
+#include "../troengame.h"
 
 using namespace troen;
 
-LevelController::LevelController()
+LevelController::LevelController(TroenGame* troenGame)
 {
 	AbstractController();
 	m_model = std::make_shared<LevelModel>(this);
 	m_view = std::make_shared<LevelView>(std::static_pointer_cast<LevelModel>(m_model));
+
+	m_troenGame = troenGame;
 	
 	m_currentItemCount = 0;
 
@@ -65,7 +68,7 @@ void LevelController::addItemBox()
 	btVector3 position(x, y, +0.5);
 
 	// the item controller will remove itself
-	new ItemController(position, m_world, std::static_pointer_cast<LevelView>(m_view).get());
+	new ItemController(position, m_world, m_troenGame, std::static_pointer_cast<LevelView>(m_view).get());
 
 	m_currentItemCount++;
 }
@@ -76,7 +79,6 @@ void troen::LevelController::update()
 		return;
 		m_targetItemCount = 0;
 	}
-		
 
 	// this method is called in each frame, so the amount of items will be refreshed relatively quickly
 	// creating all at once would cause a lag

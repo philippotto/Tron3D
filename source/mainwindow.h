@@ -35,8 +35,6 @@ namespace troen
 
 	private slots:
 		void prepareGameStart();
-		void splitscreenToggled();
-		void fullscreenToggled();
 		void bikeNumberChanged(const int newBikeNumber);
 		void chooseColor(const int i);
 
@@ -51,7 +49,6 @@ namespace troen
 		QVector<QColor> m_playerColors;
 		QVector<QPushButton*> m_colorButtons;
 		QVector<QLineEdit*> m_playerNameLineEdits;
-		QCheckBox*		m_splitscreenCheckBox;
 		QCheckBox*		m_fullscreenCheckBox;
 		QCheckBox*		m_postProcessingCheckBox;
 		QCheckBox*		m_testPerformanceCheckBox;

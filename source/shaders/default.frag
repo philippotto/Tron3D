@@ -13,7 +13,7 @@ void main() {
 	if (trueColor) {
 		gl_FragData[0] = default_tex;
 	} else {
-		gl_FragData[0] = vec4(default_tex.x,default_tex.x / 2.0, default_tex.x, 1.0);
+		gl_FragData[0] = vec4(default_tex.x, default_tex.x / 2.0, default_tex.x, 1.0);
 	}
 
 	//vec4(1.0 - scaled_height / 50.0);

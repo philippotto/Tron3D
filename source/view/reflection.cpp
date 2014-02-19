@@ -33,6 +33,7 @@ using namespace troen;
 
 static osg::ref_ptr<osg::Uniform> g_cameraEyeU = new osg::Uniform("cameraEye", osg::Vec3(0.0, 0.0,0.0));
 
+
 class CUpdateCameraCallback : public osg::NodeCallback
 {
 public:
@@ -54,6 +55,7 @@ public:
 
 			camera->setViewMatrix(m_gameView->getCamera()->getViewMatrix());
 			camera->setProjectionMatrix(m_gameView->getCamera()->getProjectionMatrix());
+			
 
 			//g_cameraViewU->set(m_gameView->getCamera()->getViewMatrix());
 
@@ -117,6 +119,8 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	reflectionCamera->setViewport(0, 0, texSize, texSize);
 	reflectionCamera->setClearDepth(1.0);
 	reflectionCamera->setCullMask(CAMERA_MASK_MAIN);
+	reflectionCamera->getOrCreateStateSet()->addUniform(new osg::Uniform("isReflecting",true));
+	
 
 	cameraGroup->setCullCallback(new CUpdateCameraCallback(gameView));
 
@@ -135,7 +139,6 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 
 	//osg::ref_ptr<osg::Texture2D>	idTexture = new osg::Texture2D();
 	//idTexture->setTextureSize(texSize, texSize);
-	//idTexture->setInternalFormat(GL_RGB);
 	reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER0, texture);
 	//reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER1, idTexture);
 
@@ -155,10 +158,10 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	reflectSurface = static_cast<osg::Group*>(findReflecting.getNode())->getChild(0);
 
 
-	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(4 + playerID, texture,
+	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(5 + playerID, texture,
 		osg::StateAttribute::ON);
 
-	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + playerID));
+	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 5 + playerID));
 
 	//sreflectSurface->getOrCreateStateSet()->addUniform(g_cameraViewU);
 
