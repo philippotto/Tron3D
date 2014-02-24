@@ -44,6 +44,7 @@ namespace troen
 	extern const float BIKE_TURN_FACTOR_MAX;
 	extern const float BIKE_ANGULAR_DAMPENING_TERM;
 	extern const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE;
+	extern const float BIKE_VIEWING_ANGLE_DAMPENING_TERM;
 
 	extern const float TURBO_PHASE_LENGTH;
 

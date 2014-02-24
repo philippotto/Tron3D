@@ -22,5 +22,6 @@ namespace troen
 	protected:
 		osg::Vec3 rollPitchYaw(float x, float y, float z, float w) const;
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
+		mutable osg::Quat m_oldPlayerViewingRotation;
 	};
 }

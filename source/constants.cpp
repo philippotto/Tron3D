@@ -41,6 +41,7 @@ namespace troen
 	const float BIKE_DECELERATION_FACTOR(4.f);
 	const float BIKE_TURN_FACTOR_MAX(15);
 	const float BIKE_ANGULAR_DAMPENING_TERM(0.001f);
+	const float BIKE_VIEWING_ANGLE_DAMPENING_TERM(0.1f);
 
 	const float TURBO_PHASE_LENGTH(1000);
 
@@ -52,8 +53,8 @@ namespace troen
 	const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE(20.f);
 
 	//INPUT
-	const float BIKE_ROTATION_VALUE(10.0f);
-	const float BIKE_HANDBRAKE_FACTOR(1.5f);
+	const float BIKE_ROTATION_VALUE(12.0f);
+	const float BIKE_HANDBRAKE_FACTOR(1.4f);
 	// this should always be less than 1000/60FPS - the smaller, the more responsive is the input
 	const int POLLING_DELAY_MS(8);
 	const int VIBRATION_TIME_MS(500);
