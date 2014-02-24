@@ -186,6 +186,9 @@ find_package(FMOD REQUIRED)
 # HIDAPI
 find_package(HIDAPI REQUIRED)
 
+#RakNet
+find_package(RakNet REQUIRED)
+
 #################################################
 # SOURCES
 #################################################
@@ -315,6 +318,7 @@ include_directories(
 	${BULLET_INCLUDE_DIRS}
 	${FMOD_INCLUDE_DIRS}
 	${HIDAPI_INCLUDE_DIRS}
+	${RakNet_INCLUDES}
 )
 
 target_link_libraries( ${target}
@@ -323,6 +327,7 @@ target_link_libraries( ${target}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
 	${HIDAPI_LIBRARIES}
+	${RakNet_LIBRARY}
 )
 
 if (WIN32)
