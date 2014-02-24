@@ -295,6 +295,15 @@ set(sources
 	source/util/gldebugdrawer.h
 	source/util/gldebugdrawer.cpp
 
+	source/network/sender.h
+	source/network/sender.cpp
+	source/network/receiver.cpp
+	source/network/receiver.h
+	source/network/networkmanager.h
+	source/network/networkmanager.cpp
+	
+
+
 
 )
 

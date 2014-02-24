@@ -111,4 +111,6 @@ namespace troen
 	{
 		class AudioManager;
 	}
+	class Sender;
+	class Receiver;
 }
