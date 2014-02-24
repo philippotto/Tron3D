@@ -68,6 +68,7 @@ namespace troen
 		bool initializeSkyDome();
 		bool initializeLighting();
 		bool initializeReflection();
+		bool initializeNetworking();
 
 		bool shutdown();
 		void startGameLoop();
@@ -105,10 +106,12 @@ namespace troen
 		std::shared_ptr<GameLogic>			m_gameLogic;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
 		std::vector<std::shared_ptr<Reflection>>		m_reflections;
+		std::shared_ptr<networking::NetworkManager> m_networkManager;
 
 		std::vector<int> m_playerInputTypes;
 		std::vector<osg::Vec3> m_playerColors;
 		std::vector<QString> m_playerNames;
+
 
 		ResourcePool m_resourcePool;
 

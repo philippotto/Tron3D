@@ -70,6 +70,7 @@ namespace troen
 		BIKESTATE getState();
 		double getRespawnTime();
 		osg::Vec3 getPlayerColor() { return m_playerColor; };
+		osg::Vec3 getPositionOSG();
 		const std::string getPlayerName() { return m_playerName; };
 
 		float increaseHealth(const float diff);

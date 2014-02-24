@@ -1,38 +1,44 @@
 #include "networkmanager.h"
 #include "../constants.h"
-// troen
-#include "sender.h"
-#include "receiver.h"
-#include "RakSleep.h"
-#include "RakNetTypes.h"  // MessageID
+#include <stdio.h>
+#include <string.h>
 
-using namespace troen;
+
+//
+#include <QQueue>
+
+//raknet
+
+
+using namespace troen::networking;
 #define MAX_CLIENTS 10
 #define SERVER_PORT 60000
 
-
-struct MyVector
-{
-	float x, y, z;
-} myVector, myVector1;
 
 enum GameMessages
 {
 	BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1
 };
 
-
+struct bikeUpdateMessage updateMessage;
 
 NetworkManager::NetworkManager()
 {
 	m_packet = new RakNet::Packet;
 	peer = RakNet::RakPeerInterface::GetInstance();
 	m_connectionAccepted = false;
+	m_sendMessagesQueue = new QQueue<bikeUpdateMessage>();
+}
+
+void  NetworkManager::enqueueMessage(osg::Vec3 position)
+{
+	bikeUpdateMessage update = { position.x(), position.y(), position.z() };
+	m_sendMessagesQueue->enqueue(update);
 }
 
 void NetworkManager::run()
 {
-
+	
 	// subclass responsibility
 	RakNet::Packet *packet;
 	while (1)
@@ -78,16 +84,13 @@ void NetworkManager::run()
 
 			case BIKE_POSITION_MESSSAGE:
 			{
-									  printf("game_message");
-									  RakNet::RakString rs;
-									  RakNet::BitStream bsIn(packet->data, packet->length, false);
-									  bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-									  bsIn.Read(rs);
-									  bsIn.Read(myVector1);
-									  printf("%s\n", rs.C_String());
-									  printf("%f %f %f\n", myVector1.x, myVector1.y, myVector1.z);
+				RakNet::RakString rs;
+				RakNet::BitStream bsIn(packet->data, packet->length, false);
+				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+				bsIn.Read(updateMessage);
+				printf("%f %f %f\n", updateMessage.x, updateMessage.y, updateMessage.z);
+				}
 				break;
-			}
 
 			default:
 				printf("Message with identifier %i has arrived.\n", packet->data[0]);
@@ -96,28 +99,12 @@ void NetworkManager::run()
 		}
 
 
-			// Use a BitStream to write a custom user message
-			// Bitstreams are easier to use than sending casted structures, and handle endian swapping automatically
-			if (m_connectionAccepted)
-			{
-
-				printf("Sending.\n");
-				RakNet::BitStream bsOut;
-				bsOut.Write((RakNet::MessageID)BIKE_POSITION_MESSSAGE);
-				myVector.x = 1.0;
-				myVector.y = 0.0;
-				myVector.z = 99.0;
-				bsOut.Write("Hello world");
-				bsOut.Write(myVector);
-				//peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
-				peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
-
-
-				RakSleep(500);
-			}
+		sendData();
+		
 	}
 
-
+	//cleanup
+	RakNet::RakPeerInterface::DestroyInstance(peer);
 }
 
 void NetworkManager::openServer()
@@ -129,15 +116,31 @@ void NetworkManager::openServer()
 	printf("Starting the server.\n");
 	// We need to let the server accept incoming connections from the clients
 	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
-
 	
-	run();
 
-
-
-
+	//calls the run method in a seperate thread
+	start();
 }
 
+void NetworkManager::sendData()
+{
+	//while (!m_sendMessagesQueue->empty())
+	//{
+		if (m_connectionAccepted)
+		{
+
+			printf("Sending.\n");
+			RakNet::BitStream bsOut;
+			// Use a BitStream to write a custom user message
+			//Bitstreams are easier to use than sending casted structures, and handle endian swapping automatically
+			bsOut.Write((RakNet::MessageID)BIKE_POSITION_MESSSAGE);
+			updateMessage = m_sendMessagesQueue->dequeue();
+			bsOut.Write(updateMessage);
+			//peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+			peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+		}
+	//}
+}
 
 void NetworkManager::openClient()
 {
@@ -155,6 +158,6 @@ void NetworkManager::openClient()
 	printf("Starting the client.\n");
 	RakNet::ConnectionAttemptResult r= peer->Connect(str, SERVER_PORT, 0, 0);
 
-	run();
-
+	//calls the run method in a seperate thread
+	start();
 }

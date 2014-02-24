@@ -444,6 +444,11 @@ osg::ref_ptr<osgViewer::View> BikeController::getGameView()
 	return m_gameView;
 };
 
+osg::Vec3 BikeController::getPositionOSG()
+{
+	return std::static_pointer_cast<BikeModel>(m_model)->getPositionOSG();
+}
+
 void BikeController::updateUniforms()
 {
 	if (m_hasGameView) {

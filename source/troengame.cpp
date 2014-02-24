@@ -34,6 +34,8 @@
 #include "view/nodefollowcameramanipulator.h"
 #include "view/reflection.h"
 
+#include "network/networkmanager.h"
+
 
 #include "globals.h"
 
@@ -173,6 +175,9 @@ bool TroenGame::initialize()
 	initializePhysicsWorld();
 	m_physicsWorld->stepSimulation(0);
 
+	std::cout << "[TroenGame::initialize] networking ..." << std::endl;
+	initializeNetworking();
+
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
 
 	return true;
@@ -209,6 +214,26 @@ bool TroenGame::initializeSound()
 bool TroenGame::initializeSkyDome()
 {
 	m_skyDome = new SkyDome;
+	return true;
+}
+
+bool TroenGame::initializeNetworking()
+{
+
+	char str[512];
+	m_networkManager = std::make_shared<networking::NetworkManager>();
+
+
+	printf("(C) or (S)erver?\n");
+	gets(str);
+
+	if ((str[0] == 'c') || (str[0] == 'C'))
+	{
+		m_networkManager->openClient();
+	}
+	else {
+		m_networkManager->openServer();
+	}
 	return true;
 }
 
@@ -530,10 +555,14 @@ void TroenGame::startGameLoop()
 				for (auto bikeController : m_bikeControllers)
 				{
 					bikeController->updateModel(g_gameTime);
+					if (bikeController->hasGameView())
+						m_networkManager->enqueueMessage(bikeController->getPositionOSG());
 				}
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();
 			}
+			
+
 
 			m_audioManager->Update(g_gameLoopTime / 1000);
 			m_audioManager->setMotorSpeed(m_bikeControllers[0]->getSpeed());

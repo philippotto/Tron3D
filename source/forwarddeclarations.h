@@ -92,6 +92,8 @@ namespace troen
 	class NodeFollowCameraManipulator;
 	class Reflection;
 	class ResourcePool;
+	
+
 
 	namespace util
 	{
@@ -111,6 +113,9 @@ namespace troen
 	{
 		class AudioManager;
 	}
-	class Sender;
-	class Receiver;
+	
+	namespace networking
+	{
+		class NetworkManager;
+	}
 }

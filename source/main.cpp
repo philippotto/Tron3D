@@ -27,47 +27,32 @@ using namespace troen;
 
 
 
-int main(void)
+int main(int argc, char* argv[])
 {
 	
 
-	char str[512];
-	NetworkManager networkManager;
-
-
-	printf("(C) or (S)erver?\n");
-	gets(str);
-
-	if ((str[0] == 'c') || (str[0] == 'C'))
-	{
-		networkManager.openClient();
-	}
-	else {
-		networkManager.openServer();
-	}
 
 
 
+	int result = -1;
 
-	//int result = -1;
+	// register meta types
+	qRegisterMetaType<GameConfig>("GameConfig");
 
-	//// register meta types
-	//qRegisterMetaType<GameConfig>("GameConfig");
+	// setup application settings
+	QApplication::setApplicationName("Troen");
+	QApplication * application = new QApplication(argc, argv);
 
-	//// setup application settings
-	//QApplication::setApplicationName("Troen");
-	//QApplication * application = new QApplication(argc, argv);
+	troen::MainWindow * mainWindow = new troen::MainWindow();
+	mainWindow->show();
 
-	//troen::MainWindow * mainWindow = new troen::MainWindow();
-	//mainWindow->show();
+	result = application->exec();
 
-	//result = application->exec();
+	// Clean Up
+	delete mainWindow;
+	delete application;
 
-	//// Clean Up
-	//delete mainWindow;
-	//delete application;
-
-	//return result;
+	return result;
 
 
 
