@@ -9,7 +9,7 @@
 #include "RakPeerInterface.h"
 #include "MessageIdentifiers.h"
 #include "BitStream.h"
-#include "RakNetTypes.h"  // MessageID
+
 // troen
 #include "../forwarddeclarations.h"
 

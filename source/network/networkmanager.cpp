@@ -3,6 +3,8 @@
 // troen
 #include "sender.h"
 #include "receiver.h"
+#include "RakSleep.h"
+#include "RakNetTypes.h"  // MessageID
 
 using namespace troen;
 #define MAX_CLIENTS 10
@@ -16,7 +18,7 @@ struct MyVector
 
 enum GameMessages
 {
-	ID_GAME_MESSAGE_1 = ID_USER_PACKET_ENUM + 1
+	BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1
 };
 
 
@@ -74,15 +76,18 @@ void NetworkManager::run()
 				}
 				break;
 
-			case ID_GAME_MESSAGE_1:
+			case BIKE_POSITION_MESSSAGE:
 			{
+									  printf("game_message");
 									  RakNet::RakString rs;
 									  RakNet::BitStream bsIn(packet->data, packet->length, false);
 									  bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 									  bsIn.Read(rs);
+									  bsIn.Read(myVector1);
 									  printf("%s\n", rs.C_String());
-			}
+									  printf("%f %f %f\n", myVector1.x, myVector1.y, myVector1.z);
 				break;
+			}
 
 			default:
 				printf("Message with identifier %i has arrived.\n", packet->data[0]);
@@ -98,15 +103,17 @@ void NetworkManager::run()
 
 				printf("Sending.\n");
 				RakNet::BitStream bsOut;
-				bsOut.Write((RakNet::MessageID)ID_GAME_MESSAGE_1);
+				bsOut.Write((RakNet::MessageID)BIKE_POSITION_MESSSAGE);
 				myVector.x = 1.0;
 				myVector.y = 0.0;
 				myVector.z = 99.0;
-				bsOut.Write(myVector);
 				bsOut.Write("Hello world");
-				peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+				bsOut.Write(myVector);
+				//peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+				peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 
-				this->msleep(1000);
+
+				RakSleep(500);
 			}
 	}
 
