@@ -17,6 +17,7 @@ namespace troen
 		void attachWorld(std::shared_ptr<PhysicsWorld>& world);
 
 		void removeAllFences();
+		void removeAllFencesFromModel();
 		int getFenceLimit();
 
 		void setLastPosition(btQuaternion rotation, const btVector3 position);

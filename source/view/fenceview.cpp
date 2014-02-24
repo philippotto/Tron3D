@@ -134,8 +134,6 @@ void FenceView::enforceFencePartsLimit()
 	{
 		for (int i = 0; i < (currentFenceParts - maxFenceParts); i++)
 			removeFirstFencePart();
-
-		std::cout << "currentFenceParts: " << currentFenceParts << std::endl;
 	}
 }
 

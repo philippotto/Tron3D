@@ -4,8 +4,11 @@ uniform sampler2D sceneLayer;
 uniform sampler2D idLayer;
 uniform sampler2D pongLayer;
 uniform sampler2D oldLayer;
-uniform float timeSinceLastHit;
+uniform float healthNormalized;
 uniform float time;
+uniform float velocity;
+uniform float timeFactor;
+uniform float timeSinceLastHit;
 
 /*
 ** Copyright (c) 2012, Romain Dura romain@shazbits.com
@@ -140,22 +143,27 @@ void main(void)
 		+ texture2D(pongLayer, st + vec2(-diff, diff))
 	) / 8;
 
-
-
 	vec4 oldColor = texture2D(oldLayer, st);
 
-	const float oldFrameWeight = 0.5;
-	const float newFrameWeight = 1 - oldFrameWeight;
+	// motion blur is framerate independent
+	float motionBlurFactor = smoothstep(300.0, 450.0, velocity);
+	float oldFrameWeight = max(0.1, pow(motionBlurFactor * 0.8, timeFactor));
+	float newFrameWeight = 1 - oldFrameWeight;
 
 	st = 1 * (st - vec2(0.5));
 
-	float enableDamageHUD = 1 - clamp(timeSinceLastHit / 1000, 0, 1);
+	float enableDamageHUD = healthNormalized;
 	float circleTransparency = st.x * st.x + st.y * st.y;
-	circleTransparency = enableDamageHUD * 2 * min(1, 5 * pow(circleTransparency, 1.5));
+	float pulsating = (sin(time*2.f) + 1.f)/3.f + 0.4 ;
+	circleTransparency = (1-enableDamageHUD)*pulsating *  min(1, 2 * circleTransparency);
+	float hitPulse = 20.0/timeSinceLastHit;
+	circleTransparency += hitPulse;
 
-	vec3 hsl = RGBToHSL((sceneColor + pongColor).xyz);
-	hsl.x = mix(hsl.x, 1, 0.99); // .x is hue, .y is saturation, .z is brightness
-	vec3 reddedColor = HSLToRGB(hsl);
+	//vec3 hsl = RGBToHSL((sceneColor + pongColor).xyz);
+	//hsl.x = mix(hsl.x, 1, 0.99); // .x is hue, .y is saturation, .z is brightness
+	//hsl.y *= 1.4;
+	//hsl.z *= 0.5;
+	vec3 reddedColor = vec3(1.0,0.0,0.0);//HSLToRGB(hsl);
 	// BlendPhoenix could be used for a some special mode
 	// color = BlendPhoenix(color, pongColor);
 

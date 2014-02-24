@@ -44,7 +44,7 @@ ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelVie
 	obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
 	obstaclesStateSet->addUniform(new osg::Uniform("levelSize", LEVEL_SIZE));
 	obstaclesStateSet->addUniform(new osg::Uniform("modelID", AbstractView::GLOW));
-	obstaclesStateSet->addUniform(new osg::Uniform("trueColor", true));
+	obstaclesStateSet->addUniform(new osg::Uniform("trueColor", 1.f));
 
 	osg::Matrixd initialTransform;
 	initialTransform = initialTransform.translate(position);
@@ -52,7 +52,6 @@ ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelVie
 	m_matrixTransform = new osg::MatrixTransform(initialTransform);
 	m_matrixTransform->addChild(boxGeode);
 
-	
 	levelView->addItemBox(m_matrixTransform);
 }
 
