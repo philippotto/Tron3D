@@ -9,15 +9,10 @@
 #include <osg/Vec3>
 // Qt
 #include <QThread>
-//raknet
-
-
-
-
-
+#include <vector>
 // troen
 #include "../forwarddeclarations.h"
-
+#include "../input/remoteplayer.h"
 
 
 
@@ -31,6 +26,7 @@ namespace troen
 		struct bikeUpdateMessage
 		{
 			float x, y, z;
+			float turnAngle, acceleration;
 		};
 
 		class NetworkManager : public QThread
@@ -41,13 +37,17 @@ namespace troen
 			virtual void run();
 			void openClient();
 			void sendData();
-			void enqueueMessage(osg::Vec3 position);
+			void enqueueMessage(osg::Vec3 position, float angle, float acceleration);
+			void registerRemotePlayer(input::RemotePlayer *remotePlayer);
+			bool isValidSession();
 		protected:
 			RakNet::Packet *m_packet;
 			RakNet::RakPeerInterface *peer;
 			bool m_isServer;
-			bool m_connectionAccepted;
+			bool m_connectedToServer;
+			bool m_clientsConnected;
 			QQueue<bikeUpdateMessage> *m_sendMessagesQueue;
+			std::vector<input::RemotePlayer*> m_remotePlayers;
 		};
 	}
 

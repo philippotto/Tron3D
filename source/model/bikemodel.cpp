@@ -205,6 +205,16 @@ float BikeModel::getVelocity()
 	return m_oldVelocity;
 }
 
+float BikeModel::getInputAcceleration()
+{
+	return m_bikeInputState->getAcceleration();
+}
+
+float BikeModel::getInputAngle()
+{
+	return m_bikeInputState->getAngle();
+}
+
 osg::Vec3d BikeModel::getPositionOSG()
 {
 	return  std::static_pointer_cast<BikeMotionState>(m_motionStates[0])->getPosition();

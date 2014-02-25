@@ -37,7 +37,8 @@ namespace troen
 		void moveBikeToPosition(const btTransform position);
 		float getTurboFactor();
 		void updateTurboFactor(const float newVelocity, const float time);
-
+		float getInputAcceleration();
+		float getInputAngle();
 	private:
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 		float m_oldVelocity;

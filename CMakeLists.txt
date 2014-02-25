@@ -297,6 +297,8 @@ set(sources
 
 	source/network/networkmanager.h
 	source/network/networkmanager.cpp
+	source/input/remoteplayer.cpp
+	source/input/remoteplayer.h
 	
 
 

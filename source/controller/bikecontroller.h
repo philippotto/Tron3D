@@ -63,6 +63,7 @@ namespace troen
 		// getters & setters & attributes
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
 		osg::ref_ptr<input::Keyboard> getKeyboardHandler();
+		std::shared_ptr<input::RemotePlayer> getRemote() { return remote; }
 		bool hasKeyboardHandler();
 		float getSpeed();
 		float getHealth();
@@ -79,6 +80,8 @@ namespace troen
 		int getKillCount() { return m_killCount; };
 		void increaseDeathCount() { m_deathCount++; };
 		void increaseKillCount() { m_killCount++; };
+		float getInputAngle();
+		float getInputAcceleration();
 
 	private:
 		// field of view methods
@@ -90,7 +93,6 @@ namespace troen
 		void initializeInput(const input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		long double getTimeFactor();
-		
 		// communication links
 		osg::ref_ptr<osgViewer::View>		m_gameView;
 		std::shared_ptr<FenceController>	m_fenceController;
@@ -105,6 +107,7 @@ namespace troen
 		osg::Uniform*	m_timeFactorUniform;
 		osg::Uniform*	m_healthUniform;
 		osg::Group*		m_playerNode;
+		std::shared_ptr<input::RemotePlayer> remote;
 
 		// behaviour attributes
 		btTransform	m_initialTransform;

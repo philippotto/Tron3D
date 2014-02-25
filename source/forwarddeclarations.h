@@ -107,6 +107,7 @@ namespace troen
 		class BikeInputState;
 		class PollingDevice;
 		class AI;
+		class RemotePlayer;
 	}
 
 	namespace sound
@@ -116,6 +117,7 @@ namespace troen
 	
 	namespace networking
 	{
+		struct bikeUpdateMessage;
 		class NetworkManager;
 	}
 }

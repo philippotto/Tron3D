@@ -11,6 +11,9 @@
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>
 #endif
+
+#include <chrono>
+#include <thread>
 // troen
 #include "constants.h"
 #include "sampleosgviewer.h"
@@ -117,6 +120,8 @@ void TroenGame::prepareAndStartGame(const GameConfig& config)
 	m_playerInputTypes.clear();
 	m_playerColors.clear();
 	m_reflections.clear();
+
+
 	for (int i = 0; i < m_numberOfBikes; i++)
 	{
 		//input
@@ -227,16 +232,26 @@ bool TroenGame::initializeNetworking()
 	m_networkManager = std::make_shared<networking::NetworkManager>();
 
 
-	printf("(C) or (S)erver?\n");
+	printf("(C) or (S)erver or (N)o Networking?\n");
 	gets(str);
 
 	if ((str[0] == 'c') || (str[0] == 'C'))
 	{
 		m_networkManager->openClient();
 	}
-	else {
+	else if ((str[0] == 's') || (str[0] == 'S')){
 		m_networkManager->openServer();
 	}
+	else
+		return false;
+
+	// sleep until a valid session is initiated
+	while (!m_networkManager->isValidSession())
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	
+
+
 	return true;
 }
 
@@ -254,6 +269,27 @@ bool TroenGame::initializeControllers()
 			m_playerNames[i].toStdString(),
 			&m_resourcePool, m_ownView[i])
 		);
+	}
+	
+	if (m_networkManager->isValidSession()) //if at least one server and one client are connected 
+	{
+		//TEST, have to have some game lobby interface before the game begins
+		osg::Vec3 col = osg::Vec3(1.0, 0.0, 0.0);
+		m_playerColors.push_back(col);
+		//name
+		QString playerName("multiplayer");
+		m_playerNames.push_back(playerName);
+		//m_numberOfBikes += 1;
+		//std::string s = m_playerNames.back().toStdString(); //Throws debug assertion error in debug, which are suspected to be caused by wrong linking to debug dll (qt/osg?)
+		m_bikeControllers.push_back(std::make_shared<BikeController>(
+			input::BikeInputState::REMOTE_PLAYER,
+			m_levelController->getSpawnPointForBikeWithIndex(m_numberOfBikes),
+			m_playerColors.back(),
+			"multiplayer",
+			&m_resourcePool, false)
+		);
+
+		m_networkManager->registerRemotePlayer(m_bikeControllers.back()->getRemote().get());
 	}
 
 	for (int i = 0; i < m_bikeControllers.size(); i++) {
@@ -558,8 +594,9 @@ void TroenGame::startGameLoop()
 				for (auto bikeController : m_bikeControllers)
 				{
 					bikeController->updateModel(g_gameTime);
-					if (bikeController->hasGameView())
-						m_networkManager->enqueueMessage(bikeController->getPositionOSG());
+					if (bikeController->hasGameView() && m_networkManager->isValidSession())
+						m_networkManager->enqueueMessage(bikeController->getPositionOSG(), 
+													bikeController->getInputAngle(), bikeController->getInputAcceleration());
 				}
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();

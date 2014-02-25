@@ -40,7 +40,7 @@ PlayerMarker::PlayerMarker(osg::Vec3 color)
 	
 
 	std::cout << "[TroenGame::playerMarker] Loading Arrow " << std::endl;
-	osg::Group* arrowNode = dynamic_cast<osg::Group*>(osgDB::readNodeFile("data/models/arrow.obj"));
+	osg::Group* arrowNode = dynamic_cast<osg::Group*>(osgDB::readNodeFile("data/models/arrow.ive"));
 
 	if (arrowNode==NULL)
 	{

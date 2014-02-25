@@ -17,6 +17,7 @@
 #include "../input/gamepadps4.h"
 #include "../input/ai.h"
 #include "../input/pollingdevice.h"
+#include "../input/remoteplayer.h"
 #include "../globals.h"
 
 #include "../resourcepool.h"
@@ -30,23 +31,23 @@ BikeController::BikeController(
 	const std::string playerName,
 	ResourcePool *m_resourcePool,
 	bool hasGameView) :
-AbstractController(),
-m_keyboardHandler(nullptr),
-m_pollingThread(nullptr),
-m_playerColor(playerColor),
-m_initialTransform(initialTransform),
-m_health(BIKE_DEFAULT_HEALTH),
-m_points(0),
-m_speed(0),
-m_turboInitiated(false),
-m_timeOfLastCollision(-1),
-m_respawnTime(-1),
-m_fenceLimitActivated(true),
-m_state(BIKESTATE::WAITING),
-m_hasGameView(hasGameView),
-m_killCount(0),
-m_deathCount(0),
-m_playerName(playerName)
+	AbstractController(),
+	m_keyboardHandler(nullptr),
+	m_pollingThread(nullptr),
+	m_playerColor(playerColor),
+	m_initialTransform(initialTransform),
+	m_health(BIKE_DEFAULT_HEALTH),
+	m_points(0),
+	m_speed(0),
+	m_turboInitiated(false),
+	m_timeOfLastCollision(-1),
+	m_respawnTime(-1),
+	m_fenceLimitActivated(true),
+	m_state(BIKESTATE::WAITING),
+	m_hasGameView(hasGameView),
+	m_killCount(0),
+	m_deathCount(0),
+	m_playerName(playerName)
 {
 	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
 
@@ -78,7 +79,7 @@ void BikeController::registerCollision(btScalar impulse)
 
 float BikeController::increaseHealth(float diff)
 {
-	m_health = clamp(0,BIKE_DEFAULT_HEALTH,m_health + diff);
+	m_health = clamp(0, BIKE_DEFAULT_HEALTH, m_health + diff);
 	return m_health;
 }
 
@@ -168,6 +169,11 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 									  m_pollingThread = ai;
 									  m_pollingThread->start();
 									  break;
+	}
+	case input::BikeInputState::REMOTE_PLAYER:
+	{
+												 remote = std::make_shared<input::RemotePlayer>(bikeInputState);
+												 break;
 	}
 	default:
 		break;
@@ -319,38 +325,38 @@ void BikeController::updateModel(const long double gameTime)
 	{
 	case DRIVING:
 	{
-		double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(gameTime);
-		increasePoints(speed / 1000);
-		updateFov(speed);
-		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": DRIVING" << std::endl;
-		break;
+					double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(gameTime);
+					increasePoints(speed / 1000);
+					updateFov(speed);
+					//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": DRIVING" << std::endl;
+					break;
 	}
 	case RESPAWN:
 	{
-		std::static_pointer_cast<BikeModel>(m_model)->freeze();
-		removeAllFencesFromModel();
-		updateFov(0);
-		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN" << std::endl;
-		if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
-		{
-			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
-			//std::static_pointer_cast<BikeView>(m_view)->m_pat->setAttitude(attitude);
-			moveBikeToPosition(m_initialTransform);
-			m_state = RESPAWN_PART_2;
-		}
-		break;
+					std::static_pointer_cast<BikeModel>(m_model)->freeze();
+					removeAllFencesFromModel();
+					updateFov(0);
+					//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN" << std::endl;
+					if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
+					{
+						//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
+						//std::static_pointer_cast<BikeView>(m_view)->m_pat->setAttitude(attitude);
+						moveBikeToPosition(m_initialTransform);
+						m_state = RESPAWN_PART_2;
+					}
+					break;
 	}
 	case RESPAWN_PART_2:
 	{
-		reset();
-		updateFov(0);
-		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN_PART_2" << std::endl;
-		if (gameTime > m_respawnTime + RESPAWN_DURATION)
-		{
-			//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": start Driving" << std::endl;
-			m_state = DRIVING;
-		}
-		break;
+						   reset();
+						   updateFov(0);
+						   //std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN_PART_2" << std::endl;
+						   if (gameTime > m_respawnTime + RESPAWN_DURATION)
+						   {
+							   //std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": start Driving" << std::endl;
+							   m_state = DRIVING;
+						   }
+						   break;
 	}
 	case WAITING_FOR_GAMESTART:
 	case WAITING:
@@ -446,17 +452,16 @@ osg::ref_ptr<osgViewer::View> BikeController::getGameView()
 
 osg::Vec3 BikeController::getPositionOSG()
 {
-	std::cout << "test position" << std::static_pointer_cast<BikeModel>(m_model)->getPositionOSG().x() << std::endl;
 	return std::static_pointer_cast<BikeModel>(m_model)->getPositionOSG();
 }
 
 void BikeController::updateUniforms()
 {
 	if (m_hasGameView) {
-		m_timeOfCollisionUniform->set((float) g_gameTime - m_timeOfLastCollision);
+		m_timeOfCollisionUniform->set((float)g_gameTime - m_timeOfLastCollision);
 		m_velocityUniform->set(std::static_pointer_cast<BikeModel>(m_model)->getVelocity());
-		m_timeFactorUniform->set((float) getTimeFactor());
-		m_healthUniform->set(m_health/BIKE_DEFAULT_HEALTH);
+		m_timeFactorUniform->set((float)getTimeFactor());
+		m_healthUniform->set(m_health / BIKE_DEFAULT_HEALTH);
 	}
 }
 
@@ -466,4 +471,16 @@ void BikeController::updateFov(double speed)
 		float currentFovy = getFovy();
 		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 	}
+}
+
+
+float BikeController::getInputAngle()
+{
+	return std::static_pointer_cast<BikeModel>(m_model)->getInputAngle();
+}
+
+
+float BikeController::getInputAcceleration()
+{
+	return std::static_pointer_cast<BikeModel>(m_model)->getInputAcceleration();
 }
