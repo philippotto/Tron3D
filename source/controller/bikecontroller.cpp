@@ -446,6 +446,7 @@ osg::ref_ptr<osgViewer::View> BikeController::getGameView()
 
 osg::Vec3 BikeController::getPositionOSG()
 {
+	std::cout << "test position" << std::static_pointer_cast<BikeModel>(m_model)->getPositionOSG().x() << std::endl;
 	return std::static_pointer_cast<BikeModel>(m_model)->getPositionOSG();
 }
 

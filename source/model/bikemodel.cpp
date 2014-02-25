@@ -207,10 +207,7 @@ float BikeModel::getVelocity()
 
 osg::Vec3d BikeModel::getPositionOSG()
 {
-	btTransform trans;
-	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
-
-	return osg::Vec3d(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
+	return  std::static_pointer_cast<BikeMotionState>(m_motionStates[0])->getPosition();
 }
 
 btVector3 BikeModel::getPositionBt()

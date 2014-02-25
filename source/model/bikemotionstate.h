@@ -41,6 +41,7 @@ namespace troen
 			worldTrans = m_positionTransform;
 		}
 
+
 		virtual void setWorldTransform(const btTransform &worldTrans) {
 			if (nullptr == m_visibleObj)
 				return; // silently return before we set a node
@@ -52,7 +53,8 @@ namespace troen
 			m_visibleObj->setAttitude(getTilt() * rotationQuat);
 
 			btVector3 pos = worldTrans.getOrigin();
-			m_visibleObj->setPosition(osg::Vec3(pos.x(), pos.y(), pos.z()));
+			m_currentPosition = osg::Vec3(pos.x(), pos.y(), pos.z());
+			m_visibleObj->setPosition(m_currentPosition);
 
 			// update fence accordingly
 			m_fenceController.lock()->update(pos, rot);
@@ -91,6 +93,13 @@ namespace troen
 			return tiltSteeringQuat * tiltWheelyQuat;
 		}
 
+
+		osg::Vec3 getPosition()
+		{
+			return m_currentPosition;
+		}
+
+
 	protected:
 		osg::PositionAttitudeTransform* m_visibleObj;
 		btTransform m_positionTransform;
@@ -99,5 +108,6 @@ namespace troen
 		std::weak_ptr<btRigidBody> m_rigidBody;
 		float m_currentSteeringTilt;
 		float m_currentWheelyTilt;
+		osg::Vec3 m_currentPosition;
 	};
 }

@@ -142,6 +142,9 @@ bool TroenGame::initialize()
 
 	// careful about the order of initialization
 	osg::DisplaySettings::instance()->setNumMultiSamples(NUM_MULTISAMPLES);
+	
+	std::cout << "[TroenGame::initialize] networking ..." << std::endl;
+	initializeNetworking();
 
 	std::cout << "[TroenGame::initialize] initializing game ..." << std::endl;
 
@@ -177,8 +180,6 @@ bool TroenGame::initialize()
 	initializePhysicsWorld();
 	m_physicsWorld->stepSimulation(0);
 
-	std::cout << "[TroenGame::initialize] networking ..." << std::endl;
-	initializeNetworking();
 
 	std::cout << "[TroenGame::initialize] successfully initialized !" << std::endl;
 
@@ -557,8 +558,8 @@ void TroenGame::startGameLoop()
 				for (auto bikeController : m_bikeControllers)
 				{
 					bikeController->updateModel(g_gameTime);
-					//if (bikeController->hasGameView())
-						//m_networkManager->enqueueMessage(bikeController->getPositionOSG());
+					if (bikeController->hasGameView())
+						m_networkManager->enqueueMessage(bikeController->getPositionOSG());
 				}
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();
