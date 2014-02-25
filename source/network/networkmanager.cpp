@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "MessageIdentifiers.h"
+
 
 //
 #include <QQueue>
@@ -124,8 +126,8 @@ void NetworkManager::openServer()
 
 void NetworkManager::sendData()
 {
-	//while (!m_sendMessagesQueue->empty())
-	//{
+	while (!m_sendMessagesQueue->empty())
+	{
 		if (m_connectionAccepted)
 		{
 
@@ -139,7 +141,7 @@ void NetworkManager::sendData()
 			//peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
 			peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 		}
-	//}
+	}
 }
 
 void NetworkManager::openClient()
@@ -151,9 +153,10 @@ void NetworkManager::openClient()
 	char str[512];
 
 	printf("Enter server IP or hit enter for 127.0.0.1\n");
-	gets(str);
+	//gets(str);
+	std::cin.getline(str, 510);
 	if (str[0] == 0){
-		strcpy(str, "127.0.0.1");
+		strncpy_s(str, "127.0.0.1",10);
 	}
 	printf("Starting the client.\n");
 	RakNet::ConnectionAttemptResult r= peer->Connect(str, SERVER_PORT, 0, 0);

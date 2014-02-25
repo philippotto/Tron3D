@@ -1,11 +1,18 @@
 #pragma once
-
+//rakNet
+#include "BitStream.h"
+#include "RakSleep.h"
+#include "RakPeerInterface.h"
+#include "RakNetTypes.h"  // MessageID
 // OSG
 #include <osg/ref_ptr>
 #include <osg/Vec3>
 // Qt
 #include <QThread>
 //raknet
+
+
+
 
 
 // troen
@@ -19,11 +26,7 @@ namespace troen
 
 	namespace networking{
 
-		#include "RakPeerInterface.h"
-		#include "MessageIdentifiers.h"
-		#include "BitStream.h"
-		#include "RakSleep.h"
-		#include "RakNetTypes.h"  // MessageID
+
 
 		struct bikeUpdateMessage
 		{

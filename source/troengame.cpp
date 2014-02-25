@@ -4,6 +4,9 @@
 #include <osg/LineWidth>
 #include <osgUtil/Optimizer>
 
+//order is important, has to be imported before windows.h
+#include "network/networkmanager.h" 
+
 #ifdef WIN32
 #include <osgViewer/config/SingleScreen>
 #include <osgViewer/config/SingleWindow>
@@ -34,7 +37,6 @@
 #include "view/nodefollowcameramanipulator.h"
 #include "view/reflection.h"
 
-#include "network/networkmanager.h"
 
 
 #include "globals.h"
@@ -555,8 +557,8 @@ void TroenGame::startGameLoop()
 				for (auto bikeController : m_bikeControllers)
 				{
 					bikeController->updateModel(g_gameTime);
-					if (bikeController->hasGameView())
-						m_networkManager->enqueueMessage(bikeController->getPositionOSG());
+					//if (bikeController->hasGameView())
+						//m_networkManager->enqueueMessage(bikeController->getPositionOSG());
 				}
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();
