@@ -10,11 +10,11 @@
 #  SCRIPTZEUG_LIBRARIES
 
 
-FIND_PATH(SCRIPTZEUG_INCLUDE_DIR
-  NAMES scriptzeug
-  PATHS
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/scriptzeug/include
-    /usr/local/include/Scriptzeug/
+set(SCRIPTZEUG_INCLUDE_DIR
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/scriptzeug/include/scriptzeug/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/scriptzeug/include/reflectionzeug/
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/scriptzeug/include/signalzeug/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/scriptzeug/include/propertyzeug/include
 )
 
 FIND_LIBRARY(SCRIPTZEUG_SCRIPTZEUG_LIBRARY
@@ -38,6 +38,13 @@ FIND_LIBRARY(SCRIPTZEUG_SIGNALZEUG_LIBRARY
     /usr/local/lib
 )
 
+FIND_LIBRARY(SCRIPTZEUG_REFLECTIONZEUG_LIBRARY
+  NAMES reflectionzeug
+  PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/scriptzeug/lib
+    /usr/local/lib
+)
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Scriptzeug
 	DEFAULT_MSG
@@ -51,6 +58,14 @@ if(SCRIPTZEUG_FOUND)
     ${SCRIPTZEUG_SCRIPTZEUG_LIBRARY}
     ${SCRIPTZEUG_PROPERTYZEUG_LIBRARY}
     ${SCRIPTZEUG_SIGNALZEUG_LIBRARY}
+    ${SCRIPTZEUG_REFLECTIONZEUG_LIBRARY}
   )
-	set(SCRIPTZEUG_INCLUDE_DIRS "${SCRIPTZEUG_INCLUDE_DIR}")
+
+  set(SCRIPTZEUG_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/scriptzeug/include/scriptzeug/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/scriptzeug/include/reflectionzeug/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/scriptzeug/include/signalzeug/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/scriptzeug/include/propertyzeug/include
+  )
+
 endif()
