@@ -3,13 +3,13 @@
 #define EXTERN extern
 #endif
 
-
-#include <scriptzeug/ScriptEnvironment.h>
-#include <scriptzeug/Scriptable.h>
+//#include <reflectionzeug/Object.h>
+//#include <scriptzeug/ScriptContext.h>
 
 namespace troen
 {
 	EXTERN long double g_gameTime;
 	EXTERN long double g_gameLoopTime;
-	EXTERN scriptzeug::ScriptEnvironment* g_scripting;
+	//EXTERN scriptzeug::ScriptContext* g_scripting;
 }
+

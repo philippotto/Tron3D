@@ -38,86 +38,6 @@
 
 #include <iostream>
 
-
-#include <scriptzeug/ScriptEnvironment.h>
-#include <scriptzeug/Scriptable.h>
-
-
-using namespace scriptzeug;
-
-
-Value testFunction(std::string a)
-{
-	std::cout << "Test function\n";
-
-	Value value = Value::Object();
-	value.set("a", 1);
-	value.set("b", 2);
-	value.set("c", 3);
-	value.set("d", "end");
-	return value;
-}
-
-
-class MyInterface : public Scriptable
-{
-public:
-	MyInterface() : m_prompt("Hello World")
-	{
-		// Properties
-		addProperty<std::string>("prompt", *this, &MyInterface::prompt, &MyInterface::setPrompt);
-
-		// Functions
-		addFunction("test", &testFunction);
-		addFunction("helloWorld", this, &MyInterface::helloWorld);
-		addFunction("bottlesOfBeer", this, &MyInterface::bottlesOfBeer);
-		addFunction("dynamicTest", this, &MyInterface::dynamicTest);
-	}
-
-	~MyInterface()
-	{
-	}
-
-	int helloWorld()
-	{
-		std::cout << m_prompt << "\n";
-		return 10;
-	}
-
-	std::string bottlesOfBeer(int count, float a)
-	{
-		std::cout << count << " bottles of beer with a propability of " << a << "\n";
-		return "hicks";
-	}
-
-	void dynamicTest(const std::vector<Value> &args)
-	{
-		std::cout << "Number of arguments: " << args.size() << "\n";
-
-		int i = 0;
-		for (std::vector<Value>::const_iterator it = args.begin(); it != args.end(); ++it) {
-			std::cout << "- " << i << ": " << (*it).toString() << "\n";
-			i++;
-		}
-	}
-
-protected:
-	std::string prompt() const
-	{
-		return m_prompt;
-	}
-
-	void setPrompt(const std::string & prompt)
-	{
-		m_prompt = prompt;
-	}
-
-protected:
-	std::string m_prompt;
-};
-
-
-
 using namespace troen;
 extern long double g_currentTime;
 
@@ -135,40 +55,6 @@ m_useReflection(false)
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
 	}
-
-
-	MyInterface obj;
-
-	g_scripting = new ScriptEnvironment();
-	g_scripting->registerObject("testobj", &obj);
-
-	Value value;
-
-	value = g_scripting->evaluate("1 + 2");
-	std::cout << "--> " << value.toString() << "\n";
-
-	value = g_scripting->evaluate("testobj.prompt = 'Welcome!';");
-	std::cout << "--> " << value.toString() << "\n";
-
-	value = g_scripting->evaluate("testobj.helloWorld() + 1;");
-	std::cout << "--> " << value.toString() << "\n";
-
-	value = g_scripting->evaluate("testobj.test();");
-	std::cout << "--> " << value.toString() << "\n";
-
-	value = g_scripting->evaluate("testobj.bottlesOfBeer(120, 3.5, 10);");
-	std::cout << "--> " << value.toString() << "\n";
-
-	value = g_scripting->evaluate("testobj.bottlesOfBeer();");
-	std::cout << "--> " << value.toString() << "\n";
-
-
-
-
-
-
-
-
 
 	moveToThread(m_gameThread);
 	m_gameThread->start(QThread::HighestPriority);

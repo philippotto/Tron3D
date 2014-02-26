@@ -21,6 +21,7 @@
 
 #include "../resourcepool.h"
 
+
 using namespace troen;
 
 BikeController::BikeController(

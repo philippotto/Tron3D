@@ -74,7 +74,6 @@ void Gamepad::run()
 
 	while (m_pollingEnabled)
 	{
-
 		if (!m_isConnected)
 			checkConnection();
 	

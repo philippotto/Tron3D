@@ -1,3 +1,6 @@
+#include <reflectionzeug/Object.h>
+#include <scriptzeug/ScriptContext.h>
+
 #include "ai.h"
 // troen
 #include "bikeinputstate.h"
@@ -6,8 +9,6 @@
 // other
 #include <cmath>
 
-#include <scriptzeug/ScriptEnvironment.h>
-#include <scriptzeug/Scriptable.h>
 
 
 using namespace troen::input;
@@ -19,28 +20,27 @@ AI::AI(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputSta
 
 }
 
-
 void AI::run()
 {
+
+	PollingDevice::run();
+
 	m_pollingEnabled = true;
+	reflectionzeug::Variant value;
 
-	//std::cout << "m_aiscript" << m_aiScript;
-	std::cout << "m_aiscript" << &m_aiScript << std::endl;
+	m_aiScript = new AIScript();
 
-	std::cout << "m_aiscript" << m_aiScript.acceleration() << std::endl;
+	ScriptContext	*g_scriptingThread = new ScriptContext();
+
+	g_scriptingThread->registerObject(m_aiScript);
 	
-
-
-	g_scripting->registerObject("player11", &m_aiScript);
-
 	while (m_pollingEnabled)
 	{
-		//g_scripting->evaluate("player.setAcceleration(1)");
-		//g_scripting->evaluate("player");
-		//g_scripting->evaluate("1+1");
+		g_scriptingThread->evaluate("player.acceleration = 1");
+		value = g_scriptingThread->evaluate("player.angle = 1");
 
-		m_bikeInputState->setAcceleration(m_aiScript.acceleration());
-		m_bikeInputState->setAngle(m_aiScript.angle());
+		m_bikeInputState->setAcceleration(m_aiScript->getAcceleration());
+		m_bikeInputState->setAngle(m_aiScript->angle());
 
 		this->msleep(POLLING_DELAY_MS * 2);
 	}
