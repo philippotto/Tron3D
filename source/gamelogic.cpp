@@ -156,6 +156,11 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 			if (itemController) {
 				itemController->triggerOn(static_cast<BikeController*>(collisionBodyControllers[bikeIndex]));
 			}
+			for (auto bikeController : m_bikeControllers)
+			{
+				bikeController->showFencesInMinimap(static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getId());
+			}
+			std::cout << "now" << std::endl;
 			break;
 		}
 		default:

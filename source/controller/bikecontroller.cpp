@@ -463,3 +463,13 @@ void BikeController::updateFov(double speed)
 		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 	}
 }
+
+void BikeController::showFencesInMinimap(const int id)
+{
+	this->m_fenceController->showFencesInRadarForPlayer(id);
+}
+
+void BikeController::hideFencesInMinimap(const int id)
+{
+	this->m_fenceController->hideFencesInRadarForPlayer(id);
+}

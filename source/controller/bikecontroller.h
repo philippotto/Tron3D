@@ -61,6 +61,8 @@ namespace troen
 		void removeAllFencesFromModel();
 		void setLimitFence(const bool boolean);
 		int getFenceLimit();
+		void showFencesInMinimap(const int id);
+		void hideFencesInMinimap(const int it);
 
 
 		// getters & setters & attributes
