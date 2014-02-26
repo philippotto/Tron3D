@@ -185,5 +185,6 @@ void FenceView::showFencesInRadarForPlayer(const int id)
 void FenceView::hideFencesInRadarForPlayer(const int id)
 {	
 	osg::Node::NodeMask currentMask = m_radarElementsGroup->getNodeMask();
-	osg::Node::NodeMask newMask = currentMask & ~CAMERA_MASK_PLAYER[id];
+	osg::Node::NodeMask newMask = currentMask & ~ CAMERA_MASK_PLAYER[id];
+	m_radarElementsGroup->setNodeMask(newMask);
 }

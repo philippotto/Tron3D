@@ -1,6 +1,8 @@
 #include "GameLogic.h"
 // STD
 #include <array>
+#include <random>
+#include <chrono>
 // bullet
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
@@ -156,11 +158,31 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 			if (itemController) {
 				itemController->triggerOn(static_cast<BikeController*>(collisionBodyControllers[bikeIndex]));
 			}
-			for (auto bikeController : m_bikeControllers)
+
+			// testing minimap fence display
+			std::default_random_engine generator;
+			unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+			generator.seed(seed);
+			std::uniform_int_distribution<int> distribution(0, 1);
+			int random0or1 = distribution(generator);
+			std::cout << random0or1 << " ";
+			if (random0or1 == 0)
 			{
-				bikeController->showFencesInMinimap(static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getId());
+				for (auto bikeController : m_bikeControllers)
+				{
+					bikeController->showFencesInMinimap(static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getId());
+				}
+				std::cout << "visible" << std::endl;
 			}
-			std::cout << "now" << std::endl;
+			else
+			{
+				for (auto bikeController : m_bikeControllers)
+				{
+					bikeController->hideFencesInMinimap(static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getId());
+				}
+				std::cout << "in-visible" << std::endl;
+			}
+			
 			break;
 		}
 		default:
