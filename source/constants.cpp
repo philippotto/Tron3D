@@ -41,19 +41,20 @@ namespace troen
 	const float BIKE_DECELERATION_FACTOR(4.f);
 	const float BIKE_TURN_FACTOR_MAX(15);
 	const float BIKE_ANGULAR_DAMPENING_TERM(0.001f);
+	const float BIKE_VIEWING_ANGLE_DAMPENING_TERM(0.1f);
 
 	const float TURBO_PHASE_LENGTH(1000);
 
 	// BIKE_TILT_DAMPENING = 1 would lead to immediate/unsmooth tilt
 	// 1 / BIKE_TILT_MAX specifies angle in radiant
 	const float BIKE_TILT_DAMPENING(20.f);
-	const float BIKE_TILT_MAX(16.f);
+	const float BIKE_TILT_MAX(BIKE_ROTATION_VALUE + BIKE_ROTATION_VALUE * BIKE_HANDBRAKE_FACTOR);
 	const float BIKE_WHEELY_TILT_MAX(2.f);
 	const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE(20.f);
 
 	//INPUT
-	const float BIKE_ROTATION_VALUE(10.0f);
-	const float BIKE_HANDBRAKE_FACTOR(0.8f);
+	const float BIKE_ROTATION_VALUE(12.0f);
+	const float BIKE_HANDBRAKE_FACTOR(1.4f);
 	// this should always be less than 1000/60FPS - the smaller, the more responsive is the input
 	const int POLLING_DELAY_MS(8);
 	const int VIBRATION_TIME_MS(500);
@@ -89,7 +90,7 @@ namespace troen
 	const float BIKE_FENCE_IMPACT_THRESHOLD_HIGH(BIKE_MASS*BIKE_VELOCITY_MAX / 3);
 
 
-	const float BIKE_DEFAULT_HEALTH(5 * BIKE_FENCE_IMPACT_THRESHOLD_HIGH);
+	const float BIKE_DEFAULT_HEALTH(3 * BIKE_FENCE_IMPACT_THRESHOLD_HIGH);
 
 	// AUDIO
 	const int ENGINE_FREQUENCY_LOW(50000);

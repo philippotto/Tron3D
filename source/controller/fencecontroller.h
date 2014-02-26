@@ -17,6 +17,7 @@ namespace troen
 		void attachWorld(std::shared_ptr<PhysicsWorld>& world);
 
 		void removeAllFences();
+		void removeAllFencesFromModel();
 		int getFenceLimit();
 
 		void showFencesInRadarForPlayer(const int id);

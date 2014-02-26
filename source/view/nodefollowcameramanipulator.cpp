@@ -45,6 +45,7 @@ void NodeFollowCameraManipulator::setByInverseMatrix(const osg::Matrixd& matrix)
 void NodeFollowCameraManipulator::setBikeInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
 	m_bikeInputState = bikeInputState;
+	m_oldPlayerViewingRotation.makeRotate(0, osg::Z_AXIS);
 }
 
 void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeCenter, osg::Quat& nodeRotation) const
@@ -78,6 +79,10 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 	osg::Quat playerViewingRotation;
 	float angle = m_bikeInputState->getViewingAngle();
 	playerViewingRotation.makeRotate(angle, osg::Z_AXIS);
+
+	// do spherical-linear interpolation (slerp) between the old and new viewing direction
+	playerViewingRotation.slerp(BIKE_VIEWING_ANGLE_DAMPENING_TERM, m_oldPlayerViewingRotation, playerViewingRotation);
+	m_oldPlayerViewingRotation = playerViewingRotation;
 
 	// jd: camera pitch rotation not wanted so far, maybe useful for later
 	//double pitch = atan2(localToFrame(1, 2), localToFrame(2, 2));

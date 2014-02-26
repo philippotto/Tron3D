@@ -23,8 +23,8 @@ class LevelExporter():
 				object.scale.z = abs(object.scale.z)
 				object.scale.y = abs(object.scale.y)
 				object.scale.x = abs(object.scale.x)
-	
-	
+
+
 		#with open(VIEW_PATH,"w") as output_file:
 		#	output_file.write(self.levelView_template().format(auto_gen_code=self.get_view_autogen()))
 
@@ -34,7 +34,7 @@ class LevelExporter():
 		bpy.ops.export_scene.obj(filepath=OBJ_PATH, check_existing=False, filter_glob="*.obj;*.mtl", use_selection=True,
 		 use_animation=False, use_mesh_modifiers=True, use_edges=True,
 		  use_smooth_groups=False, use_normals=True, use_uvs=True,
-		   use_materials=True, use_triangles=True, use_nurbs=False, 
+		   use_materials=True, use_triangles=True, use_nurbs=False,
 		   use_vertex_groups=False, use_blen_objects=True, group_by_object=False,
 		    group_by_material=False, keep_vertex_order=False, axis_forward='-Z',
 		     axis_up='Y', global_scale=SCALE, path_mode='AUTO')
@@ -65,9 +65,9 @@ class LevelExporter():
 	def create_box_collision_shape_str(self):
 		return """
 			{{
-				btVector3({pos_x}, {pos_y},{pos_z}),
-				btVector3({length_x}, {length_y}, {length_z}),
-				btQuaternion({quat_x},{quat_y},{quat_z},{quat_w}),
+				btVector3(btScalar({pos_x}), btScalar({pos_y}), btScalar({pos_z})),
+				btVector3(btScalar({length_x}), btScalar({length_y}), btScalar({length_z})),
+				btQuaternion(btScalar({quat_x}), btScalar({quat_y}),{quat_z}, btScalar({quat_w})),
                 std::string("{name}"),
                 {collisionType}
 			}}"""
@@ -93,11 +93,11 @@ class LevelExporter():
 			// TODO grab the value from origin
 			std::vector<BoxModel> newObstacles = {{
 
-			{auto_gen_code} 
+			{auto_gen_code}
 
 			}};
 			m_obstacles.insert(m_obstacles.end(), newObstacles.begin(), newObstacles.end());
-		
+
 			addBoxes(m_obstacles);
 		}}
 	"""

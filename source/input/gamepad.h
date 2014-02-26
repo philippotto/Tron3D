@@ -35,6 +35,7 @@ namespace input
 		int getPort();
 		static std::vector <int>* getFreePorts();
 		static std::vector <int> freePorts;
+		static void clearPorts();
 
 	private:
 		int m_controllerId, m_isConnected;

@@ -55,6 +55,12 @@ void FenceController::removeAllFences()
 	std::static_pointer_cast<FenceView>(m_view)->removeAllFences();
 }
 
+void FenceController::removeAllFencesFromModel()
+{
+	std::static_pointer_cast<FenceModel>(m_model)->removeAllFences();
+}
+
+
 int FenceController::getFenceLimit() {
 	return m_bikeController->getFenceLimit();
 }
