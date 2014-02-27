@@ -8,12 +8,17 @@
 
 namespace troen
 {
-	class GameEventHandler : public osgGA::GUIEventHandler {
+	class GameEventHandler : public osgGA::GUIEventHandler
+	{
 	public:
-		GameEventHandler(TroenGame* game, std::shared_ptr<GameLogic> gameLogic) :
+		GameEventHandler(TroenGame * game) :
 			osgGA::GUIEventHandler(),
-			m_troenGame(game),
-			m_gameLogic(gameLogic) {}
+			m_troenGame(game)
+		{};
+
+		void attachGameLogic(std::shared_ptr<GameLogic>& gamelogic){
+			m_gameLogic = gamelogic;
+		};
 
 	protected:
 		virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa, osg::Object*, osg::NodeVisitor*) {

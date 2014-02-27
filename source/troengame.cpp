@@ -86,7 +86,7 @@ bool TroenGame::initialize()
 		m_statsHandler->setKeyEventPrintsOutStats(osgGA::GUIEventAdapter::KEY_P);
 		m_statsHandler->setKeyEventToggleVSync(osgGA::GUIEventAdapter::KEY_V);
 
-		m_gameEventHandler = new GameEventHandler(this, m_gameLogic);
+		m_gameEventHandler = new GameEventHandler(this);
 	}
 
 	{ // controllers
@@ -108,6 +108,7 @@ bool TroenGame::initialize()
 
 	std::cout << "[TroenGame::initialize] gameLogic ..." << std::endl;
 	m_gameLogic = std::make_shared<GameLogic>(this, m_audioManager, m_levelController, m_players, m_gameConfig->timeLimit);
+	m_gameEventHandler->attachGameLogic(m_gameLogic);
 
 	std::cout << "[TroenGame::initialize] postprocessing & scenegraph ..." << std::endl;
 	composeSceneGraph();
