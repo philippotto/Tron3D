@@ -1,8 +1,6 @@
 #include "player.h"
-// STD
 // Qt
 #include <QString>
-// bullet
 // OSG
 #include <osgViewer/View>
 #include <osgViewer/ViewerEventHandlers>
@@ -15,9 +13,7 @@
 #include "gameeventhandler.h"
 #include "sampleosgviewer.h"
 
-#include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
-#include "controller/hudcontroller.h"
 
 #include "input/bikeinputstate.h"
 

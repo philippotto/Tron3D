@@ -4,23 +4,26 @@
 #include <osgViewer/View>
 //troen
 #include "../constants.h"
+#include "../globals.h"
 #include "../player.h"
-#include "../view/bikeview.h"
-#include "../view/nodefollowcameramanipulator.h"
-#include "../model/bikemodel.h"
+
 #include "../controller/fencecontroller.h"
 #include "../controller/hudcontroller.h"
+
 #include "../model/physicsworld.h"
-#include "../sound/audiomanager.h"
+#include "../model/bikemodel.h"
+
+#include "../view/bikeview.h"
+#include "../view/nodefollowcameramanipulator.h"
 
 #include "../input/keyboard.h"
 #include "../input/gamepad.h"
 #include "../input/gamepadps4.h"
 #include "../input/ai.h"
 #include "../input/pollingdevice.h"
-#include "../globals.h"
 
 #include "../resourcepool.h"
+#include "../sound/audiomanager.h"
 
 using namespace troen;
 

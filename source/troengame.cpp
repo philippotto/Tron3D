@@ -2,37 +2,31 @@
 // OSG
 #include <osg/LineWidth>
 #include <osgUtil/Optimizer>
-
 // troen
 #include "constants.h"
-#include "sampleosgviewer.h"
-#include "gamelogic.h"
+#include "globals.h"
 #include "player.h"
+#include "gamelogic.h"
+#include "sampleosgviewer.h"
 #include "gameeventhandler.h"
 
-#include "input/bikeinputstate.h"
-#include "input/keyboard.h"
-#include "input/gamepad.h"
-
-#include "util/chronotimer.h"
-#include "util/gldebugdrawer.h"
-#include "sound/audiomanager.h"
-
-#include "model/physicsworld.h"
-#include "model/abstractmodel.h"
 #include "controller/levelcontroller.h"
 #include "controller/bikecontroller.h"
 #include "controller/fencecontroller.h"
 #include "controller/levelcontroller.h"
 #include "controller/hudcontroller.h"
+
+#include "model/physicsworld.h"
+#include "model/abstractmodel.h"
+
 #include "view/shaders.h"
 #include "view/postprocessing.h"
-#include "view/nodefollowcameramanipulator.h"
 #include "view/reflection.h"
 
-
-#include "globals.h"
-
+#include "util/chronotimer.h"
+#include "util/gldebugdrawer.h"
+#include "sound/audiomanager.h"
+#include "input/gamepad.h"
 
 using namespace troen;
 extern long double g_currentTime;
@@ -48,6 +42,12 @@ m_gameConfig(nullptr)
 	moveToThread(m_gameThread);
 	m_gameThread->start(QThread::HighestPriority);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Initialization
+//
+////////////////////////////////////////////////////////////////////////////////
 
 bool TroenGame::initialize()
 {
@@ -238,6 +238,12 @@ bool TroenGame::initializePhysicsWorld()
 	return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Game Loop
+//
+////////////////////////////////////////////////////////////////////////////////
+
 void TroenGame::prepareAndStartGame(const GameConfig& gameConfig)
 {
 	m_gameConfig = std::make_shared<GameConfig>(gameConfig);
@@ -357,6 +363,21 @@ void TroenGame::startGameLoop()
 	shutdown();
 }
 
+void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View>& view)
+{
+	double fovy, aspect, znear, zfar;
+	view->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+	view->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+	znear = 1.0;
+	view->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Shutdown
+//
+////////////////////////////////////////////////////////////////////////////////
+
 bool TroenGame::shutdown()
 {
 	// clean up in reverse order from initialization
@@ -397,14 +418,11 @@ bool TroenGame::shutdown()
 	return true;
 }
 
-void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View>& view)
-{
-	double fovy, aspect, znear, zfar;
-	view->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-	view->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
-	znear = 1.0;
-	view->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
-}
+////////////////////////////////////////////////////////////////////////////////
+//
+// Full Screen Handling
+//
+////////////////////////////////////////////////////////////////////////////////
 
 void TroenGame::setupForFullScreen()
 {
@@ -432,6 +450,12 @@ void TroenGame::returnFromFullScreen()
 	}
 	wsi->setScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), m_originalWidth, m_originalHeight);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Event Handling
+//
+////////////////////////////////////////////////////////////////////////////////
 
 void TroenGame::switchSoundVolumeEvent()
 {

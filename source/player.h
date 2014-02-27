@@ -6,17 +6,22 @@
 // troen
 #include "forwarddeclarations.h"
 #include "troengame.h"
+#include "sampleosgviewer.h"
+
 #include "controller/bikecontroller.h"
 #include "controller/bikecontroller.h"
 #include "controller/fencecontroller.h"
-#include "sampleosgviewer.h"
+#include "controller/hudcontroller.h"
 
 namespace troen
 {
 	class Player
 	{
 	public:
-		Player(TroenGame* game,const std::shared_ptr<GameConfig>& config, const int id);
+		Player(
+			TroenGame* game,
+			const std::shared_ptr<GameConfig>& config, 
+			const int id);
 		void createHUDController(const std::vector<std::shared_ptr<Player>>& players);
 		virtual ~Player();
 
@@ -63,10 +68,10 @@ namespace troen
 
 
 	private:
-		int			m_id;
 		//
 		// player attributes
 		//
+		int			m_id;
 		osg::Vec3	m_color;
 		std::string m_name;
 		float		m_health;

@@ -10,10 +10,10 @@ using namespace troen;
 
 HUDController::HUDController(const int id,
 	const std::vector<std::shared_ptr<Player>>& players) :
-AbstractController()
+AbstractController(),
+m_player(players[id])
 {
 	m_view = std::static_pointer_cast<HUDView>(std::make_shared<HUDView>(id, players));
-	m_player = players[id];
 }
 
 void HUDController::resize(const int width, const int height)
