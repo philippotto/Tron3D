@@ -11,7 +11,7 @@ namespace troen
 	class HUDController : public AbstractController
 	{
 	public:
-		HUDController(const int index, const std::vector<std::shared_ptr<BikeController>>& bikeController);
+		HUDController(const int index, const std::vector<std::shared_ptr<Player>>& players);
 		
 		void attachSceneToRadarCamera(osg::Group* scene);
 		void resize(const int width, const int height);
@@ -20,11 +20,10 @@ namespace troen
 			const long double currentGameTime,
 			const int timeLimit,
 			const GameLogic::GAMESTATE gameState,
-			const std::vector<std::shared_ptr<BikeController>>& bikeControllers);
+			const std::vector<std::shared_ptr<Player>>& players);
         
 		void setTrackNode(osg::Node* trackNode);
-		std::weak_ptr<BikeController> getBikeController();
 	private:
-		std::weak_ptr<BikeController> m_bikeController;
+		std::weak_ptr<Player> m_player;
 	};
 }

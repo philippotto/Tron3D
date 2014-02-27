@@ -1,5 +1,6 @@
 #include "hudcontroller.h"
 // troen
+#include "../player.h"
 #include "../view/hudview.h"
 #include "../constants.h"
 #include "../controller/bikecontroller.h"
@@ -7,10 +8,12 @@
 
 using namespace troen;
 
-HUDController::HUDController(const int i, const std::vector<std::shared_ptr<BikeController>>& bikeControllers) : AbstractController()
+HUDController::HUDController(const int id,
+	const std::vector<std::shared_ptr<Player>>& players) :
+AbstractController()
 {
-	m_view = std::static_pointer_cast<HUDView>(std::make_shared<HUDView>(i, bikeControllers));
-	m_bikeController = bikeControllers[i];
+	m_view = std::static_pointer_cast<HUDView>(std::make_shared<HUDView>(id, players));
+	m_player = players[id];
 }
 
 void HUDController::resize(const int width, const int height)
@@ -28,32 +31,32 @@ void HUDController::update(
 	const long double currentGameTime,
 	const int timeLimit,
 	const GameLogic::GAMESTATE gameState,
-	const std::vector<std::shared_ptr<BikeController>>& bikeControllers)
+	const std::vector<std::shared_ptr<Player>>& players)
 {
-	std::shared_ptr<BikeController> bikeController = m_bikeController.lock();
-	float speed = bikeController->getSpeed();
+	std::shared_ptr<Player> player = m_player.lock();
+	float speed = player->getBikeController()->getSpeed();
 	std::static_pointer_cast<HUDView>(m_view)->setSpeedText(speed);
     std::static_pointer_cast<HUDView>(m_view)->updateRadarCamera();
 
-	float health = bikeController->getHealth();
+	float health = player->getHealth();
 	std::static_pointer_cast<HUDView>(m_view)->setHealthText(100 * health / BIKE_DEFAULT_HEALTH);
 
-	float points = bikeController->getPoints();
+	float points = player->getPoints();
 	std::static_pointer_cast<HUDView>(m_view)->setPointsText(points);
 
-	BikeController::BIKESTATE bikeState = bikeController->getState();
+	BikeController::BIKESTATE bikeState = player->getBikeController()->getState();
 	if (gameState == GameLogic::GAMESTATE::GAME_OVER)
 	{
 		std::static_pointer_cast<HUDView>(m_view)->setCountdownText("GameOver");
 	}
 	else if (bikeState == BikeController::BIKESTATE::RESPAWN || bikeState == BikeController::BIKESTATE::RESPAWN_PART_2)
 	{
-		double respawnTime = bikeController->getRespawnTime();
+		double respawnTime = player->getBikeController()->getRespawnTime();
 		std::static_pointer_cast<HUDView>(m_view)->setCountdownText((int)(respawnTime - currentGameTime + RESPAWN_DURATION) / 1000 + 1);
 	}
 	else if (bikeState == BikeController::BIKESTATE::WAITING_FOR_GAMESTART)
 	{
-		double respawnTime = bikeController->getRespawnTime();
+		double respawnTime = player->getBikeController()->getRespawnTime();
 		std::static_pointer_cast<HUDView>(m_view)->setCountdownText((int)(respawnTime - currentGameloopTime + GAME_START_COUNTDOWN_DURATION) / 1000 + 1);
 	}
 	else
@@ -64,18 +67,13 @@ void HUDController::update(
 	std::static_pointer_cast<HUDView>(m_view)->setTimeText(currentGameTime, timeLimit);
 
 	//std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(bikeController->getDeathCount());
-	for (int i = 0; i < bikeControllers.size(); i++)
+	for (int i = 0; i < players.size(); i++)
 	{
-		std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(i,bikeControllers[i]->getPlayerName(),bikeControllers[i]->getDeathCount());
+		std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(i,players[i]->getPlayerName(),players[i]->getDeathCount());
 	}
 }
 
 void HUDController::setTrackNode(osg::Node* trackNode)
 {
     std::static_pointer_cast<HUDView>(m_view)->setTrackNode(trackNode);
-}
-
-std::weak_ptr<BikeController> HUDController::getBikeController()
-{
-	return m_bikeController;
 }

@@ -12,9 +12,11 @@ namespace troen
 	class FenceController : public AbstractController
 	{
 	public:
-		FenceController(BikeController* bikeController, const osg::Vec3 color, const btTransform initialTransform = btTransform::getIdentity());
+		FenceController(const std::shared_ptr<BikeController>& bikeController, const osg::Vec3 color, const btTransform initialTransform = btTransform::getIdentity());
 		void update(btVector3 position, btQuaternion rotation);
 		void attachWorld(std::shared_ptr<PhysicsWorld>& world);
+
+		osg::ref_ptr<osg::Group> getViewNode() override;
 
 		void removeAllFences();
 		void removeAllFencesFromModel();
@@ -31,6 +33,6 @@ namespace troen
 		btVector3 m_lastPosition;
 		std::weak_ptr<PhysicsWorld> m_world;
 		osg::Vec3 m_playerColor;
-		BikeController* m_bikeController;
+		std::weak_ptr<BikeController> m_bikeController;
 	};
 }

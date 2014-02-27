@@ -16,12 +16,13 @@
 #include <osgGA/NodeTrackerManipulator>
 #include <osg/Quat>
 // troen
+#include "../player.h"
 #include "../constants.h"
-#include "../controller/bikecontroller.h"
+//#include "../controller/bikecontroller.h"
 
 using namespace troen;
 
-HUDView::HUDView(const int i, const std::vector<std::shared_ptr<BikeController>>& bikeControllers) :
+HUDView::HUDView(const int i, const std::vector<std::shared_ptr<Player>>& players) :
 AbstractView(),
 m_healthText(new osgText::Text()),
 m_speedText(new osgText::Text()),
@@ -29,13 +30,13 @@ m_pointsText(new osgText::Text()),
 m_countdownText(new osgText::Text()),
 m_timeText(new osgText::Text()),
 m_trackNode(nullptr),
-m_playerColor(osg::Vec4(bikeControllers[i]->getPlayerColor(),1))
+m_playerColor(osg::Vec4(players[i]->getPlayerColor(),1))
 {
-	m_node->addChild(createHUD(bikeControllers));
+	m_node->addChild(createHUD(players));
 	m_node->addChild(createRadar(i));
 }
 
-osg::Camera* HUDView::createHUD(const std::vector<std::shared_ptr<BikeController>>& bikeControllers)
+osg::Camera* HUDView::createHUD(const std::vector<std::shared_ptr<Player>>& players)
 {
 	// create a camera to set up the projection and model view matrices, and the subgraph to draw in the HUD
 	m_camera = new osg::Camera;
@@ -119,15 +120,15 @@ osg::Camera* HUDView::createHUD(const std::vector<std::shared_ptr<BikeController
 			m_timeText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
 			m_timeText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 8);
 		}
-		for (int i = 0; i < bikeControllers.size(); i++)
+		for (int i = 0; i < players.size(); i++)
 		{
 			m_deathCountTexts[i] = new osgText::Text();
 			geode->addDrawable(m_deathCountTexts[i]);
 
 			m_deathCountTexts[i]->setFont(font);
 			m_deathCountTexts[i]->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset * (3 + i), 0.f));
-			m_deathCountTexts[i]->setColor(osg::Vec4(bikeControllers[i]->getPlayerColor(),1));
-			setDeathCountText(i,bikeControllers[i]->getPlayerName(), 0);
+			m_deathCountTexts[i]->setColor(osg::Vec4(players[i]->getPlayerColor(),1));
+			setDeathCountText(i,players[i]->getPlayerName(), 0);
 			m_deathCountTexts[i]->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
 			m_deathCountTexts[i]->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
 			m_deathCountTexts[i]->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);

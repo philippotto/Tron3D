@@ -18,7 +18,7 @@ namespace troen
 			TroenGame* game,
 			std::shared_ptr<sound::AudioManager>& audioManager,
 			std::shared_ptr<LevelController> levelController,
-			std::vector<std::shared_ptr<BikeController>> bikeControllers,
+			std::vector<std::shared_ptr<Player>> players,
 			const int timeLimit = 5);
 
 		void attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld);
@@ -52,8 +52,8 @@ namespace troen
 			BikeController* bike2,
 			btPersistentManifold* contactManifold);
 
-		std::shared_ptr<LevelController>			 m_levelController;
-		std::vector<std::shared_ptr<BikeController>> m_bikeControllers;
+		std::shared_ptr<LevelController>	 m_levelController;
+		std::vector<std::shared_ptr<Player>> m_players;
 
         TroenGame*							m_troenGame;
 		std::shared_ptr<sound::AudioManager>m_audioManager;

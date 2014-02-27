@@ -1,4 +1,6 @@
 #include "itemcontroller.h"
+//troen
+#include "../player.h"
 #include "bikecontroller.h"
 
 #include "../constants.h"
@@ -33,7 +35,7 @@ void ItemController::triggerOn(BikeController* bikeController)
 {
 	if (m_type == HEALTHUP)
 	{
-		bikeController->increaseHealth(BIKE_DEFAULT_HEALTH / 2);
+		bikeController->getPlayer()->increaseHealth(BIKE_DEFAULT_HEALTH / 2);
 	}
 	else {
 		bikeController->activateTurbo();

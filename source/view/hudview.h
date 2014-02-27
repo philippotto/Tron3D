@@ -12,7 +12,7 @@ namespace troen
 	class HUDView : public AbstractView
 	{
 	public:
-		HUDView(const int i, const std::vector<std::shared_ptr<BikeController>>& bikeControllers);
+		HUDView(const int i, const std::vector<std::shared_ptr<Player>>& players);
 
 		// initialization
 		void attachSceneToRadarCamera(osg::Group* scene);
@@ -32,7 +32,7 @@ namespace troen
 		void setDeathCountText(const int i, const std::string& playerName, const int deathCount);
 
 	private:
-		osg::Camera* createHUD(const std::vector<std::shared_ptr<BikeController>>& bikeControllers);
+		osg::Camera* createHUD(const std::vector<std::shared_ptr<Player>>& players);
 		osg::Camera* createRadar(const int index);
 
 		void resizeHudComponents(const int width, const int height);

@@ -8,27 +8,34 @@
 #include <osg/ShapeDrawable>
 #include <osgGA/GUIEventAdapter>
 #include <osg/Group>
-
+#include <osgViewer/ViewerEventHandlers>
 // troen
 #include "forwarddeclarations.h"
 #include "resourcepool.h"
+#include "view/skydome.h"
+
 
 #define MAX_BIKES 6
-typedef struct s_GameConfig
+namespace troen
 {
-	int numberOfBikes;
-	int timeLimit;
-	int* playerInputTypes;
-	QColor* playerColors;
-	QString* playerNames;
-	bool fullscreen;
-	bool usePostProcessing;
-	bool useDebugView;
-	bool testPerformance;
-	bool reflection;
-	bool ownView[MAX_BIKES];
-} GameConfig;
-Q_DECLARE_METATYPE(s_GameConfig)
+	class GameConfig
+	{
+	public:
+		int numberOfPlayers;
+		int numberOfViews;
+		int timeLimit;
+		int* playerInputTypes;
+		QColor* playerColors;
+		QString* playerNames;
+		bool fullscreen;
+		bool usePostProcessing;
+		bool useDebugView;
+		bool testPerformance;
+		bool useReflection;
+		bool ownView[MAX_BIKES];
+	};
+}
+Q_DECLARE_METATYPE(troen::GameConfig)
 
 namespace troen
 {
@@ -38,7 +45,19 @@ namespace troen
 
 	public:
 		TroenGame(QThread* thread = nullptr);
-		virtual ~TroenGame();
+
+		// getters
+		osg::ref_ptr<GameEventHandler> getGameEventHandler();
+		osg::ref_ptr<osgViewer::StatsHandler> getStatsHandler()
+			{ return m_statsHandler; };
+		std::shared_ptr<LevelController> getLevelController()
+			{ return m_levelController; };
+		std::vector<std::shared_ptr<Player>> getPlayers()
+			{ return m_players; };
+		osg::ref_ptr<SkyDome> getSkyDome() 
+			{ return m_skyDome; };
+		ResourcePool getResourcePool(){ return m_resourcePool; };
+
 		
 		// Events from GameEventHandler
 		void switchSoundVolumeEvent();
@@ -55,19 +74,10 @@ namespace troen
 
 	private:
 		bool initialize();
-		bool initializeViews();
-		bool initializeViewer();
-		bool initializeControllers();
 		bool initializeInput();
 		bool composeSceneGraph();
-		bool initializeTimers();
-		bool initializeShaders();
 		bool initializeGameLogic();
 		bool initializePhysicsWorld();
-		bool initializeSound();
-		bool initializeSkyDome();
-		bool initializeLighting();
-		bool initializeReflection();
 
 		bool shutdown();
 		void startGameLoop();
@@ -80,23 +90,17 @@ namespace troen
 		uint m_originalHeight;
 
 		// OSG Components
-		std::vector<osg::ref_ptr<SampleOSGViewer>>	m_viewers;
-		std::vector<osg::ref_ptr<osgViewer::View>>	m_gameViews;
-
 		osg::ref_ptr<GameEventHandler>		m_gameEventHandler;
 		osg::ref_ptr<osg::Group>			m_rootNode;
 		osg::ref_ptr<SkyDome>               m_skyDome;
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
-		osg::ref_ptr<osg::LightSource>		m_sunLightSource;
+		//osg::ref_ptr<osg::LightSource>		m_sunLightSource;
 		
 		// Controllers
 		std::shared_ptr<LevelController>	m_levelController;
-		std::vector<std::shared_ptr<BikeController>> m_bikeControllers;
-		std::vector<std::shared_ptr<HUDController>>		m_HUDControllers;
-		
-		std::vector<osg::ref_ptr<osg::Group>> m_playerNodes;
+		std::vector<std::shared_ptr<Player>>	m_players;
 		
 		QThread*							m_gameThread;
 		std::shared_ptr<util::ChronoTimer>	m_gameloopTimer;
@@ -104,22 +108,10 @@ namespace troen
 		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
 		std::shared_ptr<GameLogic>			m_gameLogic;
 		std::shared_ptr<sound::AudioManager> m_audioManager;
-		std::vector<std::shared_ptr<Reflection>>		m_reflections;
-
-		std::vector<int> m_playerInputTypes;
-		std::vector<osg::Vec3> m_playerColors;
-		std::vector<QString> m_playerNames;
 
 		ResourcePool m_resourcePool;
 
 		// Startup Options
-		int m_numberOfBikes;
-		int m_timeLimit;
-		bool m_fullscreen;
-		bool m_usePostProcessing;
-		bool m_useDebugView;
-		bool m_testPerformance;
-		bool m_useReflection;
-		bool m_ownView[MAX_BIKES];
+		std::shared_ptr<GameConfig> m_gameConfig;
 	};
 }

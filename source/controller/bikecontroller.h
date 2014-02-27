@@ -16,6 +16,7 @@ namespace troen
 	{
 	public:
 		BikeController(
+			Player * player,
 			const input::BikeInputState::InputDevice& inputDevice,
 			const btTransform initialPosition,
 			const osg::Vec3 playerColor,
@@ -57,33 +58,17 @@ namespace troen
 		void reset();
 
 		// controlling the FenceController
-		void removeAllFences();
-		void removeAllFencesFromModel();
 		void setLimitFence(const bool boolean);
 		int getFenceLimit();
-		void showFencesInMinimap(const int id);
-		void hideFencesInMinimap(const int it);
-
 
 		// getters & setters & attributes
+		Player * getPlayer() { return m_player; };
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
 		osg::ref_ptr<input::Keyboard> getKeyboardHandler();
 		bool hasKeyboardHandler();
 		float getSpeed();
-		float getHealth();
-		float getPoints();
 		BIKESTATE getState();
 		double getRespawnTime();
-		osg::Vec3 getPlayerColor() { return m_playerColor; };
-		const std::string getPlayerName() { return m_playerName; };
-		const int getId() { return m_id; };
-
-		float increaseHealth(const float diff);
-		float increasePoints(const float diff);
-		int getDeathCount() { return m_deathCount; };
-		int getKillCount() { return m_killCount; };
-		void increaseDeathCount() { m_deathCount++; };
-		void increaseKillCount() { m_killCount++; };
 
 	private:
 		// field of view methods
@@ -97,8 +82,8 @@ namespace troen
 		long double getTimeFactor();
 		
 		// communication links
+		Player * m_player;
 		osg::ref_ptr<osgViewer::View>		m_gameView;
-		std::shared_ptr<FenceController>	m_fenceController;
 		osg::ref_ptr<input::Keyboard>		m_keyboardHandler;
 		std::shared_ptr<input::PollingDevice> m_pollingThread;
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
@@ -119,14 +104,5 @@ namespace troen
 		float		m_timeOfLastCollision;
 		double		m_respawnTime;
 		bool		m_fenceLimitActivated;
-
-		// player attributes
-		osg::Vec3	m_playerColor;
-		std::string m_playerName;
-		float	m_health;
-		float	m_points;
-		int		m_killCount;
-		int		m_deathCount;
-		int		m_id;
 	};
 }

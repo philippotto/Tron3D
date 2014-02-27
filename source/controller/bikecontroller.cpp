@@ -4,6 +4,7 @@
 #include <osgViewer/View>
 //troen
 #include "../constants.h"
+#include "../player.h"
 #include "../view/bikeview.h"
 #include "../view/nodefollowcameramanipulator.h"
 #include "../model/bikemodel.h"
@@ -24,6 +25,7 @@
 using namespace troen;
 
 BikeController::BikeController(
+	Player * player,
 	const input::BikeInputState::InputDevice& inputDevice,
 	const btTransform initialTransform,
 	const osg::Vec3 playerColor,
@@ -32,30 +34,22 @@ BikeController::BikeController(
 	bool hasGameView,
 	const int id) :
 AbstractController(),
+m_player(player),
 m_keyboardHandler(nullptr),
 m_pollingThread(nullptr),
-m_playerColor(playerColor),
 m_initialTransform(initialTransform),
-m_health(BIKE_DEFAULT_HEALTH),
-m_points(0),
 m_speed(0),
 m_turboInitiated(false),
 m_timeOfLastCollision(-1),
 m_respawnTime(-1),
 m_fenceLimitActivated(true),
 m_state(BIKESTATE::WAITING),
-m_hasGameView(hasGameView),
-m_killCount(0),
-m_deathCount(0),
-m_playerName(playerName),
-m_id(id)
+m_hasGameView(hasGameView)
 {
-	m_view = std::make_shared<BikeView>(m_playerColor, m_resourcePool);
-
-	m_fenceController = std::make_shared<FenceController>(this, m_playerColor, m_initialTransform);
+	m_view = std::make_shared<BikeView>(playerColor, m_resourcePool);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
-	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
+	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_player->getFenceController(), this);
 
 	initializeInput(inputDevice);
 }
@@ -65,9 +59,9 @@ void BikeController::reset()
 	if (m_pollingThread != nullptr)
 		m_pollingThread->setVibration(false);
 
-	removeAllFences();
-	m_health = BIKE_DEFAULT_HEALTH;
-	m_points = 0;
+	m_player->getFenceController()->removeAllFences();
+	m_player->setHealth(BIKE_DEFAULT_HEALTH);
+	m_player->setPoints(0);
 	m_timeOfLastCollision = -1;
 }
 
@@ -76,18 +70,6 @@ void BikeController::registerCollision(btScalar impulse)
 	if (impulse > 0) {
 		m_timeOfLastCollision = g_gameTime;
 	}
-}
-
-float BikeController::increaseHealth(float diff)
-{
-	m_health = clamp(0,BIKE_DEFAULT_HEALTH,m_health + diff);
-	return m_health;
-}
-
-float BikeController::increasePoints(float diff)
-{
-	m_points += diff;
-	return m_points;
 }
 
 BikeController::~BikeController()
@@ -276,16 +258,6 @@ float BikeController::getSpeed()
 	return m_speed;
 }
 
-float BikeController::getHealth()
-{
-	return m_health;
-}
-
-float BikeController::getPoints()
-{
-	return m_points;
-}
-
 void BikeController::activateTurbo()
 {
 	m_turboInitiated = true;
@@ -322,7 +294,7 @@ void BikeController::updateModel(const long double gameTime)
 	case DRIVING:
 	{
 		double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(gameTime);
-		increasePoints(speed / 1000);
+		m_player->increasePoints(speed / 1000);
 		updateFov(speed);
 		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": DRIVING" << std::endl;
 		break;
@@ -330,7 +302,7 @@ void BikeController::updateModel(const long double gameTime)
 	case RESPAWN:
 	{
 		std::static_pointer_cast<BikeModel>(m_model)->freeze();
-		removeAllFencesFromModel();
+		m_player->getFenceController()->removeAllFencesFromModel();
 		updateFov(0);
 		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN" << std::endl;
 		if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
@@ -361,7 +333,7 @@ void BikeController::updateModel(const long double gameTime)
 		break;
 	}
 
-	increaseHealth(getTimeFactor() * 20.0);
+	m_player->increaseHealth(getTimeFactor() * 20.0);
 
 	// turbo should be only applied in one frame
 	if (m_turboInitiated)
@@ -377,11 +349,9 @@ void BikeController::updateModel(const long double gameTime)
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
 {
-	osg::ref_ptr<osg::Group> group = new osg::Group();
+	osg::ref_ptr<osg::Group> group = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	// TODO (dw) try not to disable culling, by resizing the childrens bounding boxes
-	group->setCullingActive(false);
-	group->addChild(m_fenceController->getViewNode());
-	group->addChild(std::static_pointer_cast<BikeView>(m_view)->getNode());
+	//group->setCullingActive(false);
 	return group;
 };
 
@@ -395,25 +365,16 @@ void BikeController::setPlayerNode(osg::Group* playerNode)
 	m_timeOfCollisionUniform = new osg::Uniform("timeSinceLastHit", 100000.f);
 	m_velocityUniform = new osg::Uniform("velocity", 0.f);
 	m_timeFactorUniform = new osg::Uniform("timeFactor", 1.f);
-	m_healthUniform = new osg::Uniform("healthNormalized", m_health / BIKE_DEFAULT_HEALTH);
+	m_healthUniform = new osg::Uniform("healthNormalized", m_player->getHealth() / BIKE_DEFAULT_HEALTH);
 	m_playerNode->getOrCreateStateSet()->addUniform(m_timeOfCollisionUniform);
 	m_playerNode->getOrCreateStateSet()->addUniform(m_velocityUniform);
 	m_playerNode->getOrCreateStateSet()->addUniform(m_timeFactorUniform);
 	m_playerNode->getOrCreateStateSet()->addUniform(m_healthUniform);
 }
 
-void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
-	world->addRigidBodies(getRigidBodies(), COLGROUP_BIKE, COLMASK_BIKE);
-	m_fenceController->attachWorld(world);
-}
-
-void BikeController::removeAllFences()
+void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 {
-	m_fenceController->removeAllFences();
-}
-
-void BikeController::removeAllFencesFromModel() {
-	m_fenceController->removeAllFencesFromModel();
+	world->addRigidBodies(getRigidBodies(), COLGROUP_BIKE, COLMASK_BIKE);
 }
 
 void BikeController::setLimitFence(bool boolean)
@@ -423,7 +384,7 @@ void BikeController::setLimitFence(bool boolean)
 
 int BikeController::getFenceLimit() {
 	if (m_fenceLimitActivated)
-		return getPoints();
+		return m_player->getPoints();
 	else
 		return 0;
 }
@@ -437,7 +398,7 @@ long double BikeController::getTimeFactor()
 void BikeController::moveBikeToPosition(btTransform transform)
 {
 	std::static_pointer_cast<BikeModel>(m_model)->moveBikeToPosition(transform);
-	m_fenceController->setLastPosition(transform.getRotation(), transform.getOrigin());
+	m_player->getFenceController()->setLastPosition(transform.getRotation(), transform.getOrigin());
 }
 
 
@@ -452,7 +413,7 @@ void BikeController::updateUniforms()
 		m_timeOfCollisionUniform->set((float) g_gameTime - m_timeOfLastCollision);
 		m_velocityUniform->set(std::static_pointer_cast<BikeModel>(m_model)->getVelocity());
 		m_timeFactorUniform->set((float) getTimeFactor());
-		m_healthUniform->set(m_health/BIKE_DEFAULT_HEALTH);
+		m_healthUniform->set(m_player->getHealth()/BIKE_DEFAULT_HEALTH);
 	}
 }
 
@@ -462,14 +423,4 @@ void BikeController::updateFov(double speed)
 		float currentFovy = getFovy();
 		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 	}
-}
-
-void BikeController::showFencesInMinimap(const int id)
-{
-	this->m_fenceController->showFencesInRadarForPlayer(id);
-}
-
-void BikeController::hideFencesInMinimap(const int id)
-{
-	this->m_fenceController->hideFencesInRadarForPlayer(id);
 }

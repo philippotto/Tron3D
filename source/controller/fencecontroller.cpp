@@ -10,9 +10,12 @@
 
 using namespace troen;
 
-FenceController::FenceController(BikeController *bikeController, osg::Vec3 color, btTransform initialTransform)
+FenceController::FenceController(
+	const std::shared_ptr<BikeController>& bikeController,
+	osg::Vec3 color,
+	btTransform initialTransform) :
+AbstractController()
 {
-	AbstractController();
 	m_playerColor = color;
 	m_bikeController = bikeController;
 	m_model = std::make_shared<FenceModel>(this);
@@ -62,7 +65,7 @@ void FenceController::removeAllFencesFromModel()
 
 
 int FenceController::getFenceLimit() {
-	return m_bikeController->getFenceLimit();
+	return m_bikeController.lock()->getFenceLimit();
 }
 
 void FenceController::adjustPositionUsingFenceOffset(const btQuaternion& rotation, btVector3& position)
@@ -93,3 +96,10 @@ void FenceController::hideFencesInRadarForPlayer(const int id)
 	std::static_pointer_cast<FenceView>(m_view)->hideFencesInRadarForPlayer(id);
 }
 
+osg::ref_ptr<osg::Group> FenceController::getViewNode()
+{
+	osg::ref_ptr<osg::Group> group = std::static_pointer_cast<FenceView>(m_view)->getNode();
+	// TODO (dw) try not to disable culling, by resizing the childrens bounding boxes
+	// group->setCullingActive(false);
+	return group;
+}

@@ -208,6 +208,8 @@ set(sources
 	source/constants.cpp
 	source/gamelogic.h
 	source/gamelogic.cpp
+	source/player.h
+	source/player.cpp
 
 	source/resourcepool.h
 	source/resourcepool.cpp
