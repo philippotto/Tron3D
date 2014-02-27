@@ -15,14 +15,6 @@ namespace troen
 	class BikeController : public AbstractController
 	{
 	public:
-		BikeController(
-			Player * player,
-			const input::BikeInputState::InputDevice& inputDevice,
-			const btTransform initialPosition,
-			ResourcePool *resourcePool,
-			const bool hasGameView);
-		~BikeController();
-
 		typedef enum enum_BIKESTATE
 		{
 			DRIVING,
@@ -31,6 +23,14 @@ namespace troen
 			WAITING_FOR_GAMESTART,
 			WAITING
 		} BIKESTATE;
+
+		BikeController(
+			Player * player,
+			const input::BikeInputState::InputDevice& inputDevice,
+			const btTransform initialPosition,
+			ResourcePool *resourcePool,
+			const bool hasGameView);
+		~BikeController();
 
 		//
 		// initialization & communication
@@ -53,7 +53,6 @@ namespace troen
 		void activateTurbo();
 		void registerCollision(btScalar impulse);
 		void reset();
-		bool turboInitiated() { return m_turboInitiated; };
 		
 		//
 		// getters & setters & attributes
@@ -66,8 +65,8 @@ namespace troen
 		BIKESTATE state()		{ return m_state; };
 		double respawnTime()	{ return m_respawnTime; };
 
-		bool hasKeyboardHandler();
-
+		bool turboInitiated()	{ return m_turboInitiated; };
+		bool hasKeyboardHandler() {	return m_keyboardHandler != nullptr; };
 
 	private:
 		//
@@ -93,12 +92,15 @@ namespace troen
 
 		long double getTimeFactor();
 		
+		//
 		// communication links
+		//
 		Player * m_player;
 		osg::ref_ptr<osgViewer::View>		m_gameView;
 		osg::ref_ptr<input::Keyboard>		m_keyboardHandler;
 		std::shared_ptr<input::PollingDevice> m_pollingThread;
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
+
 
 		bool m_hasGameView = false;
 		// the following attributes only exist if the bikeController
@@ -109,7 +111,9 @@ namespace troen
 		osg::Uniform*	m_healthUniform;
 		osg::Group*		m_playerNode;
 
+		//
 		// behaviour attributes
+		//
 		btTransform	m_initialTransform;
 		BIKESTATE	m_state;
 		float		m_speed;

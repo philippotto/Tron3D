@@ -174,11 +174,6 @@ void BikeController::initializeAI(osg::ref_ptr<input::BikeInputState> bikeInputS
 	m_pollingThread->start();
 }
 
-bool BikeController::hasKeyboardHandler()
-{
-	return m_keyboardHandler != nullptr;
-}
-
 void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
 	m_bikeInputState = bikeInputState;

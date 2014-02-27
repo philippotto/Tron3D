@@ -202,6 +202,7 @@ bool TroenGameBuilder::composeSceneGraph()
 	for (auto player : t->m_players)
 	{
 		radarScene->addChild(player->bikeController()->getViewNode());
+		radarScene->addChild(player->fenceController()->getViewNode());
 	}
 	radarScene->addChild(t->m_levelController->getViewNode());
 
