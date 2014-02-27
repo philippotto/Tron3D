@@ -138,11 +138,11 @@ bool TroenGame::composeSceneGraph()
 		m_sceneNode = m_rootNode;
 	}
 
-	for (int i = 0; i < m_gameConfig->numberOfViews; i++)
+	for (auto player : m_players)
 	{
-		if (m_gameConfig->ownView[i])
+		if (m_gameConfig->ownView[player->getId()])
 		{
-			m_players[i]->getPlayerNode()->addChild(m_rootNode);
+			player->getPlayerNode()->addChild(m_rootNode);
 		}
 	}
 
@@ -321,27 +321,38 @@ void TroenGame::startGameLoop()
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (g_gameLoopTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
-				for (int i = 0; i < m_gameConfig->numberOfViews; i++)
+				for (auto player : m_players)
 				{
-					m_players[i]->getHUDController()->update(
-						g_gameLoopTime,
-						g_gameTime,
-						m_gameConfig->timeLimit,
-						m_gameLogic->getGameState(),
-						m_players);
+					if (m_gameConfig->ownView[player->getId()])
+					{
+						player->getHUDController()->update(
+							g_gameLoopTime,
+							g_gameTime,
+							m_gameConfig->timeLimit,
+							m_gameLogic->getGameState(),
+							m_players);
+					}
 				}
 
-				for (int i = 0; i < m_gameConfig->numberOfViews; i++)
+
+				for (auto player : m_players)
 				{
-					m_players[i]->getViewer()->frame();
+					if (m_gameConfig->ownView[player->getId()])
+					{
+						player->getViewer()->frame();
+					}
 				}
-				std::cout << g_gameTime << std::endl;
 				// TODO: find a way to eleminate this workaround
 				// doesn't work if it's executed earlier
 				if (!nearPlaneAdapted)
 				{
-					for (int i = 0; i < m_gameConfig->numberOfViews; i++)
-						fixCulling(m_players[i]->getGameView());
+					for (auto player : m_players)
+					{
+						if (m_gameConfig->ownView[player->getId()])
+						{
+							fixCulling(player->getGameView());
+						}
+					}
 				}
 				skippedFrames = 0;
 			}

@@ -41,7 +41,6 @@ m_deathCount(0),
 m_playerName(config->playerNames[id].toStdString()),
 m_id(id)
 {
-
 	m_playerColor = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
 	//
 	// Controllers
@@ -58,6 +57,9 @@ m_id(id)
 
 	m_fenceController = std::make_shared<FenceController>(m_bikeController, m_playerColor, initialTransform);
 
+	// HUDController must be initialized later, because it
+	// can only be created, once all Players are created
+
 	//
 	// View
 	//
@@ -73,7 +75,7 @@ m_id(id)
 		osg::ref_ptr<NodeFollowCameraManipulator> manipulator
 			= new NodeFollowCameraManipulator();
 
-		m_bikeController->attachTrackingCameras(manipulator, m_HUDController);
+		m_bikeController->attachTrackingCamera(manipulator);
 		m_bikeController->attachGameView(m_gameView);
 
 		m_gameView->setCameraManipulator(manipulator.get());
@@ -125,6 +127,7 @@ void Player::createHUDController(const std::vector<std::shared_ptr<Player>>& pla
 	if (!m_bikeController->hasGameView()) return;
 
 	m_HUDController = std::make_shared<HUDController>(m_id, players);
+	m_bikeController->attachTrackingCamera(m_HUDController);
 }
 
 Player::~Player()

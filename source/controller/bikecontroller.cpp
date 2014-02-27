@@ -174,30 +174,17 @@ void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInput
 	std::static_pointer_cast<BikeModel>(m_model)->setInputState(bikeInputState);
 }
 
-void BikeController::attachTrackingCameras(
-	osg::ref_ptr<NodeFollowCameraManipulator>& manipulator,
+void BikeController::attachTrackingCamera(
 	std::shared_ptr<HUDController>& hudController)
 {
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
 
 	// set the actual node as the track node, not the pat
-	manipulator->setTrackNode(pat->getChild(0));
 	if (hudController != nullptr)
 		hudController->setTrackNode(pat->getChild(0));
-
-	// set the bikeInputState
-	manipulator->setBikeInputState(m_bikeInputState);
-
-
-	// set camera position
-	manipulator->setHomePosition(
-		CAMERA_EYE_POSITION, // homeEye
-		osg::Vec3f(), // homeCenter
-		osg::Z_AXIS, // up
-		false
-		);
 }
+
 void BikeController::attachTrackingCamera(osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
 {
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
@@ -205,6 +192,9 @@ void BikeController::attachTrackingCamera(osg::ref_ptr<NodeFollowCameraManipulat
 
 	// set the actual node as the track node, not the pat
 	manipulator->setTrackNode(pat->getChild(0));
+
+	// set the bikeInputState
+	manipulator->setBikeInputState(m_bikeInputState);
 
 	// set camera position
 	manipulator->setHomePosition(

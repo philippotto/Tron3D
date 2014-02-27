@@ -36,9 +36,8 @@ namespace troen
 		} BIKESTATE;
 
 		// initialization & communication
-		void attachTrackingCameras
-			(osg::ref_ptr<NodeFollowCameraManipulator> &manipulator,
-             std::shared_ptr<HUDController>& hudController);
+		void BikeController::attachTrackingCamera(
+			std::shared_ptr<HUDController>& hudController);
         void attachTrackingCamera
             (osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
