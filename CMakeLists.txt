@@ -200,6 +200,8 @@ set(sources
 	source/mainwindow.cpp
 	source/troengame.h
 	source/troengame.cpp
+	source/troengamebuilder.h
+	source/troengamebuilder.cpp
 	source/sampleosgviewer.h
 	source/sampleosgviewer.cpp
 	source/gameeventhandler.h

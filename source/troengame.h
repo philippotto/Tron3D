@@ -42,9 +42,10 @@ namespace troen
 	{
 		Q_OBJECT
 
+		friend class TroenGameBuilder;
+
 	public:
 		TroenGame(QThread* thread = nullptr);
-
 		//
 		// getters
 		//
@@ -60,17 +61,12 @@ namespace troen
 		ResourcePool getResourcePool(){ return m_resourcePool; };
 
 		//
-		// Events from GameEventHandler
+		// Events
 		//
 		void switchSoundVolumeEvent();
 		void pauseEvent();
-
-		//
-		// Logic Events
-		//
 		void pauseSimulation();
 		void unpauseSimulation();
-
 		void resize(const int width,const int height);
 
 	public slots:
@@ -78,15 +74,8 @@ namespace troen
 
 	private:
 		//
-		// initialization
+		// Game Loop
 		//
-		bool initialize();
-		bool initializeInput();
-		bool composeSceneGraph();
-		bool initializeGameLogic();
-		bool initializePhysicsWorld();
-
-		bool shutdown();
 		void startGameLoop();
 		void fixCulling(osg::ref_ptr<osgViewer::View>& view);
 
@@ -123,7 +112,6 @@ namespace troen
 		ResourcePool m_resourcePool;
 
 		// Startup Options
-
 		QThread* m_gameThread;
 	};
 }
