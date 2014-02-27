@@ -26,8 +26,10 @@ namespace troen
 		struct bikeUpdateMessage
 		{
 			float x, y, z;
-			float turnAngle, acceleration;
+			float quat_x, quat_y, quat_z, quat_w;
+			float turnAngle, acceleration; //other ideas: often send turnAngle,acceleration, sometimes send position,rotation, linear velocity,angular velocity
 		};
+
 
 		class NetworkManager : public QThread
 		{

@@ -16,6 +16,7 @@ RemotePlayer::RemotePlayer(osg::ref_ptr<BikeInputState> bikeInputState)
 void RemotePlayer::update(troen::networking::bikeUpdateMessage updateMessage)
 {
 	m_bikeInputState->setPosition(btVector3(updateMessage.x, updateMessage.y, updateMessage.z));
+	m_bikeInputState->setRotation(btQuaternion(updateMessage.quat_x, updateMessage.quat_y, updateMessage.quat_z, updateMessage.quat_w));
 	m_bikeInputState->setAcceleration(updateMessage.acceleration);
 	m_bikeInputState->setAngle(updateMessage.turnAngle);
 }

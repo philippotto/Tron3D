@@ -455,6 +455,16 @@ osg::Vec3 BikeController::getPositionOSG()
 	return std::static_pointer_cast<BikeModel>(m_model)->getPositionOSG();
 }
 
+btVector3 BikeController::getPositionBt()
+{
+	return std::static_pointer_cast<BikeModel>(m_model)->getPositionBt();
+}
+
+btQuaternion BikeController::getRotation()
+{
+	return std::static_pointer_cast<BikeModel>(m_model)->getRotationQuat();
+}
+
 void BikeController::updateUniforms()
 {
 	if (m_hasGameView) {

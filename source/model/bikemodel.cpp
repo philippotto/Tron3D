@@ -130,10 +130,11 @@ float BikeModel::updateState(long double time)
 	{
 		btTransform trans;
 		(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
+		trans.setRotation(m_bikeInputState->getRotation());
 		trans.setOrigin(m_bikeInputState->getPosition());
 		moveBikeToPosition(trans);
+		//m_rigidBodies[0]->set
 	}
-
 
 	// call this exactly once per frame
 	m_steering = m_bikeInputState->getAngle();
@@ -239,6 +240,14 @@ btVector3 BikeModel::getPositionBt()
 	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
 
 	return trans.getOrigin();
+}
+
+btQuaternion BikeModel::getRotationQuat()
+{
+	btTransform trans;
+	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
+
+	return trans.getRotation();
 }
 
 

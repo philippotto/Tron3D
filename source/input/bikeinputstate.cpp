@@ -77,3 +77,6 @@ void BikeInputState::setPosition(btVector3 position)
 {
 	m_position = position;
 }
+
+btQuaternion BikeInputState::getRotation() { return m_rotation; }
+void BikeInputState::setRotation(btQuaternion val) { m_rotation = val; }

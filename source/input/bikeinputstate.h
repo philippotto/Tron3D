@@ -4,6 +4,7 @@
 // troen
 #include "../forwarddeclarations.h"
 #include "LinearMath/btVector3.h"
+#include "LinearMath/btQuaternion.h"
 
 namespace troen
 {
@@ -30,6 +31,8 @@ namespace input
 		bool isRemote();
 		btVector3 getPosition();
 		void setPosition(btVector3 position);
+		btQuaternion getRotation();
+		void setRotation(btQuaternion val);
 	private:
 		float m_acceleration;
 		float m_angle;
@@ -37,6 +40,7 @@ namespace input
 		float m_viewingAngle;
 		bool m_isRemote;
 		btVector3 m_position;
+		btQuaternion m_rotation;
 	};
 }
 }

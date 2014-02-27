@@ -10,6 +10,7 @@
 
 //
 #include <QQueue>
+#include "LinearMath/btQuaternion.h"
 
 //raknet
 
@@ -62,8 +63,10 @@ void NetworkManager::update(long double g_gameTime)
 
 	if (this->isValidSession())
 	{
-		osg::Vec3 pos =  m_localBikeController->getPositionOSG();
+		btVector3 pos = m_localBikeController->getPositionBt();
+		btQuaternion quat = m_localBikeController->getRotation();
 		bikeUpdateMessage message = { pos.x(), pos.y(), pos.z(),
+			quat.x(), quat.y(), quat.z(), quat.w(),
 			m_localBikeController->getInputAngle(), m_localBikeController->getInputAcceleration() };
 
 		if (message.turnAngle != lastSentMessage.turnAngle || message.acceleration != lastSentMessage.acceleration || g_gameTime - m_lastUpdateTime > 30.0 )

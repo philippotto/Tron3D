@@ -33,6 +33,7 @@ namespace troen
 		float getSteering();
 		osg::Vec3d getPositionOSG();
 		btVector3 getPositionBt();
+		btQuaternion getRotationQuat();
 
 		void moveBikeToPosition(const btTransform position);
 		float getTurboFactor();

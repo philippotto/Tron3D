@@ -72,6 +72,8 @@ namespace troen
 		double getRespawnTime();
 		osg::Vec3 getPlayerColor() { return m_playerColor; };
 		osg::Vec3 getPositionOSG();
+		btVector3 getPositionBt();
+		btQuaternion getRotation();
 		const std::string getPlayerName() { return m_playerName; };
 
 		float increaseHealth(const float diff);
