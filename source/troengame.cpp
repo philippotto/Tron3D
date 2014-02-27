@@ -232,6 +232,7 @@ bool TroenGame::initializeNetworking()
 
 	char str[512];
 	m_networkManager = std::make_shared<networking::NetworkManager>();
+	
 
 
 	printf("(C) or (S)erver or (N)o Networking?\n");
@@ -271,6 +272,8 @@ bool TroenGame::initializeControllers()
 			m_playerNames[i],
 			&m_resourcePool, m_ownView[i])
 		);
+		if (m_ownView[i]) //network + multiple views NOT supported
+			m_networkManager->setLocalBikeController(m_bikeControllers.back().get());
 	}
 	
 	if (m_networkManager->isValidSession()) //if at least one server and one client are connected 
@@ -575,7 +578,6 @@ void TroenGame::startGameLoop()
 	// - render;
 
 	// terminates when first viewer is closed
-	int send = 10;
 	while (!m_viewers[0]->done())
 	{
 		g_gameLoopTime = m_gameloopTimer->elapsed();
@@ -597,19 +599,11 @@ void TroenGame::startGameLoop()
 				for (auto bikeController : m_bikeControllers)
 				{
 					bikeController->updateModel(g_gameTime);
-					if (bikeController->hasGameView() && m_networkManager->isValidSession() && send == 0)
-					{
-
-						m_networkManager->enqueueMessage(bikeController->getPositionOSG(),
-							bikeController->getInputAngle(), bikeController->getInputAcceleration());
-						send = 10;
-					}
-
-					send--;
 				}
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();
 			}
+			m_networkManager->update(g_gameTime);
 			
 			
 

@@ -125,6 +125,15 @@ float BikeModel::updateState(long double time)
 	m_lastUpdateTime = time;
 
 	const btVector3 front = btVector3(0, -1, 0);
+	
+	if (m_bikeInputState->isRemote())
+	{
+		btTransform trans;
+		(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
+		trans.setOrigin(m_bikeInputState->getPosition());
+		moveBikeToPosition(trans);
+	}
+
 
 	// call this exactly once per frame
 	m_steering = m_bikeInputState->getAngle();
@@ -188,7 +197,11 @@ float BikeModel::updateState(long double time)
 	}
 
 	// let the bike drift, if the friction is low
-	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed).normalized() * speed;
+	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed);
+	if (currentVelocityVectorXY != btVector3(0.0, 0.0, 0.0))
+		currentVelocityVectorXY = currentVelocityVectorXY.normalized() * speed;
+	else
+		currentVelocityVectorXY = bikeRigidBody->getLinearVelocity() * speed;
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 

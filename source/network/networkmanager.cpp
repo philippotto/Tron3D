@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "MessageIdentifiers.h"
+#include "../controller/bikecontroller.h"
 
 
 //
@@ -23,7 +24,7 @@ enum GameMessages
 	BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1
 };
 
-struct bikeUpdateMessage updateMessage;
+struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage;
 
 NetworkManager::NetworkManager()
 {
@@ -34,13 +35,14 @@ NetworkManager::NetworkManager()
 	m_sendMessagesQueue = new QQueue<bikeUpdateMessage>();
 	m_remotePlayers = std::vector<input::RemotePlayer*>();
 	m_sendBufferMutex = new QMutex();
+	m_localBikeController = NULL;
+	m_lastUpdateTime = 0;
 }
 
-void  NetworkManager::enqueueMessage(osg::Vec3 position, float angle, float acceleration)
+void  NetworkManager::enqueueMessage(bikeUpdateMessage message)
 {
-	bikeUpdateMessage update = { position.x(), position.y(), position.z(),angle,acceleration};
 	m_sendBufferMutex->lock();
-	m_sendMessagesQueue->enqueue(update);
+	m_sendMessagesQueue->enqueue(message);
 	m_sendBufferMutex->unlock();
 }
 
@@ -50,6 +52,33 @@ void NetworkManager::registerRemotePlayer(troen::input::RemotePlayer *remotePlay
 	m_remotePlayers.push_back(remotePlayer);
 }
 
+void NetworkManager::setLocalBikeController(troen::BikeController *controller)
+{
+	m_localBikeController = controller;
+}
+
+void NetworkManager::update(long double g_gameTime)
+{
+
+	if (this->isValidSession())
+	{
+		osg::Vec3 pos =  m_localBikeController->getPositionOSG();
+		bikeUpdateMessage message = { pos.x(), pos.y(), pos.z(),
+			m_localBikeController->getInputAngle(), m_localBikeController->getInputAcceleration() };
+
+		if (message.turnAngle != lastSentMessage.turnAngle || message.acceleration != lastSentMessage.acceleration || g_gameTime - m_lastUpdateTime > 30.0 )
+		{
+			enqueueMessage(message);
+			lastSentMessage = message;
+		}
+		
+		
+	}
+}
+
+
+
+//!! This runs in a seperate thread //
 void NetworkManager::run()
 {
 	
@@ -102,9 +131,9 @@ void NetworkManager::run()
 				RakNet::RakString rs;
 				RakNet::BitStream bsIn(packet->data, packet->length, false);
 				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-				bsIn.Read(updateMessage);
-				std::cout << updateMessage.x << " " << updateMessage.y << " " << updateMessage.z << " " << updateMessage.turnAngle << " " << updateMessage.acceleration << std::endl;
-				m_remotePlayers[0]->update(updateMessage);
+				bsIn.Read(receivedUpdateMessage);
+				//std::cout << receivedUpdateMessage.x << " " << receivedUpdateMessage.y << " " << receivedUpdateMessage.z << " " << receivedUpdateMessage.turnAngle << " " << receivedUpdateMessage.acceleration << std::endl;
+				m_remotePlayers[0]->update(receivedUpdateMessage);
 			}
 				break;
 
@@ -150,9 +179,9 @@ void NetworkManager::sendData()
 			//Bitstreams are easier to use than sending casted structures, and handle endian swapping automatically
 			bsOut.Write((RakNet::MessageID)BIKE_POSITION_MESSSAGE);
 			m_sendBufferMutex->lock();
-			updateMessage = m_sendMessagesQueue->dequeue();
+			receivedUpdateMessage = m_sendMessagesQueue->dequeue();
 			m_sendBufferMutex->unlock();
-			bsOut.Write(updateMessage);
+			bsOut.Write(receivedUpdateMessage);
 			
 			//peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
 			peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);

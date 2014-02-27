@@ -37,10 +37,11 @@ namespace troen
 			virtual void run();
 			void openClient();
 			void sendData();
-			void enqueueMessage(osg::Vec3 position, float angle, float acceleration);
+			void enqueueMessage(bikeUpdateMessage message);
 			void registerRemotePlayer(input::RemotePlayer *remotePlayer);
 			bool isValidSession();
-			bikeUpdateMessage buildPositionUpdateMessage(osg::Vec3 position, float angle, float acceleration);
+			void setLocalBikeController(troen::BikeController *controller);
+			void update(long double g_gameTime);
 		protected:
 			RakNet::Packet *m_packet;
 			RakNet::RakPeerInterface *peer;
@@ -50,6 +51,8 @@ namespace troen
 			QQueue<bikeUpdateMessage> *m_sendMessagesQueue;
 			std::vector<input::RemotePlayer*> m_remotePlayers;
 			QMutex* m_sendBufferMutex;
+			BikeController *m_localBikeController;
+			long double m_lastUpdateTime;
 		};
 	}
 

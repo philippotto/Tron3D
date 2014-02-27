@@ -11,6 +11,10 @@ BikeInputState::BikeInputState()
 	m_angle = 0.0;
 	m_turboPressed = false;
 	m_viewingAngle = 0.0;
+	//only used for network
+	m_position = btVector3(0.0, 0.0, 0.0);
+	m_isRemote = false;
+	
 }
 
 float BikeInputState::getAngle()
@@ -52,4 +56,24 @@ float BikeInputState::getViewingAngle()
 void BikeInputState::setViewingAngle(float angle)
 {
 	m_viewingAngle = angle;
+}
+
+void BikeInputState::setRemote(bool isRemote)
+{
+	m_isRemote = isRemote;
+}
+
+bool  BikeInputState::isRemote()
+{
+	return m_isRemote;
+}
+
+btVector3 BikeInputState::getPosition()
+{
+	return m_position;
+}
+
+void BikeInputState::setPosition(btVector3 position)
+{
+	m_position = position;
 }
