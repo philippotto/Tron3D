@@ -197,17 +197,19 @@ bool TroenGame::composeSceneGraph()
 
 	for (auto player : m_players)
 	{
-		if (player->getBikeController()->hasGameView())
+		if (m_gameConfig->ownView[player->getId()])
 		{
 			player->getHUDController()->attachSceneToRadarCamera(radarScene);
 		}
 	}
 
-	/*osgUtil::Optimizer optimizer;
+	std::cout << "[TroenGame::composeSceneGraph] starting Optimizer" << std::endl;
+	osgUtil::Optimizer optimizer;
 	optimizer.optimize(m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
 		optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS | 
 		optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
-*/
+	std::cout << "[TroenGame::composeSceneGraph] done optimizing" << std::endl;
+
 	return true;
 }
 
