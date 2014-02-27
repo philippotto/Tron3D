@@ -49,7 +49,7 @@ m_hasGameView(hasGameView)
 	m_view = std::make_shared<BikeView>(playerColor, m_resourcePool);
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
-	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_player->getFenceController(), this);
+	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_player, this);
 
 	initializeInput(inputDevice);
 }

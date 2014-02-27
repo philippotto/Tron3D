@@ -199,26 +199,27 @@ bool TroenGame::composeSceneGraph()
 		}
 	}
 
-	osgUtil::Optimizer optimizer;
+	/*osgUtil::Optimizer optimizer;
 	optimizer.optimize(m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
 		optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS | 
 		optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
-
+*/
 	return true;
 }
 
 bool TroenGame::initializeInput()
 {
-	int currentIndex = -1;
 	for (auto player : m_players)
 	{
-		currentIndex++;
 		// attach all keyboard handlers to all gameViews
 		if (player->getBikeController()->hasKeyboardHandler())
 		{
-			for (auto player : m_players)
+			for (auto otherPlayer : m_players)
 			{
-				player->getGameView()->addEventHandler(player->getBikeController()->getKeyboardHandler());
+				if (m_gameConfig->ownView[otherPlayer->getId()])
+				{
+					otherPlayer->getGameView()->addEventHandler(player->getBikeController()->getKeyboardHandler());
+				}
 			}
 		}
 	}

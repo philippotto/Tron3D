@@ -6,16 +6,16 @@
 // troen
 #include "../constants.h"
 #include "../input/bikeinputstate.h"
+#include "../controller/bikecontroller.h"
 #include "bikemotionstate.h"
 #include "objectinfo.h"
-#include "../controller/bikecontroller.h"
 
 using namespace troen;
 
 BikeModel::BikeModel(
 	btTransform initialTransform,
 	osg::ref_ptr<osg::Group> node,
-	std::shared_ptr<FenceController> fenceController,
+	Player * player,
 	BikeController* bikeController) :
 AbstractModel(),
 m_lastUpdateTime(0)
@@ -32,7 +32,7 @@ m_lastUpdateTime(0)
 	std::shared_ptr<BikeMotionState> bikeMotionState = std::make_shared<BikeMotionState>(
 		initialTransform,
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
-		fenceController,
+		player,
 		this
 	);
 
@@ -93,7 +93,7 @@ float BikeModel::getTurboFactor()
 
 void BikeModel::updateTurboFactor(float newVelocity, float time)
 {
-	m_turboFactor = std::max(0.f, m_turboFactor);
+	m_turboFactor = max(0.f, m_turboFactor);
 
 	if (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()) {
 		m_turboFactor = 1.f;
@@ -106,7 +106,7 @@ void BikeModel::updateTurboFactor(float newVelocity, float time)
 		}
 		else {
 			m_turboFactor = 1 - (time - m_timeOfLastTurboInitiation) / TURBO_PHASE_LENGTH;
-			m_turboFactor = std::max(0.f, m_turboFactor);
+			m_turboFactor = max(0.f, m_turboFactor);
 		}
 	}
 
