@@ -196,12 +196,12 @@ bool TroenGame::composeSceneGraph()
 		player->hudController()->attachSceneToRadarCamera(radarScene);
 	}
 
-	std::cout << "[TroenGame::composeSceneGraph] starting Optimizer" << std::endl;
-	osgUtil::Optimizer optimizer;
-	optimizer.optimize(m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
-		optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS | 
-		optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
-	std::cout << "[TroenGame::composeSceneGraph] done optimizing" << std::endl;
+	//std::cout << "[TroenGame::composeSceneGraph] starting Optimizer" << std::endl;
+	//osgUtil::Optimizer optimizer;
+	//optimizer.optimize(m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
+	//	optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS | 
+	//	optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
+	//std::cout << "[TroenGame::composeSceneGraph] done optimizing" << std::endl;
 
 	return true;
 }
@@ -379,8 +379,12 @@ bool TroenGame::shutdown()
 
 	for (auto player : m_players)
 		player.reset();
+	for (auto player : m_playersWithView)
+	{
+		player.reset();
+	}
 	m_players.clear();
-
+	m_playersWithView.clear();
 	// sound
 	m_audioManager->StopSFXs();
 	m_audioManager->StopSongs();

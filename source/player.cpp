@@ -143,8 +143,20 @@ void Player::createHUDController(const std::vector<std::shared_ptr<Player>>& pla
 
 Player::~Player()
 {
-	//TODO
-	// DESTRUCT
+	//
+	// controllers
+	//
+	m_bikeController.reset();
+	m_fenceController.reset();
+	m_HUDController.reset();
+
+	//
+	// osg elements
+	//
+	m_viewer = nullptr;
+	m_gameView = nullptr;
+	m_playerNode = nullptr;
+	m_reflection = nullptr;
 }
 
 float Player::increaseHealth(float diff)
