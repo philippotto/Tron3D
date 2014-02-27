@@ -30,7 +30,7 @@ m_pointsText(new osgText::Text()),
 m_countdownText(new osgText::Text()),
 m_timeText(new osgText::Text()),
 m_trackNode(nullptr),
-m_playerColor(osg::Vec4(players[i]->getPlayerColor(),1))
+m_playerColor(osg::Vec4(players[i]->color(),1))
 {
 	m_node->addChild(createHUD(players));
 	m_node->addChild(createRadar(i));
@@ -127,8 +127,8 @@ osg::Camera* HUDView::createHUD(const std::vector<std::shared_ptr<Player>>& play
 
 			m_deathCountTexts[i]->setFont(font);
 			m_deathCountTexts[i]->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset * (3 + i), 0.f));
-			m_deathCountTexts[i]->setColor(osg::Vec4(players[i]->getPlayerColor(),1));
-			setDeathCountText(i,players[i]->getPlayerName(), 0);
+			m_deathCountTexts[i]->setColor(osg::Vec4(players[i]->color(),1));
+			setDeathCountText(i,players[i]->name(), 0);
 			m_deathCountTexts[i]->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
 			m_deathCountTexts[i]->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
 			m_deathCountTexts[i]->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);

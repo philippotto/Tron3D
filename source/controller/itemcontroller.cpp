@@ -35,7 +35,7 @@ void ItemController::triggerOn(BikeController* bikeController)
 {
 	if (m_type == HEALTHUP)
 	{
-		bikeController->getPlayer()->increaseHealth(BIKE_DEFAULT_HEALTH / 2);
+		bikeController->player()->increaseHealth(BIKE_DEFAULT_HEALTH / 2);
 	}
 	else {
 		bikeController->activateTurbo();

@@ -56,7 +56,7 @@ namespace troen
 			m_visibleObj->setPosition(osg::Vec3(pos.x(), pos.y(), pos.z()));
 
 			// update fence accordingly
-			m_player->getFenceController()->update(pos, rot);
+			m_player->fenceController()->update(pos, rot);
 		}
 
 		osg::Quat getTilt()

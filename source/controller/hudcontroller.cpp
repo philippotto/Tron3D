@@ -34,29 +34,29 @@ void HUDController::update(
 	const std::vector<std::shared_ptr<Player>>& players)
 {
 	std::shared_ptr<Player> player = m_player.lock();
-	float speed = player->getBikeController()->getSpeed();
+	float speed = player->bikeController()->speed();
 	std::static_pointer_cast<HUDView>(m_view)->setSpeedText(speed);
     std::static_pointer_cast<HUDView>(m_view)->updateRadarCamera();
 
-	float health = player->getHealth();
+	float health = player->health();
 	std::static_pointer_cast<HUDView>(m_view)->setHealthText(100 * health / BIKE_DEFAULT_HEALTH);
 
-	float points = player->getPoints();
+	float points = player->points();
 	std::static_pointer_cast<HUDView>(m_view)->setPointsText(points);
 
-	BikeController::BIKESTATE bikeState = player->getBikeController()->getState();
+	BikeController::BIKESTATE bikeState = player->bikeController()->state();
 	if (gameState == GameLogic::GAMESTATE::GAME_OVER)
 	{
 		std::static_pointer_cast<HUDView>(m_view)->setCountdownText("GameOver");
 	}
 	else if (bikeState == BikeController::BIKESTATE::RESPAWN || bikeState == BikeController::BIKESTATE::RESPAWN_PART_2)
 	{
-		double respawnTime = player->getBikeController()->getRespawnTime();
+		double respawnTime = player->bikeController()->respawnTime();
 		std::static_pointer_cast<HUDView>(m_view)->setCountdownText((int)(respawnTime - currentGameTime + RESPAWN_DURATION) / 1000 + 1);
 	}
 	else if (bikeState == BikeController::BIKESTATE::WAITING_FOR_GAMESTART)
 	{
-		double respawnTime = player->getBikeController()->getRespawnTime();
+		double respawnTime = player->bikeController()->respawnTime();
 		std::static_pointer_cast<HUDView>(m_view)->setCountdownText((int)(respawnTime - currentGameloopTime + GAME_START_COUNTDOWN_DURATION) / 1000 + 1);
 	}
 	else
@@ -66,10 +66,10 @@ void HUDController::update(
 
 	std::static_pointer_cast<HUDView>(m_view)->setTimeText(currentGameTime, timeLimit);
 
-	//std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(bikeController->getDeathCount());
+	//std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(bikeController->deathCount());
 	for (int i = 0; i < players.size(); i++)
 	{
-		std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(i,players[i]->getPlayerName(),players[i]->getDeathCount());
+		std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(i,players[i]->name(),players[i]->deathCount());
 	}
 }
 

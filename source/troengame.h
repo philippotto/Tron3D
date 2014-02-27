@@ -45,7 +45,9 @@ namespace troen
 	public:
 		TroenGame(QThread* thread = nullptr);
 
+		//
 		// getters
+		//
 		osg::ref_ptr<GameEventHandler> getGameEventHandler();
 		osg::ref_ptr<osgViewer::StatsHandler> getStatsHandler()
 			{ return m_statsHandler; };
@@ -57,12 +59,15 @@ namespace troen
 			{ return m_skyDome; };
 		ResourcePool getResourcePool(){ return m_resourcePool; };
 
-		
+		//
 		// Events from GameEventHandler
+		//
 		void switchSoundVolumeEvent();
 		void pauseEvent();
 
+		//
 		// Logic Events
+		//
 		void pauseSimulation();
 		void unpauseSimulation();
 
@@ -72,6 +77,9 @@ namespace troen
 		void prepareAndStartGame(const GameConfig& config);
 
 	private:
+		//
+		// initialization
+		//
 		bool initialize();
 		bool initializeInput();
 		bool composeSceneGraph();
@@ -80,39 +88,42 @@ namespace troen
 
 		bool shutdown();
 		void startGameLoop();
-
 		void fixCulling(osg::ref_ptr<osgViewer::View>& view);
+
+		//
 		// fullscreen handling
+		//
 		void setupForFullScreen();
 		void returnFromFullScreen();
 		uint m_originalWidth;
 		uint m_originalHeight;
 
+		//
 		// OSG Components
+		//
 		osg::ref_ptr<GameEventHandler>		m_gameEventHandler;
 		osg::ref_ptr<osg::Group>			m_rootNode;
 		osg::ref_ptr<SkyDome>               m_skyDome;
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
-		//osg::ref_ptr<osg::LightSource>		m_sunLightSource;
 		
-		// Controllers
-		std::shared_ptr<LevelController>	m_levelController;
+		//
+		// Game Components
+		//
+		std::shared_ptr<GameConfig>				m_gameConfig;
+		std::shared_ptr<LevelController>		m_levelController;
 		std::vector<std::shared_ptr<Player>>	m_players;
-		std::vector<std::shared_ptr<Player>>	m_playersWithView;
-
-		
-		QThread*							m_gameThread;
-		std::shared_ptr<util::ChronoTimer>	m_gameloopTimer;
-		std::shared_ptr<util::ChronoTimer>	m_gameTimer;
-		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
-		std::shared_ptr<GameLogic>			m_gameLogic;
-		std::shared_ptr<sound::AudioManager> m_audioManager;
-
+		std::vector<std::shared_ptr<Player>>	m_playersWithView;		
+		std::shared_ptr<util::ChronoTimer>		m_gameloopTimer;
+		std::shared_ptr<util::ChronoTimer>		m_gameTimer;
+		std::shared_ptr<PhysicsWorld>			m_physicsWorld;
+		std::shared_ptr<GameLogic>				m_gameLogic;
+		std::shared_ptr<sound::AudioManager>	m_audioManager;
 		ResourcePool m_resourcePool;
 
 		// Startup Options
-		std::shared_ptr<GameConfig> m_gameConfig;
+
+		QThread* m_gameThread;
 	};
 }

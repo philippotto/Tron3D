@@ -4,6 +4,7 @@
 //troen
 #include "../forwarddeclarations.h"
 #include "abstractcontroller.h"
+#include "../player.h"
 
 #include <osg/Vec3>
 
@@ -12,7 +13,7 @@ namespace troen
 	class FenceController : public AbstractController
 	{
 	public:
-		FenceController(const std::shared_ptr<BikeController>& bikeController, const osg::Vec3 color, const btTransform initialTransform = btTransform::getIdentity());
+		FenceController(Player * player, const btTransform initialTransform = btTransform::getIdentity());
 		void update(btVector3 position, btQuaternion rotation);
 		void attachWorld(std::shared_ptr<PhysicsWorld>& world);
 
@@ -20,6 +21,7 @@ namespace troen
 
 		void removeAllFences();
 		void removeAllFencesFromModel();
+		void setLimitFence(bool boolean);
 		int getFenceLimit();
 
 		void showFencesInRadarForPlayer(const int id);
@@ -29,10 +31,10 @@ namespace troen
 
 	private:
 		void adjustPositionUsingFenceOffset(const btQuaternion& rotation, btVector3& position);
-
 		btVector3 m_lastPosition;
+		bool m_fenceLimitActivated;
+
+		Player * m_player;
 		std::weak_ptr<PhysicsWorld> m_world;
-		osg::Vec3 m_playerColor;
-		std::weak_ptr<BikeController> m_bikeController;
 	};
 }

@@ -68,13 +68,13 @@ void GameLogic::stepGameStart(const long double gameloopTime, const long double 
 	{
 		m_gameStartTime = gameloopTime + GAME_START_COUNTDOWN_DURATION;
 		for (auto player : m_players)
-			player->getBikeController()->setState(BikeController::BIKESTATE::WAITING_FOR_GAMESTART,gameloopTime);
+			player->bikeController()->setState(BikeController::BIKESTATE::WAITING_FOR_GAMESTART,gameloopTime);
 	}
 
 	if (gameloopTime > m_gameStartTime)
 	{
 		for (auto player : m_players)
-			player->getBikeController()->setState(BikeController::BIKESTATE::DRIVING);
+			player->bikeController()->setState(BikeController::BIKESTATE::DRIVING);
 		m_gameState = GAMESTATE::GAME_RUNNING;
 		m_gameStartTime = -1;
 		m_troenGame->unpauseSimulation();
@@ -172,7 +172,7 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 			{
 				for (auto player : m_players)
 				{
-					player->getFenceController()->showFencesInRadarForPlayer(static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getPlayer()->getId());
+					player->fenceController()->showFencesInRadarForPlayer(static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->player()->id());
 				}
 				std::cout << "visible" << std::endl;
 			}
@@ -180,7 +180,7 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 			{
 				for (auto player : m_players)
 				{
-					player->getFenceController()->hideFencesInRadarForPlayer(static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->getPlayer()->getId());
+					player->fenceController()->hideFencesInRadarForPlayer(static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->player()->id());
 				}
 				std::cout << "in-visible" << std::endl;
 			}
@@ -261,11 +261,11 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 
 	bikeController->registerCollision(impulse);
 	// TODO (Philipp): move increaseHealth and resetBike into registerCollision and trigger a respawn instead of pausing simulation (needs statistics about lifes etc.)
-	float newHealth = bikeController->getPlayer()->increaseHealth(-1 * impulse);
+	float newHealth = bikeController->player()->increaseHealth(-1 * impulse);
 
-	if (newHealth <= 0 && bikeController->getState() == BikeController::BIKESTATE::DRIVING)
+	if (newHealth <= 0 && bikeController->state() == BikeController::BIKESTATE::DRIVING)
 	{
-		bikeController->getPlayer()->increaseDeathCount();
+		bikeController->player()->increaseDeathCount();
 		//resetBike(bike);
 		//m_troenGame->pauseSimulation();
 		//restartLevel();
@@ -289,7 +289,7 @@ void GameLogic::removeAllFences()
 {
 	for (auto player : m_players)
 	{
-		player->getFenceController()->removeAllFences();
+		player->fenceController()->removeAllFences();
 	}
 }
 
@@ -306,7 +306,7 @@ void GameLogic::toggleFencePartsLimit()
 
 	for (auto player : m_players)
 	{
-		player->getBikeController()->setLimitFence(m_limitedFenceMode);
+		player->fenceController()->setLimitFence(m_limitedFenceMode);
 	}
 }
 
@@ -323,8 +323,8 @@ void GameLogic::resetBikePositions()
 {
 	for (auto player : m_players)
 	{
-		btTransform position = m_levelController->getSpawnPointForBikeWithIndex(player->getId());
-		player->getBikeController()->moveBikeToPosition(position);
+		btTransform position = m_levelController->getSpawnPointForBikeWithIndex(player->id());
+		player->bikeController()->moveBikeToPosition(position);
 	}
 }
 

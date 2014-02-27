@@ -38,32 +38,37 @@ m_health(BIKE_DEFAULT_HEALTH), //TODO: rename constants
 m_points(0),
 m_killCount(0),
 m_deathCount(0),
-m_playerName(config->playerNames[id].toStdString()),
+m_name(config->playerNames[id].toStdString()),
 m_id(id)
 {
-	m_playerColor = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
+	m_color = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
+
+	////////////////////////////////////////////////////////////////////////////////
 	//
-	// Controllers
+	// Controller
 	//
+	////////////////////////////////////////////////////////////////////////////////
 	const btTransform initialTransform = game->getLevelController()->getSpawnPointForBikeWithIndex(id);
 
 	m_bikeController = std::make_shared<BikeController>(
 		this,
-		(input::BikeInputState::InputDevice) config->playerInputTypes[id],
+		(input::BikeInputState::InputDevice) config->playerInputTypes[m_id],
 		initialTransform,
-		m_playerColor,
-		config->playerNames[id].toStdString(),
-		&(game->getResourcePool()), config->ownView[id], id);
+		&(game->getResourcePool()),
+		config->ownView[m_id]);
 
-	m_fenceController = std::make_shared<FenceController>(m_bikeController, m_playerColor, initialTransform);
+	m_fenceController = std::make_shared<FenceController>(this, initialTransform);
 
 	// HUDController must be initialized later, because it
 	// can only be created, once all Players are created
 
+	////////////////////////////////////////////////////////////////////////////////
 	//
 	// View
 	//
-	if (config->ownView[id])
+	////////////////////////////////////////////////////////////////////////////////
+
+	if (config->ownView[m_id])
 	{
 		m_playerNode = new osg::Group();
 		m_bikeController->setPlayerNode(m_playerNode);
@@ -95,9 +100,12 @@ m_id(id)
 #endif
 	}
 
+	////////////////////////////////////////////////////////////////////////////////
 	//
 	// Viewer
 	//
+	////////////////////////////////////////////////////////////////////////////////
+	
 	if (m_bikeController->hasGameView())
 	{
 		m_viewer = new SampleOSGViewer();
@@ -112,9 +120,12 @@ m_id(id)
 #endif
 	}
 
+	////////////////////////////////////////////////////////////////////////////////
 	//
 	// Reflection
 	//
+	////////////////////////////////////////////////////////////////////////////////
+	
 	if (config->useReflection && config->ownView[id])
 	{
 		m_reflection = std::make_shared<Reflection>(game->getLevelController()->getFloorView(), m_gameView, game->getSkyDome()->getSkyboxTexture(), m_id);
@@ -133,7 +144,7 @@ void Player::createHUDController(const std::vector<std::shared_ptr<Player>>& pla
 Player::~Player()
 {
 	//TODO
-	// DESTRUCT away
+	// DESTRUCT
 }
 
 float Player::increaseHealth(float diff)

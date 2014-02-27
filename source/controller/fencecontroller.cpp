@@ -11,15 +11,14 @@
 using namespace troen;
 
 FenceController::FenceController(
-	const std::shared_ptr<BikeController>& bikeController,
-	osg::Vec3 color,
+	Player * player,
 	btTransform initialTransform) :
-AbstractController()
+AbstractController(),
+m_fenceLimitActivated(true)
 {
-	m_playerColor = color;
-	m_bikeController = bikeController;
+	m_player = player;
 	m_model = std::make_shared<FenceModel>(this);
-    m_view = std::shared_ptr<FenceView>(new FenceView(this, m_playerColor, m_model));
+    m_view = std::shared_ptr<FenceView>(new FenceView(this, player->color(), m_model));
 
 	btQuaternion rotation = initialTransform.getRotation();
 	btVector3 position = initialTransform.getOrigin();
@@ -63,9 +62,16 @@ void FenceController::removeAllFencesFromModel()
 	std::static_pointer_cast<FenceModel>(m_model)->removeAllFences();
 }
 
+void FenceController::setLimitFence(bool boolean)
+{
+	m_fenceLimitActivated = boolean;
+}
 
 int FenceController::getFenceLimit() {
-	return m_bikeController.lock()->getFenceLimit();
+	if (m_fenceLimitActivated)
+		return m_player->points();
+	else
+		return 0;
 }
 
 void FenceController::adjustPositionUsingFenceOffset(const btQuaternion& rotation, btVector3& position)

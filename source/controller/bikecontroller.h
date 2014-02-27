@@ -19,11 +19,8 @@ namespace troen
 			Player * player,
 			const input::BikeInputState::InputDevice& inputDevice,
 			const btTransform initialPosition,
-			const osg::Vec3 playerColor,
-			const std::string playerName,
 			ResourcePool *resourcePool,
-			const bool hasGameView,
-			const int id);
+			const bool hasGameView);
 		~BikeController();
 
 		typedef enum enum_BIKESTATE
@@ -35,39 +32,42 @@ namespace troen
 			WAITING
 		} BIKESTATE;
 
+		//
 		// initialization & communication
-		void BikeController::attachTrackingCamera(
-			std::shared_ptr<HUDController>& hudController);
-        void attachTrackingCamera
-            (osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
+		//
+		void BikeController::attachTrackingCamera(std::shared_ptr<HUDController>& hudController);
+        void attachTrackingCamera (osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
-		void setPlayerNode(osg::Group* playerNode);
-		osg::ref_ptr<osgViewer::View> getGameView();
-		inline bool hasGameView() { return m_hasGameView; };
 
+		void setPlayerNode(osg::Group* playerNode);
+		bool hasGameView() { return m_hasGameView; };
+
+		//
 		// logic events
+		//
 		void updateModel(const long double gameTime);
 		void updateUniforms();
 		void setState(const BIKESTATE newState, const double respawnTime = -1);
 		void moveBikeToPosition(btTransform position);
 		void activateTurbo();
-		float getTurboInitiation();
 		void registerCollision(btScalar impulse);
 		void reset();
-
-		// controlling the FenceController
-		void setLimitFence(const bool boolean);
-		int getFenceLimit();
-
+		bool turboInitiated() { return m_turboInitiated; };
+		
+		//
 		// getters & setters & attributes
-		Player * getPlayer() { return m_player; };
+		//
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
-		osg::ref_ptr<input::Keyboard> getKeyboardHandler();
+		Player * player()		{ return m_player; };
+		osg::ref_ptr<input::Keyboard> keyboardHandler()
+								{ return m_keyboardHandler; };
+		float speed()			{ return m_speed; };
+		BIKESTATE state()		{ return m_state; };
+		double respawnTime()	{ return m_respawnTime; };
+
 		bool hasKeyboardHandler();
-		float getSpeed();
-		BIKESTATE getState();
-		double getRespawnTime();
+
 
 	private:
 		// field of view methods
@@ -88,7 +88,8 @@ namespace troen
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 
 		bool m_hasGameView = false;
-		// the following attributes only exist if the bikeController has a corresponding gameview
+		// the following attributes only exist if the bikeController
+		// has a corresponding gameview
 		osg::Uniform*	m_timeOfCollisionUniform;
 		osg::Uniform*	m_velocityUniform;
 		osg::Uniform*	m_timeFactorUniform;

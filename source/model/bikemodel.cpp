@@ -18,11 +18,10 @@ BikeModel::BikeModel(
 	Player * player,
 	BikeController* bikeController) :
 AbstractModel(),
-m_lastUpdateTime(0)
+m_lastUpdateTime(0),
+m_bikeController(bikeController)
 {
 	resetState();
-
-	m_bikeController = bikeController;
 
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
@@ -95,7 +94,7 @@ void BikeModel::updateTurboFactor(float newVelocity, float time)
 {
 	m_turboFactor = max(0.f, m_turboFactor);
 
-	if (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()) {
+	if (m_bikeController->turboInitiated() || m_bikeInputState->getTurboPressed()) {
 		m_turboFactor = 1.f;
 		m_timeOfLastTurboInitiation = time;
 	}
@@ -148,7 +147,7 @@ float BikeModel::updateState(long double time)
 	// TODO: merge turboInitiation and turboPressed (Philipp)
 	float turboSpeed = 0;
 	// only initiate turbo, if no other turbo is active
-	if (getTurboFactor() == 0 && (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()))
+	if (getTurboFactor() == 0 && (m_bikeController->turboInitiated() || m_bikeInputState->getTurboPressed()))
 	{
 		turboSpeed =  BIKE_VELOCITY_MAX / 2;
 	}

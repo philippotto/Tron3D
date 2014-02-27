@@ -128,7 +128,7 @@ bool TroenGame::composeSceneGraph()
 		// viewport of all windows has to be equal since only
 		// the first is taken for PostProcessing Texture Sizes
 		osg::Viewport * viewport =
-			m_players[0]->getGameView()->getCamera()->getViewport();
+			m_players[0]->gameView()->getCamera()->getViewport();
 
 		m_postProcessing = std::make_shared<PostProcessing>(m_rootNode, viewport->width(), viewport->height());
 
@@ -144,7 +144,7 @@ bool TroenGame::composeSceneGraph()
 
 	for (auto player : m_playersWithView)
 	{
-			player->getPlayerNode()->addChild(m_rootNode);
+			player->playerNode()->addChild(m_rootNode);
 	}
 
 	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
@@ -155,8 +155,8 @@ bool TroenGame::composeSceneGraph()
 
 	for (auto player : m_players)
 	{
-		m_sceneNode->addChild(player->getBikeController()->getViewNode());
-		m_sceneNode->addChild(player->getFenceController()->getViewNode());
+		m_sceneNode->addChild(player->bikeController()->getViewNode());
+		m_sceneNode->addChild(player->fenceController()->getViewNode());
 	}
 
 	m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
@@ -166,15 +166,15 @@ bool TroenGame::composeSceneGraph()
 		//sceneNode has to be added to reflection after adding all (non hud) objects
 		for (auto player : m_playersWithView)
 		{
-			player->getReflection()->addSceneNode(m_sceneNode);
-			player->getPlayerNode()->addChild(player->getReflection()->getReflectionCameraGroup());
+			player->reflection()->addSceneNode(m_sceneNode);
+			player->playerNode()->addChild(player->reflection()->getReflectionCameraGroup());
 		}
 	}
 
 	for (auto player : m_playersWithView)
 	{
-			osg::Group * node = player->getHUDController()->getViewNode();
-			osg::Group * playerNode = player->getPlayerNode();
+			osg::Group * node = player->hudController()->getViewNode();
+			osg::Group * playerNode = player->playerNode();
 			playerNode->addChild(node);
 	}
 
@@ -186,13 +186,13 @@ bool TroenGame::composeSceneGraph()
 
 	for (auto player : m_players)
 	{
-		radarScene->addChild(player->getBikeController()->getViewNode());
+		radarScene->addChild(player->bikeController()->getViewNode());
 	}
 	radarScene->addChild(m_levelController->getViewNode());
 
 	for (auto player : m_playersWithView)
 	{
-		player->getHUDController()->attachSceneToRadarCamera(radarScene);
+		player->hudController()->attachSceneToRadarCamera(radarScene);
 	}
 
 	std::cout << "[TroenGame::composeSceneGraph] starting Optimizer" << std::endl;
@@ -210,11 +210,11 @@ bool TroenGame::initializeInput()
 	for (auto player : m_players)
 	{
 		// attach all keyboard handlers to all gameViews
-		if (player->getBikeController()->hasKeyboardHandler())
+		if (player->bikeController()->hasKeyboardHandler())
 		{
 			for (auto otherPlayer : m_playersWithView)
 			{
-					otherPlayer->getGameView()->addEventHandler(player->getBikeController()->getKeyboardHandler());
+					otherPlayer->gameView()->addEventHandler(player->bikeController()->keyboardHandler());
 			}
 		}
 	}
@@ -229,8 +229,8 @@ bool TroenGame::initializePhysicsWorld()
 	// attach world
 	for (auto player : m_players)
 	{
-		player->getBikeController()->attachWorld(m_physicsWorld);
-		player->getFenceController()->attachWorld(m_physicsWorld);
+		player->bikeController()->attachWorld(m_physicsWorld);
+		player->fenceController()->attachWorld(m_physicsWorld);
 	}
 	m_levelController->attachWorld(m_physicsWorld);
 	m_gameLogic->attachPhysicsWorld(m_physicsWorld);
@@ -278,7 +278,7 @@ void TroenGame::startGameLoop()
 	// - render;
 
 	// terminates when first viewer is closed
-	while (!m_players[0]->getViewer()->done())
+	while (!m_players[0]->viewer()->done())
 	{
 		g_gameLoopTime = m_gameloopTimer->elapsed();
 		g_gameTime = m_gameTimer->elapsed();
@@ -298,14 +298,14 @@ void TroenGame::startGameLoop()
 			{
 				for (auto player : m_players)
 				{
-					player->getBikeController()->updateModel(g_gameTime);
+					player->bikeController()->updateModel(g_gameTime);
 				}
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();
 			}
 
 			m_audioManager->Update(g_gameLoopTime / 1000);
-			m_audioManager->setMotorSpeed(m_players[0]->getBikeController()->getSpeed());
+			m_audioManager->setMotorSpeed(m_players[0]->bikeController()->speed());
 
 			if (m_postProcessing) m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
 
@@ -314,7 +314,7 @@ void TroenGame::startGameLoop()
 			{
 				for (auto player : m_playersWithView)
 				{
-					player->getHUDController()->update(
+					player->hudController()->update(
 						g_gameLoopTime,
 						g_gameTime,
 						m_gameConfig->timeLimit,
@@ -324,7 +324,7 @@ void TroenGame::startGameLoop()
 
 				for (auto player : m_playersWithView)
 				{
-					player->getViewer()->frame();
+					player->viewer()->frame();
 				}
 				// TODO: find a way to eleminate this workaround
 				// doesn't work if it's executed earlier
@@ -332,7 +332,7 @@ void TroenGame::startGameLoop()
 				{
 					for (auto player : m_playersWithView)
 					{
-						fixCulling(player->getGameView());
+						fixCulling(player->gameView());
 					}
 				}
 				skippedFrames = 0;
@@ -460,7 +460,7 @@ void TroenGame::resize(int width, int height){
 
 	for (auto player : m_playersWithView)
 	{
-			player->getHUDController()->resize(width, height);
+			player->hudController()->resize(width, height);
 	}
 }
 
