@@ -165,12 +165,16 @@ bool TroenGame::composeSceneGraph()
 		//sceneNode has to be added to reflection after adding all (non hud) objects
 		for (auto player : m_players)
 		{
-			player->getReflection()->addSceneNode(m_sceneNode);
-			player->getPlayerNode()->addChild(player->getReflection()->getReflectionCameraGroup());
+			if (m_gameConfig->ownView[player->getId()])
+			{
+				player->getReflection()->addSceneNode(m_sceneNode);
+				player->getPlayerNode()->addChild(player->getReflection()->getReflectionCameraGroup());
+			}
 		}
 	}
 
-	for (auto player : m_players) {
+	for (auto player : m_players)
+	{
 		if (m_gameConfig->ownView[player->getId()])
 		{
 			osg::Group * node = player->getHUDController()->getViewNode();
@@ -331,6 +335,7 @@ void TroenGame::startGameLoop()
 				{
 					m_players[i]->getViewer()->frame();
 				}
+				std::cout << g_gameTime << std::endl;
 				// TODO: find a way to eleminate this workaround
 				// doesn't work if it's executed earlier
 				if (!nearPlaneAdapted)
@@ -463,7 +468,10 @@ void TroenGame::resize(int width, int height){
 
 	for (auto player : m_players)
 	{
-		player->getHUDController()->resize(width, height);
+		if (m_gameConfig->ownView[player->getId()])
+		{
+			player->getHUDController()->resize(width, height);
+		}
 	}
 }
 

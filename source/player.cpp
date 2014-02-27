@@ -84,7 +84,7 @@ m_id(id)
 		if (config->fullscreen)
 			m_gameView->apply(new osgViewer::SingleScreen(0));
 		else
-			m_gameView->apply(new osgViewer::SingleWindow(200, 400, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
+			m_gameView->apply(new osgViewer::SingleWindow(400, 200, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
 #else
 		if (m_fullscreen)
 			m_gameView->setUpViewOnSingleScreen(0);
@@ -113,7 +113,7 @@ m_id(id)
 	//
 	// Reflection
 	//
-	if (config->useReflection)
+	if (config->useReflection && config->ownView[id])
 	{
 		m_reflection = std::make_shared<Reflection>(game->getLevelController()->getFloorView(), m_gameView, game->getSkyDome()->getSkyboxTexture(), m_id);
 		m_playerNode->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + m_id));
