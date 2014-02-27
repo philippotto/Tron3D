@@ -44,6 +44,12 @@ void GameLogic::attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld)
 	m_physicsWorld = physicsWorld;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Stepping
+//
+////////////////////////////////////////////////////////////////////////////////
+
 void GameLogic::step(const long double gameloopTime, const long double gameTime)
 {
 	switch (m_gameState)
@@ -95,6 +101,11 @@ void GameLogic::stepGameOver(const long double gameloopTime, const long double g
 	;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Collision Event Handling
+//
+////////////////////////////////////////////////////////////////////////////////
 
 void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold)
 {
@@ -285,6 +296,12 @@ void GameLogic::handleCollisionOfTwoBikes(
 	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, contactManifold);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// logic methods
+//
+////////////////////////////////////////////////////////////////////////////////
+
 void GameLogic::removeAllFences()
 {
 	for (auto player : m_players)
@@ -292,6 +309,7 @@ void GameLogic::removeAllFences()
 		player->fenceController()->removeAllFences();
 	}
 }
+
 
 void GameLogic::toggleFencePartsLimit()
 {

@@ -70,14 +70,27 @@ namespace troen
 
 
 	private:
+		//
 		// field of view methods
+		//
 		void updateFov(const double speed);
 		void setFovy(const float newFovy);
 		float getFovy();
 		float computeFovyDelta(const float speed, const float currentFovy);
 
+		//
+		// input 
+		//
 		void initializeInput(const input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
+		void initializeWASD(osg::ref_ptr<input::BikeInputState> bikeInputState);
+		void initializeArrows(osg::ref_ptr<input::BikeInputState> bikeInputState);
+		void initializeGamepadPS4(osg::ref_ptr<input::BikeInputState> bikeInputState);
+		void initializeAI(osg::ref_ptr<input::BikeInputState> bikeInputState);
+#ifdef WIN32
+		void initializeGamepad(osg::ref_ptr<input::BikeInputState> bikeInputState);
+#endif
+
 		long double getTimeFactor();
 		
 		// communication links

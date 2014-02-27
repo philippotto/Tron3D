@@ -88,73 +88,90 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 	switch (inputDevice)
 	{
 	case input::BikeInputState::KEYBOARD_wasd:
-	{
-												 m_keyboardHandler = new input::Keyboard(bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol>{
-													 osgGA::GUIEventAdapter::KEY_W,
-														 osgGA::GUIEventAdapter::KEY_A,
-														 osgGA::GUIEventAdapter::KEY_S,
-														 osgGA::GUIEventAdapter::KEY_D,
-														 osgGA::GUIEventAdapter::KEY_Space,
-														 osgGA::GUIEventAdapter::KEY_G
-												 });
-												 break;
-	}
+		initializeWASD(bikeInputState);
+		break;
 	case input::BikeInputState::KEYBOARD_arrows:
-	{
-												   m_keyboardHandler = new input::Keyboard(bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol>{
-													   osgGA::GUIEventAdapter::KEY_Up,
-														   osgGA::GUIEventAdapter::KEY_Left,
-														   osgGA::GUIEventAdapter::KEY_Down,
-														   osgGA::GUIEventAdapter::KEY_Right,
-														   osgGA::GUIEventAdapter::KEY_Control_R,
-														   osgGA::GUIEventAdapter::KEY_M,
-												   });
-												   break;
-	}
+		initializeArrows(bikeInputState);
+		break;
 #ifdef WIN32
 	case input::BikeInputState::GAMEPAD:
-	{
-										   std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
-
-										   if (gamepad->checkConnection())
-										   {
-											   std::cout << "[TroenGame::initializeInput] Gamepad connected on port " << gamepad->getPort() << std::endl;
-										   }
-										   else
-										   {
-											   std::cout << "[TroenGame::initializeInput] No gamepad connected!" << std::endl;
-										   }
-										   m_pollingThread = gamepad;
-										   m_pollingThread->start();
-										   break;
-	}
+		initializeGamepad(bikeInputState);
+		break;
 #endif
 	case input::BikeInputState::GAMEPADPS4:
-	{
-											  std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState);
-
-											  if (gamepad->checkConnection())
-											  {
-												  std::cout << "[TroenGame::initializeInput] PS4 Controller connected" << std::endl;
-											  }
-											  else
-											  {
-												  std::cout << "[TroenGame::initializeInput] No PS4 Controller connected!" << std::endl;
-											  }
-											  m_pollingThread = gamepad;
-											  m_pollingThread->start();
-											  break;
-	}
+		initializeGamepadPS4(bikeInputState);
+		break;
 	case input::BikeInputState::AI:
-	{
-									  std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(bikeInputState);
-									  m_pollingThread = ai;
-									  m_pollingThread->start();
-									  break;
-	}
+		initializeAI(bikeInputState);
+		break;
 	default:
 		break;
 	}
+}
+
+void BikeController::initializeWASD(osg::ref_ptr<input::BikeInputState> bikeInputState)
+{
+	m_keyboardHandler = new input::Keyboard(bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol>{
+		osgGA::GUIEventAdapter::KEY_W,
+			osgGA::GUIEventAdapter::KEY_A,
+			osgGA::GUIEventAdapter::KEY_S,
+			osgGA::GUIEventAdapter::KEY_D,
+			osgGA::GUIEventAdapter::KEY_Space,
+			osgGA::GUIEventAdapter::KEY_G
+	});
+}
+
+void BikeController::initializeArrows(osg::ref_ptr<input::BikeInputState> bikeInputState)
+{
+	m_keyboardHandler = new input::Keyboard(bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol>{
+		osgGA::GUIEventAdapter::KEY_Up,
+			osgGA::GUIEventAdapter::KEY_Left,
+			osgGA::GUIEventAdapter::KEY_Down,
+			osgGA::GUIEventAdapter::KEY_Right,
+			osgGA::GUIEventAdapter::KEY_Control_R,
+			osgGA::GUIEventAdapter::KEY_M,
+	});
+}
+
+#ifdef WIN32
+void BikeController::initializeGamepad(osg::ref_ptr<input::BikeInputState> bikeInputState)
+{
+	std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
+
+	if (gamepad->checkConnection())
+	{
+		std::cout << "[TroenGame::initializeInput] Gamepad connected on port " << gamepad->getPort() << std::endl;
+	}
+	else
+	{
+		std::cout << "[TroenGame::initializeInput] No gamepad connected!" << std::endl;
+	}
+	m_pollingThread = gamepad;
+	m_pollingThread->start();
+}
+#endif
+
+void BikeController::initializeGamepadPS4(osg::ref_ptr<input::BikeInputState> bikeInputState)
+{
+	std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState);
+
+	if (gamepad->checkConnection())
+	{
+		std::cout << "[TroenGame::initializeInput] PS4 Controller connected" << std::endl;
+	}
+	else
+	{
+		std::cout << "[TroenGame::initializeInput] No PS4 Controller connected!" << std::endl;
+	}
+	m_pollingThread = gamepad;
+	m_pollingThread->start();
+}
+
+void BikeController::initializeAI(osg::ref_ptr<input::BikeInputState> bikeInputState)
+{
+	std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(bikeInputState);
+	m_pollingThread = ai;
+	m_pollingThread->start();
 }
 
 bool BikeController::hasKeyboardHandler()
