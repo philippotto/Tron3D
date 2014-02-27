@@ -95,6 +95,10 @@ bool TroenGame::initialize()
 		{
 			std::shared_ptr<Player> player = std::make_shared<Player>(this, m_gameConfig, i);
 			m_players.push_back(player);
+			if (m_gameConfig->ownView[i])
+			{
+				m_playersWithView.push_back(player);
+			}
 		}
 		for (auto player : m_players)
 		{
@@ -138,12 +142,9 @@ bool TroenGame::composeSceneGraph()
 		m_sceneNode = m_rootNode;
 	}
 
-	for (auto player : m_players)
+	for (auto player : m_playersWithView)
 	{
-		if (m_gameConfig->ownView[player->getId()])
-		{
 			player->getPlayerNode()->addChild(m_rootNode);
-		}
 	}
 
 	m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
@@ -163,24 +164,18 @@ bool TroenGame::composeSceneGraph()
 	if (m_gameConfig->useReflection)
 	{
 		//sceneNode has to be added to reflection after adding all (non hud) objects
-		for (auto player : m_players)
+		for (auto player : m_playersWithView)
 		{
-			if (m_gameConfig->ownView[player->getId()])
-			{
-				player->getReflection()->addSceneNode(m_sceneNode);
-				player->getPlayerNode()->addChild(player->getReflection()->getReflectionCameraGroup());
-			}
+			player->getReflection()->addSceneNode(m_sceneNode);
+			player->getPlayerNode()->addChild(player->getReflection()->getReflectionCameraGroup());
 		}
 	}
 
-	for (auto player : m_players)
+	for (auto player : m_playersWithView)
 	{
-		if (m_gameConfig->ownView[player->getId()])
-		{
 			osg::Group * node = player->getHUDController()->getViewNode();
 			osg::Group * playerNode = player->getPlayerNode();
 			playerNode->addChild(node);
-		}
 	}
 
 
@@ -195,12 +190,9 @@ bool TroenGame::composeSceneGraph()
 	}
 	radarScene->addChild(m_levelController->getViewNode());
 
-	for (auto player : m_players)
+	for (auto player : m_playersWithView)
 	{
-		if (m_gameConfig->ownView[player->getId()])
-		{
-			player->getHUDController()->attachSceneToRadarCamera(radarScene);
-		}
+		player->getHUDController()->attachSceneToRadarCamera(radarScene);
 	}
 
 	std::cout << "[TroenGame::composeSceneGraph] starting Optimizer" << std::endl;
@@ -220,12 +212,9 @@ bool TroenGame::initializeInput()
 		// attach all keyboard handlers to all gameViews
 		if (player->getBikeController()->hasKeyboardHandler())
 		{
-			for (auto otherPlayer : m_players)
+			for (auto otherPlayer : m_playersWithView)
 			{
-				if (m_gameConfig->ownView[otherPlayer->getId()])
-				{
 					otherPlayer->getGameView()->addEventHandler(player->getBikeController()->getKeyboardHandler());
-				}
 			}
 		}
 	}
@@ -323,37 +312,27 @@ void TroenGame::startGameLoop()
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (g_gameLoopTime < nextTime || (skippedFrames > maxSkippedFrames))
 			{
-				for (auto player : m_players)
+				for (auto player : m_playersWithView)
 				{
-					if (m_gameConfig->ownView[player->getId()])
-					{
-						player->getHUDController()->update(
-							g_gameLoopTime,
-							g_gameTime,
-							m_gameConfig->timeLimit,
-							m_gameLogic->getGameState(),
-							m_players);
-					}
+					player->getHUDController()->update(
+						g_gameLoopTime,
+						g_gameTime,
+						m_gameConfig->timeLimit,
+						m_gameLogic->getGameState(),
+						m_players);
 				}
 
-
-				for (auto player : m_players)
+				for (auto player : m_playersWithView)
 				{
-					if (m_gameConfig->ownView[player->getId()])
-					{
-						player->getViewer()->frame();
-					}
+					player->getViewer()->frame();
 				}
 				// TODO: find a way to eleminate this workaround
 				// doesn't work if it's executed earlier
 				if (!nearPlaneAdapted)
 				{
-					for (auto player : m_players)
+					for (auto player : m_playersWithView)
 					{
-						if (m_gameConfig->ownView[player->getId()])
-						{
-							fixCulling(player->getGameView());
-						}
+						fixCulling(player->getGameView());
 					}
 				}
 				skippedFrames = 0;
@@ -479,12 +458,9 @@ void TroenGame::resize(int width, int height){
 		m_postProcessing->setupTextures(width, height);
 	}
 
-	for (auto player : m_players)
+	for (auto player : m_playersWithView)
 	{
-		if (m_gameConfig->ownView[player->getId()])
-		{
 			player->getHUDController()->resize(width, height);
-		}
 	}
 }
 

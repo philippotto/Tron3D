@@ -220,11 +220,6 @@ void MainWindow::prepareGameStart()
 	int i = 0;
 	for (auto ownViewCheckbox : m_ownViewCheckboxes) {
 		config.ownView[i] = ownViewCheckbox->isChecked();
-		if (!ownViewCheckbox->isChecked())
-		{
-			config.numberOfViews = i - 1;
-			break;
-		}
 		i++;
 	}
 

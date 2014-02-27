@@ -22,7 +22,6 @@ namespace troen
 	{
 	public:
 		int numberOfPlayers;
-		int numberOfViews;
 		int timeLimit;
 		int* playerInputTypes;
 		QColor* playerColors;
@@ -101,6 +100,8 @@ namespace troen
 		// Controllers
 		std::shared_ptr<LevelController>	m_levelController;
 		std::vector<std::shared_ptr<Player>>	m_players;
+		std::vector<std::shared_ptr<Player>>	m_playersWithView;
+
 		
 		QThread*							m_gameThread;
 		std::shared_ptr<util::ChronoTimer>	m_gameloopTimer;
