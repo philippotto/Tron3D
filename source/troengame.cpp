@@ -14,6 +14,7 @@
 
 #include <chrono>
 #include <thread>
+#include <QMutex>
 // troen
 #include "constants.h"
 #include "sampleosgviewer.h"
@@ -39,6 +40,7 @@
 #include "view/postprocessing.h"
 #include "view/nodefollowcameramanipulator.h"
 #include "view/reflection.h"
+
 
 
 
@@ -130,7 +132,7 @@ void TroenGame::prepareAndStartGame(const GameConfig& config)
 		osg::Vec3 col = osg::Vec3(config.playerColors[i].red(), config.playerColors[i].green(), config.playerColors[i].blue());
 		m_playerColors.push_back(col);
 		//name
-		QString playerName = config.playerNames[i];
+		std::string playerName = config.playerNames[i].toStdString();
 		m_playerNames.push_back(playerName);
 	}
 
@@ -266,7 +268,7 @@ bool TroenGame::initializeControllers()
 			(input::BikeInputState::InputDevice)m_playerInputTypes[i],
 			m_levelController->getSpawnPointForBikeWithIndex(i),
 			m_playerColors[i],
-			m_playerNames[i].toStdString(),
+			m_playerNames[i],
 			&m_resourcePool, m_ownView[i])
 		);
 	}
@@ -277,7 +279,7 @@ bool TroenGame::initializeControllers()
 		osg::Vec3 col = osg::Vec3(1.0, 0.0, 0.0);
 		m_playerColors.push_back(col);
 		//name
-		QString playerName("multiplayer");
+		std::string playerName("multiplayer");
 		m_playerNames.push_back(playerName);
 		//m_numberOfBikes += 1;
 		//std::string s = m_playerNames.back().toStdString(); //Throws debug assertion error in debug, which are suspected to be caused by wrong linking to debug dll (qt/osg?)
@@ -573,6 +575,7 @@ void TroenGame::startGameLoop()
 	// - render;
 
 	// terminates when first viewer is closed
+	int send = 10;
 	while (!m_viewers[0]->done())
 	{
 		g_gameLoopTime = m_gameloopTimer->elapsed();
@@ -594,13 +597,20 @@ void TroenGame::startGameLoop()
 				for (auto bikeController : m_bikeControllers)
 				{
 					bikeController->updateModel(g_gameTime);
-					if (bikeController->hasGameView() && m_networkManager->isValidSession())
-						m_networkManager->enqueueMessage(bikeController->getPositionOSG(), 
-													bikeController->getInputAngle(), bikeController->getInputAcceleration());
+					if (bikeController->hasGameView() && m_networkManager->isValidSession() && send == 0)
+					{
+
+						m_networkManager->enqueueMessage(bikeController->getPositionOSG(),
+							bikeController->getInputAngle(), bikeController->getInputAcceleration());
+						send = 10;
+					}
+
+					send--;
 				}
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();
 			}
+			
 			
 
 

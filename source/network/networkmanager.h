@@ -40,6 +40,7 @@ namespace troen
 			void enqueueMessage(osg::Vec3 position, float angle, float acceleration);
 			void registerRemotePlayer(input::RemotePlayer *remotePlayer);
 			bool isValidSession();
+			bikeUpdateMessage buildPositionUpdateMessage(osg::Vec3 position, float angle, float acceleration);
 		protected:
 			RakNet::Packet *m_packet;
 			RakNet::RakPeerInterface *peer;
@@ -48,6 +49,7 @@ namespace troen
 			bool m_clientsConnected;
 			QQueue<bikeUpdateMessage> *m_sendMessagesQueue;
 			std::vector<input::RemotePlayer*> m_remotePlayers;
+			QMutex* m_sendBufferMutex;
 		};
 	}
 

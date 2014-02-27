@@ -33,13 +33,17 @@ NetworkManager::NetworkManager()
 	m_clientsConnected = false;
 	m_sendMessagesQueue = new QQueue<bikeUpdateMessage>();
 	m_remotePlayers = std::vector<input::RemotePlayer*>();
+	m_sendBufferMutex = new QMutex();
 }
 
 void  NetworkManager::enqueueMessage(osg::Vec3 position, float angle, float acceleration)
 {
 	bikeUpdateMessage update = { position.x(), position.y(), position.z(),angle,acceleration};
+	m_sendBufferMutex->lock();
 	m_sendMessagesQueue->enqueue(update);
+	m_sendBufferMutex->unlock();
 }
+
 
 void NetworkManager::registerRemotePlayer(troen::input::RemotePlayer *remotePlayer)
 {
@@ -145,11 +149,13 @@ void NetworkManager::sendData()
 			// Use a BitStream to write a custom user message
 			//Bitstreams are easier to use than sending casted structures, and handle endian swapping automatically
 			bsOut.Write((RakNet::MessageID)BIKE_POSITION_MESSSAGE);
+			m_sendBufferMutex->lock();
 			updateMessage = m_sendMessagesQueue->dequeue();
+			m_sendBufferMutex->unlock();
 			bsOut.Write(updateMessage);
 			
 			//peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
-			peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+			peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 		}
 	}
 }

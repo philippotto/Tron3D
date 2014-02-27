@@ -110,7 +110,7 @@ namespace troen
 
 		std::vector<int> m_playerInputTypes;
 		std::vector<osg::Vec3> m_playerColors;
-		std::vector<QString> m_playerNames;
+		std::vector<std::string> m_playerNames;
 
 
 		ResourcePool m_resourcePool;
