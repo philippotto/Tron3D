@@ -29,7 +29,7 @@ namespace troen
 		void setCountdownText(const int countdown);
 		void setCountdownText(const std::string text);
 		void setTimeText(const double gameTime, const int timeLimit);
-		void setDeathCountText(const int i, const std::string& playerName, const int deathCount);
+		void setKillCountText(const int i, const std::string& playerName, const int killCount);
 
 	private:
 		osg::Camera* createHUD(const std::vector<std::shared_ptr<Player>>& players);
@@ -48,7 +48,7 @@ namespace troen
 		osg::ref_ptr<osgText::Text> m_pointsText;
 		osg::ref_ptr<osgText::Text> m_countdownText;
 		osg::ref_ptr<osgText::Text> m_timeText;
-		osg::ref_ptr<osgText::Text> m_deathCountTexts[6];
+		osg::ref_ptr<osgText::Text> m_killCountTexts[6];
 
 		osg::Vec4 m_playerColor;
 	};

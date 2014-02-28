@@ -122,16 +122,16 @@ osg::Camera* HUDView::createHUD(const std::vector<std::shared_ptr<Player>>& play
 		}
 		for (int i = 0; i < players.size(); i++)
 		{
-			m_deathCountTexts[i] = new osgText::Text();
-			geode->addDrawable(m_deathCountTexts[i]);
+			m_killCountTexts[i] = new osgText::Text();
+			geode->addDrawable(m_killCountTexts[i]);
 
-			m_deathCountTexts[i]->setFont(font);
-			m_deathCountTexts[i]->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset * (3 + i), 0.f));
-			m_deathCountTexts[i]->setColor(osg::Vec4(players[i]->color(),1));
-			setDeathCountText(i,players[i]->name(), 0);
-			m_deathCountTexts[i]->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
-			m_deathCountTexts[i]->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-			m_deathCountTexts[i]->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
+			m_killCountTexts[i]->setFont(font);
+			m_killCountTexts[i]->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset * (3 + i), 0.f));
+			m_killCountTexts[i]->setColor(osg::Vec4(players[i]->color(),1));
+			setKillCountText(i,players[i]->name(), 0);
+			m_killCountTexts[i]->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
+			m_killCountTexts[i]->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+			m_killCountTexts[i]->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
 		}
 		m_camera->addChild(geode);
 	}
@@ -162,11 +162,11 @@ void HUDView::resizeHudComponents(const int width, const int height)
 	m_countdownText->setCharacterSize(height / 3);
 	m_timeText->setCharacterSize(height / 8);
 	
-	const int textNum = sizeof(m_deathCountTexts) / sizeof(m_deathCountTexts[0]);
+	const int textNum = sizeof(m_killCountTexts) / sizeof(m_killCountTexts[0]);
 	for (size_t i = 0; i < textNum; i++)
 	{
-		if (m_deathCountTexts[i].valid())
-			m_deathCountTexts[i]->setCharacterSize(height / 15);
+		if (m_killCountTexts[i].valid())
+			m_killCountTexts[i]->setCharacterSize(height / 15);
 	}
 }
 
@@ -330,7 +330,7 @@ void HUDView::setTimeText(const double gameTime, const int timeLimit)
 	}
 }
 
-void HUDView::setDeathCountText(const int i, const std::string& playerName , const int deathCount)
+void HUDView::setKillCountText(const int i, const std::string& playerName , const int killCount)
 {
-	m_deathCountTexts[i]->setText(playerName + ": " + std::to_string(deathCount));
+	m_killCountTexts[i]->setText(playerName + ": " + std::to_string(killCount));
 }

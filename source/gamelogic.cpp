@@ -155,6 +155,7 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 			handleCollisionOfBikeAndNonmovingObject(
 				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
 				collisionBodyControllers[otherIndex],
+				collisionTypes[otherIndex],
 				contactManifold);
 			break;
 		case BIKETYPE:
@@ -172,7 +173,10 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 				itemController->triggerOn(static_cast<BikeController*>(collisionBodyControllers[bikeIndex]));
 			}
 
+			//
 			// testing minimap fence display
+			// TODO: add item specifically for displaying the fences?
+			//
 			std::default_random_engine generator;
 			unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 			generator.seed(seed);
@@ -252,6 +256,7 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	BikeController* bikeController,
 	AbstractController* object,
+	const int objectType,
 	btPersistentManifold* contactManifold)
 {
 	btScalar impulse = 0;
@@ -264,23 +269,38 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	}
 	//std::cout << "total impulse: " << impulse << std::endl;
 	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_LOW)
+	{
 		m_audioManager->PlaySFX("data/sound/explosion.wav",
 			impulse / BIKE_FENCE_IMPACT_THRESHOLD_HIGH,
 			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
 			1, 1);
+	}
 
 
 	bikeController->registerCollision(impulse);
 	// TODO (Philipp): move increaseHealth and resetBike into registerCollision and trigger a respawn instead of pausing simulation (needs statistics about lifes etc.)
 	float newHealth = bikeController->player()->increaseHealth(-1 * impulse);
-
+	
+	//
+	// handle player death
+	//
 	if (newHealth <= 0 && bikeController->state() == BikeController::BIKESTATE::DRIVING)
 	{
 		bikeController->player()->increaseDeathCount();
-		//resetBike(bike);
-		//m_troenGame->pauseSimulation();
-		//restartLevel();
 		bikeController->setState(BikeController::BIKESTATE::RESPAWN, g_gameTime);
+		if (objectType == FENCETYPE)
+		{
+			Player * fencePlayer = dynamic_cast<FenceController*>(object)->player();
+			Player * bikePlayer = bikeController->player();
+			if (fencePlayer == bikePlayer)
+			{
+				fencePlayer->decreaseKillCount();
+			}
+			else
+			{
+				fencePlayer->increaseKillCount();
+			}
+		}
 	}
 }
 
@@ -293,7 +313,7 @@ void GameLogic::handleCollisionOfTwoBikes(
 	//TODO
 	// set different thredsholds of collisions between bikes
 	// they dont have as much impact ?
-	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, contactManifold);
+	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, BIKETYPE, contactManifold);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -66,10 +66,9 @@ void HUDController::update(
 
 	std::static_pointer_cast<HUDView>(m_view)->setTimeText(currentGameTime, timeLimit);
 
-	//std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(bikeController->deathCount());
-	for (int i = 0; i < players.size(); i++)
+	for (auto player : players)
 	{
-		std::static_pointer_cast<HUDView>(m_view)->setDeathCountText(i,players[i]->name(),players[i]->deathCount());
+		std::static_pointer_cast<HUDView>(m_view)->setKillCountText(player->id(),player->name(),player->killCount());
 	}
 }
 

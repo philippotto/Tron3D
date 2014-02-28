@@ -62,7 +62,9 @@ namespace troen
 		// logic methods
 		//
 		void increaseDeathCount() { m_deathCount++; };
+		void decreaseDeathCount() { m_deathCount--; };
 		void increaseKillCount() { m_killCount++; };
+		void decreaseKillCount() { m_killCount--; };
 		float increaseHealth(const float diff);
 		float increasePoints(const float diff);
 

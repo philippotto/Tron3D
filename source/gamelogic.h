@@ -56,6 +56,7 @@ namespace troen
 		virtual void handleCollisionOfBikeAndNonmovingObject(
 			BikeController* bike,
 			AbstractController* object,
+			const int objectType,
 			btPersistentManifold* contactManifold);
 		virtual void handleCollisionOfTwoBikes(
 			BikeController* bike1,

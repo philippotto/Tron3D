@@ -19,11 +19,15 @@ namespace troen
 
 		osg::ref_ptr<osg::Group> getViewNode() override;
 
+		Player* player() { return m_player; };
+
+		// fence manipulation
 		void removeAllFences();
 		void removeAllFencesFromModel();
 		void setLimitFence(bool boolean);
 		int getFenceLimit();
 
+		// radar visibility
 		void showFencesInRadarForPlayer(const int id);
 		void hideFencesInRadarForPlayer(const int id);
 
