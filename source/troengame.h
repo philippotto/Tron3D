@@ -11,6 +11,7 @@
 #include <osgViewer/ViewerEventHandlers>
 // troen
 #include "forwarddeclarations.h"
+#include "gameeventhandler.h"
 #include "resourcepool.h"
 #include "view/skydome.h"
 
@@ -32,6 +33,7 @@ namespace troen
 		bool testPerformance;
 		bool useReflection;
 		bool ownView[MAX_BIKES];
+        // TODO: add Destructor to avoid memory leak
 	};
 }
 Q_DECLARE_METATYPE(troen::GameConfig)
@@ -58,7 +60,7 @@ namespace troen
 			{ return m_players; };
 		osg::ref_ptr<SkyDome> getSkyDome() 
 			{ return m_skyDome; };
-		ResourcePool getResourcePool(){ return m_resourcePool; };
+		ResourcePool* getResourcePool(){ return &m_resourcePool; };
 
 		//
 		// Events
@@ -77,7 +79,7 @@ namespace troen
 		// Game Loop
 		//
 		void startGameLoop();
-		void fixCulling(osg::ref_ptr<osgViewer::View>& view);
+		void fixCulling(osg::ref_ptr<osgViewer::View> view);
 
 		//
 		// fullscreen handling

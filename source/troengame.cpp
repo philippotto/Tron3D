@@ -9,33 +9,27 @@
 #include "player.h"
 #include "gamelogic.h"
 #include "sampleosgviewer.h"
-#include "gameeventhandler.h"
 
 #include "controller/levelcontroller.h"
 #include "controller/bikecontroller.h"
-#include "controller/fencecontroller.h"
-#include "controller/levelcontroller.h"
 #include "controller/hudcontroller.h"
 
 #include "model/physicsworld.h"
-#include "model/abstractmodel.h"
 
-#include "view/shaders.h"
 #include "view/postprocessing.h"
 #include "view/reflection.h"
 
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
-#include "input/gamepad.h"
 
 using namespace troen;
 extern long double g_currentTime;
 
 TroenGame::TroenGame(QThread* thread /*= nullptr*/) :
 QObject(),
-m_gameThread(thread),
-m_gameConfig(nullptr)
+m_gameConfig(nullptr),
+m_gameThread(thread)
 {
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
@@ -170,7 +164,7 @@ void TroenGame::startGameLoop()
 	builder.destroy();
 }
 
-void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View>& view)
+void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View> view)
 {
 	double fovy, aspect, znear, zfar;
 	view->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);

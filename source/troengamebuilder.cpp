@@ -26,8 +26,9 @@
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
+#ifdef WIN32
 #include "input/gamepad.h"
-
+#endif
 using namespace troen;
 
 TroenGameBuilder::TroenGameBuilder(TroenGame * game) :
@@ -265,7 +266,9 @@ bool TroenGameBuilder::destroy()
 	t->m_gameloopTimer.reset();
 	t->m_gameTimer.reset();
 
+#ifdef WIN32
 	input::Gamepad::clearPorts();
+#endif
 	t->m_statsHandler = nullptr;
 
 	t->m_physicsWorld.reset();
@@ -275,8 +278,10 @@ bool TroenGameBuilder::destroy()
 	t->m_levelController.reset();
 
 	for (auto player : t->m_players)
+    {
 		player.reset();
-	for (auto player : t->m_playersWithView)
+	}
+    for (auto player : t->m_playersWithView)
 	{
 		player.reset();
 	}

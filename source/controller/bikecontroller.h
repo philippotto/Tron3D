@@ -35,7 +35,7 @@ namespace troen
 		//
 		// initialization & communication
 		//
-		void BikeController::attachTrackingCamera(std::shared_ptr<HUDController>& hudController);
+		void attachTrackingCamera(std::shared_ptr<HUDController>& hudController);
         void attachTrackingCamera (osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
@@ -120,6 +120,5 @@ namespace troen
 		bool		m_turboInitiated = false;
 		float		m_timeOfLastCollision;
 		double		m_respawnTime;
-		bool		m_fenceLimitActivated;
 	};
 }

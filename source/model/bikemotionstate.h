@@ -21,9 +21,9 @@ namespace troen
 			BikeModel *bikeModel) :
                 btMotionState(),
 				m_player(player),
+                m_bikeModel(bikeModel),
 				m_visibleObj(pat),
                 m_positionTransform(initialTransform),
-				m_bikeModel(bikeModel),
 				m_currentSteeringTilt(0)
 		{}
 

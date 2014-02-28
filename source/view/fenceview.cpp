@@ -17,8 +17,8 @@ using namespace troen;
 FenceView::FenceView(FenceController* fenceController, osg::Vec3 color, std::shared_ptr<AbstractModel>& model) :
 AbstractView(),
 m_model(std::static_pointer_cast<FenceModel>(model)),
-m_fenceController(fenceController),
-m_playerColor(color)
+m_playerColor(color),
+m_fenceController(fenceController)
 {
 	initializeFence();
 	initializeShader();

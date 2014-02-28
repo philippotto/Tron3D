@@ -30,12 +30,12 @@ Player::Player(
 	TroenGame* game,
 	const std::shared_ptr<GameConfig>& config,
 	const int id) :
+m_id(id),
+m_name(config->playerNames[id].toStdString()),
 m_health(BIKE_DEFAULT_HEALTH), //TODO: rename constants
 m_points(0),
 m_killCount(0),
-m_deathCount(0),
-m_name(config->playerNames[id].toStdString()),
-m_id(id)
+m_deathCount(0)
 {
 	m_color = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
 
@@ -50,7 +50,7 @@ m_id(id)
 		this,
 		(input::BikeInputState::InputDevice) config->playerInputTypes[m_id],
 		initialTransform,
-		&(game->getResourcePool()),
+		game->getResourcePool(),
 		config->ownView[m_id]);
 
 	m_fenceController = std::make_shared<FenceController>(this, initialTransform);
@@ -89,7 +89,7 @@ m_id(id)
 		else
 			m_gameView->apply(new osgViewer::SingleWindow(400, 200, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
 #else
-		if (m_fullscreen)
+		if (config->fullscreen)
 			m_gameView->setUpViewOnSingleScreen(0);
 		else
 			m_gameView->setUpViewInWindow(100, 100, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);

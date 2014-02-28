@@ -29,14 +29,14 @@ GameLogic::GameLogic(
 	std::shared_ptr<LevelController> levelController,
 	std::vector<std::shared_ptr<Player>> players,
 	const int timeLimit) :
-m_levelController(levelController),
-m_players(players),
 m_troenGame(game),
-m_limitedFenceMode(true),
+m_players(players),
+m_levelController(levelController),
 m_audioManager(audioManager),
 m_gameState(GAMESTATE::GAME_START),
 m_timeLimit(timeLimit*1000*60),
-m_gameStartTime(-1)
+m_gameStartTime(-1),
+m_limitedFenceMode(true)
 {}
 
 void GameLogic::attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld)

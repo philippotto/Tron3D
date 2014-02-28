@@ -104,7 +104,7 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 
 
 
-void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node>& node, int shaderIndex, int levelSize, int modelID)
+void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderIndex, int levelSize, int modelID)
 {
 	osg::StateSet *stateSet = node->getOrCreateStateSet();
 	stateSet->ref();

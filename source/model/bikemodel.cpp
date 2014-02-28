@@ -92,7 +92,7 @@ float BikeModel::getTurboFactor()
 
 void BikeModel::updateTurboFactor(float newVelocity, float time)
 {
-	m_turboFactor = max(0.f, m_turboFactor);
+	m_turboFactor = fmax(0.f, m_turboFactor);
 
 	if (m_bikeController->turboInitiated() || m_bikeInputState->getTurboPressed()) {
 		m_turboFactor = 1.f;
@@ -105,7 +105,7 @@ void BikeModel::updateTurboFactor(float newVelocity, float time)
 		}
 		else {
 			m_turboFactor = 1 - (time - m_timeOfLastTurboInitiation) / TURBO_PHASE_LENGTH;
-			m_turboFactor = max(0.f, m_turboFactor);
+			m_turboFactor = fmax(0.f, m_turboFactor);
 		}
 	}
 

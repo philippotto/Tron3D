@@ -24,12 +24,12 @@ using namespace troen;
 
 HUDView::HUDView(const int i, const std::vector<std::shared_ptr<Player>>& players) :
 AbstractView(),
+m_trackNode(nullptr),
 m_healthText(new osgText::Text()),
 m_speedText(new osgText::Text()),
 m_pointsText(new osgText::Text()),
 m_countdownText(new osgText::Text()),
 m_timeText(new osgText::Text()),
-m_trackNode(nullptr),
 m_playerColor(osg::Vec4(players[i]->color(),1))
 {
 	m_node->addChild(createHUD(players));

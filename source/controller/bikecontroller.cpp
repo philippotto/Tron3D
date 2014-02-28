@@ -37,13 +37,13 @@ AbstractController(),
 m_player(player),
 m_keyboardHandler(nullptr),
 m_pollingThread(nullptr),
+m_hasGameView(hasGameView),
 m_initialTransform(initialPosition),
+m_state(BIKESTATE::WAITING),
 m_speed(0),
 m_turboInitiated(false),
 m_timeOfLastCollision(-1),
-m_respawnTime(-1),
-m_state(BIKESTATE::WAITING),
-m_hasGameView(hasGameView)
+m_respawnTime(-1)
 {
 	m_view = std::make_shared<BikeView>(player->color(), resourcePool);
 

@@ -205,6 +205,7 @@ set(sources
 	source/sampleosgviewer.h
 	source/sampleosgviewer.cpp
 	source/gameeventhandler.h
+	source/gameeventhandler.cpp
 	source/globals.h
 	source/constants.h
 	source/constants.cpp
