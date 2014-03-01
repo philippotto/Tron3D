@@ -45,22 +45,24 @@ namespace troen
 		Q_OBJECT
 
 		friend class TroenGameBuilder;
+		friend class GameLogic;
 
 	public:
 		TroenGame(QThread* thread = nullptr);
 		//
 		// getters
 		//
-		osg::ref_ptr<GameEventHandler> getGameEventHandler();
-		osg::ref_ptr<osgViewer::StatsHandler> getStatsHandler()
+		osg::ref_ptr<GameEventHandler> gameEventHandler()
+			{ return m_gameEventHandler; };
+		osg::ref_ptr<osgViewer::StatsHandler> statsHandler()
 			{ return m_statsHandler; };
-		std::shared_ptr<LevelController> getLevelController()
+		std::shared_ptr<LevelController> levelController()
 			{ return m_levelController; };
-		std::vector<std::shared_ptr<Player>> getPlayers()
+		std::vector<std::shared_ptr<Player>> players()
 			{ return m_players; };
-		osg::ref_ptr<SkyDome> getSkyDome() 
+		osg::ref_ptr<SkyDome> skyDome() 
 			{ return m_skyDome; };
-		ResourcePool* getResourcePool(){ return &m_resourcePool; };
+		ResourcePool* resourcePool(){ return &m_resourcePool; };
 
 		//
 		// Events

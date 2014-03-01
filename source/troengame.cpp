@@ -247,8 +247,3 @@ void TroenGame::resize(int width, int height){
 			player->hudController()->resize(width, height);
 	}
 }
-
-osg::ref_ptr<GameEventHandler> TroenGame::getGameEventHandler()
-{
-	return m_gameEventHandler;
-}

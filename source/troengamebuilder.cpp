@@ -112,12 +112,7 @@ bool TroenGameBuilder::build()
 	//
 	////////////////////////////////////////////////////////////////////////////////
 	std::cout << "[TroenGameBuilder::build] gameLogic ..." << std::endl;
-	t->m_gameLogic = std::make_shared<GameLogic>(
-		t,
-		t->m_audioManager,
-		t->m_levelController,
-		t->m_players,
-		t->m_gameConfig->timeLimit);
+	t->m_gameLogic = std::make_shared<GameLogic>(t,t->m_gameConfig->timeLimit);
 	t->m_gameEventHandler->attachGameLogic(t->m_gameLogic);
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -251,7 +246,6 @@ bool TroenGameBuilder::buildPhysicsWorld()
 		player->fenceController()->attachWorld(t->m_physicsWorld);
 	}
 	t->m_levelController->attachWorld(t->m_physicsWorld);
-	t->m_gameLogic->attachPhysicsWorld(t->m_physicsWorld);
 	return true;
 }
 

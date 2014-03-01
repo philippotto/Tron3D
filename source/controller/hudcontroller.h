@@ -41,6 +41,7 @@ namespace troen
 		void addKillMessage(Player* player);
 		void addSelfKillMessage();
 		void addDiedMessage(Player* player);
+		void addDiedOnFenceMessage(Player* bikePlayer, Player* fencePlayer);
         
 	private:
 		std::deque<std::shared_ptr<IngameMessage>> m_ingameMessages;

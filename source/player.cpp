@@ -45,13 +45,13 @@ m_hasGameView(config->ownView[id])
 	// Controller
 	//
 	////////////////////////////////////////////////////////////////////////////////
-	const btTransform initialTransform = game->getLevelController()->getSpawnPointForBikeWithIndex(id);
+	const btTransform initialTransform = game->levelController()->getSpawnPointForBikeWithIndex(id);
 
 	m_bikeController = std::make_shared<BikeController>(
 		this,
 		(input::BikeInputState::InputDevice) config->playerInputTypes[m_id],
 		initialTransform,
-		game->getResourcePool());
+		game->resourcePool());
 
 	m_fenceController = std::make_shared<FenceController>(this, initialTransform);
 
@@ -80,8 +80,8 @@ m_hasGameView(config->ownView[id])
 		m_bikeController->attachGameView(m_gameView);
 
 		m_gameView->setCameraManipulator(manipulator.get());
-		m_gameView->addEventHandler(game->getGameEventHandler());
-		m_gameView->addEventHandler(game->getStatsHandler());
+		m_gameView->addEventHandler(game->gameEventHandler());
+		m_gameView->addEventHandler(game->statsHandler());
 
 #ifdef WIN32
 		if (config->fullscreen)
@@ -124,7 +124,7 @@ m_hasGameView(config->ownView[id])
 	
 	if (config->useReflection && config->ownView[id])
 	{
-		m_reflection = std::make_shared<Reflection>(game->getLevelController()->getFloorView(), m_gameView, game->getSkyDome()->getSkyboxTexture(), m_id);
+		m_reflection = std::make_shared<Reflection>(game->levelController()->getFloorView(), m_gameView, game->skyDome()->getSkyboxTexture(), m_id);
 		m_playerNode->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + m_id));
 	}
 }

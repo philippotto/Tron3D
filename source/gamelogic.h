@@ -20,12 +20,7 @@ namespace troen
 			GAME_OVER
 		} GAMESTATE;
 
-		GameLogic(
-			TroenGame* game,
-			std::shared_ptr<sound::AudioManager>& audioManager,
-			std::shared_ptr<LevelController> levelController,
-			std::vector<std::shared_ptr<Player>> players,
-			const int timeLimit = 5);
+		GameLogic(TroenGame* game, const int timeLimit = 5);
 		void attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld);
 		
 		//
@@ -78,11 +73,7 @@ namespace troen
 		//
 		// communication links
 		//
-		TroenGame*							m_troenGame;
-		std::shared_ptr<PhysicsWorld>		m_physicsWorld;
-		std::vector<std::shared_ptr<Player>> m_players;
-		std::shared_ptr<LevelController>	 m_levelController;
-		std::shared_ptr<sound::AudioManager>m_audioManager;
+		TroenGame*t;
 		
 		//
 		// stepping variables & methods
