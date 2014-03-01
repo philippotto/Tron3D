@@ -3,11 +3,12 @@
 #include <chrono>
 #include <regex>
 // troen
-#include "../player.h"
-#include "../view/hudview.h"
 #include "../constants.h"
-#include "../controller/bikecontroller.h"
+#include "../globals.h"
 #include "../gamelogic.h"
+#include "../player.h"
+#include "../controller/bikecontroller.h"
+#include "../view/hudview.h"
 
 namespace
 {
@@ -15,11 +16,16 @@ namespace
 	{
 	"PLAYER_X\njust hit your fence hard",
 	"You just fenced\nPLAYER_X"
-};
+	};
 	const std::vector<std::string> selfKillMessages
 	{
 		"That was your own fence ...",
-		"You just fenced yourself!"
+		"You just hit your own fence ..."
+	};
+	const std::vector<std::string> diedMessages
+	{
+		"PLAYER_X\njust hit a wall",
+		"PLAYER_X\njust just crashed!"
 	};
 }
 
@@ -105,7 +111,7 @@ void HUDController::setTrackNode(osg::Node* trackNode)
 }
 
 
-void HUDController::addKillMessage(Player* player, const long double currentGameTime)
+void HUDController::addKillMessage(Player* player)
 {
 	std::shared_ptr<IngameMessage> message = std::make_shared<IngameMessage>();
 
@@ -118,12 +124,12 @@ void HUDController::addKillMessage(Player* player, const long double currentGame
 
 	message->text = text;
 	message->color = osg::Vec4(player->color(), 1);
-	message->endTime = currentGameTime + RESPAWN_DURATION;
+	message->endTime = g_gameTime + RESPAWN_DURATION;
 
 	m_ingameMessages.push_back(message);
 }
 
-void HUDController::addSelfKillMessage(const long double currentGameTime)
+void HUDController::addSelfKillMessage()
 {
 	std::shared_ptr<IngameMessage> message = std::make_shared<IngameMessage>();
 
@@ -132,7 +138,25 @@ void HUDController::addSelfKillMessage(const long double currentGameTime)
 
 	message->text = selfKillMessages[n];
 	message->color = osg::Vec4(m_player.lock()->color(),1);
-	message->endTime = currentGameTime + RESPAWN_DURATION;
+	message->endTime = g_gameTime + RESPAWN_DURATION;
+
+	m_ingameMessages.push_back(message);
+}
+
+void HUDController::addDiedMessage(Player* player)
+{
+	std::shared_ptr<IngameMessage> message = std::make_shared<IngameMessage>();
+
+	std::uniform_int_distribution<int> distribution(0, diedMessages.size());
+	int n = distribution(m_randomGenerator);
+
+	std::string text = diedMessages[n];
+	std::regex reg("PLAYER_X");
+	text = std::regex_replace(text, reg, player->name());
+
+	message->text = text;
+	message->color = osg::Vec4(player->color(), 1);
+	message->endTime = g_gameTime + RESPAWN_DURATION;
 
 	m_ingameMessages.push_back(message);
 }

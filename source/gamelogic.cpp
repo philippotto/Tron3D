@@ -253,8 +253,20 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 	}
 }
 
+void GameLogic::handleCollisionOfTwoBikes(
+	BikeController* bike1,
+	BikeController* bike2,
+	btPersistentManifold* contactManifold)
+{
+	std::cout << "[GameLogic::handleCollisionOfTwoBikes]" << std::endl;
+	//TODO
+	// set different thredsholds of collisions between bikes
+	// they dont have as much impact ?
+	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, BIKETYPE, contactManifold);
+}
+
 void GameLogic::handleCollisionOfBikeAndNonmovingObject(
-	BikeController* bikeController,
+	BikeController* bike,
 	AbstractController* object,
 	const int objectType,
 	btPersistentManifold* contactManifold)
@@ -269,36 +281,36 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	}
 
 
-	bikeController->registerCollision(impulse);
+	bike->registerCollision(impulse);
 	// TODO (Philipp): move increaseHealth and resetBike into registerCollision and trigger a respawn instead of pausing simulation (needs statistics about lifes etc.)
-	float newHealth = bikeController->player()->increaseHealth(-1 * impulse);
+	float newHealth = bike->player()->increaseHealth(-1 * impulse);
 	
 	//
 	// player death
 	//
-	if (newHealth <= 0 && bikeController->state() == BikeController::BIKESTATE::DRIVING)
+	if (newHealth <= 0 && bike->state() == BikeController::BIKESTATE::DRIVING)
 	{
-		bikeController->player()->increaseDeathCount();
-		bikeController->setState(BikeController::BIKESTATE::RESPAWN, g_gameTime);
-		if (objectType == FENCETYPE)
-		{
-			Player * fencePlayer = dynamic_cast<FenceController*>(object)->player();
-			Player * bikePlayer = bikeController->player();
-			handlePlayerDeathOnFence(fencePlayer, bikePlayer);
-		}
+		handlePlayerDeath(bike, object, objectType);
 	}
 }
 
-void GameLogic::handleCollisionOfTwoBikes(
-	BikeController* bike1,
-	BikeController* bike2,
-	btPersistentManifold* contactManifold)
+void GameLogic::handlePlayerDeath(
+	BikeController* bike,
+	AbstractController* object,
+	const int objectType)
 {
-	std::cout << "[GameLogic::handleCollisionOfTwoBikes]" << std::endl;
-	//TODO
-	// set different thredsholds of collisions between bikes
-	// they dont have as much impact ?
-	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, BIKETYPE, contactManifold);
+	Player * bikePlayer = bike->player();
+	bikePlayer->increaseDeathCount();
+	bike->setState(BikeController::BIKESTATE::RESPAWN, g_gameTime);
+	if (objectType == FENCETYPE)
+	{
+		Player * fencePlayer = dynamic_cast<FenceController*>(object)->player();
+		handlePlayerDeathOnFence(fencePlayer, bikePlayer);
+	}
+	else
+	{
+		handlePlayerDeathNonFence(bikePlayer);
+	}
 }
 
 void GameLogic::handlePlayerDeathOnFence(
@@ -307,18 +319,33 @@ void GameLogic::handlePlayerDeathOnFence(
 {
 	if (fencePlayer == bikePlayer) // hit own fence
 	{
-		fencePlayer->decreaseKillCount();
-		if (fencePlayer->bikeController()->hasGameView())
+		bikePlayer->decreaseKillCount();
+		if (bikePlayer->hasGameView())
 		{
-			fencePlayer->hudController()->addSelfKillMessage(g_gameTime);
+			bikePlayer->hudController()->addSelfKillMessage();
 		}
 	}
 	else //hit someone elses fence
 	{
 		fencePlayer->increaseKillCount();
-		if (fencePlayer->bikeController()->hasGameView())
+		if (fencePlayer->hasGameView())
 		{
-			fencePlayer->hudController()->addKillMessage(bikePlayer, g_gameTime);
+			fencePlayer->hudController()->addKillMessage(bikePlayer);
+		}
+	}
+}
+
+void GameLogic::handlePlayerDeathNonFence(Player* deadPlayer)
+{
+	for (auto player : m_players)
+	{
+		if (&(*player) != deadPlayer)
+		{
+			player->increaseKillCount();
+			if (player->hasGameView())
+			{
+				player->hudController()->addDiedMessage(deadPlayer);
+			}
 		}
 	}
 }

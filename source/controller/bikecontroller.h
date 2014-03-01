@@ -28,8 +28,7 @@ namespace troen
 			Player * player,
 			const input::BikeInputState::InputDevice& inputDevice,
 			const btTransform initialPosition,
-			ResourcePool *resourcePool,
-			const bool hasGameView);
+			ResourcePool *resourcePool);
 		~BikeController();
 
 		//
@@ -40,8 +39,7 @@ namespace troen
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
 
-		void setPlayerNode(osg::Group* playerNode);
-		bool hasGameView() { return m_hasGameView; };
+		void addUniformsToPlayerNode();
 
 		//
 		// logic events
@@ -102,14 +100,12 @@ namespace troen
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 
 
-		bool m_hasGameView = false;
-		// the following attributes only exist if the bikeController
+		// the following attributes only exist if the player
 		// has a corresponding gameview
 		osg::Uniform*	m_timeOfCollisionUniform;
 		osg::Uniform*	m_velocityUniform;
 		osg::Uniform*	m_timeFactorUniform;
 		osg::Uniform*	m_healthUniform;
-		osg::Group*		m_playerNode;
 
 		//
 		// behaviour attributes

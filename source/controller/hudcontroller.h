@@ -38,8 +38,9 @@ namespace troen
 		//
 		// ingame messages
 		//
-		void addKillMessage(Player* player, const long double currentGameTime);
-		void addSelfKillMessage(const long double currentGameTime);
+		void addKillMessage(Player* player);
+		void addSelfKillMessage();
+		void addDiedMessage(Player* player);
         
 	private:
 		std::deque<std::shared_ptr<IngameMessage>> m_ingameMessages;

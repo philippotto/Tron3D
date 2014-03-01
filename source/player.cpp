@@ -35,7 +35,8 @@ m_name(config->playerNames[id].toStdString()),
 m_health(BIKE_DEFAULT_HEALTH), //TODO: rename constants
 m_points(0),
 m_killCount(0),
-m_deathCount(0)
+m_deathCount(0),
+m_hasGameView(config->ownView[id])
 {
 	m_color = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
 
@@ -50,8 +51,7 @@ m_deathCount(0)
 		this,
 		(input::BikeInputState::InputDevice) config->playerInputTypes[m_id],
 		initialTransform,
-		game->getResourcePool(),
-		config->ownView[m_id]);
+		game->getResourcePool());
 
 	m_fenceController = std::make_shared<FenceController>(this, initialTransform);
 
@@ -67,7 +67,7 @@ m_deathCount(0)
 	if (config->ownView[m_id])
 	{
 		m_playerNode = new osg::Group();
-		m_bikeController->setPlayerNode(m_playerNode);
+		m_bikeController->addUniformsToPlayerNode();
 
 		m_gameView = new osgViewer::View();
 		m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
@@ -102,7 +102,7 @@ m_deathCount(0)
 	//
 	////////////////////////////////////////////////////////////////////////////////
 	
-	if (m_bikeController->hasGameView())
+	if (config->ownView[m_id])
 	{
 		m_viewer = new SampleOSGViewer();
 		m_viewer->addView(m_gameView);
@@ -131,7 +131,7 @@ m_deathCount(0)
 
 void Player::createHUDController(const std::vector<std::shared_ptr<Player>>& players)
 {
-	if (!m_bikeController->hasGameView()) return;
+	if (!hasGameView()) return;
 
 	m_HUDController = std::make_shared<HUDController>(m_id, players);
 	m_bikeController->attachTrackingCamera(m_HUDController);

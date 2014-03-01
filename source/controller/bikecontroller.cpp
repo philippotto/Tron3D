@@ -31,13 +31,11 @@ BikeController::BikeController(
 	Player* player,
 	const input::BikeInputState::InputDevice& inputDevice,
 	const btTransform initialPosition,
-	ResourcePool* resourcePool,
-	const bool hasGameView) :
+	ResourcePool* resourcePool) :
 AbstractController(),
 m_player(player),
 m_keyboardHandler(nullptr),
 m_pollingThread(nullptr),
-m_hasGameView(hasGameView),
 m_initialTransform(initialPosition),
 m_state(BIKESTATE::WAITING),
 m_speed(0),
@@ -330,21 +328,22 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	return group;
 };
 
-void BikeController::setPlayerNode(osg::Group* playerNode)
+void BikeController::addUniformsToPlayerNode()
 {
-	// this is the node which holds the rootNode of the entire scene
+	// playerNode is the node which holds the rootNode of the entire scene
 	// it is used to expose player specific information to the shaders
-	// this is only necessary if a gameView exists for this player
+	// the following is only necessary if a gameView exists for this player
 
-	m_playerNode = playerNode;
 	m_timeOfCollisionUniform = new osg::Uniform("timeSinceLastHit", 100000.f);
 	m_velocityUniform = new osg::Uniform("velocity", 0.f);
 	m_timeFactorUniform = new osg::Uniform("timeFactor", 1.f);
 	m_healthUniform = new osg::Uniform("healthNormalized", m_player->health() / BIKE_DEFAULT_HEALTH);
-	m_playerNode->getOrCreateStateSet()->addUniform(m_timeOfCollisionUniform);
-	m_playerNode->getOrCreateStateSet()->addUniform(m_velocityUniform);
-	m_playerNode->getOrCreateStateSet()->addUniform(m_timeFactorUniform);
-	m_playerNode->getOrCreateStateSet()->addUniform(m_healthUniform);
+
+	osg::ref_ptr<osg::StateSet> stateset = m_player->playerNode()->getOrCreateStateSet();
+	stateset->addUniform(m_timeOfCollisionUniform);
+	stateset->addUniform(m_velocityUniform);
+	stateset->addUniform(m_timeFactorUniform);
+	stateset->addUniform(m_healthUniform);
 }
 
 void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
@@ -366,7 +365,7 @@ void BikeController::moveBikeToPosition(btTransform transform)
 
 void BikeController::updateUniforms()
 {
-	if (m_hasGameView) {
+	if (m_player->hasGameView()) {
 		m_timeOfCollisionUniform->set((float) g_gameTime - m_timeOfLastCollision);
 		m_velocityUniform->set(std::static_pointer_cast<BikeModel>(m_model)->getVelocity());
 		m_timeFactorUniform->set((float) getTimeFactor());
@@ -376,7 +375,7 @@ void BikeController::updateUniforms()
 
 void BikeController::updateFov(double speed)
 {
-	if (m_gameView.valid()) {
+	if (m_player->gameView().valid()) {
 		float currentFovy = getFovy();
 		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 	}

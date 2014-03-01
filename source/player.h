@@ -47,6 +47,7 @@ namespace troen
 		//
 		// osg related
 		//
+		bool hasGameView()							{ return m_hasGameView; }
 		osg::ref_ptr<SampleOSGViewer> viewer()		{ return m_viewer; };
 		osg::ref_ptr<osgViewer::View> gameView()	{ return m_gameView; };
 		osg::ref_ptr<osg::Group> playerNode()		{ return m_playerNode; };
@@ -91,6 +92,7 @@ namespace troen
 		//
 		// osg elements
 		//
+		bool							m_hasGameView;
 		osg::ref_ptr<SampleOSGViewer>	m_viewer;
 		osg::ref_ptr<osgViewer::View>	m_gameView;
 		osg::ref_ptr<osg::Group>		m_playerNode;
