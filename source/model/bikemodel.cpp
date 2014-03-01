@@ -175,6 +175,9 @@ float BikeModel::updateState(long double time)
 		// decrease speed so that the user will reach the maximum speed within timeToSlowDown milli seconds
 		// this is done so that the turbo won't be resetted instantly
 		speed -= (speed - BIKE_VELOCITY_MAX) * m_timeSinceLastUpdate / timeToSlowDown;
+		if (speed > BIKE_TURBO_VELOCITY_MAX) {
+			speed = BIKE_TURBO_VELOCITY_MAX;
+		}
 	}
 
 	if (speed < BIKE_VELOCITY_MIN)
