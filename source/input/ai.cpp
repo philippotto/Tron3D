@@ -37,25 +37,14 @@ void AI::run()
 	
 	while (m_pollingEnabled)
 	{
-
 		m_aiScript->setDistanceToNextObstacle(m_bikeController->getDistanceToObstacle(0));
 
-
-		try {
-			reflectionzeug::Variant value;
-			value = g_scriptingThread->evaluate("try {     if (typeof move !== 'undefined') { move() } else { player.angle = 0 }      } catch (ex) { ex } ");
-			//std::cout << "result of script: " << value.toString() << std::endl;
-		}
-		catch (...) {
-
-		}
-
+		reflectionzeug::Variant value;
+		value = g_scriptingThread->evaluate("try {     if (typeof move !== 'undefined') { move() } else { player.angle = 0 }      } catch (ex) { ex } ");
+		//std::cout << "result of script: " << value.toString() << std::endl;
 
 		m_bikeInputState->setAcceleration(m_aiScript->getAcceleration());
 		m_bikeInputState->setAngle(m_aiScript->angle());
-
-		std::cout << "angle: " << m_aiScript->angle() << std::endl;
-
 
 		QCoreApplication::processEvents();
 		this->msleep(POLLING_DELAY_MS * 2);

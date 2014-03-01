@@ -50,7 +50,6 @@ namespace troen
 
 			double getFreeDistanceInDirection(double angle) {
 				double distance = m_bikeController->getDistanceToObstacle(angle);
-				std::cout << "distance: " << distance << std::endl;
 				return distance;
 			}
 

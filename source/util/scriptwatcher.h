@@ -51,19 +51,16 @@ private:
 	QString m_watchedFilePath;
 	scriptzeug::ScriptContext* m_scriptContext;
 
-
 	public slots :
 		void onFolderChanged(const QString& str)
 		{
-
 			//foreach(QString file, files) {
 
 			QFile f(m_watchedFilePath);
-			if (f.open(QFile::ReadOnly | QFile::Text)) {
-
+			if (f.open(QFile::ReadOnly | QFile::Text))
+			{
 				QTextStream in(&f);
 				QString content = in.readAll();
-				qDebug() << content;
 
 				m_scriptContext->evaluate(content.toStdString());
 
