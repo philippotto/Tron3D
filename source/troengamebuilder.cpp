@@ -212,6 +212,7 @@ bool TroenGameBuilder::composeSceneGraph()
 		player->hudController()->attachSceneToRadarCamera(radarScene);
 	}
 
+	// disbled optimizer for now, takes a lot of time to execute
 	//std::cout << "[TroenGameBuilder::composeSceneGraph] starting Optimizer" << std::endl;
 	//osgUtil::Optimizer optimizer;
 	//optimizer.optimize(t->m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |

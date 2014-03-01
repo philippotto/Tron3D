@@ -259,15 +259,7 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	const int objectType,
 	btPersistentManifold* contactManifold)
 {
-	btScalar impulse = 0;
-	int numContacts = contactManifold->getNumContacts();
-	//std::cout << numContacts << " - ";
-	for (int i = 0; i < numContacts; i++)
-	{
-		btManifoldPoint& pt = contactManifold->getContactPoint(i);
-		impulse = impulse + pt.getAppliedImpulse();
-	}
-	//std::cout << "total impulse: " << impulse << std::endl;
+	btScalar impulse = impulseFromContactManifold(contactManifold);
 	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_LOW)
 	{
 		m_audioManager->PlaySFX("data/sound/explosion.wav",
@@ -282,7 +274,7 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	float newHealth = bikeController->player()->increaseHealth(-1 * impulse);
 	
 	//
-	// handle player death
+	// player death
 	//
 	if (newHealth <= 0 && bikeController->state() == BikeController::BIKESTATE::DRIVING)
 	{
@@ -292,14 +284,7 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 		{
 			Player * fencePlayer = dynamic_cast<FenceController*>(object)->player();
 			Player * bikePlayer = bikeController->player();
-			if (fencePlayer == bikePlayer)
-			{
-				fencePlayer->decreaseKillCount();
-			}
-			else
-			{
-				fencePlayer->increaseKillCount();
-			}
+			handlePlayerDeathOnFence(fencePlayer, bikePlayer);
 		}
 	}
 }
@@ -314,6 +299,41 @@ void GameLogic::handleCollisionOfTwoBikes(
 	// set different thredsholds of collisions between bikes
 	// they dont have as much impact ?
 	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, BIKETYPE, contactManifold);
+}
+
+void GameLogic::handlePlayerDeathOnFence(
+	Player* fencePlayer,
+	Player* bikePlayer)
+{
+	if (fencePlayer == bikePlayer) // hit own fence
+	{
+		fencePlayer->decreaseKillCount();
+		if (fencePlayer->bikeController()->hasGameView())
+		{
+			fencePlayer->hudController()->addSelfKillMessage(g_gameTime);
+		}
+	}
+	else //hit someone elses fence
+	{
+		fencePlayer->increaseKillCount();
+		if (fencePlayer->bikeController()->hasGameView())
+		{
+			fencePlayer->hudController()->addKillMessage(bikePlayer, g_gameTime);
+		}
+	}
+}
+
+btScalar GameLogic::impulseFromContactManifold(btPersistentManifold* contactManifold)
+{
+	btScalar impulse = 0;
+	int numContacts = contactManifold->getNumContacts();
+	//std::cout << numContacts << " - ";
+	for (int i = 0; i < numContacts; i++)
+	{
+		btManifoldPoint& pt = contactManifold->getContactPoint(i);
+		impulse = impulse + pt.getAppliedImpulse();
+	}
+	return impulse;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

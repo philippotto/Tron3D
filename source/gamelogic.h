@@ -53,15 +53,20 @@ namespace troen
 		//
 		// collision event handling
 		//
-		virtual void handleCollisionOfBikeAndNonmovingObject(
+		void handleCollisionOfBikeAndNonmovingObject(
 			BikeController* bike,
 			AbstractController* object,
 			const int objectType,
 			btPersistentManifold* contactManifold);
-		virtual void handleCollisionOfTwoBikes(
+		void handleCollisionOfTwoBikes(
 			BikeController* bike1,
 			BikeController* bike2,
 			btPersistentManifold* contactManifold);
+		void handlePlayerDeathOnFence(
+			Player* fencePlayer,
+			Player* bikePlayer);
+		// helper
+		float impulseFromContactManifold(btPersistentManifold* contactManifold);
 
 		//
 		// communication links
@@ -73,7 +78,7 @@ namespace troen
 		std::shared_ptr<sound::AudioManager>m_audioManager;
 		
 		//
-		// Stepping variables & helper methods
+		// stepping variables & methods
 		//
 		GAMESTATE m_gameState;
 		long double m_timeLimit;
