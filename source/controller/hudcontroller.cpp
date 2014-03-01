@@ -116,7 +116,7 @@ void HUDController::addKillMessage(Player* player)
 {
 	std::shared_ptr<IngameMessage> message = std::make_shared<IngameMessage>();
 
-	std::uniform_int_distribution<int> distribution(0, killMessages.size());
+	std::uniform_int_distribution<int> distribution(0, killMessages.size() - 1);
 	int n = distribution(m_randomGenerator);
 
 	std::string text = killMessages[n];
@@ -134,7 +134,7 @@ void HUDController::addSelfKillMessage()
 {
 	std::shared_ptr<IngameMessage> message = std::make_shared<IngameMessage>();
 
-	std::uniform_int_distribution<int> distribution(0, selfKillMessages.size());
+	std::uniform_int_distribution<int> distribution(0, selfKillMessages.size() - 1);
 	int n = distribution(m_randomGenerator);
 
 	message->text = selfKillMessages[n];
@@ -148,7 +148,7 @@ void HUDController::addDiedMessage(Player* player)
 {
 	std::shared_ptr<IngameMessage> message = std::make_shared<IngameMessage>();
 
-	std::uniform_int_distribution<int> distribution(0, diedMessages.size());
+	std::uniform_int_distribution<int> distribution(0, diedMessages.size() - 1);
 	int n = distribution(m_randomGenerator);
 
 	std::string text = diedMessages[n];
