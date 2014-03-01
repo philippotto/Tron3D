@@ -21,6 +21,7 @@
 
 #include "../resourcepool.h"
 
+#include "../util/filteredrayresultcallback.h"
 
 using namespace troen;
 
@@ -474,19 +475,20 @@ void BikeController::updateFov(double speed)
 
 float BikeController::getDistanceToObstacle(double angle) {
 	// angle specifies the deviation from the current direction the bike is heading
+	
+	float rayLength = 10000;
+
 	if (m_world) {
 
 		btDiscreteDynamicsWorld* discreteWorld = m_world->getDiscreteWorld();
 		std::shared_ptr<BikeModel> bikeModel = std::static_pointer_cast<BikeModel>(m_model);
 
-		btVector3 from, to;
-		from = bikeModel->getPositionBt() + bikeModel->getDirection().rotate(btVector3(0, 0, 1), angle) * 4;
-
-		float rayLength = 10000;
-		to = from + bikeModel->getDirection() * rayLength;
-
+		btVector3 from, to, direction;
+		direction = bikeModel->getDirection().rotate(btVector3(0, 0, 1), angle);
+		from = bikeModel->getPositionBt();	
+		to = from + direction * rayLength;
 		
-		btCollisionWorld::ClosestRayResultCallback RayCallback(from, to);
+		FilteredRayResultCallback RayCallback(bikeModel->getRigidBody().get(), from, to);
 
 		// Perform raycast
 		discreteWorld->rayTest(from, to, RayCallback);
@@ -498,10 +500,10 @@ float BikeController::getDistanceToObstacle(double angle) {
 			return (collisionPoint - from).length();
 		}
 		else {
-			return -1;
+			return rayLength;
 		}
 
 	}
 
-	return -1;
+	return rayLength;
 }

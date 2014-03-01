@@ -37,7 +37,6 @@
 
 #include "globals.h"
 
-#include <iostream>
 
 using namespace troen;
 extern long double g_currentTime;

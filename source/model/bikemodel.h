@@ -38,6 +38,7 @@ namespace troen
 		float getTurboFactor();
 		void updateTurboFactor(const float newVelocity, const float time);
 		btVector3 BikeModel::getDirection();
+		std::shared_ptr<btRigidBody> getRigidBody();
 	private:
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 		float m_oldVelocity;
@@ -49,5 +50,6 @@ namespace troen
 		long double m_lastUpdateTime;
 		BikeController* m_bikeController;
 		long double m_timeSinceLastUpdate;
+		std::shared_ptr<btRigidBody> m_bikeRigidBody;
 	};
 }

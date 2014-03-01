@@ -46,23 +46,27 @@ m_lastUpdateTime(0)
 	m_bikeRigidBodyCI.m_friction = 0.f;
 	//std::cout << m_bikeRigidBodyCI.m_friction << std::endl;
 
-	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
+	m_bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 	
-	bikeRigidBody->setCcdMotionThreshold(1 / BIKE_DIMENSIONS.y());
-	bikeRigidBody->setCcdSweptSphereRadius(BIKE_DIMENSIONS.x() * .5f - BIKE_DIMENSIONS.x() * 0.01);
+	m_bikeRigidBody->setCcdMotionThreshold(1 / BIKE_DIMENSIONS.y());
+	m_bikeRigidBody->setCcdSweptSphereRadius(BIKE_DIMENSIONS.x() * .5f - BIKE_DIMENSIONS.x() * 0.01);
 	// this seems to be necessary so that we can move the object via setVelocity()
-	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
-	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
+	m_bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
+	m_bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
 
 	// for collision event handling
 	ObjectInfo* info = new ObjectInfo(bikeController, BIKETYPE);
-	bikeRigidBody->setUserPointer(info);
+	m_bikeRigidBody->setUserPointer(info);
 
-	bikeMotionState->setRigidBody(bikeRigidBody);
+	bikeMotionState->setRigidBody(m_bikeRigidBody);
 
 	m_collisionShapes.push_back(bikeShape);
 	m_motionStates.push_back(bikeMotionState);
-	m_rigidBodies.push_back(bikeRigidBody);
+	m_rigidBodies.push_back(m_bikeRigidBody);
+}
+
+std::shared_ptr<btRigidBody> BikeModel::getRigidBody() {
+	return m_bikeRigidBody;
 }
 
 void BikeModel::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
@@ -191,14 +195,6 @@ float BikeModel::updateState(long double time)
 	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed).normalized() * speed;
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
-
-
-
-
-
-	//std::cout << "bike positionNOAI): " << getPositionBt().x() << " " << getPositionBt().y() << std::endl;
-
-
 
 	return speed;
 }

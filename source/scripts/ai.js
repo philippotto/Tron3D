@@ -1,37 +1,40 @@
 function move() {
-	var straight, left, right;
-	straight = player.getFreeDistanceInDirection(0);
-	if (straight < 200 ) {
+	var straightDistance, leftDistance, rightDistance, leftDirection, rightDirection;
 
-		// 1 is left
+	leftDirection = 1;
+	rightDirection = -1;
+	straightDirection = 0;
+
+	straightDistance = player.getFreeDistanceInDirection(0);
+	leftDistance = player.getFreeDistanceInDirection(3.14/2);
+	rightDistance = player.getFreeDistanceInDirection(-3.14/2);
 
 
-		left = player.getFreeDistanceInDirection(3.14/4);
-		right = player.getFreeDistanceInDirection(-3.14/4);
+	var isCurrentDirectionSafe = straightDistance > 500;
+	player.setTurbo(false);
+	if (isCurrentDirectionSafe) {
+		player.angle = straightDirection;
+		player.acceleration = 1;
 
+		var isCurrentDirectionVerySafe = straightDistance > 700;
+		if (isCurrentDirectionVerySafe)
+			player.setTurbo(true);
 
-		// player.log("left   " + left);
-		// player.log("right  " + right);
-		if (left < right) {
-			player.log("going right");
-			play.angle = -1;
+	} else {
+		if (straightDistance > leftDistance && straightDistance > rightDistance) {
+			player.angle = straightDirection;
 		} else {
-			player.log("going left");
-		 	player.angle = 1;
+			if (leftDistance > rightDistance)
+				player.angle = leftDirection;
+			else
+				player.angle = rightDirection;
 		}
 
-		player.acceleration = -10;
-		player.setTurbo(false);
-	} else {
-		player.angle = 0;
-		player.acceleration = 1;
-		player.setTurbo(true);
+		if (straightDistance < 200)
+			player.acceleration = -10;
+		else
+			player.acceleration = 0;
 
-		player.log("resetting");
 	}
-	 player.angle *= 1.4;
+	return;
 }
-
-
-
-

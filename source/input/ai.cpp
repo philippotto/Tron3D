@@ -33,7 +33,7 @@ void AI::run()
 	g_scriptingThread->registerObject(m_aiScript);
 
 	ScriptWatcher scriptWatcher;
-	scriptWatcher.watchAndLoad("source/scripts/test.js", g_scriptingThread);
+	scriptWatcher.watchAndLoad("source/scripts/ai.js", g_scriptingThread);
 	
 	while (m_pollingEnabled)
 	{
@@ -53,6 +53,8 @@ void AI::run()
 
 		m_bikeInputState->setAcceleration(m_aiScript->getAcceleration());
 		m_bikeInputState->setAngle(m_aiScript->angle());
+
+		std::cout << "angle: " << m_aiScript->angle() << std::endl;
 
 
 		QCoreApplication::processEvents();
