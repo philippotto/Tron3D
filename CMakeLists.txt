@@ -307,6 +307,8 @@ set(sources
 	source/util/gldebugdrawer.h
 	source/util/gldebugdrawer.cpp
 
+	source/util/scriptwatcher.h
+	source/util/filteredrayresultcallback.h
 
 )
 
