@@ -43,7 +43,7 @@ namespace troen
 	const float BIKE_ANGULAR_DAMPENING_TERM(0.001f);
 	const float BIKE_VIEWING_ANGLE_DAMPENING_TERM(0.1f);
 
-	const float TURBO_PHASE_LENGTH(1000);
+	const float TURBO_PHASE_LENGTH(2000);
 
 	// BIKE_TILT_DAMPENING = 1 would lead to immediate/unsmooth tilt
 	// 1 / BIKE_TILT_MAX specifies angle in radiant

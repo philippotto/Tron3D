@@ -32,6 +32,12 @@ namespace troen
 		// debugview
 		util::GLDebugDrawer* m_debug;
 
+		
+		btDiscreteDynamicsWorld* getDiscreteWorld()
+		{
+			return m_world;
+		};
+
 	private:
 		btDiscreteDynamicsWorld*			m_world;
 		btSequentialImpulseConstraintSolver*m_solver;

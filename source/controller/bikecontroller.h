@@ -79,6 +79,8 @@ namespace troen
 		void increaseDeathCount() { m_deathCount++; };
 		void increaseKillCount() { m_killCount++; };
 
+		float getDistanceToObstacle(double angle);
+
 	private:
 		// field of view methods
 		void updateFov(const double speed);
@@ -121,5 +123,8 @@ namespace troen
 		float	m_points;
 		int		m_killCount;
 		int		m_deathCount;
+
+
+		std::shared_ptr<PhysicsWorld> m_world;
 	};
 }

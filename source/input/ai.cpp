@@ -10,38 +10,52 @@
 #include <cmath>
 
 
+#include "../controller/bikecontroller.h"
 
 using namespace troen::input;
 
 
-AI::AI(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState)
-{
 
+AI::AI(osg::ref_ptr<BikeInputState> bikeInputState, troen::BikeController* bikeController) : PollingDevice(bikeInputState)
+{
+	m_bikeController = bikeController;
 
 }
 
 void AI::run()
 {
-
 	PollingDevice::run();
 
 	m_pollingEnabled = true;
-	reflectionzeug::Variant value;
-
-	m_aiScript = new AIScript();
-
+	
+	m_aiScript = new AIScript(m_bikeInputState, m_bikeController);
 	ScriptContext	*g_scriptingThread = new ScriptContext();
-
 	g_scriptingThread->registerObject(m_aiScript);
+
+	ScriptWatcher scriptWatcher;
+	scriptWatcher.watchAndLoad("source/scripts/test.js", g_scriptingThread);
 	
 	while (m_pollingEnabled)
 	{
-		g_scriptingThread->evaluate("player.acceleration = 1");
-		value = g_scriptingThread->evaluate("player.angle = 1");
+
+		m_aiScript->setDistanceToNextObstacle(m_bikeController->getDistanceToObstacle(0));
+
+
+		try {
+			reflectionzeug::Variant value;
+			value = g_scriptingThread->evaluate("try {     if (typeof move !== 'undefined') { move() } else { player.angle = 0 }      } catch (ex) { ex } ");
+			//std::cout << "result of script: " << value.toString() << std::endl;
+		}
+		catch (...) {
+
+		}
+
 
 		m_bikeInputState->setAcceleration(m_aiScript->getAcceleration());
 		m_bikeInputState->setAngle(m_aiScript->angle());
 
+
+		QCoreApplication::processEvents();
 		this->msleep(POLLING_DELAY_MS * 2);
 	}
 }

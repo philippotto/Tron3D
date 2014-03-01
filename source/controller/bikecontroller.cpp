@@ -107,68 +107,69 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 	{
 	case input::BikeInputState::KEYBOARD_wasd:
 	{
-												 m_keyboardHandler = new input::Keyboard(bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol>{
-													 osgGA::GUIEventAdapter::KEY_W,
-														 osgGA::GUIEventAdapter::KEY_A,
-														 osgGA::GUIEventAdapter::KEY_S,
-														 osgGA::GUIEventAdapter::KEY_D,
-														 osgGA::GUIEventAdapter::KEY_Space,
-														 osgGA::GUIEventAdapter::KEY_G
-												 });
-												 break;
+		m_keyboardHandler = new input::Keyboard(bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol>{
+			osgGA::GUIEventAdapter::KEY_W,
+				osgGA::GUIEventAdapter::KEY_A,
+				osgGA::GUIEventAdapter::KEY_S,
+				osgGA::GUIEventAdapter::KEY_D,
+				osgGA::GUIEventAdapter::KEY_Space,
+				osgGA::GUIEventAdapter::KEY_G
+		});
+		break;
 	}
 	case input::BikeInputState::KEYBOARD_arrows:
 	{
-												   m_keyboardHandler = new input::Keyboard(bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol>{
-													   osgGA::GUIEventAdapter::KEY_Up,
-														   osgGA::GUIEventAdapter::KEY_Left,
-														   osgGA::GUIEventAdapter::KEY_Down,
-														   osgGA::GUIEventAdapter::KEY_Right,
-														   osgGA::GUIEventAdapter::KEY_Control_R,
-														   osgGA::GUIEventAdapter::KEY_M,
-												   });
-												   break;
+		m_keyboardHandler = new input::Keyboard(bikeInputState, std::vector<osgGA::GUIEventAdapter::KeySymbol>{
+			osgGA::GUIEventAdapter::KEY_Up,
+				osgGA::GUIEventAdapter::KEY_Left,
+				osgGA::GUIEventAdapter::KEY_Down,
+				osgGA::GUIEventAdapter::KEY_Right,
+				osgGA::GUIEventAdapter::KEY_Control_R,
+				osgGA::GUIEventAdapter::KEY_M,
+		});
+		break;
 	}
 #ifdef WIN32
 	case input::BikeInputState::GAMEPAD:
 	{
-										   std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
+		std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
 
-										   if (gamepad->checkConnection())
-										   {
-											   std::cout << "[TroenGame::initializeInput] Gamepad connected on port " << gamepad->getPort() << std::endl;
-										   }
-										   else
-										   {
-											   std::cout << "[TroenGame::initializeInput] No gamepad connected!" << std::endl;
-										   }
-										   m_pollingThread = gamepad;
-										   m_pollingThread->start();
-										   break;
+		if (gamepad->checkConnection())
+		{
+			std::cout << "[TroenGame::initializeInput] Gamepad connected on port " << gamepad->getPort() << std::endl;
+		}
+		else
+		{
+			std::cout << "[TroenGame::initializeInput] No gamepad connected!" << std::endl;
+		}
+		m_pollingThread = gamepad;
+		m_pollingThread->start();
+		break;
 	}
 #endif
 	case input::BikeInputState::GAMEPADPS4:
 	{
-											  std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState);
+		std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState);
 
-											  if (gamepad->checkConnection())
-											  {
-												  std::cout << "[TroenGame::initializeInput] PS4 Controller connected" << std::endl;
-											  }
-											  else
-											  {
-												  std::cout << "[TroenGame::initializeInput] No PS4 Controller connected!" << std::endl;
-											  }
-											  m_pollingThread = gamepad;
-											  m_pollingThread->start();
-											  break;
+		if (gamepad->checkConnection())
+		{
+			std::cout << "[TroenGame::initializeInput] PS4 Controller connected" << std::endl;
+		}
+		else
+		{
+			std::cout << "[TroenGame::initializeInput] No PS4 Controller connected!" << std::endl;
+		}
+		m_pollingThread = gamepad;
+		m_pollingThread->start();
+		break;
 	}
 	case input::BikeInputState::AI:
 	{
-									  std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(bikeInputState);
-									  m_pollingThread = ai;
-									  m_pollingThread->start();
-									  break;
+		std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(bikeInputState, this);
+		m_pollingThread = ai;
+
+		m_pollingThread->start();
+		break;
 	}
 	default:
 		break;
@@ -287,7 +288,11 @@ float BikeController::getPoints()
 
 void BikeController::activateTurbo()
 {
-	m_turboInitiated = true;
+	std::shared_ptr<BikeModel> bikeModel = std::static_pointer_cast<BikeModel>(m_model);
+
+	float turboFactor = bikeModel->getTurboFactor();
+	if (turboFactor <= 0)
+		m_turboInitiated = true;
 }
 
 float BikeController::getTurboInitiation()
@@ -402,6 +407,9 @@ void BikeController::setPlayerNode(osg::Group* playerNode)
 }
 
 void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
+
+	m_world = world;
+
 	world->addRigidBodies(getRigidBodies(), COLGROUP_BIKE, COLMASK_BIKE);
 	m_fenceController->attachWorld(world);
 }
@@ -461,4 +469,39 @@ void BikeController::updateFov(double speed)
 		float currentFovy = getFovy();
 		setFovy(currentFovy + computeFovyDelta(speed, currentFovy));
 	}
+}
+
+
+float BikeController::getDistanceToObstacle(double angle) {
+	// angle specifies the deviation from the current direction the bike is heading
+	if (m_world) {
+
+		btDiscreteDynamicsWorld* discreteWorld = m_world->getDiscreteWorld();
+		std::shared_ptr<BikeModel> bikeModel = std::static_pointer_cast<BikeModel>(m_model);
+
+		btVector3 from, to;
+		from = bikeModel->getPositionBt() + bikeModel->getDirection().rotate(btVector3(0, 0, 1), angle) * 4;
+
+		float rayLength = 10000;
+		to = from + bikeModel->getDirection() * rayLength;
+
+		
+		btCollisionWorld::ClosestRayResultCallback RayCallback(from, to);
+
+		// Perform raycast
+		discreteWorld->rayTest(from, to, RayCallback);
+
+		if (RayCallback.hasHit()) {
+			btVector3 collisionPoint;
+			collisionPoint = RayCallback.m_hitPointWorld;
+			
+			return (collisionPoint - from).length();
+		}
+		else {
+			return -1;
+		}
+
+	}
+
+	return -1;
 }

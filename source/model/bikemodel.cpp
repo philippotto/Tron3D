@@ -47,7 +47,7 @@ m_lastUpdateTime(0)
 	//std::cout << m_bikeRigidBodyCI.m_friction << std::endl;
 
 	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
-
+	
 	bikeRigidBody->setCcdMotionThreshold(1 / BIKE_DIMENSIONS.y());
 	bikeRigidBody->setCcdSweptSphereRadius(BIKE_DIMENSIONS.x() * .5f - BIKE_DIMENSIONS.x() * 0.01);
 	// this seems to be necessary so that we can move the object via setVelocity()
@@ -95,7 +95,7 @@ void BikeModel::updateTurboFactor(float newVelocity, float time)
 {
 	m_turboFactor = std::max(0.f, m_turboFactor);
 
-	if (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()) {
+	if (m_turboFactor <= 0 && (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed())) {
 		m_turboFactor = 1.f;
 		m_timeOfLastTurboInitiation = time;
 	}
@@ -192,6 +192,14 @@ float BikeModel::updateState(long double time)
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
+
+
+
+
+	//std::cout << "bike positionNOAI): " << getPositionBt().x() << " " << getPositionBt().y() << std::endl;
+
+
+
 	return speed;
 }
 
@@ -208,17 +216,24 @@ float BikeModel::getVelocity()
 osg::Vec3d BikeModel::getPositionOSG()
 {
 	btTransform trans;
-	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
-
+	trans = m_rigidBodies[0]->getWorldTransform();
 	return osg::Vec3d(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
 }
 
 btVector3 BikeModel::getPositionBt()
 {
 	btTransform trans;
-	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
-
+	trans = m_rigidBodies[0]->getWorldTransform();
 	return trans.getOrigin();
+}
+
+btVector3 BikeModel::getDirection()
+{
+	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
+	float angle = bikeRigidBody->getOrientation().getAngle();
+	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
+	const btVector3 front = btVector3(0, -1, 0);
+	return front.rotate(axis, angle);
 }
 
 
