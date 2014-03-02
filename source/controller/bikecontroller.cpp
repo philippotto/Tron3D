@@ -99,6 +99,16 @@ BikeController::~BikeController()
 	}
 }
 
+void BikeController::killThread()
+{
+	if (m_pollingThread != nullptr)
+	{
+		m_pollingThread->stop();
+		m_pollingThread->wait();
+		m_pollingThread = nullptr;
+	}
+}
+
 void BikeController::initializeInput(input::BikeInputState::InputDevice inputDevice)
 {
 	osg::ref_ptr<input::BikeInputState> bikeInputState = new input::BikeInputState();

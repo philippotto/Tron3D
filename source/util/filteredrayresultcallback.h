@@ -13,8 +13,16 @@ public:
 
 	virtual bool needsCollision(btBroadphaseProxy* proxy0) const
 	{
-		btCollisionObject *collobj = static_cast<btCollisionObject*>(proxy0->m_clientObject);
-		return m_ignoredObject != collobj;
+		void* collisionPartner = proxy0->m_clientObject;
+		
+		if (collisionPartner) {
+			btCollisionObject *collobj = static_cast<btCollisionObject*>(collisionPartner);
+			return m_ignoredObject != collobj;
+		}
+		else {
+			// this should prevent some crashes when an object was removed from the world and a ray intersection test is performed
+			return false;
+		}
 	}
 private:
 	const btCollisionObject* m_ignoredObject;

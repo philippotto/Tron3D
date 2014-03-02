@@ -6,8 +6,8 @@ function move() {
 	straightDirection = 0;
 
 	straightDistance = player.getFreeDistanceInDirection(0);
-	leftDistance = player.getFreeDistanceInDirection(3.14/2);
-	rightDistance = player.getFreeDistanceInDirection(-3.14/2);
+	leftDistance = player.getFreeDistanceInDirection(3.14/4);
+	rightDistance = player.getFreeDistanceInDirection(-3.14/4);
 
 
 	var isCurrentDirectionSafe = straightDistance > 500;
@@ -16,9 +16,19 @@ function move() {
 		player.angle = straightDirection;
 		player.acceleration = 1;
 
-		var isCurrentDirectionVerySafe = straightDistance > 700;
+		var isCurrentDirectionVerySafe = straightDistance > 800;
 		if (isCurrentDirectionVerySafe)
-			player.setTurbo(true);
+		{
+			if (Math.random() > 0.2) {
+				player.setTurbo(true);
+			} else {
+				if (leftDistance > 500) {
+					player.angle = leftDirection;
+				} else if (rightDistance > 500) {
+					player.angle = rightDirection;
+				}
+			}
+		}
 
 	} else {
 		if (straightDistance > leftDistance && straightDistance > rightDistance) {

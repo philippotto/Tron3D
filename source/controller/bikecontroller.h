@@ -24,6 +24,8 @@ namespace troen
 			const bool hasGameView);
 		~BikeController();
 
+		void killThread();
+
 		typedef enum enum_BIKESTATE
 		{
 			DRIVING,

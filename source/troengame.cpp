@@ -579,6 +579,12 @@ bool TroenGame::shutdown()
 {
 	// clean up in reverse order from initialization
 
+	// AIs
+
+	for (auto bikeController : m_bikeControllers) {
+		bikeController->killThread();
+	}
+
 	//timer
 	m_gameloopTimer.reset();
 	m_gameTimer.reset();
