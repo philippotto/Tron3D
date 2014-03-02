@@ -54,6 +54,7 @@ private:
 	public slots :
 		void onFolderChanged(const QString& str)
 		{
+			std::cout << "script was changed" << std::endl;
 			//foreach(QString file, files) {
 
 			QFile f(m_watchedFilePath);

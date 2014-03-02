@@ -29,18 +29,18 @@ void AI::run()
 	m_pollingEnabled = true;
 	
 	m_aiScript = new AIScript(m_bikeInputState, m_bikeController);
-	ScriptContext	*g_scriptingThread = new ScriptContext();
-	g_scriptingThread->registerObject(m_aiScript);
+	ScriptContext g_scriptingThread;
+	g_scriptingThread.registerObject(m_aiScript);
 
 	ScriptWatcher scriptWatcher;
-	scriptWatcher.watchAndLoad("source/scripts/ai.js", g_scriptingThread);
+	scriptWatcher.watchAndLoad("source/scripts/ai.js", &g_scriptingThread);
 	
 	while (m_pollingEnabled)
 	{
 		m_aiScript->setDistanceToNextObstacle(m_bikeController->getDistanceToObstacle(0));
 
 		reflectionzeug::Variant value;
-		value = g_scriptingThread->evaluate("try {     if (typeof move !== 'undefined') { move() } else { player.angle = 0 }      } catch (ex) { ex } ");
+		value = g_scriptingThread.evaluate("try {     if (typeof move !== 'undefined') { move() } else { player.angle = 0 }      } catch (ex) { ex } ");
 		//std::cout << "result of script: " << value.toString() << std::endl;
 
 		m_bikeInputState->setAcceleration(m_aiScript->getAcceleration());
