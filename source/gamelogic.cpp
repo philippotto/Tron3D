@@ -153,14 +153,14 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 		case BIKETYPE:
 			handleCollisionOfTwoBikes(
-				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
-				static_cast<BikeController*>(collisionBodyControllers[otherIndex]),
+				dynamic_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				dynamic_cast<BikeController*>(collisionBodyControllers[otherIndex]),
 				contactManifold);
 			break;
 
 		case ITEMTYPE:
 			handleCollisionOfBikeAndItem(
-				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				dynamic_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
 				dynamic_cast<ItemController *>(collisionBodyControllers[otherIndex]));
 			break;
 
@@ -205,6 +205,14 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 		switch (collisionTypes[otherIndex])
 		{
 		case FENCETYPE:
+		{
+						  // workaround to deal with bike bouncing between own and other fence
+						  FenceController * fence = dynamic_cast<FenceController*>(collisionBodyControllers[otherIndex]);
+						  BikeController * bike = dynamic_cast<BikeController*>(collisionBodyControllers[bikeIndex]);
+						  bike->rememberFenceCollision(fence);
+						  // end workaround
+		}
+			break;
 		case LEVELTYPE:
 		case LEVELOBSTACLETYPE:
 		case LEVELGROUNDTYPE:
@@ -332,6 +340,7 @@ void GameLogic::handlePlayerDeathOnFence(
 		if (lastFenceCollision.first > g_gameTime-400)
 		{
 			handlePlayerDeathOnFence(lastFenceCollision.second->player(), bikePlayer);
+			return;
 		}
 		// end workaround
 
