@@ -53,22 +53,24 @@ namespace troen
 			AbstractController* object,
 			const int objectType,
 			btPersistentManifold* contactManifold);
+		void handleCollisionOfBikeAndFence(
+			BikeController* bike,
+			FenceController* fence,
+			btPersistentManifold* contactManifold);
 		void handleCollisionOfTwoBikes(
 			BikeController* bike1,
 			BikeController* bike2,
 			btPersistentManifold* contactManifold);
-		void handlePlayerDeath(
+		void handleCollisionOfBikeAndItem(
 			BikeController* bike,
-			AbstractController* object,
-			const int objectType
-			);
-		void handlePlayerDeathOnFence(
-			Player* fencePlayer,
-			Player* bikePlayer);
-		void handlePlayerDeathNonFence(
-			Player* deadPlayer);
+			ItemController* item);
+		// death handling
+		void handlePlayerDeath(BikeController* bike);
+		void handlePlayerDeathOnFence(Player* fencePlayer, Player* bikePlayer);
+		void handlePlayerDeathNonFence(	Player* deadPlayer);
 		// helper
 		float impulseFromContactManifold(btPersistentManifold* contactManifold);
+		void playCollisionSound(float impulse);
 
 		//
 		// communication links

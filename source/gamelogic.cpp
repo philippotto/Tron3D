@@ -137,58 +137,35 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 		{
 		case LEVELWALLTYPE:
 		case LEVELOBSTACLETYPE:
-		case FENCETYPE:
-
 			handleCollisionOfBikeAndNonmovingObject(
-				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				dynamic_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
 				collisionBodyControllers[otherIndex],
 				collisionTypes[otherIndex],
 				contactManifold);
 			break;
+
+		case FENCETYPE:
+			handleCollisionOfBikeAndFence(
+				dynamic_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				dynamic_cast<FenceController*>(collisionBodyControllers[otherIndex]),
+				contactManifold);
+			break;
+
 		case BIKETYPE:
 			handleCollisionOfTwoBikes(
 				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
 				static_cast<BikeController*>(collisionBodyControllers[otherIndex]),
 				contactManifold);
 			break;
+
+		case ITEMTYPE:
+			handleCollisionOfBikeAndItem(
+				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				dynamic_cast<ItemController *>(collisionBodyControllers[otherIndex]));
+			break;
+
 		case LEVELGROUNDTYPE:
 			break;
-		case ITEMTYPE:
-		{
-			ItemController* itemController = static_cast<ItemController *>(collisionBodyControllers[otherIndex]);
-			if (itemController) {
-				itemController->triggerOn(static_cast<BikeController*>(collisionBodyControllers[bikeIndex]));
-			}
-
-			//
-			// testing minimap fence display
-			// TODO: add item specifically for displaying the fences?
-			//
-			std::default_random_engine generator;
-			unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-			generator.seed(seed);
-			std::uniform_int_distribution<int> distribution(0, 1);
-			int random0or1 = distribution(generator);
-			std::cout << random0or1 << " ";
-			if (random0or1 == 0)
-			{
-				for (auto player : t->m_players)
-				{
-					player->fenceController()->showFencesInRadarForPlayer(static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->player()->id());
-				}
-				std::cout << "visible" << std::endl;
-			}
-			else
-			{
-				for (auto player : t->m_players)
-				{
-					player->fenceController()->hideFencesInRadarForPlayer(static_cast<BikeController*>(collisionBodyControllers[bikeIndex])->player()->id());
-				}
-				std::cout << "in-visible" << std::endl;
-			}
-			
-			break;
-		}
 		default:
 			break;
 		}
@@ -252,6 +229,43 @@ void GameLogic::handleCollisionOfTwoBikes(
 	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, BIKETYPE, contactManifold);
 }
 
+void GameLogic::handleCollisionOfBikeAndItem(
+	BikeController* bike,
+	ItemController* item)
+{
+	if (item)
+	{
+		item->triggerOn(bike);
+	}
+
+	//
+	// testing minimap fence display
+	// TODO: add item specifically for displaying the fences?
+	//
+	std::default_random_engine generator;
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	generator.seed(seed);
+	std::uniform_int_distribution<int> distribution(0, 1);
+	int random0or1 = distribution(generator);
+	std::cout << random0or1 << " ";
+	if (random0or1 == 0)
+	{
+		for (auto player : t->m_players)
+		{
+			player->fenceController()->showFencesInRadarForPlayer(bike->player()->id());
+		}
+		std::cout << "visible" << std::endl;
+	}
+	else
+	{
+		for (auto player : t->m_players)
+		{
+			player->fenceController()->hideFencesInRadarForPlayer(bike->player()->id());
+		}
+		std::cout << "in-visible" << std::endl;
+	}
+}
+
 void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	BikeController* bike,
 	AbstractController* object,
@@ -259,45 +273,45 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	btPersistentManifold* contactManifold)
 {
 	btScalar impulse = impulseFromContactManifold(contactManifold);
-	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_LOW)
-	{
-		t->m_audioManager->PlaySFX("data/sound/explosion.wav",
-			impulse / BIKE_FENCE_IMPACT_THRESHOLD_HIGH,
-			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
-			1, 1);
-	}
 
-
-	bike->registerCollision(impulse);
-	// TODO (Philipp): move increaseHealth and resetBike into registerCollision and trigger a respawn instead of pausing simulation (needs statistics about lifes etc.)
-	float newHealth = bike->player()->increaseHealth(-1 * impulse);
+	playCollisionSound(impulse);
+	float newHealth = bike->registerCollision(impulse);
 	
 	//
 	// player death
 	//
 	if (newHealth <= 0 && bike->state() == BikeController::BIKESTATE::DRIVING)
 	{
-		handlePlayerDeath(bike, object, objectType);
+		handlePlayerDeath(bike);
+		handlePlayerDeathNonFence(bike->player());
+	}
+}
+
+void GameLogic::handleCollisionOfBikeAndFence(
+	BikeController* bike,
+	FenceController* fence,
+	btPersistentManifold* contactManifold)
+{
+	btScalar impulse = impulseFromContactManifold(contactManifold);
+
+	playCollisionSound(impulse);
+	float newHealth = bike->registerCollision(impulse);
+
+	//
+	// player death
+	//
+	if (newHealth <= 0 && bike->state() == BikeController::BIKESTATE::DRIVING)
+	{
+		handlePlayerDeath(bike);
+		handlePlayerDeathOnFence(fence->player(), bike->player());
 	}
 }
 
 void GameLogic::handlePlayerDeath(
-	BikeController* bike,
-	AbstractController* object,
-	const int objectType)
+	BikeController* bike)
 {
-	Player * bikePlayer = bike->player();
-	bikePlayer->increaseDeathCount();
+	bike->player()->increaseDeathCount();
 	bike->setState(BikeController::BIKESTATE::RESPAWN, g_gameTime);
-	if (objectType == FENCETYPE)
-	{
-		Player * fencePlayer = dynamic_cast<FenceController*>(object)->player();
-		handlePlayerDeathOnFence(fencePlayer, bikePlayer);
-	}
-	else
-	{
-		handlePlayerDeathNonFence(bikePlayer);
-	}
 }
 
 void GameLogic::handlePlayerDeathOnFence(
@@ -411,4 +425,15 @@ void GameLogic::restartLevel()
 {
 	removeAllFences();
 	resetBikePositions();
+}
+
+void GameLogic::playCollisionSound(float impulse)
+{
+	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_LOW)
+	{
+		t->m_audioManager->PlaySFX("data/sound/explosion.wav",
+			impulse / BIKE_FENCE_IMPACT_THRESHOLD_HIGH,
+			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
+			1, 1);
+	}
 }

@@ -49,7 +49,7 @@ namespace troen
 		void setState(const BIKESTATE newState, const double respawnTime = -1);
 		void moveBikeToPosition(btTransform position);
 		void activateTurbo();
-		void registerCollision(btScalar impulse);
+		const float registerCollision(btScalar impulse);
 		void reset();
 		
 		//

@@ -62,11 +62,12 @@ void BikeController::reset()
 	m_timeOfLastCollision = -1;
 }
 
-void BikeController::registerCollision(btScalar impulse)
+const float BikeController::registerCollision(btScalar impulse)
 {
 	if (impulse > 0) {
 		m_timeOfLastCollision = g_gameTime;
 	}
+	return m_player->increaseHealth(-1 * impulse);
 }
 
 BikeController::~BikeController()
