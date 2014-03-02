@@ -41,7 +41,8 @@ m_state(BIKESTATE::WAITING),
 m_speed(0),
 m_turboInitiated(false),
 m_timeOfLastCollision(-1),
-m_respawnTime(-1)
+m_respawnTime(-1),
+m_lastFenceCollision(std::make_pair<float, FenceController*>(0,nullptr))
 {
 	m_view = std::make_shared<BikeView>(player->color(), resourcePool);
 
@@ -62,12 +63,18 @@ void BikeController::reset()
 	m_timeOfLastCollision = -1;
 }
 
-const float BikeController::registerCollision(btScalar impulse)
+const float BikeController::registerCollision(const btScalar impulse)
 {
 	if (impulse > 0) {
 		m_timeOfLastCollision = g_gameTime;
 	}
 	return m_player->increaseHealth(-1 * impulse);
+}
+
+void BikeController::rememberFenceCollision(FenceController* fence)
+{
+	m_lastFenceCollision.first = g_gameTime;
+	m_lastFenceCollision.second = fence;
 }
 
 BikeController::~BikeController()

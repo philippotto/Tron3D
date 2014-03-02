@@ -1,4 +1,6 @@
 #pragma once
+// STD
+#include <utility>
 // OSG
 #include <osg/ref_ptr>
 #include <osgGA/NodeTrackerManipulator>
@@ -45,11 +47,12 @@ namespace troen
 		// logic events
 		//
 		void updateModel(const long double gameTime);
-		void updateUniforms();
 		void setState(const BIKESTATE newState, const double respawnTime = -1);
 		void moveBikeToPosition(btTransform position);
+		const float registerCollision(const btScalar impulse);
+		void rememberFenceCollision(FenceController* fence);
 		void activateTurbo();
-		const float registerCollision(btScalar impulse);
+		void updateUniforms();
 		void reset();
 		
 		//
@@ -62,6 +65,7 @@ namespace troen
 		float speed()			{ return m_speed; };
 		BIKESTATE state()		{ return m_state; };
 		double respawnTime()	{ return m_respawnTime; };
+		std::pair<float, FenceController*> lastFenceCollision() { return m_lastFenceCollision; };
 
 		bool turboInitiated()	{ return m_turboInitiated; };
 		bool hasKeyboardHandler() {	return m_keyboardHandler != nullptr; };
@@ -114,7 +118,8 @@ namespace troen
 		BIKESTATE	m_state;
 		float		m_speed;
 		bool		m_turboInitiated = false;
-		float		m_timeOfLastCollision;
 		double		m_respawnTime;
+		float		m_timeOfLastCollision;
+		std::pair<float, FenceController*> m_lastFenceCollision;
 	};
 }

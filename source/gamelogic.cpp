@@ -297,6 +297,13 @@ void GameLogic::handleCollisionOfBikeAndFence(
 	playCollisionSound(impulse);
 	float newHealth = bike->registerCollision(impulse);
 
+	// workaround to deal with bike bouncing between own and other fence
+	if (bike->player() != fence->player())
+	{
+		bike->rememberFenceCollision(fence);
+	}
+	// end workaround
+
 	//
 	// player death
 	//
@@ -320,6 +327,14 @@ void GameLogic::handlePlayerDeathOnFence(
 {
 	if (fencePlayer == bikePlayer) // hit own fence
 	{
+		// workaround to deal with bike bouncing between own and other fence
+		std::pair<float, FenceController*> lastFenceCollision =	bikePlayer->bikeController()->lastFenceCollision();
+		if (lastFenceCollision.first > g_gameTime-400)
+		{
+			handlePlayerDeathOnFence(lastFenceCollision.second->player(), bikePlayer);
+		}
+		// end workaround
+
 		bikePlayer->decreaseKillCount();
 		if (bikePlayer->hasGameView())
 		{
@@ -328,6 +343,7 @@ void GameLogic::handlePlayerDeathOnFence(
 	}
 	else //hit someone elses fence
 	{
+
 		fencePlayer->increaseKillCount();
 		for (auto player : t->m_playersWithView)
 		{
@@ -345,6 +361,7 @@ void GameLogic::handlePlayerDeathOnFence(
 
 void GameLogic::handlePlayerDeathNonFence(Player* deadPlayer)
 {
+
 	for (auto player : t->m_players)
 	{
 		if (&(*player) != deadPlayer)
