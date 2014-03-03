@@ -148,6 +148,7 @@ void NetworkManager::run()
 
 
 		sendData();
+		this->msleep(10);
 		
 	}
 
