@@ -291,14 +291,14 @@ void BikeController::updateModel(const long double gameTime)
 			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
 			//std::static_pointer_cast<BikeView>(m_view)->m_pat->setAttitude(attitude);
 			moveBikeToPosition(m_initialTransform);
+			reset();
+			updateFov(0);
 			m_state = RESPAWN_PART_2;
 		}
 		break;
 	}
 	case RESPAWN_PART_2:
 	{
-		reset();
-		updateFov(0);
 		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN_PART_2" << std::endl;
 		if (gameTime > m_respawnTime + RESPAWN_DURATION)
 		{
