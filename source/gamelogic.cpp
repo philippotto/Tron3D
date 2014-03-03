@@ -174,7 +174,6 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 {
-	return;
 	//std::cout << "[PhysicsWorld::seperationEvent] seperation detected" << std::endl;
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
