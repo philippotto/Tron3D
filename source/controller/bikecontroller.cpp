@@ -494,3 +494,13 @@ float BikeController::getInputAcceleration()
 {
 	return std::static_pointer_cast<BikeModel>(m_model)->getInputAcceleration();
 }
+
+btVector3 troen::BikeController::getLinearVelocity()
+{
+	return std::static_pointer_cast<BikeModel>(m_model)->getLinearVelocity();
+}
+
+btVector3 troen::BikeController::getAngularVelocity()
+{
+	return std::static_pointer_cast<BikeModel>(m_model)->getAngularVelocity();
+}

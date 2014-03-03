@@ -84,6 +84,8 @@ namespace troen
 		void increaseKillCount() { m_killCount++; };
 		float getInputAngle();
 		float getInputAcceleration();
+		btVector3 getLinearVelocity();
+		btVector3 getAngularVelocity();
 
 	private:
 		// field of view methods
@@ -95,6 +97,7 @@ namespace troen
 		void initializeInput(const input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		long double getTimeFactor();
+
 		// communication links
 		osg::ref_ptr<osgViewer::View>		m_gameView;
 		std::shared_ptr<FenceController>	m_fenceController;

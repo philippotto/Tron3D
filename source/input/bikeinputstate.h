@@ -33,6 +33,10 @@ namespace input
 		void setPosition(btVector3 position);
 		btQuaternion getRotation();
 		void setRotation(btQuaternion val);
+		btVector3 getLinearVeloctiy();
+		void setLinearVeloctiy(btVector3 val);
+		float getAngularVelocity();
+		void setAngularVelocityZ(float val);
 	private:
 		float m_acceleration;
 		float m_angle;
@@ -41,6 +45,9 @@ namespace input
 		bool m_isRemote;
 		btVector3 m_position;
 		btQuaternion m_rotation;
+		btVector3 m_linearVeloctiy;
+		float m_angularVelocity;
+
 	};
 }
 }

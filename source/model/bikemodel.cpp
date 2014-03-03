@@ -123,17 +123,21 @@ float BikeModel::updateState(long double time)
 	float timeFactor = m_timeSinceLastUpdate / 16.6f;
 
 	m_lastUpdateTime = time;
+	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
 
 	const btVector3 front = btVector3(0, -1, 0);
 	
 	if (m_bikeInputState->isRemote())
 	{
 		btTransform trans;
-		(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
+		//(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
 		trans.setRotation(m_bikeInputState->getRotation());
 		trans.setOrigin(m_bikeInputState->getPosition());
 		moveBikeToPosition(trans);
+		bikeRigidBody->setLinearVelocity(m_bikeInputState->getLinearVeloctiy());
+		bikeRigidBody->setAngularVelocity(btVector3(0, 0, m_bikeInputState->getAngularVelocity()));
 		//m_rigidBodies[0]->set
+		return m_bikeInputState->getLinearVeloctiy().length();
 	}
 
 	// call this exactly once per frame
@@ -143,7 +147,6 @@ float BikeModel::updateState(long double time)
 	// if the handbrake is pulled, reduce friction to allow drifting
 	m_bikeFriction = (abs(m_steering) > BIKE_ROTATION_VALUE) ? 0.03 * timeFactor : fmin((1.f + timeFactor * 0.13f) * m_bikeFriction, 1.0);
 
-	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
 
 	btVector3 currentVelocityVectorXY = bikeRigidBody->getLinearVelocity();
 	btScalar zComponent = currentVelocityVectorXY.getZ();
@@ -248,6 +251,16 @@ btQuaternion BikeModel::getRotationQuat()
 	trans = m_rigidBodies[0]->getWorldTransform();
 
 	return trans.getRotation();
+}
+
+btVector3 BikeModel::getLinearVelocity()
+{
+	return m_rigidBodies[0]->getLinearVelocity();
+}
+
+btVector3 BikeModel::getAngularVelocity()
+{
+	return m_rigidBodies[0]->getAngularVelocity();
 }
 
 

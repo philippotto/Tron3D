@@ -25,7 +25,7 @@ enum GameMessages
 	BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1
 };
 
-struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage;
+struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage, messageToSend;
 
 NetworkManager::NetworkManager()
 {
@@ -33,7 +33,8 @@ NetworkManager::NetworkManager()
 	peer = RakNet::RakPeerInterface::GetInstance();
 	m_connectedToServer = false;
 	m_clientsConnected = false;
-	m_sendMessagesQueue = new QQueue<bikeUpdateMessage>();
+	m_sendUpdateMessagesQueue = new QQueue<bikeUpdateMessage>();
+	m_sendInputUpdateMessagesQueue = new QQueue<bikeInputUpdateMessage>();
 	m_remotePlayers = std::vector<input::RemotePlayer*>();
 	m_sendBufferMutex = new QMutex();
 	m_localBikeController = NULL;
@@ -43,9 +44,17 @@ NetworkManager::NetworkManager()
 void  NetworkManager::enqueueMessage(bikeUpdateMessage message)
 {
 	m_sendBufferMutex->lock();
-	m_sendMessagesQueue->enqueue(message);
+	m_sendUpdateMessagesQueue->enqueue(message);
 	m_sendBufferMutex->unlock();
 }
+
+void  NetworkManager::enqueueMessage(bikeInputUpdateMessage message)
+{
+	m_sendBufferMutex->lock();
+	m_sendInputUpdateMessagesQueue->enqueue(message);
+	m_sendBufferMutex->unlock();
+}
+
 
 
 void NetworkManager::registerRemotePlayer(troen::input::RemotePlayer *remotePlayer)
@@ -65,15 +74,27 @@ void NetworkManager::update(long double g_gameTime)
 	{
 		btVector3 pos = m_localBikeController->getPositionBt();
 		btQuaternion quat = m_localBikeController->getRotation();
-		bikeUpdateMessage message = { pos.x(), pos.y(), pos.z(),
-			quat.x(), quat.y(), quat.z(), quat.w(),
-			m_localBikeController->getInputAngle(), m_localBikeController->getInputAcceleration() };
+		btVector3 linearVelocity = m_localBikeController->getLinearVelocity();
+		btVector3 angularVelocity = m_localBikeController->getAngularVelocity();
+		bikeUpdateMessage message = { 
+			pos.x(), pos.y(), pos.z(),
+			quat.x(), quat.y(), quat.z(), quat.w(), 
+			linearVelocity.x(), linearVelocity.y(), linearVelocity.z(), 
+			angularVelocity.z()
+		};
 
-		if (message.turnAngle != lastSentMessage.turnAngle || message.acceleration != lastSentMessage.acceleration || g_gameTime - m_lastUpdateTime > 30.0 )
+		//bikeInputUpdateMessage inputmessage = { m_localBikeController->getInputAngle(), m_localBikeController->getInputAcceleration() };
+		if (message.linearVelX != lastSentMessage.linearVelX || message.linearVelY != lastSentMessage.linearVelY || message.angularVelZ != message.angularVelZ || g_gameTime - m_lastUpdateTime > 20.0)
 		{
 			enqueueMessage(message);
 			lastSentMessage = message;
 		}
+
+		//if (inputmessage.turnAngle != lastSentMessage.turnAngle || inputmessage.acceleration != lastSentMessage.acceleration || g_gameTime - m_lastUpdateTime > 30.0)
+		//{
+		//	enqueueMessage(inputmessage);
+		//	lastSentMessage = inputmessage;
+		//}
 		
 		
 	}
@@ -173,7 +194,7 @@ void NetworkManager::openServer()
 
 void NetworkManager::sendData()
 {
-	while (!m_sendMessagesQueue->empty())
+	while (!m_sendUpdateMessagesQueue->empty())
 	{
 		if (m_connectedToServer || m_clientsConnected)
 		{
@@ -183,9 +204,9 @@ void NetworkManager::sendData()
 			//Bitstreams are easier to use than sending casted structures, and handle endian swapping automatically
 			bsOut.Write((RakNet::MessageID)BIKE_POSITION_MESSSAGE);
 			m_sendBufferMutex->lock();
-			receivedUpdateMessage = m_sendMessagesQueue->dequeue();
+			messageToSend = m_sendUpdateMessagesQueue->dequeue();
 			m_sendBufferMutex->unlock();
-			bsOut.Write(receivedUpdateMessage);
+			bsOut.Write(messageToSend);
 			
 			//peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
 			peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);

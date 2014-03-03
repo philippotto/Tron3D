@@ -40,6 +40,8 @@ namespace troen
 		void updateTurboFactor(const float newVelocity, const float time);
 		float getInputAcceleration();
 		float getInputAngle();
+		btVector3 getLinearVelocity();
+		btVector3 getAngularVelocity();
 	private:
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 		float m_oldVelocity;

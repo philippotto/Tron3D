@@ -14,7 +14,7 @@ BikeInputState::BikeInputState()
 	//only used for network
 	m_position = btVector3(0.0, 0.0, 0.0);
 	m_isRemote = false;
-	
+
 }
 
 float BikeInputState::getAngle()
@@ -78,5 +78,32 @@ void BikeInputState::setPosition(btVector3 position)
 	m_position = position;
 }
 
-btQuaternion BikeInputState::getRotation() { return m_rotation; }
-void BikeInputState::setRotation(btQuaternion val) { m_rotation = val; }
+btQuaternion BikeInputState::getRotation() 
+{ 
+	return m_rotation; 
+}
+
+void BikeInputState::setRotation(btQuaternion val) 
+{ 
+	m_rotation = val;
+}
+
+btVector3 BikeInputState::getLinearVeloctiy() 
+{
+	return m_linearVeloctiy;
+}
+
+void BikeInputState::setLinearVeloctiy(btVector3 val)
+{
+	m_linearVeloctiy = val;
+}
+
+float BikeInputState::getAngularVelocity() 
+{
+	return m_angularVelocity;
+}
+
+void BikeInputState::setAngularVelocityZ(float val) 
+{ 
+	m_angularVelocity = val; 
+}
