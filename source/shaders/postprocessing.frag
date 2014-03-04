@@ -165,7 +165,8 @@ void main(void)
 	//hsl.x = mix(hsl.x, 1, 0.99); // .x is hue, .y is saturation, .z is brightness
 	//hsl.y *= 1.4;
 	//hsl.z *= 0.5;
-	vec3 reddedColor = vec3(1.0, 0.0, 0.0); //HSLToRGB(hsl);
+	vec3 reddedColor = vec3(1.0,0.0,0.0);//HSLToRGB(hsl);
+
 	// BlendPhoenix could be used for a some special mode
 	// color = BlendPhoenix(color, pongColor);
 

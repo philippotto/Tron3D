@@ -16,7 +16,7 @@ namespace troen
 		BikeModel(
 			btTransform initialTransform,
 			osg::ref_ptr<osg::Group> node,
-			std::shared_ptr<FenceController> fenceController,
+			Player * player,
 			BikeController* bikeController);
 
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);

@@ -6,6 +6,7 @@
 
 #include "MessageIdentifiers.h"
 #include "../controller/bikecontroller.h"
+#include "../model/bikemodel.h"
 
 
 //
@@ -22,7 +23,8 @@ using namespace troen::networking;
 
 enum GameMessages
 {
-	BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1
+	BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1,
+	GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 2,
 };
 
 struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage, messageToSend;
@@ -72,10 +74,10 @@ void NetworkManager::update(long double g_gameTime)
 
 	if (this->isValidSession())
 	{
-		btVector3 pos = m_localBikeController->getPositionBt();
-		btQuaternion quat = m_localBikeController->getRotation();
-		btVector3 linearVelocity = m_localBikeController->getLinearVelocity();
-		btVector3 angularVelocity = m_localBikeController->getAngularVelocity();
+		btVector3 pos = m_localBikeController->getModel()->getPositionBt();
+		btQuaternion quat = m_localBikeController->getModel()->getRotationQuat();
+		btVector3 linearVelocity = m_localBikeController->getModel()->getLinearVelocity();
+		btVector3 angularVelocity = m_localBikeController->getModel()->getAngularVelocity();
 		bikeUpdateMessage message = { 
 			pos.x(), pos.y(), pos.z(),
 			quat.x(), quat.y(), quat.z(), quat.w(), 
@@ -128,6 +130,7 @@ void NetworkManager::run()
 				break;
 			case ID_NEW_INCOMING_CONNECTION:
 				m_clientsConnected = true;
+				m_clientAddress = std::string(packet->systemAddress.ToString());
 				printf("A connection is incoming.\n");
 				break;
 			case ID_NO_FREE_INCOMING_CONNECTIONS:
@@ -161,6 +164,10 @@ void NetworkManager::run()
 			}
 				break;
 
+			case GAME_START_MESSAGE:
+				emit remoteStartCall();
+				break;
+
 			default:
 				printf("Message with identifier %i has arrived.\n", packet->data[0]);
 				break;
@@ -177,20 +184,6 @@ void NetworkManager::run()
 	RakNet::RakPeerInterface::DestroyInstance(peer);
 }
 
-void NetworkManager::openServer()
-{
-	m_isServer = true;
-	RakNet::SocketDescriptor sd(SERVER_PORT, 0);
-	peer->Startup(MAX_CLIENTS, &sd, 1);
-
-	printf("Starting the server.\n");
-	// We need to let the server accept incoming connections from the clients
-	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
-	
-
-	//calls the run method in a seperate thread
-	start();
-}
 
 void NetworkManager::sendData()
 {
@@ -209,35 +202,55 @@ void NetworkManager::sendData()
 			bsOut.Write(messageToSend);
 			
 			//peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
-			peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+			peer->Send(&bsOut, HIGH_PRIORITY, UNRELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 		}
 	}
 }
 
-void NetworkManager::openClient()
+void NetworkManager::openServer()
+{
+	m_isServer = true;
+	RakNet::SocketDescriptor sd(SERVER_PORT, 0);
+	peer->Startup(MAX_CLIENTS, &sd, 1);
+
+	printf("Starting the server.\n");
+	// We need to let the server accept incoming connections from the clients
+	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
+	
+
+	//calls the run method in a seperate thread
+	start();
+}
+void NetworkManager::openClient(std::string connectAddr)
 {
 	m_isServer = false;
 	RakNet::SocketDescriptor sd;
 	peer->Startup(1, &sd, 1);
 
-	char str[512];
-
-	printf("Enter server IP or hit enter for 127.0.0.1\n");
-	//gets(str);
-	std::cin.getline(str, 510);
-	if (str[0] == 0){
-		strncpy_s(str, "127.0.0.1",10);
-	}
 	printf("Starting the client.\n");
-	RakNet::ConnectionAttemptResult r= peer->Connect(str, SERVER_PORT, 0, 0);
+	RakNet::ConnectionAttemptResult r = peer->Connect(connectAddr.c_str(), SERVER_PORT, 0, 0);
 
 	//calls the run method in a seperate thread
 	start();
 }
+
+void NetworkManager::synchronizeGameStart()
+{
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)GAME_START_MESSAGE);
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+}
+
 
 
 bool NetworkManager::isValidSession()
 {
 	//for now
 	return m_connectedToServer || m_clientsConnected;
+}
+
+
+std::string  NetworkManager::getClientAddress() 
+{ 
+	return m_clientAddress;
 }

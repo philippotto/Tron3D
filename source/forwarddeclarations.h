@@ -64,9 +64,11 @@ class btTransform;
 namespace troen
 {
 	class TroenGame;
+	class TroenGameBuilder;
 	class SampleOSGViewer;
 	class GameEventHandler;
 	class GameLogic;
+	class Player;
 
 	class BikeModel;
 	class LevelModel;

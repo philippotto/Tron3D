@@ -39,11 +39,12 @@ namespace troen
 
 		class NetworkManager : public QThread
 		{
+			Q_OBJECT
 		public:
 			NetworkManager();
 			void openServer();
 			virtual void run();
-			void openClient();
+			void openClient(std::string connectAddr);
 			void sendData();
 			void enqueueMessage(bikeUpdateMessage message);
 			void enqueueMessage(bikeInputUpdateMessage message);
@@ -51,7 +52,14 @@ namespace troen
 			bool isValidSession();
 			void setLocalBikeController(troen::BikeController *controller);
 			void update(long double g_gameTime);
+			std::string getClientAddress();
+			void synchronizeGameStart();
+		
+		signals:
+			void remoteStartCall();
+
 		protected:
+			std::string m_clientAddress;
 			RakNet::Packet *m_packet;
 			RakNet::RakPeerInterface *peer;
 			bool m_isServer;

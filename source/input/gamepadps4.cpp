@@ -134,10 +134,10 @@ void GamepadPS4::run()
 		float normRY = (getValueFromKey(GamepadPS4::PS4KEY::RIGHT_HAT_Y, buffer) - 128) / 128.f;
 		float rightStickY = (abs(normRY) < m_deadzoneY ? 0 : (abs(normRY) - m_deadzoneY) * (normRY / abs(normRY)));
 
-		float viewingAngle;
+		float viewingAngle, relativeAngle;
 		if (rightStickX != 0.0 || rightStickY != 0.0) {
-			float relativeAngle = atan(rightStickX / rightStickY);// *abs(rightStickX);
-			viewingAngle = (rightStickY >= 0.f ? rightStickX < 0 ? -PI + relativeAngle : PI + relativeAngle : relativeAngle);
+			relativeAngle = atan(rightStickX / rightStickY);
+			viewingAngle = (rightStickY >= 0.f ? rightStickX < 0 ? PI + relativeAngle : -PI + relativeAngle : relativeAngle);
 		}
 		else {
 			viewingAngle = 0.f;
