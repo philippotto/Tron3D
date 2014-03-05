@@ -96,7 +96,6 @@ void GameLogic::stepGameOver(const long double gameloopTime, const long double g
 
 void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold)
 {
-	//std::cout << "[PhysicsWorld::collisionEvent] collision detected" << std::endl;
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
 	collidingBodies[1] = pBody1;
@@ -106,7 +105,7 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 	objectInfos[0] = static_cast<ObjectInfo *>(pBody0->getUserPointer());
 	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
 
-	// try to recognize invalid pointers
+	// try to recognize invalid pointers - workaround for debugmode
 	if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
 
 	AbstractController* collisionBodyControllers[2];
@@ -174,7 +173,6 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 {
-	//std::cout << "[PhysicsWorld::seperationEvent] seperation detected" << std::endl;
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
 	collidingBodies[1] = pBody1;
@@ -182,6 +180,9 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 	ObjectInfo* objectInfos[2];
 	objectInfos[0] = static_cast<ObjectInfo *>(pBody0->getUserPointer());
 	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
+
+	// try to recognize invalid pointers - workaround for debugmode
+	if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
 
 	// get the controllers of the separating objects
 	AbstractController* collisionBodyControllers[2];
