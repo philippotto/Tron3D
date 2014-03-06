@@ -245,33 +245,6 @@ void GameLogic::handleCollisionOfBikeAndItem(
 	{
 		item->triggerOn(bike);
 	}
-
-	//
-	// testing minimap fence display
-	// TODO: add item specifically for displaying the fences?
-	//
-	std::default_random_engine generator;
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-	generator.seed(seed);
-	std::uniform_int_distribution<int> distribution(0, 1);
-	int random0or1 = distribution(generator);
-	std::cout << random0or1 << " ";
-	if (random0or1 == 0)
-	{
-		for (auto player : t->m_players)
-		{
-			player->fenceController()->showFencesInRadarForPlayer(bike->player()->id());
-		}
-		std::cout << "visible" << std::endl;
-	}
-	else
-	{
-		for (auto player : t->m_players)
-		{
-			player->fenceController()->hideFencesInRadarForPlayer(bike->player()->id());
-		}
-		std::cout << "in-visible" << std::endl;
-	}
 }
 
 void GameLogic::handleCollisionOfBikeAndNonmovingObject(
