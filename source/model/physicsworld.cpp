@@ -239,7 +239,7 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 
 	checkForCollisionEvents();
 
-	discretizeWorld();
+	// discretizeWorld();
 
 }
 

@@ -261,8 +261,8 @@ bool TroenGameBuilder::destroy()
 
 	// AIs
 
-	for (auto bikeController : m_bikeControllers) {
-		bikeController->killThread();
+	for (auto player : t->m_players) {
+		player->bikeController()->killThread();
 	}
 
 	t->m_gameloopTimer.reset();

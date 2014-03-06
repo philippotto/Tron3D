@@ -362,18 +362,11 @@ void BikeController::addUniformsToPlayerNode()
 	m_velocityUniform = new osg::Uniform("velocity", 0.f);
 	m_timeFactorUniform = new osg::Uniform("timeFactor", 1.f);
 	m_healthUniform = new osg::Uniform("healthNormalized", m_player->health() / BIKE_DEFAULT_HEALTH);
-
-void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world) {
-	m_world = world;
-	osg::ref_ptr<osg::StateSet> stateset = m_player->playerNode()->getOrCreateStateSet();
-	stateset->addUniform(m_timeOfCollisionUniform);
-	stateset->addUniform(m_velocityUniform);
-	stateset->addUniform(m_timeFactorUniform);
-	stateset->addUniform(m_healthUniform);
 }
 
 void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 {
+	m_world = world;
 	world->addRigidBodies(getRigidBodies(), COLGROUP_BIKE, COLMASK_BIKE);
 }
 
