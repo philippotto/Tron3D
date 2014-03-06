@@ -32,8 +32,14 @@ namespace troen
 		void updateIngameMessageTexts(std::deque<std::shared_ptr<IngameMessage>>& messages);
 
 		//
-		// text setter
+		// texts
 		//
+		void initializeText(
+			osg::ref_ptr<osgText::Text> text,
+			const osg::Vec3& position,
+			const osg::Vec4& color,
+			const osgText::Text::AlignmentType alignment,
+			const int size);
 		void setSpeedText(const float speed);
 		void setHealthText(const float health);
 		void setPointsText(const float points);
@@ -54,6 +60,7 @@ namespace troen
 		osg::ref_ptr<osg::Node>		m_trackNode;
 		osg::ref_ptr<osgGA::NodeTrackerManipulator> m_radarManipulator;
 
+		osg::ref_ptr<osgText::Font> m_font;
 		osg::ref_ptr<osgText::Text> m_healthText;
 		osg::ref_ptr<osgText::Text> m_speedText;
 		osg::ref_ptr<osgText::Text> m_pointsText;

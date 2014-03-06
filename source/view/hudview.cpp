@@ -53,7 +53,7 @@ osg::ref_ptr<osg::Camera> HUDView::createHUD(const std::vector<std::shared_ptr<P
 	m_savedGeode = new osg::Geode();
 	m_camera->addChild(m_savedGeode);
 
-	osgText::Font *font = osgText::readFontFile("data/fonts/tr2n.ttf");
+	m_font = osgText::readFontFile("data/fonts/tr2n.ttf");
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -66,99 +66,102 @@ osg::ref_ptr<osg::Camera> HUDView::createHUD(const std::vector<std::shared_ptr<P
 	osg::StateSet* stateset = m_savedGeode->getOrCreateStateSet();
 	stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
-
 	int offset = HUD_PROJECTION_SIZE / 20;
-	{
-		m_savedGeode->addDrawable(m_speedText);
 
-		osg::Vec3 speedPosition(HUD_PROJECTION_SIZE - offset, offset, 0);
-		m_speedText->setAlignment(osgText::Text::AlignmentType::RIGHT_BOTTOM);
-		m_speedText->setFont(font);
-		setSpeedText(0);
-		m_speedText->setPosition(speedPosition);
-		m_speedText->setColor(m_playerColor);
-		m_speedText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-		m_speedText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
-	}
-	{
-		m_savedGeode->addDrawable(m_healthText);
+	initializeText(
+		m_speedText,
+		osg::Vec3(HUD_PROJECTION_SIZE - offset, offset, 0),
+		m_playerColor,
+		osgText::Text::AlignmentType::RIGHT_BOTTOM,
+		DEFAULT_WINDOW_HEIGHT / 15);
+	setSpeedText(0);
+	m_savedGeode->addDrawable(m_speedText);
 
-		m_healthText->setFont(font);
-		m_healthText->setPosition(osg::Vec3(offset, offset, 0.f));
-		m_healthText->setColor(m_playerColor);
-		setHealthText(100);
-		m_healthText->setAlignment(osgText::Text::AlignmentType::LEFT_BOTTOM);
-		m_healthText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-		m_healthText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
-	}
-	{
-		m_savedGeode->addDrawable(m_pointsText);
+	initializeText(
+		m_healthText,
+		osg::Vec3(offset, offset, 0.f),
+		m_playerColor,
+		osgText::Text::AlignmentType::LEFT_BOTTOM,
+		DEFAULT_WINDOW_HEIGHT / 15);
+	setHealthText(100);
+	m_savedGeode->addDrawable(m_healthText);
 
-		m_pointsText->setFont(font);
-		m_pointsText->setPosition(osg::Vec3(offset, HUD_PROJECTION_SIZE - offset, 0.f));
-		m_pointsText->setColor(m_playerColor);
-		setPointsText(0);
-		m_pointsText->setAlignment(osgText::Text::AlignmentType::LEFT_TOP);
-		m_pointsText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-		m_pointsText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 15);
-	}
-	{
-		m_savedGeode->addDrawable(m_countdownText);
+	initializeText(
+		m_pointsText,
+		osg::Vec3(offset, HUD_PROJECTION_SIZE - offset, 0.f),
+		m_playerColor,
+		osgText::Text::AlignmentType::LEFT_TOP,
+		DEFAULT_WINDOW_HEIGHT / 15);
+	setPointsText(0);
+	m_savedGeode->addDrawable(m_pointsText);
 
-		m_countdownText->setFont(font);
-		m_countdownText->setPosition(osg::Vec3(HUD_PROJECTION_SIZE / 2, HUD_PROJECTION_SIZE / 2, 0.f));
-		m_countdownText->setColor(m_playerColor);
-		setCountdownText(-1);
-		m_countdownText->setAlignment(osgText::Text::AlignmentType::CENTER_CENTER);
-		m_countdownText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-		m_countdownText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 3);
-	}
-	{
-		m_savedGeode->addDrawable(m_timeText);
+	initializeText(
+		m_countdownText,
+		osg::Vec3(HUD_PROJECTION_SIZE / 2, HUD_PROJECTION_SIZE / 2, 0.f),
+		m_playerColor,
+		osgText::Text::AlignmentType::CENTER_CENTER,
+		DEFAULT_WINDOW_HEIGHT / 3);
+	setCountdownText(-1);
+	m_savedGeode->addDrawable(m_countdownText);
 
-		m_timeText->setFont(font);
-		m_timeText->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset, 0.f));
-		m_timeText->setColor(m_playerColor);
-		setTimeText(-1,-1);
-		m_timeText->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
-		m_timeText->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-		m_timeText->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 8);
-	}
+	initializeText(
+		m_timeText,
+		osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset, 0.f),
+		m_playerColor,
+		osgText::Text::AlignmentType::RIGHT_TOP,
+		DEFAULT_WINDOW_HEIGHT / 8);
+	setTimeText(-1, -1);
+	m_savedGeode->addDrawable(m_timeText);
+
+
 	for (int i = 0; i < players.size(); i++)
 	{
 		m_killCountTexts[i] = new osgText::Text();
-		m_savedGeode->addDrawable(m_killCountTexts[i]);
-
-		m_killCountTexts[i]->setFont(font);
-		m_killCountTexts[i]->setPosition(osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset * (3 + i), 0.f));
-		m_killCountTexts[i]->setColor(osg::Vec4(players[i]->color(),1));
+		initializeText(
+			m_killCountTexts[i],
+			osg::Vec3(HUD_PROJECTION_SIZE - offset, HUD_PROJECTION_SIZE - offset * (3 + i), 0.f),
+			osg::Vec4(players[i]->color(), 1),
+			osgText::Text::AlignmentType::RIGHT_TOP,
+			DEFAULT_WINDOW_HEIGHT / 20);
 		setKillCountText(i, players[i]->name(), 0);
-		m_killCountTexts[i]->setAlignment(osgText::Text::AlignmentType::RIGHT_TOP);
-		m_killCountTexts[i]->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-		m_killCountTexts[i]->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 20);
+		m_savedGeode->addDrawable(m_killCountTexts[i]);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
-	// Main HUD elements
+	// Ingame Message Texts
 	//
 	////////////////////////////////////////////////////////////////////////////////
 	for (int i = 0; i < 4; i++)
 	{
 		m_ingameMessageTexts[i] = new osgText::Text();
-		m_savedGeode->addDrawable(m_ingameMessageTexts[i]);
-
-		m_ingameMessageTexts[i]->setFont(font);
-		m_ingameMessageTexts[i]->setPosition(osg::Vec3(HUD_PROJECTION_SIZE / 2.f, HUD_PROJECTION_SIZE - offset * (5 + i*2.f), 0.f));
-		m_ingameMessageTexts[i]->setColor(osg::Vec4(1,1,1,1));
+		initializeText(
+			m_ingameMessageTexts[i],
+			osg::Vec3(HUD_PROJECTION_SIZE / 2.f, HUD_PROJECTION_SIZE - offset * (5 + i*2.f), 0.f),
+			osg::Vec4(1, 1, 1, 1),
+			osgText::Text::AlignmentType::CENTER_TOP,
+			DEFAULT_WINDOW_HEIGHT / 20);
 		m_ingameMessageTexts[i]->setText("");
-		m_ingameMessageTexts[i]->setAlignment(osgText::Text::AlignmentType::CENTER_TOP);
-		m_ingameMessageTexts[i]->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
-		m_ingameMessageTexts[i]->setCharacterSize(DEFAULT_WINDOW_HEIGHT / 20);
+		m_savedGeode->addDrawable(m_ingameMessageTexts[i]);
 	}
 
-
 	return m_camera;
+}
+
+void HUDView::initializeText(
+	osg::ref_ptr<osgText::Text> text,
+	const osg::Vec3& position,
+	const osg::Vec4& color,
+	const osgText::Text::AlignmentType alignment,
+	const int size)
+{
+	text->setFont(m_font);
+	text->setPosition(position);
+	text->setColor(color);
+	text->setAlignment(alignment);
+	text->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+	text->setCharacterSize(size);
+	text->setFontResolution(size, size);
 }
 
 
@@ -179,21 +182,34 @@ void HUDView::resize(const int width,const int height)
 void HUDView::resizeHudComponents(const int width, const int height)
 {
 	m_speedText->setCharacterSize(height / 15);
+	m_speedText->setFontResolution(height / 15, height / 15);
+
 	m_healthText->setCharacterSize(height / 15);
+	m_healthText->setFontResolution(height / 15, height / 15);
+
 	m_pointsText->setCharacterSize(height / 15);
+	m_pointsText->setFontResolution(height / 15, height / 15);
+
 	m_countdownText->setCharacterSize(height / 3);
+	m_countdownText->setFontResolution(height / 3, height / 3);
+
 	m_timeText->setCharacterSize(height / 8);
+	m_timeText->setFontResolution(height / 8, height / 8);
 	
 	const int textNum = sizeof(m_killCountTexts) / sizeof(m_killCountTexts[0]);
 	for (size_t i = 0; i < textNum; i++)
 	{
 		if (m_killCountTexts[i].valid())
+		{
 			m_killCountTexts[i]->setCharacterSize(height / 15);
+			m_killCountTexts[i]->setFontResolution(height / 15, height / 15);
+		}
 	}
 
 	for (size_t i = 0; i < 4; i++)
 	{
 		m_ingameMessageTexts[i]->setCharacterSize(height / 20);
+		m_ingameMessageTexts[i]->setFontResolution(height / 20, height / 20);
 	}
 }
 
