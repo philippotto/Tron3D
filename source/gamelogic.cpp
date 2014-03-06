@@ -337,7 +337,7 @@ void GameLogic::handlePlayerDeathOnFence(
 	{
 		// workaround to deal with bike bouncing between own and other fence
 		std::pair<float, FenceController*> lastFenceCollision =	bikePlayer->bikeController()->lastFenceCollision();
-		if (lastFenceCollision.first > g_gameTime-400)
+		if (false && lastFenceCollision.first > g_gameTime-400)
 		{
 			handlePlayerDeathOnFence(lastFenceCollision.second->player(), bikePlayer);
 			return;
