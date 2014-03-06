@@ -86,7 +86,8 @@ void NetworkManager::update(long double g_gameTime)
 		};
 
 		//bikeInputUpdateMessage inputmessage = { m_localBikeController->getInputAngle(), m_localBikeController->getInputAcceleration() };
-		if (message.linearVelX != lastSentMessage.linearVelX || message.linearVelY != lastSentMessage.linearVelY || message.angularVelZ != message.angularVelZ || g_gameTime - m_lastUpdateTime > 20.0)
+		if ((message.linearVelX != lastSentMessage.linearVelX) || (message.linearVelY != lastSentMessage.linearVelY) ||
+			(message.angularVelZ != lastSentMessage.angularVelZ) ||( g_gameTime - m_lastUpdateTime > 20.0))
 		{
 			enqueueMessage(message);
 			lastSentMessage = message;

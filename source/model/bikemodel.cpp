@@ -136,7 +136,7 @@ float BikeModel::updateState(long double time)
 		bikeRigidBody->setLinearVelocity(m_bikeInputState->getLinearVelocity());
 		bikeRigidBody->setAngularVelocity(btVector3(0, 0, m_bikeInputState->getAngularVelocity()));
 		//m_rigidBodies[0]->set
-		//return m_bikeInputState->getLinearVelocity().length();
+		return m_bikeInputState->getLinearVelocity().length();
 	}
 
 	// call this exactly once per frame
