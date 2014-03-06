@@ -499,7 +499,7 @@ float BikeController::getDistanceToObstacle(double angle) {
 		to = from + direction * rayLength;
 		
 		FilteredRayResultCallback RayCallback(bikeModel->getRigidBody().get(), from, to);
-
+		
 		// Perform raycast
 		discreteWorld->rayTest(from, to, RayCallback);
 

@@ -12,6 +12,8 @@
 #include "../controller/bikecontroller.h"
 #include "../sound/audiomanager.h"
 
+#include <ctime>
+
 using namespace troen;
 
 
@@ -30,6 +32,123 @@ m_gameLogic(gameLogic)
 		m_debug->setDebugMode(btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE);
 		m_world->setDebugDrawer(m_debug);
 	}	
+}
+
+std::array<std::array<int, 100>, 100>* PhysicsWorld::discretizeWorld()
+{
+	const float halfedLevelSize = LEVEL_SIZE / 2;
+	const float discreteLevelSize = 100;
+	const float steps = LEVEL_SIZE / discreteLevelSize;
+
+
+	//return &m_discretizedWorld;
+	clock_t start, end;
+	start = std::clock();
+
+	//for (int yeah = 0; yeah < 1000; yeah++) {
+
+		// clear
+
+	for (int x = 0; x < discreteLevelSize; x++) {
+		for (int y = 0; y < discreteLevelSize; y++) {
+			std::cout << " " << m_discretizedWorld[y][x];
+			m_discretizedWorld[y][x] = 0;
+			
+		}
+		std::cout << std::endl;
+	}
+
+	std::cout << std::endl;
+
+
+	// fill
+
+	btVector3 from, to, direction;
+	btCollisionWorld::AllHitsRayResultCallback RayCallback(from, to);
+
+
+
+	float y, x;
+
+	from.setY(-halfedLevelSize);
+	to.setY(+halfedLevelSize);
+	from.setZ(1.1);
+	to.setZ(1.1);
+
+
+
+	for (x = -LEVEL_SIZE / 2; x < LEVEL_SIZE / 2; x += steps) {
+		from.setX(x);
+		to.setX(x);
+
+		m_world->rayTest(from, to, RayCallback);
+		if (RayCallback.hasHit()) {
+			btAlignedObjectArray<btVector3> collisionPoints = RayCallback.m_hitPointWorld;
+
+			for (int index = 0; index < collisionPoints.size(); index++) {
+				btVector3 position = collisionPoints.at(index);
+
+				if (abs(position.x()) > halfedLevelSize || abs(position.y()) > halfedLevelSize) {
+					std::cout << "weird answer of bullet" << position << std::endl;
+				}
+				else {
+
+					int hitY = (position.y() + halfedLevelSize) / steps;
+					int hitX = (x + halfedLevelSize) / steps;
+
+					if (hitY < 0 || hitX < 0 || hitY >= discreteLevelSize || hitX >= discreteLevelSize) {
+						std::cout << "hitY: " << hitY << " hitX: " << hitX << std::endl;
+					}
+					else
+					{
+						m_discretizedWorld[hitY][hitX] = 1;
+					}
+				}
+			}
+		}
+	}
+
+
+
+	from.setX(-halfedLevelSize);
+	to.setX(+halfedLevelSize);
+	from.setZ(1.1);
+	to.setZ(1.1);
+
+
+	for (y = -LEVEL_SIZE / 2; y < LEVEL_SIZE / 2; y += steps) {
+		from.setY(y);
+		to.setY(y);
+
+		m_world->rayTest(from, to, RayCallback);
+		if (RayCallback.hasHit()) {
+			btAlignedObjectArray<btVector3> collisionPoints = RayCallback.m_hitPointWorld;
+
+			for (int index = 0; index < collisionPoints.size(); index++) {
+				btVector3 position = collisionPoints.at(index);
+
+				if (abs(position.x()) > halfedLevelSize || abs(position.y()) > halfedLevelSize) {
+					std::cout << "weird answer of bullet" << position << std::endl;
+				} else {
+
+					int hitX = (position.x() + halfedLevelSize) / steps;
+					int hitY = (y + halfedLevelSize) / steps;
+					if (hitY < 0 || hitX < 0 || hitY >= discreteLevelSize || hitX >= discreteLevelSize) {
+						std::cout << "hitY: " << hitY << " hitX: " << hitX << std::endl;
+					}
+					else {
+						m_discretizedWorld[hitY][hitX] = 1;
+					}
+				}
+			}
+		}
+	}
+	//}
+	end = std::clock();
+	double dif = double(end - start) / CLOCKS_PER_SEC;
+	//printf("Elasped time is %.2lf seconds.", dif);
+
+	return &m_discretizedWorld;
 }
 
 PhysicsWorld::~PhysicsWorld()
@@ -119,6 +238,9 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	}	
 
 	checkForCollisionEvents();
+
+	discretizeWorld();
+
 }
 
 void PhysicsWorld::checkForCollisionEvents()

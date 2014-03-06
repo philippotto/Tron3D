@@ -4,6 +4,7 @@
 #include <set>
 #include <iterator>
 #include <algorithm>
+#include <array>
 // troen
 #include "../forwarddeclarations.h"
 
@@ -29,6 +30,9 @@ namespace troen
 		void removeRigidBody(btRigidBody* body);
 		void addCollisionObject(btCollisionObject* obj);
 		void removeCollisionObject(btCollisionObject* obj);
+
+		std::array<std::array<int, 100>, 100>* discretizeWorld();
+
 		// debugview
 		util::GLDebugDrawer* m_debug;
 
@@ -54,5 +58,7 @@ namespace troen
 
 		bool m_useDebugView;
 		std::weak_ptr<GameLogic> m_gameLogic;
+
+		std::array<std::array<int, 100>, 100> m_discretizedWorld;
 	};
 }
