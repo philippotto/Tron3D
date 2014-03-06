@@ -199,12 +199,12 @@ void MainWindow::updatePlayerInputBoxes()
 void MainWindow::prepareGameStart()
 {
 	GameConfig config;
-	config.numberOfBikes = m_bikeNumberSpinBox->value();
+	config.numberOfPlayers = m_bikeNumberSpinBox->value();
 	config.timeLimit = m_timeLimitSpinBox->value();
-	config.playerInputTypes = new int[config.numberOfBikes];
-	config.playerColors = new QColor[config.numberOfBikes];
-	config.playerNames = new QString[config.numberOfBikes];
-	for (int i = 0; i < config.numberOfBikes; i++)
+	config.playerInputTypes = new int[config.numberOfPlayers];
+	config.playerColors = new QColor[config.numberOfPlayers];
+	config.playerNames = new QString[config.numberOfPlayers];
+	for (int i = 0; i < config.numberOfPlayers; i++)
 	{
 		config.playerInputTypes[i] = m_playerComboBoxes.at(i)->currentIndex();
 		config.playerNames[i] = m_playerNameLineEdits[i]->text();
@@ -214,8 +214,9 @@ void MainWindow::prepareGameStart()
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	config.useDebugView = m_debugViewCheckBox->isChecked();
 	config.testPerformance = m_testPerformanceCheckBox->isChecked();
-	config.reflection = m_reflectionCheckBox->isChecked();
+	config.useReflection = m_reflectionCheckBox->isChecked();
 
+	//TODO: remove ownView checkboxes & replace with spinbox for number of views
 	int i = 0;
 	for (auto ownViewCheckbox : m_ownViewCheckboxes) {
 		config.ownView[i] = ownViewCheckbox->isChecked();

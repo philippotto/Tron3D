@@ -5,6 +5,7 @@
 // bullet
 #include <btBulletDynamicsCommon.h>
 // troen
+#include "../player.h"
 #include "../controller/fencecontroller.h"
 #include "../model/bikemodel.h"
 
@@ -16,13 +17,13 @@ namespace troen
 		BikeMotionState(
 			const btTransform &initialTransform,
 			osg::PositionAttitudeTransform* pat,
-			std::shared_ptr<FenceController> fenceController,
+			Player * player,
 			BikeModel *bikeModel) :
                 btMotionState(),
+				m_player(player),
+                m_bikeModel(bikeModel),
 				m_visibleObj(pat),
                 m_positionTransform(initialTransform),
-				m_fenceController(fenceController),
-				m_bikeModel(bikeModel),
 				m_currentSteeringTilt(0)
 		{}
 
@@ -55,7 +56,7 @@ namespace troen
 			m_visibleObj->setPosition(osg::Vec3(pos.x(), pos.y(), pos.z()));
 
 			// update fence accordingly
-			m_fenceController.lock()->update(pos, rot);
+			m_player->fenceController()->update(pos, rot);
 		}
 
 		osg::Quat getTilt()
@@ -92,10 +93,10 @@ namespace troen
 		}
 
 	protected:
+		Player * m_player;
+		BikeModel* m_bikeModel;
 		osg::PositionAttitudeTransform* m_visibleObj;
 		btTransform m_positionTransform;
-		std::weak_ptr<FenceController> m_fenceController;
-		BikeModel* m_bikeModel;
 		std::weak_ptr<btRigidBody> m_rigidBody;
 		float m_currentSteeringTilt;
 		float m_currentWheelyTilt;

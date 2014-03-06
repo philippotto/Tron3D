@@ -1,6 +1,8 @@
 #include "GameLogic.h"
 // STD
 #include <array>
+#include <random>
+#include <chrono>
 // bullet
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
@@ -8,10 +10,12 @@
 #include "troengame.h"
 #include "constants.h"
 #include "globals.h"
+#include "player.h"
 #include "model/abstractmodel.h"
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
 #include "controller/bikecontroller.h"
+#include "controller/fencecontroller.h"
 #include "controller/itemcontroller.h"
 #include "sound/audiomanager.h"
 #include "model/objectinfo.h"
@@ -19,26 +23,19 @@
 
 using namespace troen;
 
-GameLogic::GameLogic(
-	TroenGame* game,
-	std::shared_ptr<sound::AudioManager>& audioManager,
-	std::shared_ptr<LevelController> levelController,
-	std::vector<std::shared_ptr<BikeController>> bikeControllers,
-	const int timeLimit):
-m_levelController(levelController),
-m_bikeControllers(bikeControllers),
-m_troenGame(game),
-m_limitedFenceMode(true),
-m_audioManager(audioManager),
+GameLogic::GameLogic(TroenGame* game,const int timeLimit) :
+t(game),
 m_gameState(GAMESTATE::GAME_START),
 m_timeLimit(timeLimit*1000*60),
-m_gameStartTime(-1)
+m_gameStartTime(-1),
+m_limitedFenceMode(true)
 {}
 
-void GameLogic::attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld)
-{
-	m_physicsWorld = physicsWorld;
-}
+////////////////////////////////////////////////////////////////////////////////
+//
+// Stepping
+//
+////////////////////////////////////////////////////////////////////////////////
 
 void GameLogic::step(const long double gameloopTime, const long double gameTime)
 {
@@ -63,17 +60,17 @@ void GameLogic::stepGameStart(const long double gameloopTime, const long double 
 	if (m_gameStartTime == -1)
 	{
 		m_gameStartTime = gameloopTime + GAME_START_COUNTDOWN_DURATION;
-		for (auto bikeController : m_bikeControllers)
-			bikeController->setState(BikeController::BIKESTATE::WAITING_FOR_GAMESTART,gameloopTime);
+		for (auto player : t->m_players)
+			player->bikeController()->setState(BikeController::BIKESTATE::WAITING_FOR_GAMESTART,gameloopTime);
 	}
 
 	if (gameloopTime > m_gameStartTime)
 	{
-		for (auto bikeController : m_bikeControllers)
-			bikeController->setState(BikeController::BIKESTATE::DRIVING);
+		for (auto player : t->m_players)
+			player->bikeController()->setState(BikeController::BIKESTATE::DRIVING);
 		m_gameState = GAMESTATE::GAME_RUNNING;
 		m_gameStartTime = -1;
-		m_troenGame->unpauseSimulation();
+		t->unpauseSimulation();
 	}
 }
 
@@ -82,7 +79,7 @@ void GameLogic::stepGameRunning(const long double gameloopTime, const long doubl
 	if (gameTime >= m_timeLimit && m_timeLimit != 0)
 	{
 		m_gameState = GAMESTATE::GAME_OVER;
-		m_troenGame->pauseSimulation();
+		t->pauseSimulation();
 	}
 }
 
@@ -91,10 +88,14 @@ void GameLogic::stepGameOver(const long double gameloopTime, const long double g
 	;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Collision Event Handling
+//
+////////////////////////////////////////////////////////////////////////////////
 
 void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold)
 {
-	//std::cout << "[PhysicsWorld::collisionEvent] collision detected" << std::endl;
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
 	collidingBodies[1] = pBody1;
@@ -104,7 +105,7 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 	objectInfos[0] = static_cast<ObjectInfo *>(pBody0->getUserPointer());
 	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
 
-	// try to recognize invalid pointers
+	// try to recognize invalid pointers - workaround for debugmode
 	if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
 
 	AbstractController* collisionBodyControllers[2];
@@ -135,29 +136,35 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 		{
 		case LEVELWALLTYPE:
 		case LEVELOBSTACLETYPE:
-		case FENCETYPE:
-
 			handleCollisionOfBikeAndNonmovingObject(
-				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				dynamic_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
 				collisionBodyControllers[otherIndex],
+				collisionTypes[otherIndex],
 				contactManifold);
 			break;
+
+		case FENCETYPE:
+			handleCollisionOfBikeAndFence(
+				dynamic_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				dynamic_cast<FenceController*>(collisionBodyControllers[otherIndex]),
+				contactManifold);
+			break;
+
 		case BIKETYPE:
 			handleCollisionOfTwoBikes(
-				static_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
-				static_cast<BikeController*>(collisionBodyControllers[otherIndex]),
+				dynamic_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				dynamic_cast<BikeController*>(collisionBodyControllers[otherIndex]),
 				contactManifold);
 			break;
+
+		case ITEMTYPE:
+			handleCollisionOfBikeAndItem(
+				dynamic_cast<BikeController*>(collisionBodyControllers[bikeIndex]),
+				dynamic_cast<ItemController *>(collisionBodyControllers[otherIndex]));
+			break;
+
 		case LEVELGROUNDTYPE:
 			break;
-		case ITEMTYPE:
-		{
-			ItemController* itemController = static_cast<ItemController *>(collisionBodyControllers[otherIndex]);
-			if (itemController) {
-				itemController->triggerOn(static_cast<BikeController*>(collisionBodyControllers[bikeIndex]));
-			}
-			break;
-		}
 		default:
 			break;
 		}
@@ -166,8 +173,6 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 {
-	return;
-	//std::cout << "[PhysicsWorld::seperationEvent] seperation detected" << std::endl;
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
 	collidingBodies[1] = pBody1;
@@ -175,6 +180,9 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 	ObjectInfo* objectInfos[2];
 	objectInfos[0] = static_cast<ObjectInfo *>(pBody0->getUserPointer());
 	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
+
+	// try to recognize invalid pointers - workaround for debugmode
+	if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
 
 	// get the controllers of the separating objects
 	AbstractController* collisionBodyControllers[2];
@@ -197,6 +205,14 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 		switch (collisionTypes[otherIndex])
 		{
 		case FENCETYPE:
+		{
+						  // workaround to deal with bike bouncing between own and other fence
+						  FenceController * fence = dynamic_cast<FenceController*>(collisionBodyControllers[otherIndex]);
+						  BikeController * bike = dynamic_cast<BikeController*>(collisionBodyControllers[bikeIndex]);
+						  bike->rememberFenceCollision(fence);
+						  // end workaround
+		}
+			break;
 		case LEVELTYPE:
 		case LEVELOBSTACLETYPE:
 		case LEVELGROUNDTYPE:
@@ -209,41 +225,6 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 	}
 }
 
-void GameLogic::handleCollisionOfBikeAndNonmovingObject(
-	BikeController* bike,
-	AbstractController* object,
-	btPersistentManifold* contactManifold)
-{
-	btScalar impulse = 0;
-	int numContacts = contactManifold->getNumContacts();
-	//std::cout << numContacts << " - ";
-	for (int i = 0; i < numContacts; i++)
-	{
-		btManifoldPoint& pt = contactManifold->getContactPoint(i);
-		impulse = impulse + pt.getAppliedImpulse();
-	}
-	//std::cout << "total impulse: " << impulse << std::endl;
-	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_LOW)
-		m_audioManager->PlaySFX("data/sound/explosion.wav",
-			impulse / BIKE_FENCE_IMPACT_THRESHOLD_HIGH,
-			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
-			1, 1);
-
-
-	bike->registerCollision(impulse);
-	// TODO (Philipp): move increaseHealth and resetBike into registerCollision and trigger a respawn instead of pausing simulation (needs statistics about lifes etc.)
-	float newHealth = bike->increaseHealth(-1 * impulse);
-
-	if (newHealth <= 0 && bike->getState() == BikeController::BIKESTATE::DRIVING)
-	{
-		bike->increaseDeathCount();
-		//resetBike(bike);
-		//m_troenGame->pauseSimulation();
-		//restartLevel();
-		bike->setState(BikeController::BIKESTATE::RESPAWN, g_gameTime);
-	}
-}
-
 void GameLogic::handleCollisionOfTwoBikes(
 	BikeController* bike1,
 	BikeController* bike2,
@@ -253,16 +234,183 @@ void GameLogic::handleCollisionOfTwoBikes(
 	//TODO
 	// set different thredsholds of collisions between bikes
 	// they dont have as much impact ?
-	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, contactManifold);
+	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, BIKETYPE, contactManifold);
 }
+
+void GameLogic::handleCollisionOfBikeAndItem(
+	BikeController* bike,
+	ItemController* item)
+{
+	if (item)
+	{
+		item->triggerOn(bike);
+	}
+
+	//
+	// testing minimap fence display
+	// TODO: add item specifically for displaying the fences?
+	//
+	std::default_random_engine generator;
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	generator.seed(seed);
+	std::uniform_int_distribution<int> distribution(0, 1);
+	int random0or1 = distribution(generator);
+	std::cout << random0or1 << " ";
+	if (random0or1 == 0)
+	{
+		for (auto player : t->m_players)
+		{
+			player->fenceController()->showFencesInRadarForPlayer(bike->player()->id());
+		}
+		std::cout << "visible" << std::endl;
+	}
+	else
+	{
+		for (auto player : t->m_players)
+		{
+			player->fenceController()->hideFencesInRadarForPlayer(bike->player()->id());
+		}
+		std::cout << "in-visible" << std::endl;
+	}
+}
+
+void GameLogic::handleCollisionOfBikeAndNonmovingObject(
+	BikeController* bike,
+	AbstractController* object,
+	const int objectType,
+	btPersistentManifold* contactManifold)
+{
+	btScalar impulse = impulseFromContactManifold(contactManifold);
+
+	playCollisionSound(impulse);
+	float newHealth = bike->registerCollision(impulse);
+	
+	//
+	// player death
+	//
+	if (newHealth <= 0 && bike->state() == BikeController::BIKESTATE::DRIVING)
+	{
+		handlePlayerDeath(bike);
+		handlePlayerDeathNonFence(bike->player());
+	}
+}
+
+void GameLogic::handleCollisionOfBikeAndFence(
+	BikeController* bike,
+	FenceController* fence,
+	btPersistentManifold* contactManifold)
+{
+	btScalar impulse = impulseFromContactManifold(contactManifold);
+
+	playCollisionSound(impulse);
+	float newHealth = bike->registerCollision(impulse);
+
+	// workaround to deal with bike bouncing between own and other fence
+	if (bike->player() != fence->player())
+	{
+		bike->rememberFenceCollision(fence);
+	}
+	// end workaround
+
+	//
+	// player death
+	//
+	if (newHealth <= 0 && bike->state() == BikeController::BIKESTATE::DRIVING)
+	{
+		handlePlayerDeath(bike);
+		handlePlayerDeathOnFence(fence->player(), bike->player());
+	}
+}
+
+void GameLogic::handlePlayerDeath(
+	BikeController* bike)
+{
+	bike->player()->increaseDeathCount();
+	bike->setState(BikeController::BIKESTATE::RESPAWN, g_gameTime);
+}
+
+void GameLogic::handlePlayerDeathOnFence(
+	Player* fencePlayer,
+	Player* bikePlayer)
+{
+	if (fencePlayer == bikePlayer) // hit own fence
+	{
+		// workaround to deal with bike bouncing between own and other fence
+		std::pair<float, FenceController*> lastFenceCollision =	bikePlayer->bikeController()->lastFenceCollision();
+		if (false && lastFenceCollision.first > g_gameTime-400)
+		{
+			handlePlayerDeathOnFence(lastFenceCollision.second->player(), bikePlayer);
+			return;
+		}
+		// end workaround
+
+		bikePlayer->decreaseKillCount();
+		if (bikePlayer->hasGameView())
+		{
+			bikePlayer->hudController()->addSelfKillMessage();
+		}
+	}
+	else //hit someone elses fence
+	{
+
+		fencePlayer->increaseKillCount();
+		for (auto player : t->m_playersWithView)
+		{
+			if (&(*player) == fencePlayer)
+			{
+				fencePlayer->hudController()->addKillMessage(bikePlayer);
+			}
+			else if (&(*player) != bikePlayer)
+			{
+				player->hudController()->addDiedOnFenceMessage(bikePlayer, fencePlayer);
+			}
+		}
+	}
+}
+
+void GameLogic::handlePlayerDeathNonFence(Player* deadPlayer)
+{
+
+	for (auto player : t->m_players)
+	{
+		if (&(*player) != deadPlayer)
+		{
+			player->increaseKillCount();
+			if (player->hasGameView())
+			{
+				player->hudController()->addDiedMessage(deadPlayer);
+			}
+		}
+	}
+}
+
+btScalar GameLogic::impulseFromContactManifold(btPersistentManifold* contactManifold)
+{
+	btScalar impulse = 0;
+	int numContacts = contactManifold->getNumContacts();
+	//std::cout << numContacts << " - ";
+	for (int i = 0; i < numContacts; i++)
+	{
+		btManifoldPoint& pt = contactManifold->getContactPoint(i);
+		impulse = impulse + pt.getAppliedImpulse();
+	}
+	return impulse;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// logic methods
+//
+////////////////////////////////////////////////////////////////////////////////
 
 void GameLogic::removeAllFences()
 {
-	for (auto bikeController : m_bikeControllers)
+	for (auto player : t->m_players)
 	{
-		bikeController->removeAllFences();
+		player->fenceController()->removeAllFences();
 	}
 }
+
 
 void GameLogic::toggleFencePartsLimit()
 {
@@ -275,9 +423,9 @@ void GameLogic::toggleFencePartsLimit()
 		std::cout << "[GameLogic::toggleFencePartsLimitEvent] turning fenceParsLimit OFF ..." << std::endl;
 	}
 
-	for (auto bikeController : m_bikeControllers)
+	for (auto player : t->m_players)
 	{
-		bikeController->setLimitFence(m_limitedFenceMode);
+		player->fenceController()->setLimitFence(m_limitedFenceMode);
 	}
 }
 
@@ -286,16 +434,16 @@ void GameLogic::resetBike(BikeController *bikeController)
 	bikeController->reset();
 
 	// TODO should happen in reset()
-	btTransform position = m_levelController->getRandomSpawnPoint();
+	btTransform position = t->m_levelController->getRandomSpawnPoint();
 	bikeController->moveBikeToPosition(position);
 }
 
 void GameLogic::resetBikePositions()
 {
-	for (int i = 0; i < m_bikeControllers.size(); i++)
+	for (auto player : t->m_players)
 	{
-		btTransform position = m_levelController->getSpawnPointForBikeWithIndex(i);
-		m_bikeControllers[i]->moveBikeToPosition(position);
+		btTransform position = t->m_levelController->getSpawnPointForBikeWithIndex(player->id());
+		player->bikeController()->moveBikeToPosition(position);
 	}
 }
 
@@ -303,4 +451,15 @@ void GameLogic::restartLevel()
 {
 	removeAllFences();
 	resetBikePositions();
+}
+
+void GameLogic::playCollisionSound(float impulse)
+{
+	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_LOW)
+	{
+		t->m_audioManager->PlaySFX("data/sound/explosion.wav",
+			impulse / BIKE_FENCE_IMPACT_THRESHOLD_HIGH,
+			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
+			1, 1);
+	}
 }

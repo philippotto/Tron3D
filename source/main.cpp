@@ -4,6 +4,7 @@
 #include <QApplication>
 //troen
 #include "MainWindow.h"
+#include "troengame.h"
 
 #define EXTERN
 #include "globals.h"
@@ -13,7 +14,7 @@ int main(int argc, char* argv[])
 	int result = -1;
 
 	// register meta types
-	qRegisterMetaType<GameConfig>("GameConfig");
+	qRegisterMetaType<troen::GameConfig>("GameConfig");
 
 	// setup application settings
 	QApplication::setApplicationName("Troen");
