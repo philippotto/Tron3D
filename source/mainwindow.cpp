@@ -321,22 +321,27 @@ void MainWindow::bikeNumberChanged(int newBikeNumber)
 void MainWindow::connectNetworking()
 {
 	m_statusLabel->setText(QString("Connecting..."));
+	int remote_player_slot = 1;
 	if (m_serverCheckBox->isChecked())
 	{
 		std::string connectedTo = m_troenGame->setupNetworking(true);
 		m_statusLabel->setText(QString("Connected to " + QString(connectedTo.c_str())));
+		//player_slot = 0;
 	}
 	else
 	{
 		m_troenGame->setupNetworking(false, m_connectAdressEdit->text().toStdString());
 		m_statusLabel->setText(QString("Connected to " + m_connectAdressEdit->text()));
+		//player_slot = 1;
 	}
+
 	m_statusLabel->setStyleSheet("QLabel { background-color : green; color : blue; }");
-	m_playerNameLineEdits[1]->setText("remote player");
+	m_playerNameLineEdits[remote_player_slot]->setText("remote player");
+	m_ownViewCheckboxes[remote_player_slot]->setChecked(true);
 	m_ownViewCheckboxes[1]->setChecked(false);
 	m_bikeNumberSpinBox->setValue(2);
-	m_playerComboBoxes[1]->addItem("MULTIPLAYER");
-	m_playerComboBoxes[1]->setCurrentText("MULTIPLAYER");
+	m_playerComboBoxes[remote_player_slot]->addItem("MULTIPLAYER");
+	m_playerComboBoxes[remote_player_slot]->setCurrentText("MULTIPLAYER");
 	bikeNumberChanged(m_bikeNumberSpinBox->value());
 	updatePlayerInputBoxes();
 

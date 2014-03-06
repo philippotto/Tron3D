@@ -16,10 +16,12 @@
 #include "controller/levelcontroller.h"
 
 #include "input/bikeinputstate.h"
+#include "network/networkmanager.h"
 
 #include "view/skydome.h"
 #include "view/reflection.h"
 #include "view/nodefollowcameramanipulator.h"
+#include "troengame.h"
 
 
 using namespace troen;
@@ -126,6 +128,25 @@ m_hasGameView(config->ownView[id])
 	{
 		m_reflection = std::make_shared<Reflection>(game->levelController()->getFloorView(), m_gameView, game->skyDome()->getSkyboxTexture(), m_id);
 		m_playerNode->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + m_id));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	// Networking
+	//
+	////////////////////////////////////////////////////////////////////////////////
+	m_isRemote = false;
+	if (game->isNetworking())
+	{
+		if (config->ownView[m_id])
+		{
+			game->getNetworkManager()->registerLocalBikeController(m_bikeController);
+		}
+		else if (config->playerInputTypes[m_id] == input::BikeInputState::REMOTE_PLAYER)
+		{
+			m_isRemote = true;
+			game->getNetworkManager()->registerRemotePlayer(m_bikeController->getRemote());
+		}
 	}
 }
 

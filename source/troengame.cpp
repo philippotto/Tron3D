@@ -115,6 +115,9 @@ void TroenGame::startGameLoop()
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();
 			}
+			
+			if (isNetworking())
+				m_networkManager->update(g_gameTime);
 
 			m_audioManager->Update(g_gameLoopTime / 1000);
 			m_audioManager->setMotorSpeed(m_players[0]->bikeController()->speed());
@@ -286,4 +289,15 @@ bool TroenGame::synchronizeGameStart()
 {
 	m_networkManager->synchronizeGameStart();
 	return true;
+}
+
+
+bool TroenGame::isNetworking()
+{
+	if (m_networkManager != nullptr)
+	{
+		if (m_networkManager->isValidSession())
+			return true;
+	}
+	return false;
 }

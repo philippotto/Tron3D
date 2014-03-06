@@ -333,6 +333,9 @@ void GameLogic::handlePlayerDeathOnFence(
 	Player* fencePlayer,
 	Player* bikePlayer)
 {
+	if (fencePlayer == bikePlayer && bikePlayer->isRemote())
+		return; //let the remote player handle the collsions himself
+
 	if (fencePlayer == bikePlayer) // hit own fence
 	{
 		// workaround to deal with bike bouncing between own and other fence

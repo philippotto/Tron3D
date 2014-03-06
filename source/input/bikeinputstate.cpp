@@ -89,7 +89,7 @@ void BikeInputState::setRotation(btQuaternion val)
 	m_rotation = val;
 }
 
-btVector3 BikeInputState::getLinearVeloctiy() 
+btVector3 BikeInputState::getLinearVelocity() 
 {
 	return m_linearVeloctiy;
 }

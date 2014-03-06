@@ -48,9 +48,9 @@ namespace troen
 			void sendData();
 			void enqueueMessage(bikeUpdateMessage message);
 			void enqueueMessage(bikeInputUpdateMessage message);
-			void registerRemotePlayer(input::RemotePlayer *remotePlayer);
+			void registerRemotePlayer(std::shared_ptr<input::RemotePlayer> remotePlayer);
 			bool isValidSession();
-			void setLocalBikeController(troen::BikeController *controller);
+			void registerLocalBikeController(std::shared_ptr<troen::BikeController> controller);
 			void update(long double g_gameTime);
 			std::string getClientAddress();
 			void synchronizeGameStart();
@@ -67,9 +67,9 @@ namespace troen
 			bool m_clientsConnected;
 			QQueue<bikeUpdateMessage> *m_sendUpdateMessagesQueue;
 			QQueue<bikeInputUpdateMessage> *m_sendInputUpdateMessagesQueue;
-			std::vector<input::RemotePlayer*> m_remotePlayers;
+			std::vector<std::shared_ptr<input::RemotePlayer>> m_remotePlayers;
 			QMutex* m_sendBufferMutex;
-			BikeController *m_localBikeController;
+			std::shared_ptr<BikeController> m_localBikeController;
 			long double m_lastUpdateTime;
 		};
 	}

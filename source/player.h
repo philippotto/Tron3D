@@ -35,6 +35,7 @@ namespace troen
 		int killCount() 		{ return m_killCount; };
 		const float health()	{ return m_health; };
 		const float points()	{ return m_points; };
+		const bool isRemote()			{ return m_isRemote; }
 		//
 		// controllers
 		//
@@ -68,6 +69,7 @@ namespace troen
 		void decreaseKillCount() { m_killCount--; };
 		float increaseHealth(const float diff);
 		float increasePoints(const float diff);
+		
 
 
 	private:
@@ -81,6 +83,7 @@ namespace troen
 		float		m_points;
 		int			m_killCount;
 		int			m_deathCount;
+		bool		m_isRemote;
 
 		//
 		// controllers
@@ -97,5 +100,6 @@ namespace troen
 		osg::ref_ptr<osgViewer::View>	m_gameView;
 		osg::ref_ptr<osg::Group>		m_playerNode;
 		std::shared_ptr<Reflection>		m_reflection;
+
 	};
 }

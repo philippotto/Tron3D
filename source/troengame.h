@@ -88,6 +88,7 @@ namespace troen
 		public slots:
 		void prepareAndStartGame(const GameConfig& config);
 		bool synchronizeGameStart();
+		bool isNetworking();
 		std::string setupNetworking(bool server, std::string connectAddr = "127.0.0.1");
 		networking::NetworkManager* getNetworkManager() const { return m_networkManager.get(); }
 	private:

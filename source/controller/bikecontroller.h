@@ -74,6 +74,7 @@ namespace troen
 		
 
 		std::shared_ptr<BikeModel> getModel();
+		std::shared_ptr<input::RemotePlayer> getRemote() const { return m_remote; }
 
 	private:
 		//
@@ -108,6 +109,7 @@ namespace troen
 		std::shared_ptr<input::PollingDevice> m_pollingThread;
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 		std::shared_ptr<input::RemotePlayer> m_remote;
+		
 
 
 		// the following attributes only exist if the player

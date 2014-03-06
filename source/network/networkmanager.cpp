@@ -37,7 +37,7 @@ NetworkManager::NetworkManager()
 	m_clientsConnected = false;
 	m_sendUpdateMessagesQueue = new QQueue<bikeUpdateMessage>();
 	m_sendInputUpdateMessagesQueue = new QQueue<bikeInputUpdateMessage>();
-	m_remotePlayers = std::vector<input::RemotePlayer*>();
+	m_remotePlayers = std::vector<std::shared_ptr<input::RemotePlayer>>();
 	m_sendBufferMutex = new QMutex();
 	m_localBikeController = NULL;
 	m_lastUpdateTime = 0;
@@ -59,19 +59,19 @@ void  NetworkManager::enqueueMessage(bikeInputUpdateMessage message)
 
 
 
-void NetworkManager::registerRemotePlayer(troen::input::RemotePlayer *remotePlayer)
+void NetworkManager::registerRemotePlayer(std::shared_ptr<troen::input::RemotePlayer> remotePlayer)
 {
 	m_remotePlayers.push_back(remotePlayer);
 }
 
-void NetworkManager::setLocalBikeController(troen::BikeController *controller)
+void NetworkManager::registerLocalBikeController(std::shared_ptr<troen::BikeController> controller)
 {
 	m_localBikeController = controller;
 }
 
 void NetworkManager::update(long double g_gameTime)
 {
-
+	std::cout << "update" << std::endl;
 	if (this->isValidSession())
 	{
 		btVector3 pos = m_localBikeController->getModel()->getPositionBt();
@@ -107,7 +107,7 @@ void NetworkManager::update(long double g_gameTime)
 //!! This runs in a seperate thread //
 void NetworkManager::run()
 {
-	
+
 	// subclass responsibility
 	RakNet::Packet *packet;
 	while (1)
@@ -159,7 +159,7 @@ void NetworkManager::run()
 				RakNet::BitStream bsIn(packet->data, packet->length, false);
 				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 				bsIn.Read(receivedUpdateMessage);
-				//std::cout << receivedUpdateMessage.x << " " << receivedUpdateMessage.y << " " << receivedUpdateMessage.z << " " << receivedUpdateMessage.turnAngle << " " << receivedUpdateMessage.acceleration << std::endl;
+				std::cout << receivedUpdateMessage.x << " " << receivedUpdateMessage.y << " " << receivedUpdateMessage.z << " " << receivedUpdateMessage.linearVelX << " " << receivedUpdateMessage.linearVelY << std::endl;
 				m_remotePlayers[0]->update(receivedUpdateMessage);
 			}
 				break;
@@ -191,6 +191,7 @@ void NetworkManager::sendData()
 	{
 		if (m_connectedToServer || m_clientsConnected)
 		{
+			
 
 			RakNet::BitStream bsOut;
 			// Use a BitStream to write a custom user message
