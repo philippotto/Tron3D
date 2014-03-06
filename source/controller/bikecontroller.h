@@ -86,6 +86,7 @@ namespace troen
 		float getInputAcceleration();
 		btVector3 getLinearVelocity();
 		btVector3 getAngularVelocity();
+		bool isRemote() const { return m_isRemote; }
 
 	private:
 		// field of view methods
@@ -130,5 +131,7 @@ namespace troen
 		float	m_points;
 		int		m_killCount;
 		int		m_deathCount;
+		bool	m_isRemote;
+
 	};
 }

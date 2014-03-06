@@ -55,6 +55,7 @@ BikeController::BikeController(
 
 	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
 	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_fenceController, this);
+	m_isRemote = false;
 
 	initializeInput(inputDevice);
 }
@@ -173,6 +174,7 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 	case input::BikeInputState::REMOTE_PLAYER:
 	{
 												 remote = std::make_shared<input::RemotePlayer>(bikeInputState);
+												 m_isRemote = true;
 												 break;
 	}
 	default:

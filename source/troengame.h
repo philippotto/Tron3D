@@ -49,6 +49,8 @@ namespace troen
 		void unpauseSimulation();
 
 		void resize(const int width,const int height);
+		std::shared_ptr<networking::NetworkManager> getNetworkManager() { return m_networkManager; }
+		std::vector<std::shared_ptr<BikeController>> getBikeControllers() { return m_bikeControllers; }
 
 	public slots:
 		void prepareAndStartGame(const GameConfig& config);
@@ -107,7 +109,6 @@ namespace troen
 		std::shared_ptr<sound::AudioManager> m_audioManager;
 		std::vector<std::shared_ptr<Reflection>>		m_reflections;
 		std::shared_ptr<networking::NetworkManager> m_networkManager;
-
 		std::vector<int> m_playerInputTypes;
 		std::vector<osg::Vec3> m_playerColors;
 		std::vector<std::string> m_playerNames;

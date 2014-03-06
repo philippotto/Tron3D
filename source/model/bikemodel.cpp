@@ -133,7 +133,7 @@ float BikeModel::updateState(long double time)
 		//(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
 		trans.setRotation(m_bikeInputState->getRotation());
 		trans.setOrigin(m_bikeInputState->getPosition());
-		moveBikeToPosition(trans);
+		m_rigidBodies[0]->setWorldTransform(trans);
 		bikeRigidBody->setLinearVelocity(m_bikeInputState->getLinearVeloctiy());
 		bikeRigidBody->setAngularVelocity(btVector3(0, 0, m_bikeInputState->getAngularVelocity()));
 		//m_rigidBodies[0]->set

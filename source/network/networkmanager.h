@@ -25,45 +25,76 @@ namespace troen
 
 		struct bikeUpdateMessage
 		{
+			short bikeID;
 			float x, y, z;
 			float quat_x, quat_y, quat_z, quat_w;
 			float linearVelX, linearVelY, linearVelZ;
 			float angularVelZ;
 		};
 
+		struct bikeStatusMessage
+		{
+			short bikeID;
+			int status;
+			int value;
+			short bikeID2; //if interaction of two bikes/fences are invovled
+		};
+
+
 		struct bikeInputUpdateMessage
 		{
+			short bikeID;
 			float turnAngle, acceleration; //other ideas: often send turnAngle,acceleration, sometimes send position,rotation, linear velocity,angular velocity
 		};
+
+		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_OWN_FENCE, PLAYER_DEATH_ON_OTHER_PLAYER};
 
 
 		class NetworkManager : public QThread
 		{
 		public:
-			NetworkManager();
+			NetworkManager(TroenGame *game);
 			void openServer();
 			virtual void run();
 			void openClient();
 			void sendData();
 			void enqueueMessage(bikeUpdateMessage message);
 			void enqueueMessage(bikeInputUpdateMessage message);
+			void enqueueMessage(bikeStatusMessage message);
 			void registerRemotePlayer(input::RemotePlayer *remotePlayer);
 			bool isValidSession();
 			void setLocalBikeController(troen::BikeController *controller);
 			void update(long double g_gameTime);
+			void sendStatusUpdateMessage(int message);
+			void sendPoints(int pointCount, int status, short secondBike = NULL);
+			void receiveStatusMessage(bikeStatusMessage message);
 		protected:
 			RakNet::Packet *m_packet;
 			RakNet::RakPeerInterface *peer;
 			bool m_isServer;
 			bool m_connectedToServer;
-			bool m_clientsConnected;
+			bool m_numClientsConnected;
 			QQueue<bikeUpdateMessage> *m_sendUpdateMessagesQueue;
 			QQueue<bikeInputUpdateMessage> *m_sendInputUpdateMessagesQueue;
+			QQueue<bikeStatusMessage> *m_sendStatusUpdateMessage;
 			std::vector<input::RemotePlayer*> m_remotePlayers;
 			QMutex* m_sendBufferMutex;
 			BikeController *m_localBikeController;
 			long double m_lastUpdateTime;
+			short m_gameID;
+			TroenGame *m_troenGame;
 		};
+	}
+
+	template <typename T>
+	bool is_in(const T& val, const std::initializer_list<T>& list)
+	{
+		for (const auto& i : list) {
+			if (val == i) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 

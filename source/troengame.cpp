@@ -231,7 +231,7 @@ bool TroenGame::initializeNetworking()
 {
 
 	char str[512];
-	m_networkManager = std::make_shared<networking::NetworkManager>();
+	m_networkManager = std::make_shared<networking::NetworkManager>(this);
 	
 
 

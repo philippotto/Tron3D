@@ -234,9 +234,10 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	// TODO (Philipp): move increaseHealth and resetBike into registerCollision and trigger a respawn instead of pausing simulation (needs statistics about lifes etc.)
 	float newHealth = bike->increaseHealth(-1 * impulse);
 
-	if (newHealth <= 0 && bike->getState() == BikeController::BIKESTATE::DRIVING)
+	if (newHealth <= 0 && bike->getState() == BikeController::BIKESTATE::DRIVING && !bike->isRemote())
 	{
 		bike->increaseDeathCount();
+		//m_troenGame->getNetworkManager()->sendEvent()
 		//resetBike(bike);
 		//m_troenGame->pauseSimulation();
 		//restartLevel();
