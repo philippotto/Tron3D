@@ -16,7 +16,10 @@ void main(void)
 
 
 	if (isReflecting) {
-		mainDeformReflected();//gl_Position = gl_ModelViewProjectionMatrix  * gl_Vertex;
+		
+		gl_Position = gl_ModelViewProjectionMatrix  * gl_Vertex;
+		//TODO: make mainDeformReflected work
+		//mainDeformReflected();
 	} else {
 		mainDeform();
 	}

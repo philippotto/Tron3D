@@ -273,7 +273,7 @@ bool TroenGame::initializeReflection()
 
 		for (int playerID = 0; playerID < m_playerNodes.size(); playerID++)
 		{
-			m_reflections.push_back(std::make_shared<Reflection>(m_levelController->getFloorView(), m_gameViews[playerID], m_skyDome->getSkyboxTexture(), playerID));
+			m_reflections.push_back(std::make_shared<Reflection>(m_levelController->getViewNode(), m_gameViews[playerID], m_skyDome->getSkyboxTexture(), playerID));
 			m_playerNodes[playerID]->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 5 + playerID));
 		}
 
@@ -455,10 +455,10 @@ bool TroenGame::composeSceneGraph()
 	}
 
 
-	osgUtil::Optimizer optimizer;
-	optimizer.optimize(m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
-		optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS | 
-		optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
+	//osgUtil::Optimizer optimizer;
+	//optimizer.optimize(m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
+	//	optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS | 
+	//	optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
 
 	return true;
 }
