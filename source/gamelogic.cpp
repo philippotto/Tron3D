@@ -12,6 +12,7 @@
 #include "globals.h"
 #include "player.h"
 #include "model/abstractmodel.h"
+#include "controller/abstractcontroller.h"
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
 #include "controller/bikecontroller.h"
@@ -110,15 +111,15 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 	AbstractController* collisionBodyControllers[2];
 	try {
-		collisionBodyControllers[0] = static_cast<AbstractController *>(objectInfos[0]->getUserPointer());
-		collisionBodyControllers[1] = static_cast<AbstractController *>(objectInfos[1]->getUserPointer());
+		collisionBodyControllers[0] = objectInfos[0]->getUserPointer();
+		collisionBodyControllers[1] = objectInfos[1]->getUserPointer();
 	}
 	catch (int e) {
 		std::cout << "RigidBody invalid, but pointer was not 0xfeeefeeefeeefeee: " << e << std::endl;
 		return;
 	}
 
-	// exit either controllers was not found
+	// exit if either controller was not found
 	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
 
 	std::array<COLLISIONTYPE,2> collisionTypes;
@@ -186,10 +187,10 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 
 	// get the controllers of the separating objects
 	AbstractController* collisionBodyControllers[2];
-	collisionBodyControllers[0] = static_cast<AbstractController *>(objectInfos[0]->getUserPointer());
-	collisionBodyControllers[1] = static_cast<AbstractController *>(objectInfos[1]->getUserPointer());
+	collisionBodyControllers[0] = objectInfos[0]->getUserPointer();
+	collisionBodyControllers[1] = objectInfos[1]->getUserPointer();
 
-	// exit either controlles was not found
+	// exit if either controller was not found
 	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
 
 	std::array<COLLISIONTYPE, 2> collisionTypes;

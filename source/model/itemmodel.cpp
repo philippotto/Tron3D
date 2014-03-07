@@ -3,7 +3,7 @@
 #include "../constants.h"
 #include "physicsworld.h"
 #include "objectinfo.h"
-#include "../controller/fencecontroller.h"
+#include "../controller/itemcontroller.h"
 
 using namespace troen;
 
