@@ -97,6 +97,15 @@ void GameLogic::stepGameOver(const long double gameloopTime, const long double g
 
 void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold)
 {
+	if (!pBody0->isInWorld() || !pBody1->isInWorld()) {
+		std::cout << "one of the rigidbodies is not in the world anymore  (collision)" << std::endl;
+		return;
+	}
+	if (pBody0->getUserPointer() == nullptr || pBody1->getUserPointer() == nullptr) {
+		std::cout << "one of the userpointer is null (collision)" << std::endl;
+		return;
+	}
+
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
 	collidingBodies[1] = pBody1;
@@ -174,7 +183,15 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 {
-	return;
+	if (!pBody0->isInWorld() || !pBody1->isInWorld()) {
+		std::cout << "one of the rigidbodies is not in the world anymore (separation)" << std::endl;
+		return;
+	}
+	if (pBody0->getUserPointer() == nullptr || pBody1->getUserPointer() == nullptr) {
+		std::cout << "one of the userpointer is null (separation)" << std::endl;
+		return;
+	}
+
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
 	collidingBodies[1] = pBody1;
@@ -259,7 +276,7 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 
 	playCollisionSound(impulse);
 	float newHealth = bike->registerCollision(impulse);
-	
+
 	//
 	// player death
 	//
