@@ -1,7 +1,9 @@
 #include "gamepadps4.h"
+
 // troen
 #include "bikeinputstate.h"
 #include "../constants.h"
+#include "../util/scriptwatcher.h"
 #include <cmath>
 
 // VID and PID values of the specific device
@@ -10,19 +12,28 @@
 
 using namespace troen::input;
 
-GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState)
+GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState), reflectionzeug::Object("ps4")
 {
 	m_deadzoneX = 0.05f;
 	m_deadzoneY = 0.05f;
 
 	//initialise hid api
 	hid_init();
+
+	addFunction("getFreeDistanceInDirection", this, &GamepadPS4::setBuffer);
+
+	//addProperty<double>("buffer", *this, &GamepadPS4::getBuffer, &GamepadPS4::setBuffer);
 }
 
 GamepadPS4::~GamepadPS4()
 {
 	hid_close(_controller);
 	hid_exit();
+}
+
+void GamepadPS4::setBuffer(const std::vector<reflectionzeug::Variant> &args)
+{
+	//set
 }
 
 /*
@@ -106,6 +117,12 @@ int GamepadPS4::getBitAt(int k, unsigned char * buffer){
 void GamepadPS4::run()
 {
 	m_pollingEnabled = true;
+
+	scriptzeug::ScriptContext g_scriptingThread;
+	g_scriptingThread.registerObject(this);
+
+	ScriptWatcher scriptWatcher;
+	scriptWatcher.watchAndLoad("source/scripts/ps4.js", &g_scriptingThread);
 
 	while (m_pollingEnabled)
 	{

@@ -1,5 +1,7 @@
 #pragma once
-
+// scriptzeug
+#include <reflectionzeug/Object.h>
+#include <scriptzeug/ScriptContext.h>
 // troen
 #include "pollingdevice.h"
 #include "../forwarddeclarations.h"
@@ -10,7 +12,7 @@ namespace troen
 {
 namespace input
 {
-	class GamepadPS4 : public PollingDevice
+	class GamepadPS4 : public PollingDevice, public reflectionzeug::Object
 	{
 	public:
 		GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState);
@@ -23,6 +25,8 @@ namespace input
 		void run() override;
 		bool checkConnection();
 		hid_device *_controller = nullptr;
+
+		void setBuffer(const std::vector<reflectionzeug::Variant> &args);
 
 	private:
 		int getBitAt(int k, unsigned char * buf);
