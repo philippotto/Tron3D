@@ -23,7 +23,7 @@ namespace troen
 			TURBOSTRIP, HEALTHUP, RADAR, COUNT
 		};
 
-		void triggerOn(BikeController* bikeController);
+		void triggerOn(BikeController* bikeController, GameLogic* gamelogic = nullptr);
 
 	public slots:
 		void hideFencesInRadarForPlayer();
@@ -35,6 +35,9 @@ namespace troen
 		btVector3 m_position;
 		int m_id;
 		BikeController* m_bikeController;
+		GameLogic* m_gamelogic;
+
 		void remove();
+		void destroy();
 	};
 }

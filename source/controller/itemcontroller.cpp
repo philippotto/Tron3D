@@ -2,6 +2,7 @@
 //qt
 #include <QTimer>
 //troen
+#include "../gamelogic.h"
 #include "../player.h"
 #include "bikecontroller.h"
 #include "../constants.h"
@@ -30,25 +31,31 @@ ItemController::ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> w
 }
 
 
-void ItemController::triggerOn(BikeController* bikeController)
+void ItemController::triggerOn(BikeController* bikeController, GameLogic* gamelogic/*= nullptr*/)
 {
 	if (m_type == HEALTHUP)
 	{
 		bikeController->player()->increaseHealth(BIKE_DEFAULT_HEALTH / 2);
+		remove();
+
 	}
 	else if (m_type == RADAR)
 	{
+		if (!gamelogic) return;
+
 		m_id = bikeController->player()->id();
-		bikeController->player()->fenceController()->showFencesInRadarForPlayer(m_id);
-		m_bikeController = bikeController;
+		gamelogic->showFencesInRadarForPlayer(m_id);
+		m_gamelogic = gamelogic;
 		QTimer::singleShot(5000, this, SLOT(hideFencesInRadarForPlayer()));
+		remove();
 		return;
 	}
 	else {
 		bikeController->activateTurbo();
+		remove();
 	}
 
-	remove();
+	destroy();
 }
 
 void ItemController::remove()
@@ -58,9 +65,13 @@ void ItemController::remove()
 
 	m_model.reset();
 	m_view.reset();
+}
 
+void ItemController::destroy()
+{
 	delete this;
 }
+
 
 osg::Vec3 ItemController::getDimensions()
 {
@@ -72,6 +83,6 @@ osg::Vec3 ItemController::getDimensions()
 
 void ItemController::hideFencesInRadarForPlayer()
 {
-	m_bikeController->player()->fenceController()->hideFencesInRadarForPlayer(m_id);
-	remove();
+	m_gamelogic->hideFencesInRadarForPlayer(m_id);
+	destroy();
 }

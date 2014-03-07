@@ -174,6 +174,7 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 {
+	return;
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
 	collidingBodies[1] = pBody1;
@@ -244,7 +245,7 @@ void GameLogic::handleCollisionOfBikeAndItem(
 {
 	if (item)
 	{
-		item->triggerOn(bike);
+		item->triggerOn(bike,this);
 	}
 }
 
@@ -435,5 +436,21 @@ void GameLogic::playCollisionSound(float impulse)
 			impulse / BIKE_FENCE_IMPACT_THRESHOLD_HIGH,
 			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
 			1, 1);
+	}
+}
+
+void GameLogic::hideFencesInRadarForPlayer(int id)
+{
+	for (auto player : t->m_players)
+	{
+		player->fenceController()->hideFencesInRadarForPlayer(id);
+	}
+}
+
+void GameLogic::showFencesInRadarForPlayer(int id)
+{
+	for (auto player : t->m_players)
+	{
+		player->fenceController()->showFencesInRadarForPlayer(id);
 	}
 }
