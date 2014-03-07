@@ -25,7 +25,7 @@ namespace
 	const std::vector<std::string> diedMessages
 	{
 		"PLAYER_X\njust hit a wall",
-		"PLAYER_X\njust just crashed!"
+		"PLAYER_X\njust crashed!"
 	};
 	const std::string diedOnFenceMessage("PLAYER_X\njust crashed into PLAYER_Y's fence");
 }
@@ -37,7 +37,7 @@ HUDController::HUDController(const int id,
 AbstractController(),
 m_player(players[id])
 {
-	m_view = std::static_pointer_cast<HUDView>(std::make_shared<HUDView>(id, players));
+	m_view = m_HUDView = std::make_shared<HUDView>(id, players);
 
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 	m_randomGenerator.seed(seed);
@@ -45,12 +45,12 @@ m_player(players[id])
 
 void HUDController::resize(const int width, const int height)
 {
-	std::static_pointer_cast<HUDView>(m_view)->resize(width, height);
+	m_HUDView->resize(width, height);
 }
 
 void HUDController::attachSceneToRadarCamera(osg::Group* scene)
 {
-	std::static_pointer_cast<HUDView>(m_view)->attachSceneToRadarCamera(scene);
+	m_HUDView->attachSceneToRadarCamera(scene);
 }
 
 void HUDController::update(
@@ -60,7 +60,7 @@ void HUDController::update(
 	const GameLogic::GAMESTATE gameState,
 	const std::vector<std::shared_ptr<Player>>& players)
 {
-	std::shared_ptr<HUDView> hudview = std::static_pointer_cast<HUDView>(m_view);
+	std::shared_ptr<HUDView> hudview = m_HUDView;
 	std::shared_ptr<Player> player = m_player.lock();
 
 	hudview->setSpeedText(player->bikeController()->speed());
@@ -108,7 +108,7 @@ void HUDController::update(
 
 void HUDController::setTrackNode(osg::Node* trackNode)
 {
-    std::static_pointer_cast<HUDView>(m_view)->setTrackNode(trackNode);
+    m_HUDView->setTrackNode(trackNode);
 }
 
 

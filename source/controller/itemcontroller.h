@@ -29,6 +29,8 @@ namespace troen
 		void hideFencesInRadarForPlayer();
 
 	private:
+		std::shared_ptr<ItemView> m_itemView;
+		std::shared_ptr<ItemModel> m_itemModel;
 		Type m_type;
 		btVector3 m_position;
 		int m_id;

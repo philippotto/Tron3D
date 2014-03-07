@@ -71,6 +71,9 @@ namespace troen
 		bool hasKeyboardHandler() {	return m_keyboardHandler != nullptr; };
 
 	private:
+		std::shared_ptr<BikeView> m_bikeView;
+		std::shared_ptr<BikeModel> m_bikeModel;
+
 		//
 		// field of view methods
 		//

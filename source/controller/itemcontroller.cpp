@@ -25,8 +25,8 @@ ItemController::ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> w
 	btVector3 modelDimensions(viewDimensions.x(), viewDimensions.y(), 10);
 	position.setZ(position.z() + viewDimensions.z() / 2.f);
 
-	m_model = std::make_shared<ItemModel>(modelDimensions, position, world, this);
-	m_view = std::make_shared<ItemView>(getDimensions(), btToOSGVec3(position), levelView, m_type);
+	m_model = m_itemModel = std::make_shared<ItemModel>(modelDimensions, position, world, this);
+	m_view = m_itemView = std::make_shared<ItemView>(getDimensions(), btToOSGVec3(position), levelView, m_type);
 }
 
 
@@ -52,8 +52,8 @@ void ItemController::triggerOn(BikeController* bikeController)
 
 void ItemController::remove()
 {
-	std::static_pointer_cast<ItemModel>(m_model)->remove();
-	std::static_pointer_cast<ItemView>(m_view)->remove();
+	m_itemModel->remove();
+	m_itemView->remove();
 
 	m_model.reset();
 	m_view.reset();
