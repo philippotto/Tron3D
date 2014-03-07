@@ -78,6 +78,7 @@ namespace troen
 	class FenceModel;
 	class AbstractModel;
 	class PhysicsWorld;
+	class ItemModel;
 
 	class BikeController;
 	class LevelController;
@@ -92,6 +93,7 @@ namespace troen
 	class FenceView;
 	class AbstractView;	
 	class HUDView;
+	class ItemView;
 	class SkyDome;
 	class PostProcessing;
 	class NodeFollowCameraManipulator;

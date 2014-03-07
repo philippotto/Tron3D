@@ -46,10 +46,10 @@ m_timeOfLastCollision(-1),
 m_respawnTime(-1),
 m_lastFenceCollision(std::make_pair<float, FenceController*>(0,nullptr))
 {
-	m_view = std::make_shared<BikeView>(player->color(), resourcePool);
+	m_view = m_bikeView = std::make_shared<BikeView>(player->color(), resourcePool);
 
-	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
-	m_model = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_player, this);
+	osg::ref_ptr<osg::Group> viewNode = m_bikeView->getNode();
+	m_model = m_bikeModel = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_player, this);
 
 	initializeInput(inputDevice);
 }
@@ -195,13 +195,13 @@ void BikeController::initializeAI(osg::ref_ptr<input::BikeInputState> bikeInputS
 void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
 	m_bikeInputState = bikeInputState;
-	std::static_pointer_cast<BikeModel>(m_model)->setInputState(bikeInputState);
+	m_bikeModel->setInputState(bikeInputState);
 }
 
 void BikeController::attachTrackingCamera(
 	std::shared_ptr<HUDController>& hudController)
 {
-	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
+	osg::ref_ptr<osg::Group> viewNode = m_bikeView->getNode();
 	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
 
 	// set the actual node as the track node, not the pat
@@ -211,7 +211,7 @@ void BikeController::attachTrackingCamera(
 
 void BikeController::attachTrackingCamera(osg::ref_ptr<NodeFollowCameraManipulator>& manipulator)
 {
-	osg::ref_ptr<osg::Group> viewNode = std::static_pointer_cast<BikeView>(m_view)->getNode();
+	osg::ref_ptr<osg::Group> viewNode = m_bikeView->getNode();
 	osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (viewNode->getChild(0));
 
 	// set the actual node as the track node, not the pat
@@ -290,7 +290,7 @@ void BikeController::updateModel(const long double gameTime)
 	{
 	case DRIVING:
 	{
-		double speed = std::static_pointer_cast<BikeModel>(m_model)->updateState(gameTime);
+		double speed = m_bikeModel->updateState(gameTime);
 		m_player->increasePoints(speed / 1000);
 		updateFov(speed);
 		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": DRIVING" << std::endl;
@@ -298,14 +298,14 @@ void BikeController::updateModel(const long double gameTime)
 	}
 	case RESPAWN:
 	{
-		std::static_pointer_cast<BikeModel>(m_model)->freeze();
+		m_bikeModel->freeze();
 		m_player->fenceController()->removeAllFencesFromModel();
 		updateFov(0);
 		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN" << std::endl;
 		if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
 		{
 			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
-			//std::static_pointer_cast<BikeView>(m_view)->m_pat->setAttitude(attitude);
+			//m_bikeView->m_pat->setAttitude(attitude);
 			moveBikeToPosition(m_initialTransform);
 			reset();
 			updateFov(0);
@@ -346,7 +346,7 @@ void BikeController::updateModel(const long double gameTime)
 
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
 {
-	osg::ref_ptr<osg::Group> group = std::static_pointer_cast<BikeView>(m_view)->getNode();
+	osg::ref_ptr<osg::Group> group = m_bikeView->getNode();
 	// TODO (dw) try not to disable culling, by resizing the childrens bounding boxes
 	//group->setCullingActive(false);
 	return group;
@@ -372,13 +372,13 @@ void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 
 long double BikeController::getTimeFactor()
 {
-	long double timeSinceLastUpdate = std::static_pointer_cast<BikeModel>(m_model)->getTimeSinceLastUpdate();
+	long double timeSinceLastUpdate = m_bikeModel->getTimeSinceLastUpdate();
 	return timeSinceLastUpdate / 16.7f;
 }
 
 void BikeController::moveBikeToPosition(btTransform transform)
 {
-	std::static_pointer_cast<BikeModel>(m_model)->moveBikeToPosition(transform);
+	m_bikeModel->moveBikeToPosition(transform);
 	m_player->fenceController()->setLastPosition(transform.getRotation(), transform.getOrigin());
 }
 
@@ -386,7 +386,7 @@ void BikeController::updateUniforms()
 {
 	if (m_player->hasGameView()) {
 		m_timeOfCollisionUniform->set((float) g_gameTime - m_timeOfLastCollision);
-		m_velocityUniform->set(std::static_pointer_cast<BikeModel>(m_model)->getVelocity());
+		m_velocityUniform->set(m_bikeModel->getVelocity());
 		m_timeFactorUniform->set((float) getTimeFactor());
 		m_healthUniform->set(m_player->health()/BIKE_DEFAULT_HEALTH);
 	}

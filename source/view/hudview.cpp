@@ -336,7 +336,7 @@ void HUDView::setCountdownText(const int countdown)
 	}
 	else
 	{
-		std::string countdownString = std::to_string(countdown);
+		std::string countdownString = std::to_string(abs(countdown));
 		m_countdownText->setText(countdownString);
 	}
 }
@@ -349,28 +349,24 @@ void HUDView::setCountdownText(const std::string text)
 
 void HUDView::setTimeText(const double gameTime, const int timeLimit)
 {
-
+	int minutes, seconds;
 	if (gameTime <= 0)
 	{
 		m_timeText->setText("0:00");
+		return;
 	}
 	else if ((gameTime/60/1000) >= timeLimit)
 	{
-		//m_timeText->setText("0:00");
-		int minutes = abs(timeLimit - floor((gameTime) / 1000 / 60));
-		int seconds = mod(floor((gameTime) / 1000), 60);
-		//int milliSeconds = mod(time/10, 100);
-		std::string timeString = "-" + std::to_string(minutes) + ":" + std::to_string(seconds);// +":" + std::to_string(milliSeconds);
-		m_timeText->setText(timeString);
+		minutes = abs(timeLimit - floor((gameTime) / 1000 / 60));
+		seconds = mod(floor((gameTime) / 1000), 60);
 	}
 	else
 	{
-		int minutes = timeLimit - ceil((gameTime) / 1000 / 60);
-		int seconds = 59 - mod(floor((gameTime) / 1000), 60);
-		//int milliSeconds = mod(time/10, 100);
-		std::string timeString = std::to_string(minutes) + ":" + std::to_string(seconds);// +":" + std::to_string(milliSeconds);
-		m_timeText->setText(timeString);
+		minutes = timeLimit - ceil((gameTime) / 1000 / 60);
+		seconds = 59 - mod(floor((gameTime) / 1000), 60);
 	}
+	std::string timeString = std::to_string(minutes) + ":" + std::to_string(seconds);
+	m_timeText->setText(timeString);
 }
 
 void HUDView::setKillCountText(const int i, const std::string& playerName , const int killCount)

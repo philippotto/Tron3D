@@ -17,8 +17,8 @@ AbstractController(),
 m_fenceLimitActivated(true)
 {
 	m_player = player;
-	m_model = std::make_shared<FenceModel>(this);
-    m_view = std::shared_ptr<FenceView>(new FenceView(this, player->color(), m_model));
+	m_model = m_fenceModel = std::make_shared<FenceModel>(this);
+	m_view = m_fenceView = std::shared_ptr<FenceView>(new FenceView(this, player->color(), m_model));
 
 	btQuaternion rotation = initialTransform.getRotation();
 	btVector3 position = initialTransform.getOrigin();
@@ -35,31 +35,31 @@ void FenceController::update(btVector3 position, btQuaternion rotation)
 	// add new fence part
 	if ((position - m_lastPosition).length() > FENCE_PART_LENGTH)
 	{
-		std::static_pointer_cast<FenceModel>(m_model)->addFencePart(m_lastPosition, position);
-		std::static_pointer_cast<FenceView>(m_view)->addFencePart(osgLastPosition,osgPosition);
+		m_fenceModel->addFencePart(m_lastPosition, position);
+		m_fenceView->addFencePart(osgLastPosition,osgPosition);
 		m_lastPosition = position;
 	}
 
 	// update fence gap
-	std::static_pointer_cast<FenceView>(m_view)->updateFenceGap(osgLastPosition, osgPosition);
+	m_fenceView->updateFenceGap(osgLastPosition, osgPosition);
 }
 
 
 void FenceController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 {
 	m_world = world;
-	std::static_pointer_cast<FenceModel>(m_model)->attachWorld(world);
+	m_fenceModel->attachWorld(world);
 }
 
 void FenceController::removeAllFences()
 {
-	std::static_pointer_cast<FenceModel>(m_model)->removeAllFences();
-	std::static_pointer_cast<FenceView>(m_view)->removeAllFences();
+	m_fenceModel->removeAllFences();
+	m_fenceView->removeAllFences();
 }
 
 void FenceController::removeAllFencesFromModel()
 {
-	std::static_pointer_cast<FenceModel>(m_model)->removeAllFences();
+	m_fenceModel->removeAllFences();
 }
 
 void FenceController::setLimitFence(bool boolean)
@@ -94,17 +94,17 @@ void FenceController::setLastPosition(const btQuaternion rotation, btVector3 pos
 
 void FenceController::showFencesInRadarForPlayer(const int id)
 {
-	std::static_pointer_cast<FenceView>(m_view)->showFencesInRadarForPlayer(id);
+	m_fenceView->showFencesInRadarForPlayer(id);
 }
 
 void FenceController::hideFencesInRadarForPlayer(const int id)
 {
-	std::static_pointer_cast<FenceView>(m_view)->hideFencesInRadarForPlayer(id);
+	m_fenceView->hideFencesInRadarForPlayer(id);
 }
 
 osg::ref_ptr<osg::Group> FenceController::getViewNode()
 {
-	osg::ref_ptr<osg::Group> group = std::static_pointer_cast<FenceView>(m_view)->getNode();
+	osg::ref_ptr<osg::Group> group = m_fenceView->getNode();
 	// TODO (dw) try not to disable culling, by resizing the childrens bounding boxes
 	// group->setCullingActive(false);
 	return group;
