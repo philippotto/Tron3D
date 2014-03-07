@@ -362,6 +362,12 @@ void BikeController::addUniformsToPlayerNode()
 	m_velocityUniform = new osg::Uniform("velocity", 0.f);
 	m_timeFactorUniform = new osg::Uniform("timeFactor", 1.f);
 	m_healthUniform = new osg::Uniform("healthNormalized", m_player->health() / BIKE_DEFAULT_HEALTH);
+
+	osg::ref_ptr<osg::StateSet> stateset = m_player->playerNode()->getOrCreateStateSet();
+	stateset->addUniform(m_timeOfCollisionUniform);
+	stateset->addUniform(m_velocityUniform);
+	stateset->addUniform(m_timeFactorUniform);
+	stateset->addUniform(m_healthUniform);
 }
 
 void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
@@ -402,7 +408,7 @@ void BikeController::updateFov(double speed)
 
 float BikeController::getDistanceToObstacle(double angle) {
 	// angle specifies the deviation from the current direction the bike is heading
-	
+
 	float rayLength = 10000;
 
 	if (m_world) {
@@ -412,18 +418,18 @@ float BikeController::getDistanceToObstacle(double angle) {
 
 		btVector3 from, to, direction;
 		direction = bikeModel->getDirection().rotate(btVector3(0, 0, 1), angle);
-		from = bikeModel->getPositionBt();	
+		from = bikeModel->getPositionBt();
 		to = from + direction * rayLength;
-		
+
 		FilteredRayResultCallback RayCallback(bikeModel->getRigidBody().get(), from, to);
-		
+
 		// Perform raycast
 		discreteWorld->rayTest(from, to, RayCallback);
 
 		if (RayCallback.hasHit()) {
 			btVector3 collisionPoint;
 			collisionPoint = RayCallback.m_hitPointWorld;
-			
+
 			return (collisionPoint - from).length();
 		}
 		else {

@@ -158,6 +158,7 @@ PhysicsWorld::~PhysicsWorld()
 	delete m_collisionConfiguration;
 	delete m_dispatcher;
 	delete m_broadphase;
+	
 }
 
 void PhysicsWorld::initializeWorld()
