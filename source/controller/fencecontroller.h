@@ -34,6 +34,9 @@ namespace troen
 		void setLastPosition(btQuaternion rotation, const btVector3 position);
 
 	private:
+		std::shared_ptr<FenceView> m_fenceView;
+		std::shared_ptr<FenceModel> m_fenceModel;
+
 		void adjustPositionUsingFenceOffset(const btQuaternion& rotation, btVector3& position);
 		btVector3 m_lastPosition;
 		bool m_fenceLimitActivated;

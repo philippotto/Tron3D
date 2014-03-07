@@ -42,8 +42,9 @@ namespace troen
 		void addSelfKillMessage();
 		void addDiedMessage(Player* player);
 		void addDiedOnFenceMessage(Player* bikePlayer, Player* fencePlayer);
-        
+
 	private:
+		std::shared_ptr<HUDView> m_HUDView;
 		std::deque<std::shared_ptr<IngameMessage>> m_ingameMessages;
 		std::default_random_engine m_randomGenerator;
 

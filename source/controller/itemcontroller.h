@@ -25,6 +25,8 @@ namespace troen
 		void triggerOn(BikeController* bikeController);
 
 	private:
+		std::shared_ptr<ItemView> m_itemView;
+		std::shared_ptr<ItemModel> m_itemModel;
 		Type m_type;
 		btVector3 m_position;
 		void remove();
