@@ -1,6 +1,6 @@
 #include "itemcontroller.h"
 //qt
-#include <qtimer>
+#include <QTimer>
 //troen
 #include "../player.h"
 #include "bikecontroller.h"
@@ -41,7 +41,8 @@ void ItemController::triggerOn(BikeController* bikeController)
 		m_id = bikeController->player()->id();
 		bikeController->player()->fenceController()->showFencesInRadarForPlayer(m_id);
 		m_bikeController = bikeController;
-		QTimer::singleShot(1000, this, SLOT(hideFencesInRadarForPlayer()));
+		QTimer::singleShot(5000, this, SLOT(hideFencesInRadarForPlayer()));
+		return;
 	}
 	else {
 		bikeController->activateTurbo();
@@ -72,4 +73,5 @@ osg::Vec3 ItemController::getDimensions()
 void ItemController::hideFencesInRadarForPlayer()
 {
 	m_bikeController->player()->fenceController()->hideFencesInRadarForPlayer(m_id);
+	remove();
 }

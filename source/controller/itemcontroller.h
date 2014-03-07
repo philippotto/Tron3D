@@ -1,6 +1,6 @@
 #pragma once
 // qt
-#include <qobject>
+#include <QObject>
 //bullet
 #include <btBulletDynamicsCommon.h>
 #include <osg/Vec3>
