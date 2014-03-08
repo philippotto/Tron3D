@@ -21,6 +21,8 @@
 #include "view/skydome.h"
 #include "view/reflection.h"
 #include "view/nodefollowcameramanipulator.h"
+
+#include "model/bikemodel.h"
 #include "troengame.h"
 
 
@@ -150,6 +152,8 @@ m_hasGameView(config->ownView[id])
 			game->getNetworkManager()->registerRemotePlayer(m_bikeController->getRemote());
 
 		}
+		btTransform networkedTransform = game->getNetworkManager()->getStartPosition();
+		m_bikeController->getModel()->moveBikeToPosition(networkedTransform);
 	}
 
 }

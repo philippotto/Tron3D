@@ -11,6 +11,9 @@
 // Qt
 #include <QThread>
 #include <vector>
+
+//bullet
+#include <btBulletDynamicsCommon.h>
 // troen
 #include "../forwarddeclarations.h"
 #include "../input/remoteplayer.h"
@@ -27,7 +30,7 @@ namespace troen
 			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1,
 			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 2,
 			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 3,
-			GAME_SET_ID = ID_USER_PACKET_ENUM + 4
+			GAME_INIT_PARAMETERS = ID_USER_PACKET_ENUM + 4
 		};
 
 		struct bikeUpdateMessage
@@ -78,6 +81,7 @@ namespace troen
 			std::string getClientAddress();
 			void synchronizeGameStart();
 			int getGameID()  { return m_gameID; }
+			btTransform getStartPosition()  { return m_startPosition; }
 
 		
 		signals:
@@ -97,13 +101,13 @@ namespace troen
 			std::shared_ptr<BikeController> m_localBikeController;
 			long double m_lastUpdateTime;
 			int m_gameID;
+			btTransform m_startPosition;
 
 			TroenGame *m_troenGame;
 			bool m_gameStarted;
 
 			struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage, messageToSend;
 			struct bikeStatusMessage receivedStatusMessage, statusMessageToSend;
-
 		};
 	}
 

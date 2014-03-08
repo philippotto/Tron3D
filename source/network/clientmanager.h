@@ -32,6 +32,7 @@ namespace troen
 			void openClient(std::string connectAddr);
 
 			bool isValidSession();
+			void setInitParameters(RakNet::Packet *packet);
 
 		protected:
 	

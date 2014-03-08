@@ -45,12 +45,9 @@ void ClientManager::run()
 				//send the ID of the client
 				m_connectedToServer = true;
 				break;
-			case GAME_SET_ID:
+			case GAME_INIT_PARAMETERS:
 			{
-								RakNet::BitStream bsIn(packet->data, packet->length, false);
-								bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-								bsIn.Read(m_gameID);
-								std::cout << "got game ID: " << m_gameID << std::endl;
+										 setInitParameters(packet);
 			}
 				break;
 
@@ -129,3 +126,12 @@ bool ClientManager::isValidSession()
 
 }
 
+void ClientManager::setInitParameters(RakNet::Packet *packet)
+{
+	RakNet::BitStream bsIn(packet->data, packet->length, false);
+	bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+	bsIn.Read(m_gameID);
+	bsIn.Read(m_startPosition);
+	std::cout << "got game ID: " << m_gameID << std::endl;
+
+}

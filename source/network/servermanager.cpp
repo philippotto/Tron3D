@@ -26,6 +26,12 @@ using namespace troen::networking;
 
 ServerManager::ServerManager(troen::TroenGame *game) : NetworkManager(game)
 {
+	m_startPositions = std::make_shared<std::vector<btTransform>>();
+	btVector3 Z_AXIS(0, 0, 1);
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(20, 20, BIKE_DIMENSIONS.z() / 2)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(40, 20, BIKE_DIMENSIONS.z() / 2)));
+	
+	m_startPosition = m_startPositions->at(0);
 
 	m_numClientsConnected = 0;
 }
@@ -56,14 +62,7 @@ void ServerManager::run()
 
 			case ID_NEW_INCOMING_CONNECTION:
 			{
-				m_numClientsConnected++;
-
-				RakNet::BitStream bsOut;
-				//set remote GameID
-				bsOut.Write((RakNet::MessageID)GAME_SET_ID);
-				bsOut.Write(m_numClientsConnected);
-				peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
-				printf("A connection is incoming.\n");
+				addClientToGame(packet);
 			}
 				break;
 
@@ -80,7 +79,7 @@ void ServerManager::run()
 			case BIKE_POSITION_MESSSAGE:
 			{
 										   readMessage(packet, receivedUpdateMessage);
-										   m_remotePlayers[0]->update(receivedUpdateMessage);
+										   m_remotePlayers.at(0)->update(receivedUpdateMessage);
 			}
 				break;
 
@@ -150,3 +149,19 @@ std::string  ServerManager::getClientAddress()
 {
 	return m_clientAddress;
 }
+
+
+void ServerManager::addClientToGame(RakNet::Packet *packet)
+{
+	m_numClientsConnected++;
+
+	RakNet::BitStream bsOut;
+	//set remote GameID
+	bsOut.Write((RakNet::MessageID)GAME_INIT_PARAMETERS);
+	bsOut.Write(m_numClientsConnected);
+	//send a btTransform startposition
+	bsOut.Write(m_startPositions->at(m_numClientsConnected));
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
+	printf("A connection is incoming.\n");
+}
+
