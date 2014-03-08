@@ -4,6 +4,7 @@
 #include "RakSleep.h"
 #include "RakPeerInterface.h"
 #include "RakNetTypes.h"  // MessageID
+#include "MessageIdentifiers.h"
 // OSG
 #include <osg/ref_ptr>
 #include <osg/Vec3>
@@ -21,11 +22,17 @@ namespace troen
 
 	namespace networking{
 
-
+		enum GameMessages
+		{
+			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1,
+			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 2,
+			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 3,
+			GAME_SET_ID = ID_USER_PACKET_ENUM + 4
+		};
 
 		struct bikeUpdateMessage
 		{
-			short bikeID;
+			int bikeID;
 			float x, y, z;
 			float quat_x, quat_y, quat_z, quat_w;
 			float linearVelX, linearVelY, linearVelZ;
@@ -33,7 +40,7 @@ namespace troen
 
 		struct bikeStatusMessage
 		{
-			short bikeID;
+			int bikeID;
 			int status;
 			int value;
 			short bikeID2; //if interaction of two bikes/fences are invovled
@@ -42,28 +49,26 @@ namespace troen
 
 		struct bikeInputUpdateMessage
 		{
-			short bikeID;
+			int bikeID;
 			float turnAngle, acceleration; //other ideas: often send turnAngle,acceleration, sometimes send position,rotation, linear velocity,angular velocity
 		};
 
 		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_OWN_FENCE, PLAYER_DEATH_ON_OTHER_PLAYER};
-
+		
 
 		class NetworkManager : public QThread
 		{
 			Q_OBJECT
 		public:
 			NetworkManager(TroenGame *game);
-			void openServer();
 			virtual void run();
-			void openClient(std::string connectAddr);
+			virtual bool isValidSession();
 			void sendData();
 			void enqueueMessage(bikeUpdateMessage message);
 			void enqueueMessage(bikeInputUpdateMessage message);
 			void enqueueMessage(bikeStatusMessage message);
 			void registerRemotePlayer(input::RemotePlayer *remotePlayer);
 			void registerRemotePlayer(std::shared_ptr<input::RemotePlayer> remotePlayer);
-			bool isValidSession();
 			void registerLocalBikeController(std::shared_ptr<troen::BikeController> controller);
 			void update(long double g_gameTime);
 
@@ -72,10 +77,11 @@ namespace troen
 			void receiveStatusMessage(bikeStatusMessage message);
 			std::string getClientAddress();
 			void synchronizeGameStart();
+			int getGameID()  { return m_gameID; }
+
 		
 		signals:
 			void remoteStartCall();
-
 		protected:
 			std::string m_clientAddress;
 			RakNet::Packet *m_packet;
@@ -90,9 +96,14 @@ namespace troen
 			QMutex* m_sendBufferMutex;
 			std::shared_ptr<BikeController> m_localBikeController;
 			long double m_lastUpdateTime;
-			short m_gameID;
+			int m_gameID;
+
 			TroenGame *m_troenGame;
 			bool m_gameStarted;
+
+			struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage, messageToSend;
+			struct bikeStatusMessage receivedStatusMessage, statusMessageToSend;
+
 		};
 	}
 
@@ -105,6 +116,14 @@ namespace troen
 			}
 		}
 		return false;
+	}
+
+	template <typename T>
+	void readMessage(RakNet::Packet *packet, T& readInto)
+	{
+		RakNet::BitStream bsIn(packet->data, packet->length, false);
+		bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+		bsIn.Read(readInto);
 	}
 
 

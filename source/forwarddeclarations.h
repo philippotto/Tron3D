@@ -123,5 +123,7 @@ namespace troen
 	{
 		struct bikeUpdateMessage;
 		class NetworkManager;
+		class ClientManager;
+		class ServerManager;
 	}
 }

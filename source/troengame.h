@@ -91,7 +91,9 @@ namespace troen
 		bool isNetworking();
 		std::string setupNetworking(bool server, std::string connectAddr = "127.0.0.1");
 
-		std::shared_ptr<networking::NetworkManager> getNetworkManager() { return m_networkManager; }
+		std::shared_ptr<networking::ClientManager> getClientManager() { return m_ClientManager; }
+		std::shared_ptr<networking::ServerManager> getServerManager() { return m_ServerManager; }
+		std::shared_ptr<networking::NetworkManager> getNetworkManager();
 	private:
 		//
 		// Game Loop
@@ -129,7 +131,8 @@ namespace troen
 		std::shared_ptr<PhysicsWorld>				m_physicsWorld;
 		std::shared_ptr<GameLogic>					m_gameLogic;
 		std::shared_ptr<sound::AudioManager>		m_audioManager;
-		std::shared_ptr<networking::NetworkManager> m_networkManager;
+		std::shared_ptr<networking::ServerManager> m_ServerManager;
+		std::shared_ptr<networking::ClientManager> m_ClientManager;
 		ResourcePool m_resourcePool;
 
 		// Startup Options

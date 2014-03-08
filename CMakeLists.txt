@@ -302,6 +302,10 @@ set(sources
 
 	source/network/networkmanager.h
 	source/network/networkmanager.cpp
+	source/network/clientmanager.cpp
+	source/network/clientmanager.h
+	source/network/servermanager.cpp
+	source/network/servermanager.h
 	source/input/remoteplayer.cpp
 	source/input/remoteplayer.h
 	

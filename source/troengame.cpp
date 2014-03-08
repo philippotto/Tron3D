@@ -24,6 +24,9 @@
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
+
+#include "network/clientmanager.h"
+#include "network/servermanager.h"
 #include <thread>
 
 using namespace troen;
@@ -39,6 +42,8 @@ m_gameThread(thread)
 	}
 	moveToThread(m_gameThread);
 	m_gameThread->start(QThread::HighestPriority);
+	m_ServerManager = NULL;
+	m_ClientManager = NULL;
 }
 
 
@@ -121,7 +126,7 @@ void TroenGame::startGameLoop()
 			}
 
 			if (isNetworking())
-				m_networkManager->update(g_gameTime);
+				getNetworkManager()->update(g_gameTime);
 
 			m_audioManager->Update(g_gameLoopTime / 1000);
 			m_audioManager->setMotorSpeed(m_players[0]->bikeController()->speed());
@@ -265,25 +270,25 @@ void TroenGame::resize(int width, int height){
 std::string TroenGame::setupNetworking(bool server, std::string connectAddr)
 {
 	std::cout << "[TroenGame::initialize] networking ..." << std::endl;
-	if (m_networkManager == NULL)
-		m_networkManager = std::make_shared<networking::NetworkManager>(this);
 
 	if (server)
 	{
-		m_networkManager->openServer();
+		m_ServerManager = std::make_shared<networking::ServerManager>(this);
+		m_ServerManager->openServer();
 	}
 	else
 	{
-		m_networkManager->openClient(connectAddr);
+		m_ClientManager = std::make_shared<networking::ClientManager>(this);
+		m_ClientManager->openClient(connectAddr);
 	}
 
 
 	// sleep until a valid session is initiated
-	while (!m_networkManager->isValidSession())
+	while (!getNetworkManager()->isValidSession())
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	if (server)
-		return m_networkManager->getClientAddress();
+		return m_ServerManager->getClientAddress();
 	else
 		return connectAddr;
 }
@@ -291,17 +296,27 @@ std::string TroenGame::setupNetworking(bool server, std::string connectAddr)
 
 bool TroenGame::synchronizeGameStart()
 {
-	m_networkManager->synchronizeGameStart();
+	getNetworkManager()->synchronizeGameStart();
 	return true;
 }
 
 
 bool TroenGame::isNetworking()
 {
-	if (m_networkManager != nullptr)
+	if (getNetworkManager() != nullptr)
 	{
-		if (m_networkManager->isValidSession())
+		if (getNetworkManager()->isValidSession())
 			return true;
 	}
 	return false;
+}
+
+std::shared_ptr<networking::NetworkManager> TroenGame::getNetworkManager()
+{
+	if (m_ClientManager != NULL)
+		return static_cast<std::shared_ptr<networking::NetworkManager>>(m_ClientManager);
+	else if (m_ServerManager != NULL)
+		return static_cast<std::shared_ptr<networking::NetworkManager>>(m_ServerManager);
+	else
+		return NULL;
 }

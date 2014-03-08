@@ -136,16 +136,19 @@ m_hasGameView(config->ownView[id])
 	//
 	////////////////////////////////////////////////////////////////////////////////
 	m_isRemote = false;
+	m_networkID = NULL;
 	if (game->isNetworking())
 	{
 		if (config->ownView[m_id])
 		{
 			game->getNetworkManager()->registerLocalBikeController(m_bikeController);
+			m_networkID = (int) game->getNetworkManager()->getGameID();
 		}
 		else if (config->playerInputTypes[m_id] == input::BikeInputState::REMOTE_PLAYER)
 		{
 			m_isRemote = true;
 			game->getNetworkManager()->registerRemotePlayer(m_bikeController->getRemote());
+
 		}
 	}
 
