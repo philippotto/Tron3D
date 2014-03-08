@@ -37,6 +37,8 @@ namespace input
 		void setLinearVeloctiy(btVector3 val);
 		float getAngularVelocity();
 		void setAngularVelocityZ(float val);
+		void setIsNewPosition(bool value);
+		bool isNewPosition();
 	private:
 		float m_acceleration;
 		float m_angle;
@@ -47,7 +49,7 @@ namespace input
 		btQuaternion m_rotation;
 		btVector3 m_linearVeloctiy;
 		float m_angularVelocity;
-
+		bool m_isNewPosition;
 	};
 }
 }

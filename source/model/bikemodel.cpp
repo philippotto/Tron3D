@@ -129,10 +129,14 @@ float BikeModel::updateState(long double time)
 	if (m_bikeInputState->isRemote())
 	{
 		btTransform trans;
-		//(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
-		trans.setRotation(m_bikeInputState->getRotation());
-		trans.setOrigin(m_bikeInputState->getPosition());
-		m_rigidBodies[0]->setWorldTransform(trans);
+		if (m_bikeInputState->isNewPosition())
+		{
+
+			trans.setRotation(m_bikeInputState->getRotation());
+			trans.setOrigin(m_bikeInputState->getPosition());
+			m_rigidBodies[0]->setWorldTransform(trans);
+			m_bikeInputState->setIsNewPosition(false);
+		}
 		bikeRigidBody->setLinearVelocity(m_bikeInputState->getLinearVelocity());
 		//bikeRigidBody->setAngularVelocity(btVector3(0, 0, m_bikeInputState->getAngularVelocity()));
 		//m_rigidBodies[0]->set

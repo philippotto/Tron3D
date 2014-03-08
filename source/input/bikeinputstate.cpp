@@ -14,6 +14,7 @@ BikeInputState::BikeInputState()
 	//only used for network
 	m_position = btVector3(0.0, 0.0, 0.0);
 	m_isRemote = false;
+	m_isNewPosition = true;
 
 }
 
@@ -107,4 +108,14 @@ float BikeInputState::getAngularVelocity()
 void BikeInputState::setAngularVelocityZ(float val) 
 { 
 	m_angularVelocity = val; 
+}
+
+bool BikeInputState::isNewPosition()
+{
+	return m_isNewPosition;
+}
+
+void BikeInputState::setIsNewPosition(bool value)
+{
+	m_isNewPosition = value;
 }

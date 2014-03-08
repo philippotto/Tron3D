@@ -19,6 +19,7 @@ namespace troen
 			void update(troen::networking::bikeUpdateMessage updateMessage);
 		protected:
 			osg::ref_ptr<BikeInputState> m_bikeInputState;
+			bool m_newPosition;
 		};
 	}
 }
