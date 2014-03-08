@@ -77,6 +77,9 @@ namespace troen
 		std::shared_ptr<input::RemotePlayer> getRemote() const { return m_remote; }
 
 	private:
+		std::shared_ptr<BikeView> m_bikeView;
+		std::shared_ptr<BikeModel> m_bikeModel;
+
 		//
 		// field of view methods
 		//

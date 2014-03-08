@@ -47,7 +47,7 @@ void FenceView::initializeFence()
 
 	// seems to be important so that we won't crash after 683 fence parts
 	m_geometry->setUseDisplayList(false);
-	
+
 	// use the shared normal array.
 	// polyGeom->setNormalArray(shared_normals.get(), osg::Array::BIND_OVERALL);
 
@@ -108,7 +108,7 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 	m_coordinates->push_back(osg::Vec3(currentPosition.x(), currentPosition.y(), currentPosition.z() + m_fenceHeight));
 	m_relativeHeights->push_back(0.f);
 	m_relativeHeights->push_back(1.f);
-	
+
 	// radar fence part
 	osg::ref_ptr<osg::Cylinder> box
 		= new osg::Cylinder(osg::Vec3(0, 0, 0), 30, 30);
@@ -155,7 +155,7 @@ void FenceView::enforceFencePartsLimit()
 
 	// the quad strip contains two more vertices for the beginning of the fence
 	int currentFenceParts = (m_coordinates->size() - 2) / 2;
-	
+
 	if (maxFenceParts != 0 && currentFenceParts > maxFenceParts)
 	{
 		for (int i = 0; i < (currentFenceParts - maxFenceParts); i++)
@@ -170,7 +170,7 @@ void FenceView::enforceFencePartsLimit()
 		for (int i = 0; i < (m_radarFenceBoxes.size() - maxFenceParts); i++)
 		{
 			m_radarElementsGroup->removeChild(m_radarFenceBoxes.front());
-			m_radarFenceBoxes.pop_front();		
+			m_radarFenceBoxes.pop_front();
 		}
 	}
 }
@@ -183,7 +183,7 @@ void FenceView::showFencesInRadarForPlayer(const int id)
 }
 
 void FenceView::hideFencesInRadarForPlayer(const int id)
-{	
+{
 	osg::Node::NodeMask currentMask = m_radarElementsGroup->getNodeMask();
 	osg::Node::NodeMask newMask = currentMask & ~ CAMERA_MASK_PLAYER[id];
 	m_radarElementsGroup->setNodeMask(newMask);

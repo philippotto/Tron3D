@@ -27,6 +27,9 @@ namespace troen
 		void addRigidBody(btRigidBody *body, const short group = 0, const short mask = 0);
 		void removeRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies);
 		void removeRigidBody(btRigidBody* body);
+
+		void removeRigidBodyFromCollisionPairs(btRigidBody* body);
+		
 		void addCollisionObject(btCollisionObject* obj);
 		void removeCollisionObject(btCollisionObject* obj);
 		// debugview
@@ -42,6 +45,7 @@ namespace troen
 		// collision events
 		void checkForCollisionEvents();
 		CollisionPairSet m_pairsLastUpdate;
+		std::vector<btRigidBody*> m_removedRigidBodies;
 
 		// steping variables
 		long double m_lastSimulationTime;

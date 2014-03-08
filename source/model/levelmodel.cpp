@@ -2,10 +2,12 @@
 //bullet
 #include <btBulletDynamicsCommon.h>
 #include "LinearMath/btHashMap.h"
-
+//troen
 #include "../controller/itemcontroller.h"
 #include "objectinfo.h"
 #include "../constants.h"
+#include "../controller/abstractcontroller.h"
+#include "../controller/levelcontroller.h"
 
 using namespace troen;
 
@@ -78,9 +80,9 @@ void LevelModel::addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type)
 
 		ObjectInfo* info;
 		if (type == ABSTRACTTYPE)
-			info = new ObjectInfo((void *)m_levelController, boxes[i].collisionType);
+			info = new ObjectInfo(const_cast<LevelController*>(m_levelController), boxes[i].collisionType);
 		else
-			info = new ObjectInfo((void *) m_levelController, type);
+			info = new ObjectInfo(const_cast<LevelController*>(m_levelController), type);
 		
 		wallRigidBody->setUserPointer(info);
 

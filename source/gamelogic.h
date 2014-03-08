@@ -13,6 +13,7 @@ namespace troen
 {
 	class GameLogic
 	{
+
 	public:
 		typedef enum enum_GAMESTATE {
 			GAME_START,
@@ -40,8 +41,12 @@ namespace troen
 		//
 		void removeAllFences();
 		void toggleFencePartsLimit();
+		void hideFencesInRadarForPlayer(int id);
+		void showFencesInRadarForPlayer(int id);
+
 		void resetBike(BikeController *bikeController);
 		void resetBikePositions();
+
 		void restartLevel();
 
 	private:

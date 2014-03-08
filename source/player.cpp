@@ -148,6 +148,7 @@ m_hasGameView(config->ownView[id])
 			game->getNetworkManager()->registerRemotePlayer(m_bikeController->getRemote());
 		}
 	}
+
 }
 
 void Player::createHUDController(const std::vector<std::shared_ptr<Player>>& players)

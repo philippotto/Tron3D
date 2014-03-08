@@ -12,6 +12,7 @@
 #include "globals.h"
 #include "player.h"
 #include "model/abstractmodel.h"
+#include "controller/abstractcontroller.h"
 #include "controller/bikecontroller.h"
 #include "controller/levelcontroller.h"
 #include "controller/bikecontroller.h"
@@ -96,6 +97,15 @@ void GameLogic::stepGameOver(const long double gameloopTime, const long double g
 
 void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold)
 {
+	if (!pBody0->isInWorld() || !pBody1->isInWorld()) {
+		std::cout << "one of the rigidbodies is not in the world anymore  (collision)" << std::endl;
+		return;
+	}
+	if (pBody0->getUserPointer() == nullptr || pBody1->getUserPointer() == nullptr) {
+		std::cout << "one of the userpointer is null (collision)" << std::endl;
+		return;
+	}
+
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
 	collidingBodies[1] = pBody1;
@@ -110,15 +120,15 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 	AbstractController* collisionBodyControllers[2];
 	try {
-		collisionBodyControllers[0] = static_cast<AbstractController *>(objectInfos[0]->getUserPointer());
-		collisionBodyControllers[1] = static_cast<AbstractController *>(objectInfos[1]->getUserPointer());
+		collisionBodyControllers[0] = objectInfos[0]->getUserPointer();
+		collisionBodyControllers[1] = objectInfos[1]->getUserPointer();
 	}
 	catch (int e) {
 		std::cout << "RigidBody invalid, but pointer was not 0xfeeefeeefeeefeee: " << e << std::endl;
 		return;
 	}
 
-	// exit either controllers was not found
+	// exit if either controller was not found
 	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
 
 	std::array<COLLISIONTYPE,2> collisionTypes;
@@ -173,7 +183,15 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 {
-	return;
+	if (!pBody0->isInWorld() || !pBody1->isInWorld()) {
+		std::cout << "one of the rigidbodies is not in the world anymore (separation)" << std::endl;
+		return;
+	}
+	if (pBody0->getUserPointer() == nullptr || pBody1->getUserPointer() == nullptr) {
+		std::cout << "one of the userpointer is null (separation)" << std::endl;
+		return;
+	}
+
 	btRigidBody * collidingBodies[2];
 	collidingBodies[0] = pBody0;
 	collidingBodies[1] = pBody1;
@@ -187,10 +205,10 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 
 	// get the controllers of the separating objects
 	AbstractController* collisionBodyControllers[2];
-	collisionBodyControllers[0] = static_cast<AbstractController *>(objectInfos[0]->getUserPointer());
-	collisionBodyControllers[1] = static_cast<AbstractController *>(objectInfos[1]->getUserPointer());
+	collisionBodyControllers[0] = objectInfos[0]->getUserPointer();
+	collisionBodyControllers[1] = objectInfos[1]->getUserPointer();
 
-	// exit either controlles was not found
+	// exit if either controller was not found
 	if (!collisionBodyControllers[0] || !collisionBodyControllers[1]) return;
 
 	std::array<COLLISIONTYPE, 2> collisionTypes;
@@ -244,34 +262,7 @@ void GameLogic::handleCollisionOfBikeAndItem(
 {
 	if (item)
 	{
-		item->triggerOn(bike);
-	}
-
-	//
-	// testing minimap fence display
-	// TODO: add item specifically for displaying the fences?
-	//
-	std::default_random_engine generator;
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-	generator.seed(seed);
-	std::uniform_int_distribution<int> distribution(0, 1);
-	int random0or1 = distribution(generator);
-	std::cout << random0or1 << " ";
-	if (random0or1 == 0)
-	{
-		for (auto player : t->m_players)
-		{
-			player->fenceController()->showFencesInRadarForPlayer(bike->player()->id());
-		}
-		std::cout << "visible" << std::endl;
-	}
-	else
-	{
-		for (auto player : t->m_players)
-		{
-			player->fenceController()->hideFencesInRadarForPlayer(bike->player()->id());
-		}
-		std::cout << "in-visible" << std::endl;
+		item->triggerOn(bike,this);
 	}
 }
 
@@ -285,7 +276,7 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 
 	playCollisionSound(impulse);
 	float newHealth = bike->registerCollision(impulse);
-	
+
 	//
 	// player death
 	//
@@ -341,7 +332,7 @@ void GameLogic::handlePlayerDeathOnFence(
 	{
 		// workaround to deal with bike bouncing between own and other fence
 		std::pair<float, FenceController*> lastFenceCollision =	bikePlayer->bikeController()->lastFenceCollision();
-		if (lastFenceCollision.first > g_gameTime-400)
+		if (false && lastFenceCollision.first > g_gameTime-400)
 		{
 			handlePlayerDeathOnFence(lastFenceCollision.second->player(), bikePlayer);
 			return;
@@ -465,5 +456,21 @@ void GameLogic::playCollisionSound(float impulse)
 			impulse / BIKE_FENCE_IMPACT_THRESHOLD_HIGH,
 			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
 			1, 1);
+	}
+}
+
+void GameLogic::hideFencesInRadarForPlayer(int id)
+{
+	for (auto player : t->m_players)
+	{
+		player->fenceController()->hideFencesInRadarForPlayer(id);
+	}
+}
+
+void GameLogic::showFencesInRadarForPlayer(int id)
+{
+	for (auto player : t->m_players)
+	{
+		player->fenceController()->showFencesInRadarForPlayer(id);
 	}
 }

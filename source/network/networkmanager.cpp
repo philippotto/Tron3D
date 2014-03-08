@@ -41,6 +41,7 @@ NetworkManager::NetworkManager()
 	m_sendBufferMutex = new QMutex();
 	m_localBikeController = NULL;
 	m_lastUpdateTime = 0;
+	m_gameStarted = false;
 }
 
 void  NetworkManager::enqueueMessage(bikeUpdateMessage message)
@@ -71,7 +72,6 @@ void NetworkManager::registerLocalBikeController(std::shared_ptr<troen::BikeCont
 
 void NetworkManager::update(long double g_gameTime)
 {
-	std::cout << "update" << std::endl;
 	if (this->isValidSession())
 	{
 		btVector3 pos = m_localBikeController->getModel()->getPositionBt();
@@ -166,7 +166,15 @@ void NetworkManager::run()
 				break;
 
 			case GAME_START_MESSAGE:
-				emit remoteStartCall();
+			{
+									   //prevent game from calling start two times due to receviment of own packet
+									   if (!m_gameStarted)
+									   {
+
+										   emit remoteStartCall();
+										   m_gameStarted = true;
+									   }
+			}
 				break;
 
 			default:
@@ -241,6 +249,7 @@ void NetworkManager::synchronizeGameStart()
 	RakNet::BitStream bsOut;
 	bsOut.Write((RakNet::MessageID)GAME_START_MESSAGE);
 	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+	m_gameStarted = true;
 }
 
 

@@ -71,6 +71,7 @@ namespace troen
 			QMutex* m_sendBufferMutex;
 			std::shared_ptr<BikeController> m_localBikeController;
 			long double m_lastUpdateTime;
+			bool m_gameStarted;
 		};
 	}
 
