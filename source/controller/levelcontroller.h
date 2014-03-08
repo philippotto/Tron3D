@@ -26,6 +26,8 @@ namespace troen
 		int m_targetItemCount = 100;
 
 	private:
+		std::shared_ptr<LevelView> m_levelView;
+		std::shared_ptr<LevelModel> m_levelModel;
 		std::vector<btTransform> m_initialBikePositionTransforms;
 		virtual void initializeSpawnPoints();
 		std::weak_ptr<PhysicsWorld> m_world;

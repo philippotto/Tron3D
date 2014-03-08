@@ -16,9 +16,9 @@ using namespace troen;
 LevelController::LevelController()
 {
 	AbstractController();
-	m_model = std::make_shared<LevelModel>(this);
-	m_view = std::make_shared<LevelView>(std::static_pointer_cast<LevelModel>(m_model));
-	
+	m_model = m_levelModel = std::make_shared<LevelModel>(this);
+	m_view = m_levelView = std::make_shared<LevelView>(m_levelModel);
+
 	m_currentItemCount = 0;
 
 	initializeSpawnPoints();
@@ -50,7 +50,7 @@ void LevelController::initializeSpawnPoints()
 
 osg::ref_ptr<osg::Group>  LevelController::getFloorView()
 {
-		return std::static_pointer_cast<LevelView>(m_view)->getFloor();
+		return m_levelView->getFloor();
 
 }
 void LevelController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
@@ -65,7 +65,7 @@ void LevelController::addItemBox()
 	btVector3 position(x, y, +0.5);
 
 	// the item controller will remove itself
-	new ItemController(position, m_world, std::static_pointer_cast<LevelView>(m_view).get());
+	new ItemController(position, m_world, m_levelView.get());
 
 	m_currentItemCount++;
 }
@@ -76,7 +76,7 @@ void troen::LevelController::update()
 		return;
 		m_targetItemCount = 0;
 	}
-		
+
 
 	// this method is called in each frame, so the amount of items will be refreshed relatively quickly
 	// creating all at once would cause a lag

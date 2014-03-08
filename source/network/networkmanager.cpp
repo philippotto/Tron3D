@@ -1,18 +1,18 @@
 #include "networkmanager.h"
-#include "../constants.h"
-
+//std
 #include <stdio.h>
 #include <string.h>
-
-#include "MessageIdentifiers.h"
-#include "../controller/bikecontroller.h"
-#include "../troengame.h"
 #include <initializer_list>
-
-
-//
+#include "MessageIdentifiers.h"
+//qt
 #include <QQueue>
+//bullet
 #include "LinearMath/btQuaternion.h"
+//troen
+#include "../constants.h"
+#include "../troengame.h"
+#include "../controller/bikecontroller.h"
+#include "../model/bikemodel.h"
 
 //raknet
 
@@ -25,6 +25,7 @@ using namespace troen::networking;
 enum GameMessages
 {
 	BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1,
+	GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 2,
 	BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 3,
 	GAME_SET_ID = ID_USER_PACKET_ENUM + 4
 };
@@ -41,12 +42,13 @@ NetworkManager::NetworkManager(troen::TroenGame *game)
 	m_sendUpdateMessagesQueue = new QQueue<bikeUpdateMessage>();
 	m_sendInputUpdateMessagesQueue = new QQueue<bikeInputUpdateMessage>();
 	m_sendStatusUpdateMessage = new QQueue<bikeStatusMessage>();
-	m_remotePlayers = std::vector<input::RemotePlayer*>();
 	m_sendBufferMutex = new QMutex();
 	m_localBikeController = NULL;
 	m_lastUpdateTime = 0;
 	m_gameID = 0;
 	m_troenGame = game;
+	m_remotePlayers = std::vector<std::shared_ptr<input::RemotePlayer>>();
+	m_gameStarted = false;
 }
 
 void  NetworkManager::enqueueMessage(bikeUpdateMessage message)
@@ -74,12 +76,12 @@ void  NetworkManager::enqueueMessage(bikeStatusMessage message)
 
 
 
-void NetworkManager::registerRemotePlayer(troen::input::RemotePlayer *remotePlayer)
+void NetworkManager::registerRemotePlayer(std::shared_ptr<troen::input::RemotePlayer> remotePlayer)
 {
 	m_remotePlayers.push_back(remotePlayer);
 }
 
-void NetworkManager::setLocalBikeController(troen::BikeController *controller)
+void NetworkManager::registerLocalBikeController(std::shared_ptr<troen::BikeController> controller)
 {
 	m_localBikeController = controller;
 }
@@ -109,13 +111,12 @@ void NetworkManager::receiveStatusMessage(bikeStatusMessage message)
 
 void NetworkManager::update(long double g_gameTime)
 {
-
 	if (this->isValidSession())
 	{
-		btVector3 pos = m_localBikeController->getPositionBt();
-		btQuaternion quat = m_localBikeController->getRotation();
-		btVector3 linearVelocity = m_localBikeController->getLinearVelocity();
-		btVector3 angularVelocity = m_localBikeController->getAngularVelocity();
+		btVector3 pos = m_localBikeController->getModel()->getPositionBt();
+		btQuaternion quat = m_localBikeController->getModel()->getRotationQuat();
+		btVector3 linearVelocity = m_localBikeController->getModel()->getLinearVelocity();
+		btVector3 angularVelocity = m_localBikeController->getModel()->getAngularVelocity();
 		bikeUpdateMessage message = { 
 			m_gameID,
 			pos.x(), pos.y(), pos.z(),
@@ -131,13 +132,6 @@ void NetworkManager::update(long double g_gameTime)
 			enqueueMessage(message);
 			lastSentMessage = message;
 		}
-
-		//if (inputmessage.turnAngle != lastSentMessage.turnAngle || inputmessage.acceleration != lastSentMessage.acceleration || g_gameTime - m_lastUpdateTime > 30.0)
-		//{
-		//	enqueueMessage(inputmessage);
-		//	lastSentMessage = inputmessage;
-		//}
-		
 		
 	}
 }
@@ -147,7 +141,7 @@ void NetworkManager::update(long double g_gameTime)
 //!! This runs in a seperate thread //
 void NetworkManager::run()
 {
-	
+
 	// subclass responsibility
 	RakNet::Packet *packet;
 	while (1)
@@ -218,7 +212,7 @@ void NetworkManager::run()
 				RakNet::BitStream bsIn(packet->data, packet->length, false);
 				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 				bsIn.Read(receivedUpdateMessage);
-				//std::cout << receivedUpdateMessage.x << " " << receivedUpdateMessage.y << " " << receivedUpdateMessage.z << " " << receivedUpdateMessage.turnAngle << " " << receivedUpdateMessage.acceleration << std::endl;
+				std::cout << receivedUpdateMessage.x << " " << receivedUpdateMessage.y << " " << receivedUpdateMessage.z << " " << receivedUpdateMessage.linearVelX << " " << receivedUpdateMessage.linearVelY << std::endl;
 				m_remotePlayers[0]->update(receivedUpdateMessage);
 			}
 				break;
@@ -232,6 +226,19 @@ void NetworkManager::run()
 										printf("status_message");
 
 			}
+				break;
+
+			case GAME_START_MESSAGE:
+			{
+									   //prevent game from calling start two times due to receviment of own packet
+									   if (!m_gameStarted)
+									   {
+
+										   emit remoteStartCall();
+										   m_gameStarted = true;
+									   }
+			}
+				break;
 
 			default:
 				printf("Message with identifier %i has arrived.\n", packet->data[0]);
@@ -249,20 +256,6 @@ void NetworkManager::run()
 	RakNet::RakPeerInterface::DestroyInstance(peer);
 }
 
-void NetworkManager::openServer()
-{
-	m_isServer = true;
-	RakNet::SocketDescriptor sd(SERVER_PORT, 0);
-	peer->Startup(MAX_CLIENTS, &sd, 1);
-
-	printf("Starting the server.\n");
-	// We need to let the server accept incoming connections from the clients
-	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
-	
-
-	//calls the run method in a seperate thread
-	start();
-}
 
 void NetworkManager::sendData()
 {
@@ -270,6 +263,7 @@ void NetworkManager::sendData()
 	{
 		while (!m_sendUpdateMessagesQueue->empty())
 		{
+			
 
 
 				RakNet::BitStream bsOut;
@@ -299,37 +293,59 @@ void NetworkManager::sendData()
 			statusMessageToSend = m_sendStatusUpdateMessage->dequeue();
 			m_sendBufferMutex->unlock();
 			bsOut.Write(statusMessageToSend);
+
+			//peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+			peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 		}
 	}
 }
 
-void NetworkManager::openClient()
+void NetworkManager::openServer()
+{
+	m_isServer = true;
+	RakNet::SocketDescriptor sd(SERVER_PORT, 0);
+	peer->Startup(MAX_CLIENTS, &sd, 1);
+
+	printf("Starting the server.\n");
+	// We need to let the server accept incoming connections from the clients
+	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
+	
+
+	//calls the run method in a seperate thread
+	start();
+}
+void NetworkManager::openClient(std::string connectAddr)
 {
 	m_isServer = false;
 	RakNet::SocketDescriptor sd;
 	peer->Startup(1, &sd, 1);
 
-	char str[512];
-
-	printf("Enter server IP or hit enter for 127.0.0.1\n");
-	//gets(str);
-	std::cin.getline(str, 510);
-	if (str[0] == 0){
-		strncpy_s(str, "127.0.0.1",10);
-	}
 	printf("Starting the client.\n");
-	RakNet::ConnectionAttemptResult r= peer->Connect(str, SERVER_PORT, 0, 0);
+	RakNet::ConnectionAttemptResult r = peer->Connect(connectAddr.c_str(), SERVER_PORT, 0, 0);
 
 	//calls the run method in a seperate thread
 	start();
 }
+
+void NetworkManager::synchronizeGameStart()
+{
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)GAME_START_MESSAGE);
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+	m_gameStarted = true;
+}
+
 
 
 bool NetworkManager::isValidSession()
 {
 	//for now
 	return (m_connectedToServer && (m_gameID > 0)) || ( m_numClientsConnected > 0);
+
 }
 
 
-
+std::string  NetworkManager::getClientAddress() 
+{ 
+	return m_clientAddress;
+}

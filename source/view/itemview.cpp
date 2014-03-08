@@ -38,8 +38,10 @@ ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelVie
 	obstaclesStateSet->addUniform(textureMapU);
 	if (type == ItemController::TURBOSTRIP)
 		setTexture(obstaclesStateSet, "data/textures/turbostrip.tga", 0);
-	else
+	else if (type == ItemController::HEALTHUP)
 		setTexture(obstaclesStateSet, "data/textures/box_health.tga", 0);
+	else
+		setTexture(obstaclesStateSet, "data/textures/box_fence.tga", 0);
 
 	obstaclesStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
 	obstaclesStateSet->addUniform(new osg::Uniform("levelSize", LEVEL_SIZE));

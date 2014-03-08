@@ -33,7 +33,7 @@ namespace input
 		void setPosition(btVector3 position);
 		btQuaternion getRotation();
 		void setRotation(btQuaternion val);
-		btVector3 getLinearVeloctiy();
+		btVector3 getLinearVelocity();
 		void setLinearVeloctiy(btVector3 val);
 		float getAngularVelocity();
 		void setAngularVelocityZ(float val);

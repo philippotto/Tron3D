@@ -30,7 +30,8 @@ float BikeInputState::getAcceleration()
 
 void BikeInputState::setAngle(float angle)
 {
-	m_angle = angle;
+	// angle should be smaller for small values to avoid overly responsive steering
+	m_angle = abs(angle) < 1.f ? sign(angle) * pow(angle, 2) : angle;
 }
 
 void BikeInputState::setAcceleration(float acceleration)
@@ -88,7 +89,7 @@ void BikeInputState::setRotation(btQuaternion val)
 	m_rotation = val;
 }
 
-btVector3 BikeInputState::getLinearVeloctiy() 
+btVector3 BikeInputState::getLinearVelocity() 
 {
 	return m_linearVeloctiy;
 }

@@ -52,23 +52,33 @@ namespace troen
 
 		class NetworkManager : public QThread
 		{
+			Q_OBJECT
 		public:
 			NetworkManager(TroenGame *game);
 			void openServer();
 			virtual void run();
-			void openClient();
+			void openClient(std::string connectAddr);
 			void sendData();
 			void enqueueMessage(bikeUpdateMessage message);
 			void enqueueMessage(bikeInputUpdateMessage message);
 			void enqueueMessage(bikeStatusMessage message);
 			void registerRemotePlayer(input::RemotePlayer *remotePlayer);
+			void registerRemotePlayer(std::shared_ptr<input::RemotePlayer> remotePlayer);
 			bool isValidSession();
-			void setLocalBikeController(troen::BikeController *controller);
+			void registerLocalBikeController(std::shared_ptr<troen::BikeController> controller);
 			void update(long double g_gameTime);
+
 			void sendStatusUpdateMessage(int message);
 			void sendPoints(int pointCount, int status, short secondBike = NULL);
 			void receiveStatusMessage(bikeStatusMessage message);
+			std::string getClientAddress();
+			void synchronizeGameStart();
+		
+		signals:
+			void remoteStartCall();
+
 		protected:
+			std::string m_clientAddress;
 			RakNet::Packet *m_packet;
 			RakNet::RakPeerInterface *peer;
 			bool m_isServer;
@@ -77,12 +87,13 @@ namespace troen
 			QQueue<bikeUpdateMessage> *m_sendUpdateMessagesQueue;
 			QQueue<bikeInputUpdateMessage> *m_sendInputUpdateMessagesQueue;
 			QQueue<bikeStatusMessage> *m_sendStatusUpdateMessage;
-			std::vector<input::RemotePlayer*> m_remotePlayers;
+			std::vector<std::shared_ptr<input::RemotePlayer>> m_remotePlayers;
 			QMutex* m_sendBufferMutex;
-			BikeController *m_localBikeController;
+			std::shared_ptr<BikeController> m_localBikeController;
 			long double m_lastUpdateTime;
 			short m_gameID;
 			TroenGame *m_troenGame;
+			bool m_gameStarted;
 		};
 	}
 
