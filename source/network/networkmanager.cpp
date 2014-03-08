@@ -13,6 +13,7 @@
 #include "../troengame.h"
 #include "../controller/bikecontroller.h"
 #include "../model/bikemodel.h"
+#include "../player.h"
 
 //raknet
 
@@ -98,11 +99,11 @@ void NetworkManager::receiveStatusMessage(bikeStatusMessage message)
 	if (is_in(message.status, { (int)PLAYER_DEATH_ON_WALL, (int)PLAYER_DEATH_ON_OWN_FENCE, (int) PLAYER_DEATH_ON_OTHER_PLAYER }))
 	{
 
-		for (auto controller : m_troenGame->getBikeControllers())
+		for (auto player : m_troenGame->players())
 		{
-			if (controller->isRemote())
+			if (player->isRemote())
 			{
-				controller->increaseDeathCount();
+				player->increaseDeathCount();
 			}
 		}
 	}

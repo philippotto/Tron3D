@@ -345,7 +345,7 @@ void MainWindow::connectNetworking()
 	bikeNumberChanged(m_bikeNumberSpinBox->value());
 	updatePlayerInputBoxes();
 
-	connect(m_troenGame->getNetworkManager(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));
+	connect(m_troenGame->getNetworkManager().get(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));
 
 	m_networkingReady = true;
 

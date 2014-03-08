@@ -92,7 +92,6 @@ namespace troen
 		std::string setupNetworking(bool server, std::string connectAddr = "127.0.0.1");
 
 		std::shared_ptr<networking::NetworkManager> getNetworkManager() { return m_networkManager; }
-		//std::vector<std::shared_ptr<BikeController>> getBikeControllers() { return m_bikeControllers; }
 	private:
 		//
 		// Game Loop
