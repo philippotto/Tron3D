@@ -292,6 +292,10 @@ void GameLogic::handleCollisionOfBikeAndFence(
 	FenceController* fence,
 	btPersistentManifold* contactManifold)
 {
+
+	if (bike->player()->isRemote())
+		return; //let the remote player handle the collsions himself
+
 	btScalar impulse = impulseFromContactManifold(contactManifold);
 
 	playCollisionSound(impulse);

@@ -29,7 +29,6 @@ namespace troen
 			float x, y, z;
 			float quat_x, quat_y, quat_z, quat_w;
 			float linearVelX, linearVelY, linearVelZ;
-			float angularVelZ;
 		};
 
 		struct bikeStatusMessage
@@ -83,7 +82,7 @@ namespace troen
 			RakNet::RakPeerInterface *peer;
 			bool m_isServer;
 			bool m_connectedToServer;
-			bool m_numClientsConnected;
+			short m_numClientsConnected;
 			QQueue<bikeUpdateMessage> *m_sendUpdateMessagesQueue;
 			QQueue<bikeInputUpdateMessage> *m_sendInputUpdateMessagesQueue;
 			QQueue<bikeStatusMessage> *m_sendStatusUpdateMessage;
