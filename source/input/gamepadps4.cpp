@@ -4,6 +4,7 @@
 #include "bikeinputstate.h"
 #include "../constants.h"
 #include "../util/scriptwatcher.h"
+#include "../globals.h"
 #include <cmath>
 
 // VID and PID values of the specific device
@@ -20,9 +21,9 @@ GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDev
 	//initialise hid api
 	hid_init();
 
-	addFunction("getFreeDistanceInDirection", this, &GamepadPS4::setBuffer);
+	addFunction("setBuffer", this, &GamepadPS4::setBuffer);
+	addFunction("log", this, &GamepadPS4::log);
 
-	//addProperty<double>("buffer", *this, &GamepadPS4::getBuffer, &GamepadPS4::setBuffer);
 }
 
 GamepadPS4::~GamepadPS4()
@@ -33,7 +34,10 @@ GamepadPS4::~GamepadPS4()
 
 void GamepadPS4::setBuffer(const std::vector<reflectionzeug::Variant> &args)
 {
-	//set
+	int i = 0;
+	for (uint i = 0; i < args.at(0).size(); i++) {
+		m_b[i] = (unsigned char) args.at(0).get(i).toInt();
+	}
 }
 
 /*
@@ -113,9 +117,11 @@ int GamepadPS4::getBitAt(int k, unsigned char * buffer){
 	return -1;
 }
 
+
 //check for events and handle them
 void GamepadPS4::run()
 {
+	PollingDevice::run();
 	m_pollingEnabled = true;
 
 	scriptzeug::ScriptContext g_scriptingThread;
@@ -126,6 +132,14 @@ void GamepadPS4::run()
 
 	while (m_pollingEnabled)
 	{
+
+		reflectionzeug::Variant value;
+		value = g_scriptingThread.evaluate("try {     if (typeof step !== 'undefined') { step() }      } catch (ex) { ex } ");
+
+		if (hid_write(_controller, m_b, 32) == -1)
+			std::cout << "hid_write failed" << std::endl;
+
+
 		unsigned char buf[96];
 		// check whether controller is available, if not search for controller
 		// if it is still not available do nothing
@@ -172,6 +186,7 @@ void GamepadPS4::run()
 		m_bikeInputState->setAcceleration(rightTrigger - leftTrigger);
 		m_bikeInputState->setViewingAngle(viewingAngle);
 
+		QCoreApplication::processEvents();
 		this->msleep(POLLING_DELAY_MS);
 	}
 }

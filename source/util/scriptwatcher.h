@@ -21,6 +21,7 @@ public:
 
 			QFileSystemWatcher *watcher = new QFileSystemWatcher();
 			watcher->addPath("source/scripts/");
+			watcher->addPath("source/scripts/ps4.js");
 			//watcher->addPath("source/scripts/test.js");
 
 
@@ -35,6 +36,7 @@ public:
 
 			//QObject::connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(onFolderChanged(QString)));
 			QObject::connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(onFolderChanged(QString)));
+			QObject::connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(onFolderChanged(QString)));
 		}
 
 	~ScriptWatcher(){}

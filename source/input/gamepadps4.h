@@ -27,6 +27,11 @@ namespace input
 		hid_device *_controller = nullptr;
 
 		void setBuffer(const std::vector<reflectionzeug::Variant> &args);
+		void log(std::string message) {
+			std::cout << "script log:   " << message << std::endl;
+		}
+
+		unsigned char m_b[32];
 
 	private:
 		int getBitAt(int k, unsigned char * buf);
