@@ -159,7 +159,7 @@ void BikeController::initializeGamepad(osg::ref_ptr<input::BikeInputState> bikeI
 
 void BikeController::initializeGamepadPS4(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
-	std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState);
+	std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState, m_player->color());
 
 	if (gamepad->checkConnection())
 	{

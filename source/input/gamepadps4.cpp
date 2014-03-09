@@ -10,17 +10,40 @@
 
 using namespace troen::input;
 
-GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState)
+GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState, osg::Vec3 color) : PollingDevice(bikeInputState)
 {
+	for (int i = 0; i < sizeof(m_writeBuffer); i++) {
+		m_writeBuffer[i] = 0;
+	}
+
+	m_writeBuffer[0] = 5; // report number has to be 5
+	m_writeBuffer[1] = 255; // flip LSB to enable/disable rumble
+	m_writeBuffer[4] = 0; // right motor fast/weak
+	m_writeBuffer[5] = 0; // left motor slow/strong
+	m_writeBuffer[6] = 0; // R
+	m_writeBuffer[7] = 255; // G
+	m_writeBuffer[8] = 255; // B
+	m_writeBuffer[9] = 0; // flash on duration
+	m_writeBuffer[10] = 0; // flash off duration
+
 	m_deadzoneX = 0.05f;
 	m_deadzoneY = 0.05f;
 
 	//initialise hid api
 	hid_init();
+
+	if (checkConnection()) {
+		setColor(color);
+	}
 }
 
 GamepadPS4::~GamepadPS4()
 {
+	// turn off vibration/LED etc.
+	for (int i = 4; i <= 10; i++) {
+		m_writeBuffer[i] = 0;
+	}
+	hid_write(_controller, m_writeBuffer, 32);
 	hid_close(_controller);
 	hid_exit();
 }
@@ -102,6 +125,24 @@ int GamepadPS4::getBitAt(int k, unsigned char * buffer){
 	return -1;
 }
 
+void GamepadPS4::setColor(osg::Vec3 color)
+{
+	m_writeBuffer[6] = (uchar) color.x();
+	m_writeBuffer[7] = (uchar) color.y();
+	m_writeBuffer[8] = (uchar) color.z();
+	hid_write(_controller, m_writeBuffer, 32);
+}
+
+void GamepadPS4::setVibration(const bool b)
+{
+	if (m_vibrate != b) {
+		m_writeBuffer[4] = b ? 255 : 0;
+		m_writeBuffer[5] = b ? 255 : 0;
+		hid_write(_controller, m_writeBuffer, 32);
+		m_vibrate = b;
+	}
+}
+
 //check for events and handle them
 void GamepadPS4::run()
 {
@@ -162,7 +203,7 @@ void GamepadPS4::run()
 bool GamepadPS4::checkConnection(){
 	// Open the device using the vendor_id, product_id,
 	// and optionally the Serial number.
-	if ((_controller = hid_open(VID, PID, nullptr)) != nullptr)
+	if (_controller || (_controller = hid_open(VID, PID, nullptr)) != nullptr)
 		return true;
 
 	return false;
