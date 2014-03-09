@@ -43,6 +43,7 @@ m_deathCount(0),
 m_hasGameView(config->ownView[id])
 {
 	m_color = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
+	m_troenGame = game;
 
 	////////////////////////////////////////////////////////////////////////////////
 	//

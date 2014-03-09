@@ -19,7 +19,9 @@ BikeModel::BikeModel(
 	BikeController* bikeController) :
 AbstractModel(),
 m_lastUpdateTime(0),
-m_bikeController(bikeController)
+m_bikeController(bikeController),
+m_currentSteeringTilt(0),
+m_currentWheelyTilt(0)
 {
 	resetState();
 
@@ -213,6 +215,41 @@ float BikeModel::updateState(long double time)
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
 	return speed;
+}
+
+
+
+osg::Quat BikeModel::getTilt()
+{
+
+	float desiredSteeringTilt = getSteering() / BIKE_TILT_MAX;
+
+	// timeFactor is 1 for 60 frames, 0.5 for 30 frames etc..
+	long double timeFactor = 16.7f / getTimeSinceLastUpdate();
+	// sanity check for very large delays
+	if (timeFactor < 1 / BIKE_TILT_DAMPENING)
+		timeFactor = 1 / BIKE_TILT_DAMPENING;
+
+	m_currentSteeringTilt = m_currentSteeringTilt + (desiredSteeringTilt - m_currentSteeringTilt) / (BIKE_TILT_DAMPENING * timeFactor);
+
+	float turboFactor = getTurboFactor();
+
+	if (turboFactor < 0) {
+		// no interpolation on abrupt speed change
+		m_currentWheelyTilt = 0;
+	}
+	else{
+		const float desiredWheelyTilt = getTurboFactor() / BIKE_WHEELY_TILT_MAX;
+		const float tiltDifference = desiredWheelyTilt - m_currentWheelyTilt;
+		m_currentWheelyTilt = m_currentWheelyTilt + tiltDifference / (BIKE_TILT_DAMPENING * timeFactor);
+	}
+
+
+	osg::Quat tiltSteeringQuat, tiltWheelyQuat;
+	tiltSteeringQuat.makeRotate(m_currentSteeringTilt, osg::Vec3(0, 1, 0));
+	tiltWheelyQuat.makeRotate(m_currentWheelyTilt, osg::Vec3(-1, 0, 0));
+
+	return tiltSteeringQuat * tiltWheelyQuat;
 }
 
 float BikeModel::getRotation()

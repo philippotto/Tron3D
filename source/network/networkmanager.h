@@ -30,7 +30,8 @@ namespace troen
 			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1,
 			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 2,
 			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 3,
-			GAME_INIT_PARAMETERS = ID_USER_PACKET_ENUM + 4
+			GAME_INIT_PARAMETERS = ID_USER_PACKET_ENUM + 4,
+			BIKE_FENCE_PART_MESSAGE = ID_USER_PACKET_ENUM + 5
 		};
 
 		struct bikeUpdateMessage
@@ -68,8 +69,8 @@ namespace troen
 			virtual bool isValidSession();
 			void sendData();
 			void enqueueMessage(bikeUpdateMessage message);
-			void enqueueMessage(bikeInputUpdateMessage message);
 			void enqueueMessage(bikeStatusMessage message);
+			void enqueueMessage(btTransform message);
 			void registerRemotePlayer(input::RemotePlayer *remotePlayer);
 			void registerRemotePlayer(std::shared_ptr<input::RemotePlayer> remotePlayer);
 			void registerLocalBikeController(std::shared_ptr<troen::BikeController> controller);
@@ -82,11 +83,15 @@ namespace troen
 			void synchronizeGameStart();
 			int getGameID()  { return m_gameID; }
 			btTransform getStartPosition()  { return m_startPosition; }
+			template <typename TQueue, typename TSendStruct> 
+			void sendMessages(QQueue<TQueue> *sendBufferQueue, TSendStruct &messageToSend, int order, int statusMessage);
 
 		
 		signals:
 			void remoteStartCall();
 		protected:
+			virtual void handleSubClassMessages(RakNet::Packet *packet) = NULL; //pure virtual function
+
 			std::string m_clientAddress;
 			RakNet::Packet *m_packet;
 			RakNet::RakPeerInterface *peer;
@@ -94,7 +99,7 @@ namespace troen
 			bool m_connectedToServer;
 			short m_numClientsConnected;
 			QQueue<bikeUpdateMessage> *m_sendUpdateMessagesQueue;
-			QQueue<bikeInputUpdateMessage> *m_sendInputUpdateMessagesQueue;
+			QQueue<btTransform> *m_sendFenceUpdateMessagesQueue;
 			QQueue<bikeStatusMessage> *m_sendStatusUpdateMessage;
 			std::vector<std::shared_ptr<input::RemotePlayer>> m_remotePlayers;
 			QMutex* m_sendBufferMutex;
@@ -108,6 +113,7 @@ namespace troen
 
 			struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage, messageToSend;
 			struct bikeStatusMessage receivedStatusMessage, statusMessageToSend;
+			btTransform receivedFencePart,fencePartToSend;
 		};
 	}
 
@@ -129,6 +135,7 @@ namespace troen
 		bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 		bsIn.Read(readInto);
 	}
+
 
 
 

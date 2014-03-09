@@ -28,12 +28,11 @@ namespace troen
 			Q_OBJECT
 		public:
 			ClientManager(TroenGame *game);
-			virtual void run();
 			void openClient(std::string connectAddr);
 
 			bool isValidSession();
 			void setInitParameters(RakNet::Packet *packet);
-
+			virtual void handleSubClassMessages(RakNet::Packet *packet);
 		protected:
 	
 			bool m_isServer;

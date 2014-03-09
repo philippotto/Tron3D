@@ -28,11 +28,11 @@ namespace troen
 		public:
 			ServerManager(TroenGame *game);
 			void openServer();
-			void run();
 			bool isValidSession();
 
 			std::string getClientAddress();
 			void addClientToGame(RakNet::Packet *packet);
+			virtual void handleSubClassMessages(RakNet::Packet *packet);
 		protected:
 			std::string m_clientAddress;
 			bool m_isServer;

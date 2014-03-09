@@ -29,79 +29,29 @@ ClientManager::ClientManager(troen::TroenGame *game) : NetworkManager(game)
 }
 
 
-//!! This runs in a seperate thread //
-void ClientManager::run()
+void ClientManager::handleSubClassMessages(RakNet::Packet *packet)
 {
-
-	// subclass responsibility
-	RakNet::Packet *packet;
-	while (1)
+	switch (packet->data[0])
 	{
-		for (packet = peer->Receive(); packet; peer->DeallocatePacket(packet), packet = peer->Receive())
-		{
-			switch (packet->data[0])
-			{
-			case ID_CONNECTION_REQUEST_ACCEPTED:
-				//send the ID of the client
-				m_connectedToServer = true;
-				break;
-			case GAME_INIT_PARAMETERS:
-			{
-										 setInitParameters(packet);
-			}
-				break;
+	case ID_CONNECTION_REQUEST_ACCEPTED:
+		//send the ID of the client
+		m_connectedToServer = true;
+		break;
+	case GAME_INIT_PARAMETERS:
+		setInitParameters(packet);
+		break;
 
-			case ID_NO_FREE_INCOMING_CONNECTIONS:
-				printf("The server is full.\n");
-				break;
-			case ID_DISCONNECTION_NOTIFICATION:
-					printf("We have been disconnected.\n");
-				break;
-			case ID_CONNECTION_LOST:
-				printf("Connection lost.\n");
-				break;
-
-			case BIKE_POSITION_MESSSAGE:
-			{
-										   readMessage(packet, receivedUpdateMessage);
-										   m_remotePlayers[0]->update(receivedUpdateMessage);
-			}
-				break;
-
-			case BIKE_STATUS_MESSAGE:
-			{
-										readMessage(packet, receivedStatusMessage);
-										//receiveStatusMessage(receivedStatusMessage);
-										printf("status_message");
-
-			}
-				break;
-
-			case GAME_START_MESSAGE:
-			{
-									   //prevent game from calling start two times due to receviment of own packet
-									   if (!m_gameStarted)
-									   {
-
-										   emit remoteStartCall();
-										   m_gameStarted = true;
-									   }
-			}
-				break;
-			default:
-				printf("Message with identifier %i has arrived.\n", packet->data[0]);
-				break;
-			}
-		}
-
-
-		sendData();
-		this->msleep(10);
-
+	case ID_NO_FREE_INCOMING_CONNECTIONS:
+		printf("The server is full.\n");
+		break;
+	case ID_DISCONNECTION_NOTIFICATION:
+		printf("We have been disconnected.\n");
+		break;
+	case ID_CONNECTION_LOST:
+		printf("Connection lost.\n");
+		break;
 	}
 
-	//cleanup
-	RakNet::RakPeerInterface::DestroyInstance(peer);
 }
 
 
@@ -133,5 +83,6 @@ void ClientManager::setInitParameters(RakNet::Packet *packet)
 	bsIn.Read(m_gameID);
 	bsIn.Read(m_startPosition);
 	std::cout << "got game ID: " << m_gameID << std::endl;
+	std::cout << "starting at Position" << m_startPosition.getOrigin().x() << " " <<  m_startPosition.getOrigin().y() << std::endl;
 
 }

@@ -25,6 +25,7 @@
 #include "../resourcepool.h"
 #include "../sound/audiomanager.h"
 #include "../input/remoteplayer.h"
+#include "../model/bikemotionstate.h"
 
 using namespace troen;
 
@@ -336,6 +337,27 @@ void BikeController::updateModel(const long double gameTime)
 	updateUniforms();
 }
 
+void BikeController::updateView(const btTransform &worldTrans)
+{
+	btQuaternion rot = worldTrans.getRotation();
+	btVector3 position = worldTrans.getOrigin();
+
+	osg::Vec3 axis = osg::Vec3(rot.getAxis().x(), rot.getAxis().y(), rot.getAxis().z());
+	osg::Quat rotationQuat(rot.getAngle(), axis);
+	osg::Quat attitude = m_bikeModel->getTilt() * rotationQuat;
+
+
+	m_bikeView->m_pat->setAttitude(attitude);
+	m_bikeView->m_pat->setPosition(osg::Vec3(position.x(), position.y(), position.z()));
+	
+	// update fence accordingly
+	if (m_player->getTroenGame()->isNetworking())
+		updateNetworkFence(worldTrans);
+	else
+		m_player->fenceController()->update(position, rot);
+
+}
+
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
 {
 	osg::ref_ptr<osg::Group> group = m_bikeView->getNode();
@@ -343,6 +365,25 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	//group->setCullingActive(false);
 	return group;
 };
+
+void BikeController::updateNetworkFence(btTransform transform)
+{
+	if (!m_player->isRemote())
+	{
+		m_player->fenceController()->update(transform.getOrigin(),transform.getRotation());
+		m_player->getTroenGame()->getNetworkManager()->enqueueMessage(transform);
+	}
+
+	else
+	{
+		btTransform trans;
+		// read in every new fence part
+		while (m_remote->tryGetFencePiece(trans))
+		{
+			m_player->fenceController()->update(trans.getOrigin(), trans.getRotation());
+		}
+	}
+}
 
 void BikeController::addUniformsToPlayerNode()
 {

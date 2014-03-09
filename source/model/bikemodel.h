@@ -42,6 +42,7 @@ namespace troen
 		float getInputAngle();
 		btVector3 getLinearVelocity();
 		btVector3 getAngularVelocity();
+		osg::Quat getTilt();
 	private:
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 		float m_oldVelocity;
@@ -53,5 +54,7 @@ namespace troen
 		long double m_lastUpdateTime;
 		BikeController* m_bikeController;
 		long double m_timeSinceLastUpdate;
+		float m_currentSteeringTilt;
+		float m_currentWheelyTilt;
 	};
 }

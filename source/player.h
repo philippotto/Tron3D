@@ -29,14 +29,15 @@ namespace troen
 		// getters
 		//
 		const int id() 			{ return m_id; };
-		osg::Vec3 color()		{ return m_color; };
-		const std::string name(){ return m_name; };
-		int deathCount() 		{ return m_deathCount; };
-		int killCount() 		{ return m_killCount; };
-		const float health()	{ return m_health; };
-		const float points()	{ return m_points; };
-		const bool isRemote()	{ return m_isRemote; }
-		int	getNetworkID()		{ return m_networkID; }
+		osg::Vec3 color()			{ return m_color; };
+		const std::string name()	{ return m_name; };
+		int deathCount() 			{ return m_deathCount; };
+		int killCount() 			{ return m_killCount; };
+		const float health()		{ return m_health; };
+		const float points()		{ return m_points; };
+		const bool isRemote()		{ return m_isRemote; }
+		int	getNetworkID()			{ return m_networkID; }
+		TroenGame* getTroenGame()	{ return m_troenGame; }
 		//
 		// controllers
 		//
@@ -74,6 +75,7 @@ namespace troen
 
 
 	private:
+		TroenGame*						m_troenGame;
 		//
 		// player attributes
 		//

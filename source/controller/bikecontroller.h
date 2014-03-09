@@ -47,6 +47,7 @@ namespace troen
 		// logic events
 		//
 		void updateModel(const long double gameTime);
+		void updateView(const btTransform &worldTrans);
 		void setState(const BIKESTATE newState, const double respawnTime = -1);
 		void moveBikeToPosition(btTransform position);
 		const float registerCollision(const btScalar impulse);
@@ -101,6 +102,7 @@ namespace troen
 		void initializeGamepad(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		void initializeRemote(osg::ref_ptr<input::BikeInputState> bikeInputState);
 		long double getTimeFactor();
+		void updateNetworkFence(btTransform transform);
 #endif
 
 		//

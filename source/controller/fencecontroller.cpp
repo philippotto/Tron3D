@@ -45,6 +45,7 @@ void FenceController::update(btVector3 position, btQuaternion rotation)
 }
 
 
+
 void FenceController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 {
 	m_world = world;
