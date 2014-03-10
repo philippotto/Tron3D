@@ -42,13 +42,15 @@ m_killCount(0),
 m_deathCount(0),
 m_hasGameView(config->ownView[id])
 {
+	if (!game->isNetworking())
 		m_color = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
-	//if (!game->isNetworking())
-	//else
-	//{
-	//	QColor color = game->getNetworkManager()->getPlayerColor();
-	//	m_color = osg::Vec3(color.red(),color.green(),color.blue());
-	//}
+	else
+	{
+		int game_id = game->getNetworkManager()->getGameID();
+		int player_net_id = (config->ownView[m_id]) ? game_id : (1 - game_id); //only works for 2 players
+		QColor color = game->getNetworkManager()->getPlayerColor(player_net_id);
+		m_color = osg::Vec3(color.red(),color.green(),color.blue());
+	}
 
 	m_troenGame = game;
 
@@ -157,6 +159,7 @@ m_hasGameView(config->ownView[id])
 		else if (config->playerInputTypes[m_id] == input::BikeInputState::REMOTE_PLAYER)
 		{
 			m_isRemote = true;
+			
 			game->getNetworkManager()->registerRemotePlayer(m_bikeController->getRemote());
 
 		}

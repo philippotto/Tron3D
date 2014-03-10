@@ -35,6 +35,7 @@ ServerManager::ServerManager(troen::TroenGame *game) : NetworkManager(game)
 	m_startPosition = m_startPositions->at(0);
 
 
+
 	m_numClientsConnected = 0;
 }
 

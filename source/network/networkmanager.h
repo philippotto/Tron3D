@@ -11,13 +11,14 @@
 // Qt
 #include <QThread>
 #include <vector>
+#include "qcolor.h"
 
 //bullet
 #include <btBulletDynamicsCommon.h>
 // troen
 #include "../forwarddeclarations.h"
 #include "../input/remoteplayer.h"
-
+#include "../troengame.h"
 
 
 namespace troen
@@ -57,6 +58,7 @@ namespace troen
 			float turnAngle, acceleration; //other ideas: often send turnAngle,acceleration, sometimes send position,rotation, linear velocity,angular velocity
 		};
 
+
 		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_OWN_FENCE, PLAYER_DEATH_ON_OTHER_PLAYER};
 		
 
@@ -81,7 +83,7 @@ namespace troen
 			template <typename TQueue, typename TSendStruct> 
 			void sendMessages(QQueue<TQueue> *sendBufferQueue, TSendStruct &messageToSend, int order, int statusMessage);
 			void sendPoints(int pointCount, int status, short secondBike = NULL);
-			void synchronizeGameStart();
+			void synchronizeGameStart(troen::GameConfig &config);
 
 			//receiving data
 			template <typename T>
@@ -91,12 +93,14 @@ namespace troen
 			//register
 			void registerRemotePlayer(std::shared_ptr<input::RemotePlayer> remotePlayer);
 			void registerLocalPlayer(troen::Player* player);
+			void buildOwnPlayerInfo(troen::GameConfig *config);
 
 			//getters
 			int getGameID()  { return m_gameID; }
 			btTransform getStartPosition()  { return m_startPosition; }
 			std::string getClientAddress();
-			QColor getPlayerColor();
+			QColor getPlayerColor(int playerID);
+			std::shared_ptr<NetworkPlayerInfo> getPlayerWithID(int bikeID);
 
 			//data polling
 			void update(long double g_gameTime);
@@ -105,8 +109,13 @@ namespace troen
 		
 		signals:
 			void remoteStartCall();
+			void requestGameConfig();
+		public slots:
+			void setGameConfig(const GameConfig config);
+
 		protected:
 			TroenGame *m_troenGame;
+			GameConfig *m_gameConfig;
 
 			//RakNet
 			std::string m_clientAddress;
@@ -123,7 +132,7 @@ namespace troen
 			QMutex* m_sendBufferMutex;
 
 			//players
-			std::vector<std::shared_ptr<input::RemotePlayer>> m_remotePlayers;
+			std::vector<std::shared_ptr<NetworkPlayerInfo>> m_players;
 			std::shared_ptr<troen::Player>  m_localPlayer;
 			std::shared_ptr<BikeController> m_localBikeController;
 			std::shared_ptr<BikeModel> m_localBikeModel;
@@ -136,9 +145,25 @@ namespace troen
 			btTransform receivedFencePart,fencePartToSend;
 			btTransform m_startPosition;
 			int m_gameID;
+			std::shared_ptr<NetworkPlayerInfo> m_ownPlayerInfo;
 
 			struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage, messageToSend;
 			struct bikeStatusMessage receivedStatusMessage, statusMessageToSend;
+		};
+
+
+		class NetworkPlayerInfo
+		{
+		public:
+			NetworkPlayerInfo(){};
+			NetworkPlayerInfo(QString name, QColor color, int networkID, bool remote);
+			QString name;
+			QColor color;
+			int networkID;
+			bool remote;
+			std::shared_ptr<input::RemotePlayer> m_remoteInputPlayer;
+			
+		
 		};
 	}
 

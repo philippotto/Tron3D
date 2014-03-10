@@ -294,9 +294,9 @@ std::string TroenGame::setupNetworking(bool server, std::string connectAddr)
 }
 
 
-bool TroenGame::synchronizeGameStart()
+bool TroenGame::synchronizeGameStart(GameConfig config)
 {
-	getNetworkManager()->synchronizeGameStart();
+	getNetworkManager()->synchronizeGameStart(config);
 	return true;
 }
 

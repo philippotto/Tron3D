@@ -272,6 +272,25 @@ void MainWindow::connectionTypeChanged()
 
 void MainWindow::prepareGameStart()
 {
+
+	GameConfig config = getGameConfig();
+	//TODO: remove ownView checkboxes & replace with spinbox for number of views
+	int i = 0;
+	for (auto ownViewCheckbox : m_ownViewCheckboxes) {
+		config.ownView[i] = ownViewCheckbox->isChecked();
+		i++;
+	}
+
+	if (m_networkingReady)
+		m_troenGame->synchronizeGameStart(config);
+
+	saveSettings();
+	emit startGame(config);
+}
+
+
+GameConfig MainWindow::getGameConfig()
+{
 	GameConfig config;
 	config.numberOfPlayers = m_bikeNumberSpinBox->value();
 	config.timeLimit = m_timeLimitSpinBox->value();
@@ -289,19 +308,8 @@ void MainWindow::prepareGameStart()
 	config.useDebugView = m_debugViewCheckBox->isChecked();
 	config.testPerformance = m_testPerformanceCheckBox->isChecked();
 	config.useReflection = m_reflectionCheckBox->isChecked();
+	return config;
 
-	//TODO: remove ownView checkboxes & replace with spinbox for number of views
-	int i = 0;
-	for (auto ownViewCheckbox : m_ownViewCheckboxes) {
-		config.ownView[i] = ownViewCheckbox->isChecked();
-		i++;
-	}
-
-	if (m_networkingReady)
-		m_troenGame->synchronizeGameStart();
-
-	saveSettings();
-	emit startGame(config);
 }
 
 void MainWindow::bikeNumberChanged(int newBikeNumber)
@@ -346,6 +354,9 @@ void MainWindow::connectNetworking()
 	updatePlayerInputBoxes();
 
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));
+	
+	connect(m_troenGame->getNetworkManager().get(), SIGNAL(requestGameConfig()), this, SLOT(gameConfigRequest()));
+	connect(this, SIGNAL(setGameConfig_NetworkManager(const GameConfig)), m_troenGame->getNetworkManager().get(), SLOT(setGameConfig(const GameConfig)));
 
 	m_networkingReady = true;
 
@@ -448,4 +459,11 @@ void MainWindow::saveSettings()
 	}
 
 	settings.sync();
+}
+
+
+void MainWindow::gameConfigRequest()
+{
+	const GameConfig config = getGameConfig();
+	emit setGameConfig_NetworkManager(config);
 }

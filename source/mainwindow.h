@@ -23,12 +23,16 @@ namespace troen
 	public:
 		MainWindow (QWidget * parent = nullptr);
 		virtual ~MainWindow();
+		GameConfig getGameConfig();
 
 	signals:
 		void startGame(const GameConfig config);
+		void setGameConfig_NetworkManager(const GameConfig config);
+
 
 	public slots:
 		void updatePlayerInputBoxes();
+		void gameConfigRequest();
 
 	protected:
 		virtual bool eventFilter(QObject* object, QEvent* event);

@@ -37,6 +37,8 @@ namespace troen
 			std::string m_clientAddress;
 			bool m_isServer;
 			int m_numClientsConnected;
+
+
 			std::shared_ptr<std::vector<btTransform>> m_startPositions;
 		};
 	}

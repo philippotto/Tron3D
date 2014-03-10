@@ -68,6 +68,7 @@ namespace troen
 	class SampleOSGViewer;
 	class GameEventHandler;
 	class GameLogic;
+	class GameConfig;
 	class Player;
 
 	class BikeModel;
@@ -125,5 +126,6 @@ namespace troen
 		class NetworkManager;
 		class ClientManager;
 		class ServerManager;
+		class NetworkPlayerInfo;
 	}
 }

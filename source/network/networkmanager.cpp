@@ -1,4 +1,3 @@
-#include "networkmanager.h"
 //std
 #include <stdio.h>
 #include <string.h>
@@ -15,14 +14,13 @@
 #include "../model/bikemodel.h"
 #include "../player.h"
 
+#include "networkmanager.h"
 //raknet
 
 
 using namespace troen::networking;
 #define MAX_CLIENTS 10
 #define SERVER_PORT 60000
-
-
 
 
 
@@ -34,7 +32,7 @@ NetworkManager::NetworkManager(troen::TroenGame *game)
 	m_sendUpdateMessagesQueue = new QQueue<bikeUpdateMessage>();
 	m_sendFenceUpdateMessagesQueue = new QQueue<btTransform>();
 	m_sendStatusUpdateMessage = new QQueue<bikeStatusMessage>();
-	m_remotePlayers = std::vector<std::shared_ptr<input::RemotePlayer>>();
+	m_players = std::vector<std::shared_ptr<NetworkPlayerInfo>>();
 	m_sendBufferMutex = new QMutex();
 	
 	m_localBikeController = NULL;
@@ -72,7 +70,8 @@ void  NetworkManager::enqueueMessage(bikeStatusMessage message)
 
 void NetworkManager::registerRemotePlayer(std::shared_ptr<troen::input::RemotePlayer> remotePlayer)
 {
-	m_remotePlayers.push_back(remotePlayer);
+	int otherPlayer = 1 - m_gameID; //only works for 2 players
+	m_players.at(otherPlayer)->m_remoteInputPlayer = remotePlayer;
 }
 
 void NetworkManager::registerLocalPlayer(troen::Player* player)
@@ -145,8 +144,8 @@ void NetworkManager::run()
 				case BIKE_POSITION_MESSSAGE:
 				{
 											   readMessage(packet, receivedUpdateMessage);
-											   if (m_remotePlayers.size() > 0)
-													m_remotePlayers.at(0)->update(receivedUpdateMessage);
+											   if (m_players.size() > 1)
+												   getPlayerWithID(receivedUpdateMessage.bikeID)->m_remoteInputPlayer->update(receivedUpdateMessage);
 				}
 					break;
 
@@ -163,18 +162,36 @@ void NetworkManager::run()
 				{
 
 												readMessage(packet, receivedFencePart);
-												if (m_remotePlayers.size() > 0)
-													m_remotePlayers.at(0)->addNewFencePosition(receivedFencePart);
+												if (m_players.size() > 1)
+													getPlayerWithID(receivedUpdateMessage.bikeID)->m_remoteInputPlayer->addNewFencePosition(receivedFencePart);
 				}
 
 				case GAME_START_MESSAGE:
 				{
+
 										   //prevent game from calling start two times due to receviment of own packet
 										   if (!m_gameStarted)
 										   {   
+											   emit requestGameConfig();
+
+											   buildOwnPlayerInfo(m_gameConfig);
+
+											   std::shared_ptr<NetworkPlayerInfo> remote_player;
+											   readMessage(packet, *(remote_player.get()));
+											   m_players.push_back(remote_player);
+											   std::cout << remote_player->name.toStdString() << std::endl;
+
+
 											   emit remoteStartCall();
 											   m_gameStarted = true;
 										   }
+				}
+					break;
+				
+				default:
+				{
+						   //handle all the client or server related stuff
+						   handleSubClassMessages(packet);
 				}
 					break;
 
@@ -182,8 +199,6 @@ void NetworkManager::run()
 
 			}
 
-			//handle all the client or server related stuff
-			handleSubClassMessages(packet);
 		}
 		sendData();
 		this->msleep(10);
@@ -194,6 +209,15 @@ void NetworkManager::run()
 
 }
 
+inline std::shared_ptr<NetworkPlayerInfo> NetworkManager::getPlayerWithID(int bikeID)
+{
+	for (auto player : m_players)
+	{
+		if (player->networkID == bikeID)
+			return player;
+	}
+	return NULL;
+}
 
 void NetworkManager::sendData()
 {
@@ -206,14 +230,29 @@ void NetworkManager::sendData()
 	}
 }
 
-void NetworkManager::synchronizeGameStart()
+void NetworkManager::synchronizeGameStart(troen::GameConfig &config)
 {
+
+	buildOwnPlayerInfo(&config);
+
 	RakNet::BitStream bsOut;
 	bsOut.Write((RakNet::MessageID)GAME_START_MESSAGE);
+	bsOut.Write(*(m_ownPlayerInfo.get()));
 	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 	m_gameStarted = true;
 }
 
+
+void NetworkManager::buildOwnPlayerInfo(troen::GameConfig *config)
+{
+	int i;
+	for (i = 0; i < 6; i++)
+	if (config->ownView[i])
+		break;
+
+	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>(config->playerNames[i], config->playerColors[i], m_gameID, false);
+	m_players.push_back(m_ownPlayerInfo);
+}
 
 
 bool NetworkManager::isValidSession()
@@ -250,9 +289,22 @@ void NetworkManager::readMessage(RakNet::Packet *packet, T& readInto)
 	bsIn.Read(readInto);
 }
 
-QColor NetworkManager::getPlayerColor()
+QColor NetworkManager::getPlayerColor(int playerID)
 {
 	//later, we might actually synchronize the chosen color
 	return std::vector<QColor>{ QColor(255.0, 0.0, 0.0), QColor(0.0, 255.0, 0.0), QColor(0.0, 0.0, 255.0),
-		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) }[m_gameID];
+		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) }[playerID];
 }
+
+NetworkPlayerInfo::NetworkPlayerInfo(QString name, QColor color, int networkID, bool remote) :
+name(name), color(color), networkID(networkID), remote(remote)
+{
+	m_remoteInputPlayer = NULL;
+}
+
+
+void NetworkManager::setGameConfig(const troen::GameConfig config)
+{
+	m_gameConfig = new troen::GameConfig(config);
+}
+

@@ -74,6 +74,10 @@ namespace troen
 		{
 			return m_skyDome;
 		};
+		std::shared_ptr<GameConfig> gameConfig() const 
+		{
+			return m_gameConfig;
+		};
 		ResourcePool* resourcePool(){ return &m_resourcePool; };
 
 		//
@@ -87,7 +91,7 @@ namespace troen
 
 		public slots:
 		void prepareAndStartGame(const GameConfig& config);
-		bool synchronizeGameStart();
+		bool synchronizeGameStart(GameConfig config);
 		bool isNetworking();
 		std::string setupNetworking(bool server, std::string connectAddr = "127.0.0.1");
 
