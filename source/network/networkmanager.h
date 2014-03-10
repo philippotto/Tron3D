@@ -66,54 +66,79 @@ namespace troen
 		public:
 			NetworkManager(TroenGame *game);
 			virtual void run();
+
+			//subclass responibilities
 			virtual bool isValidSession();
-			void sendData();
+			virtual void handleSubClassMessages(RakNet::Packet *packet) = NULL; //pure virtual function
+			
+			//queues
 			void enqueueMessage(bikeUpdateMessage message);
 			void enqueueMessage(bikeStatusMessage message);
 			void enqueueMessage(btTransform message);
-			void registerRemotePlayer(input::RemotePlayer *remotePlayer);
-			void registerRemotePlayer(std::shared_ptr<input::RemotePlayer> remotePlayer);
-			void registerLocalBikeController(std::shared_ptr<troen::BikeController> controller);
-			void update(long double g_gameTime);
-
-			void sendStatusUpdateMessage(int message);
-			void sendPoints(int pointCount, int status, short secondBike = NULL);
-			void receiveStatusMessage(bikeStatusMessage message);
-			std::string getClientAddress();
-			void synchronizeGameStart();
-			int getGameID()  { return m_gameID; }
-			btTransform getStartPosition()  { return m_startPosition; }
+			
+			//sending data
+			void sendData();
 			template <typename TQueue, typename TSendStruct> 
 			void sendMessages(QQueue<TQueue> *sendBufferQueue, TSendStruct &messageToSend, int order, int statusMessage);
+			void sendPoints(int pointCount, int status, short secondBike = NULL);
+			void synchronizeGameStart();
+
+			//receiving data
+			template <typename T>
+			void readMessage(RakNet::Packet *packet, T& readInto);
+			void receiveStatusMessage(bikeStatusMessage message);
+			
+			//register
+			void registerRemotePlayer(std::shared_ptr<input::RemotePlayer> remotePlayer);
+			void registerLocalPlayer(troen::Player* player);
+
+			//getters
+			int getGameID()  { return m_gameID; }
+			btTransform getStartPosition()  { return m_startPosition; }
+			std::string getClientAddress();
+			QColor getPlayerColor();
+
+			//data polling
+			void update(long double g_gameTime);
+
 
 		
 		signals:
 			void remoteStartCall();
 		protected:
-			virtual void handleSubClassMessages(RakNet::Packet *packet) = NULL; //pure virtual function
+			TroenGame *m_troenGame;
 
+			//RakNet
 			std::string m_clientAddress;
 			RakNet::Packet *m_packet;
 			RakNet::RakPeerInterface *peer;
+
 			bool m_isServer;
 			bool m_connectedToServer;
 			short m_numClientsConnected;
+			//Queues
 			QQueue<bikeUpdateMessage> *m_sendUpdateMessagesQueue;
 			QQueue<btTransform> *m_sendFenceUpdateMessagesQueue;
 			QQueue<bikeStatusMessage> *m_sendStatusUpdateMessage;
-			std::vector<std::shared_ptr<input::RemotePlayer>> m_remotePlayers;
 			QMutex* m_sendBufferMutex;
-			std::shared_ptr<BikeController> m_localBikeController;
-			long double m_lastUpdateTime;
-			int m_gameID;
-			btTransform m_startPosition;
 
-			TroenGame *m_troenGame;
+			//players
+			std::vector<std::shared_ptr<input::RemotePlayer>> m_remotePlayers;
+			std::shared_ptr<troen::Player>  m_localPlayer;
+			std::shared_ptr<BikeController> m_localBikeController;
+			std::shared_ptr<BikeModel> m_localBikeModel;
+
+
+			long double m_lastUpdateTime;
+			
+			//networked information
 			bool m_gameStarted;
+			btTransform receivedFencePart,fencePartToSend;
+			btTransform m_startPosition;
+			int m_gameID;
 
 			struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage, messageToSend;
 			struct bikeStatusMessage receivedStatusMessage, statusMessageToSend;
-			btTransform receivedFencePart,fencePartToSend;
 		};
 	}
 
@@ -128,13 +153,7 @@ namespace troen
 		return false;
 	}
 
-	template <typename T>
-	void readMessage(RakNet::Packet *packet, T& readInto)
-	{
-		RakNet::BitStream bsIn(packet->data, packet->length, false);
-		bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-		bsIn.Read(readInto);
-	}
+
 
 
 

@@ -42,6 +42,7 @@ NetworkManager::NetworkManager(troen::TroenGame *game)
 	m_gameID = 0;
 	m_troenGame = game;
 	m_gameStarted = false;
+	
 }
 
 void  NetworkManager::enqueueMessage(bikeUpdateMessage message)
@@ -74,9 +75,11 @@ void NetworkManager::registerRemotePlayer(std::shared_ptr<troen::input::RemotePl
 	m_remotePlayers.push_back(remotePlayer);
 }
 
-void NetworkManager::registerLocalBikeController(std::shared_ptr<troen::BikeController> controller)
+void NetworkManager::registerLocalPlayer(troen::Player* player)
 {
-	m_localBikeController = controller;
+	m_localPlayer = std::shared_ptr<troen::Player>(player);
+	m_localBikeController = player->bikeController();
+	m_localBikeModel = m_localBikeController->getModel();
 }
 
 
@@ -109,7 +112,6 @@ void NetworkManager::update(long double g_gameTime)
 		btVector3 pos = m_localBikeController->getModel()->getPositionBt();
 		btQuaternion quat = m_localBikeController->getModel()->getRotationQuat();
 		btVector3 linearVelocity = m_localBikeController->getModel()->getLinearVelocity();
-		btVector3 angularVelocity = m_localBikeController->getModel()->getAngularVelocity();
 		bikeUpdateMessage message = {
 			m_gameID,
 			pos.x(), pos.y(), pos.z(),
@@ -177,9 +179,7 @@ void NetworkManager::run()
 					break;
 
 
-				default:
-					printf("Message with identifier %i has arrived.\n", packet->data[0]);
-					break;
+
 			}
 
 			//handle all the client or server related stuff
@@ -239,4 +239,20 @@ void NetworkManager::sendMessages(QQueue<TQueue> *sendBufferQueue, TSendStruct &
 
 		peer->Send(&bsOut, HIGH_PRIORITY, static_cast<PacketReliability>(order), 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 	}
+}
+
+
+template <typename T>
+void NetworkManager::readMessage(RakNet::Packet *packet, T& readInto)
+{
+	RakNet::BitStream bsIn(packet->data, packet->length, false);
+	bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+	bsIn.Read(readInto);
+}
+
+QColor NetworkManager::getPlayerColor()
+{
+	//later, we might actually synchronize the chosen color
+	return std::vector<QColor>{ QColor(255.0, 0.0, 0.0), QColor(0.0, 255.0, 0.0), QColor(0.0, 0.0, 255.0),
+		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) }[m_gameID];
 }

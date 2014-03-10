@@ -42,7 +42,14 @@ m_killCount(0),
 m_deathCount(0),
 m_hasGameView(config->ownView[id])
 {
-	m_color = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
+		m_color = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
+	//if (!game->isNetworking())
+	//else
+	//{
+	//	QColor color = game->getNetworkManager()->getPlayerColor();
+	//	m_color = osg::Vec3(color.red(),color.green(),color.blue());
+	//}
+
 	m_troenGame = game;
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +151,7 @@ m_hasGameView(config->ownView[id])
 	{
 		if (config->ownView[m_id])
 		{
-			game->getNetworkManager()->registerLocalBikeController(m_bikeController);
+			game->getNetworkManager()->registerLocalPlayer(this);
 			m_networkID = (int) game->getNetworkManager()->getGameID();
 		}
 		else if (config->playerInputTypes[m_id] == input::BikeInputState::REMOTE_PLAYER)

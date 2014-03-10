@@ -50,6 +50,9 @@ void ClientManager::handleSubClassMessages(RakNet::Packet *packet)
 	case ID_CONNECTION_LOST:
 		printf("Connection lost.\n");
 		break;
+	default:
+		printf("Message with identifier %i has arrived.\n", packet->data[0]);
+		break;
 	}
 
 }
@@ -83,6 +86,7 @@ void ClientManager::setInitParameters(RakNet::Packet *packet)
 	bsIn.Read(m_gameID);
 	bsIn.Read(m_startPosition);
 	std::cout << "got game ID: " << m_gameID << std::endl;
-	std::cout << "starting at Position" << m_startPosition.getOrigin().x() << " " <<  m_startPosition.getOrigin().y() << std::endl;
+	std::cout << "starting at Position" << m_startPosition.getOrigin().x() << " " <<  m_startPosition.getOrigin().y() << std::endl; 
+	
 
 }

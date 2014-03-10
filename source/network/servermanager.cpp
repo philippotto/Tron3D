@@ -14,6 +14,7 @@
 #include "../controller/bikecontroller.h"
 #include "../model/bikemodel.h"
 #include "../player.h"
+#include "qcolor.h"
 
 //raknet
 
@@ -32,6 +33,7 @@ ServerManager::ServerManager(troen::TroenGame *game) : NetworkManager(game)
 	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(40, 20, BIKE_DIMENSIONS.z() / 2)));
 	
 	m_startPosition = m_startPositions->at(0);
+
 
 	m_numClientsConnected = 0;
 }
@@ -63,6 +65,9 @@ void ServerManager::handleSubClassMessages(RakNet::Packet *packet)
 			break;
 		case ID_CONNECTION_LOST:
 			printf("A client lost the connection.\n");
+			break;
+		default:
+			printf("Message with identifier %i has arrived.\n", packet->data[0]);
 			break;
 	}
 }
