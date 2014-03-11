@@ -15,6 +15,7 @@
 #include "../player.h"
 
 #include "networkmanager.h"
+#include <thread>
 //raknet
 
 
@@ -71,6 +72,9 @@ void  NetworkManager::enqueueMessage(bikeStatusMessage message)
 void NetworkManager::registerRemotePlayerInput(std::shared_ptr<troen::input::RemotePlayer> remotePlayer)
 {
 	int otherPlayer = 1 - m_gameID; //only works for 2 players
+	//wait until other player is registered
+	while (getPlayerWithID(otherPlayer) == NULL)
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	getPlayerWithID(otherPlayer)->m_remoteInputPlayer = remotePlayer;
 }
 
@@ -173,11 +177,27 @@ void NetworkManager::run()
 										   if (!m_gameStarted)
 										   {   
 
-											   RakNet::BitStream bsIn(packet->data, packet->length, false);
-											   bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+											   //RakNet::BitStream bsIn(packet->data, packet->length, false);
+											  
+											   
+											  // 
+											  // int t;
+											  // bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+											  // bsIn.Read(t);
 
-											   std::shared_ptr<NetworkPlayerInfo> remote_player;
-											   remote_player->setParametersFromRemote(bsIn);
+											  // char message[32];
+											  // bsIn.Read(message);
+											  //// name = QString(message);
+
+											  // int red, green, blue;
+											  // bsIn.ReadVector(red, green, blue);
+											  //// color.setRed(red); color.setGreen(green); color.setBlue(blue);
+
+
+
+
+											   std::shared_ptr<NetworkPlayerInfo> remote_player = std::make_shared<NetworkPlayerInfo>();
+											   remote_player->setParametersFromRemote(packet);
 											   m_players.push_back(remote_player);
 											   
 											   std::cout << remote_player->name.toStdString() << std::endl;
@@ -244,11 +264,21 @@ void NetworkManager::synchronizeGameStart(troen::GameConfig &config)
 		m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>("mallory", getPlayerColor(m_gameID), m_gameID, false);
 	}
 
+	m_players.push_back(m_ownPlayerInfo);
 
 
 	RakNet::BitStream bsOut;
 	bsOut.Write((RakNet::MessageID)GAME_START_MESSAGE);
-	m_ownPlayerInfo->serialize(bsOut);
+
+	bsOut.Write(123);
+
+	char message[32];
+	strncpy_s(message, "test", 32);
+	bsOut.Write(message);
+
+	bsOut.WriteVector(1234, 1234, 1);
+
+	//m_ownPlayerInfo->serialize(&bsOut);
 	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 	m_gameStarted = true;
 }
@@ -315,27 +345,32 @@ name(name), color(color), networkID(networkID), remote(remote)
 	m_remoteInputPlayer = NULL;
 }
 
-void troen::networking::NetworkPlayerInfo::serialize(RakNet::BitStream &bs)
+void troen::networking::NetworkPlayerInfo::serialize(RakNet::BitStream *bs)
 {
-	bs.Write(networkID);
+	bs->Write(networkID);
 
 	char message[32];
 	strncpy_s(message, name.toStdString().c_str(), 32);
-	bs.Write(message);
+	bs->Write(message);
 
-	bs.WriteVector(color.red(),color.green(),color.blue());
+	bs->WriteVector(color.red(), color.green(), color.blue());
 }
 
-void troen::networking::NetworkPlayerInfo::setParametersFromRemote(RakNet::BitStream &bs)
+void troen::networking::NetworkPlayerInfo::setParametersFromRemote(RakNet::Packet *packet)
 {
-	bs.Read(networkID);
+	RakNet::BitStream bsIn(packet->data, packet->length, false);
+
+	bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+	bsIn.Read(networkID);
 
 	char message[32];
-	bs.Read(message);
+	bsIn.Read(message);
 	name = QString(message);
 
 	int red, green, blue;
-	bs.ReadVector(red, green, blue);
+	bsIn.ReadVector(red, green, blue);
 	color.setRed(red); color.setGreen(green); color.setBlue(blue);
+
+
 }
 

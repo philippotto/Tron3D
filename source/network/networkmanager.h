@@ -159,9 +159,9 @@ namespace troen
 			QColor color;
 			int networkID;
 			bool remote;
-			void serialize(RakNet::BitStream &bs);
-			void setParametersFromRemote(RakNet::BitStream &bs);
-			std::shared_ptr<input::RemotePlayer> m_remoteInputPlayer;
+			void serialize(RakNet::BitStream *bs);
+			void setParametersFromRemote(RakNet::Packet *packet);
+			std::shared_ptr<troen::input::RemotePlayer> m_remoteInputPlayer;
 			
 		
 		};
