@@ -355,9 +355,9 @@ void MainWindow::connectNetworking()
 
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));
 	
-	connect(m_troenGame->getNetworkManager().get(), SIGNAL(requestGameConfig()), this, SLOT(gameConfigRequest()));
-	connect(this, SIGNAL(setGameConfig_NetworkManager(const GameConfig)), m_troenGame->getNetworkManager().get(), SLOT(setGameConfig(const GameConfig)));
-
+	//informations are stored and sent statically for now, everything else crashed.. maybe we should switch to using replica3
+	//connect(this, SIGNAL(startGame(GameConfig)), m_troenGame->getNetworkManager().get(), SLOT(buildOwnPlayerInfo(const GameConfig&)));
+	
 	m_networkingReady = true;
 
 
@@ -459,11 +459,4 @@ void MainWindow::saveSettings()
 	}
 
 	settings.sync();
-}
-
-
-void MainWindow::gameConfigRequest()
-{
-	const GameConfig config = getGameConfig();
-	emit setGameConfig_NetworkManager(config);
 }

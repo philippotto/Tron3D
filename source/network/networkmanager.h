@@ -59,6 +59,7 @@ namespace troen
 		};
 
 
+
 		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_OWN_FENCE, PLAYER_DEATH_ON_OTHER_PLAYER};
 		
 
@@ -91,9 +92,8 @@ namespace troen
 			void receiveStatusMessage(bikeStatusMessage message);
 			
 			//register
-			void registerRemotePlayer(std::shared_ptr<input::RemotePlayer> remotePlayer);
+			void registerRemotePlayerInput(std::shared_ptr<input::RemotePlayer> remotePlayer);
 			void registerLocalPlayer(troen::Player* player);
-			void buildOwnPlayerInfo(troen::GameConfig *config);
 
 			//getters
 			int getGameID()  { return m_gameID; }
@@ -109,13 +109,11 @@ namespace troen
 		
 		signals:
 			void remoteStartCall();
-			void requestGameConfig();
 		public slots:
-			void setGameConfig(const GameConfig config);
+			void buildOwnPlayerInfo(const troen::GameConfig& config);
 
 		protected:
 			TroenGame *m_troenGame;
-			GameConfig *m_gameConfig;
 
 			//RakNet
 			std::string m_clientAddress;
@@ -161,6 +159,8 @@ namespace troen
 			QColor color;
 			int networkID;
 			bool remote;
+			void serialize(RakNet::BitStream &bs);
+			void setParametersFromRemote(RakNet::BitStream &bs);
 			std::shared_ptr<input::RemotePlayer> m_remoteInputPlayer;
 			
 		

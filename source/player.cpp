@@ -160,7 +160,7 @@ m_hasGameView(config->ownView[id])
 		{
 			m_isRemote = true;
 			
-			game->getNetworkManager()->registerRemotePlayer(m_bikeController->getRemote());
+			game->getNetworkManager()->registerRemotePlayerInput(m_bikeController->getRemote());
 
 		}
 		btTransform networkedTransform = game->getNetworkManager()->getStartPosition();
