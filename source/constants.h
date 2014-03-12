@@ -70,6 +70,7 @@ namespace troen
 	extern const float FENCE_PART_LENGTH;
 	extern const float FENCE_PART_WIDTH;
 	extern const int DEFAULT_MAX_FENCE_PARTS;
+	extern const int FENCE_TO_MINIMAP_PARTS_RATIO;
 
 	// CAMERA
 	extern const osg::Vec3 CAMERA_POSITION_OFFSET;
