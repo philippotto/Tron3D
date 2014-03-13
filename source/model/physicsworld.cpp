@@ -166,7 +166,7 @@ void PhysicsWorld::checkForCollisionEvents()
 			for (auto removedRigidBody : m_removedRigidBodies) {
 				if (pSortedBodyA == removedRigidBody || pSortedBodyB == removedRigidBody) {
 					notJustRemoved = false;
-					std::cout << "A rigidBody was just removed and prevented from doing bad things." << std::endl;
+					//std::cout << "A rigidBody was just removed and prevented from doing bad things." << std::endl;
 					break;
 				}
 			}
