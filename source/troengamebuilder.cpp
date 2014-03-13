@@ -26,6 +26,7 @@
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
+#include "input/gamepadps4.h"
 #ifdef WIN32
 #include "input/gamepad.h"
 #endif
@@ -264,6 +265,7 @@ bool TroenGameBuilder::destroy()
 #ifdef WIN32
 	input::Gamepad::clearPorts();
 #endif
+	input::GamepadPS4::reset();
 	t->m_statsHandler = nullptr;
 
 	t->m_physicsWorld.reset();

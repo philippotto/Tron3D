@@ -27,6 +27,11 @@ namespace input
 		void setVibration(const bool b) override;
 		hid_device *_controller = nullptr;
 
+		static hid_device_info* allHidDevices;
+		static wchar_t* getFreeDeviceSN();
+		static void reset();
+		static bool enumeratedHidDevices;
+
 	private:
 		int getBitAt(int k, unsigned char * buf);
 		int getValueFromKey(const PS4KEY type, unsigned char *buffer);
@@ -36,6 +41,7 @@ namespace input
 
 		unsigned char m_writeBuffer[32];
 		bool m_vibrate = false;
+		wchar_t* m_serialNumber = NULL;
 	};
 }
 }

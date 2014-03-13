@@ -10,6 +10,31 @@
 
 using namespace troen::input;
 
+hid_device_info* GamepadPS4::allHidDevices = NULL;
+bool GamepadPS4::enumeratedHidDevices = false;
+
+wchar_t* GamepadPS4::getFreeDeviceSN()
+{
+	if (!enumeratedHidDevices) {
+		enumeratedHidDevices = true;
+		allHidDevices = hid_enumerate(VID, PID);
+	}
+
+	if (allHidDevices != NULL) {
+		wchar_t* serialNumber = allHidDevices->serial_number;
+		allHidDevices = allHidDevices->next;
+		return serialNumber;
+	}
+	
+	return NULL;
+}
+
+void GamepadPS4::reset()
+{
+	enumeratedHidDevices = false;
+	hid_free_enumeration(allHidDevices);
+}
+
 GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState, osg::Vec3 color) : PollingDevice(bikeInputState)
 {
 	for (int i = 0; i < sizeof(m_writeBuffer); i++) {
@@ -39,13 +64,15 @@ GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState, osg::Vec3 co
 
 GamepadPS4::~GamepadPS4()
 {
-	// turn off vibration/LED etc.
-	for (int i = 4; i <= 10; i++) {
-		m_writeBuffer[i] = 0;
+	if (_controller) {
+		// turn off vibration/LED etc.
+		for (int i = 4; i <= 10; i++) {
+			m_writeBuffer[i] = 0;
+		}
+		hid_write(_controller, m_writeBuffer, 32);
+		hid_close(_controller);
+		hid_exit();
 	}
-	hid_write(_controller, m_writeBuffer, 32);
-	hid_close(_controller);
-	hid_exit();
 }
 
 /*
@@ -135,7 +162,7 @@ void GamepadPS4::setColor(osg::Vec3 color)
 
 void GamepadPS4::setVibration(const bool b)
 {
-	if (m_vibrate != b) {
+	if (_controller && m_vibrate != b) {
 		m_writeBuffer[4] = b ? 255 : 0;
 		m_writeBuffer[5] = b ? 255 : 0;
 		hid_write(_controller, m_writeBuffer, 32);
@@ -154,6 +181,7 @@ void GamepadPS4::run()
 		// check whether controller is available, if not search for controller
 		// if it is still not available do nothing
 		if (!_controller || hid_read(_controller, buf, 96) == -1){
+			_controller = hid_open(VID, PID, m_serialNumber);
 			if (!checkConnection())
 			{
 				m_bikeInputState->setAngle(0);
@@ -203,7 +231,11 @@ void GamepadPS4::run()
 bool GamepadPS4::checkConnection(){
 	// Open the device using the vendor_id, product_id,
 	// and optionally the Serial number.
-	if (_controller || (_controller = hid_open(VID, PID, nullptr)) != nullptr)
+	if (!m_serialNumber) {
+		m_serialNumber = GamepadPS4::getFreeDeviceSN();
+	}
+
+	if (_controller || (m_serialNumber && (_controller = hid_open(VID, PID, m_serialNumber)) != nullptr))
 		return true;
 
 	return false;
