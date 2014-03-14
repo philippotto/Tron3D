@@ -79,9 +79,9 @@ osg::ref_ptr<osg::Camera> HUDView::createHUD(const std::vector<std::shared_ptr<P
 
 	initializeText(
 		m_healthText,
-		osg::Vec3(offset, offset, 0.f),
+		osg::Vec3(HUD_PROJECTION_SIZE - offset, 2 * offset, 0),
 		m_playerColor,
-		osgText::Text::AlignmentType::LEFT_BOTTOM,
+		osgText::Text::AlignmentType::RIGHT_BOTTOM,
 		DEFAULT_WINDOW_HEIGHT / 15);
 	setHealthText(100);
 	m_savedGeode->addDrawable(m_healthText);
@@ -171,9 +171,9 @@ void HUDView::resize(const int width,const int height)
 	m_camera->setViewport(hudViewport);
 	resizeHudComponents(width, height);
 
-	int smallerBound = height < width ? height : width;
+	int smallerBound = min(height, width);
 	int offsetX = smallerBound / 20;
-	int offsetY = height / 10;
+	int offsetY = height / 30;
 	int size = smallerBound / 3;
 	osg::ref_ptr<osg::Viewport> radarViewport = new osg::Viewport(offsetX, offsetY, size, size);
 	m_radarCamera->setViewport(radarViewport);
@@ -319,13 +319,13 @@ void HUDView::setSpeedText(float speed)
 void HUDView::setHealthText(float health)
 {
 	std::string healthString = std::to_string((int)health);
-	m_healthText->setText("Health: " + healthString);
+	m_healthText->setText(healthString + "%");
 }
 
 void HUDView::setPointsText(float points)
 {
 	std::string pointsString = std::to_string((int)points);
-	m_pointsText->setText("Points: " + pointsString);
+	m_pointsText->setText(pointsString);
 }
 
 void HUDView::setCountdownText(const int countdown)
