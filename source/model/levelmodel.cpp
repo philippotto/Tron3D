@@ -9,9 +9,13 @@
 #include "../controller/abstractcontroller.h"
 #include "../controller/levelcontroller.h"
 
+#include <string>
+#include <iostream>
+#include <fstream>
+
 using namespace troen;
 
-LevelModel::LevelModel(const LevelController* levelController)
+LevelModel::LevelModel(const LevelController* levelController, std::string levelName)
 {
 	AbstractModel();
 	m_levelController = levelController;
@@ -19,12 +23,113 @@ LevelModel::LevelModel(const LevelController* levelController)
 
 	btScalar levelSize = btScalar(getLevelSize());
 
-	addWalls(levelSize, -10);
+	//addWalls(levelSize, -10);
 
 	addFloor(levelSize, -10);
 
-	auto_addObstacles();
+	//auto_addObstacles();
+	addObstaclesFromFile(levelName);
 }
+
+
+void LevelModel::addObstaclesFromFile(std::string levelName)
+{
+	std::ifstream input("data/levels/" + levelName + ".level");
+	std::string line;
+
+	btVector3 center, dimensions;
+	btQuaternion rotation;
+	std::string name, collisionTypeString;
+
+	std::vector<BoxModel> newObstacles;
+
+	while (std::getline(input, line)) {
+		
+		QString qLine;
+		
+		double x, y, z, w;
+		
+		// center
+
+		qLine = QString::fromStdString(line);
+		x = qLine.toDouble();
+
+		std::getline(input, line);
+		qLine = QString::fromStdString(line);
+		y = qLine.toDouble();
+
+		std::getline(input, line);
+		qLine = QString::fromStdString(line);
+		z = qLine.toDouble();
+
+		center = btVector3(x, y, z);
+
+		
+		// dimensions
+
+		std::getline(input, line);
+		qLine = QString::fromStdString(line);
+		x = qLine.toDouble();
+
+		std::getline(input, line);
+		qLine = QString::fromStdString(line);
+		y = qLine.toDouble();
+
+		std::getline(input, line);
+		qLine = QString::fromStdString(line);
+		z = qLine.toDouble();
+
+		dimensions = btVector3(x, y, z);
+
+		
+		// rotation
+
+		std::getline(input, line);
+		qLine = QString::fromStdString(line);
+		x = qLine.toDouble();
+
+		std::getline(input, line);
+		qLine = QString::fromStdString(line);
+		y = qLine.toDouble();
+
+		std::getline(input, line);
+		qLine = QString::fromStdString(line);
+		z = qLine.toDouble();
+
+		std::getline(input, line);
+		qLine = QString::fromStdString(line);
+		w = qLine.toDouble();
+
+		rotation = btQuaternion(x, y, z, w);
+
+		
+		// name, collisionType
+		
+		std::getline(input, line);
+		name = line;
+		
+		std::getline(input, line);
+		collisionTypeString = line;
+
+		std::string collisionTypes[8] = { "ABSTRACTTYPE", "BIKETYPE", "LEVELTYPE", "LEVELWALLTYPE", "LEVELGROUNDTYPE", "LEVELOBSTACLETYPE", "FENCETYPE", "ITEMTYPE" };
+		int index = 0;
+		for (auto type : collisionTypes) {
+			if (type == collisionTypeString)
+				break;
+			index++;
+		}
+
+		troen::COLLISIONTYPE collisionType = static_cast<troen::COLLISIONTYPE>(index);
+
+		BoxModel newBox(center, dimensions, rotation, name, collisionType);
+		newObstacles.push_back(newBox);
+
+	}
+	
+	m_obstacles.insert(m_obstacles.end(), newObstacles.begin(), newObstacles.end());
+	addBoxes(m_obstacles);
+}
+
 
 void LevelModel::addFloor(float size, float yPosition)
 {

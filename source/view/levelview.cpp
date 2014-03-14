@@ -23,14 +23,14 @@
 using namespace troen;
 
 
-LevelView::LevelView(std::shared_ptr<LevelModel> model) :
+LevelView::LevelView(std::shared_ptr<LevelModel> model, std::string levelName) :
 AbstractView()
 {
 	m_model = model;
 
 	int levelSize = m_model->getLevelSize();
 
-	m_node->addChild(constructObstacles(levelSize));
+	m_node->addChild(constructObstacles(levelSize, levelName));
 	m_node->addChild(constructWalls(levelSize));
 	m_node->addChild(constructFloors(levelSize));
 }
@@ -76,12 +76,12 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
     return floorsGroup;
 }
 
-osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
+osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::string levelName)
 {
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
 	obstaclesGroup->setName("obstaclesGroup");
 
-	osg::ref_ptr<osg::Node> obstacles = osgDB::readNodeFile("data/models/simple_level.ive");
+	osg::ref_ptr<osg::Node> obstacles = osgDB::readNodeFile("data/levels/" + levelName + ".ive");
 	obstacles->setCullingActive(false);
 
 	//osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles()); 
