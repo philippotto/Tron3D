@@ -70,6 +70,8 @@ namespace troen
 	const float FENCE_PART_LENGTH(BIKE_DIMENSIONS.y() / 2);
 	const float FENCE_PART_WIDTH(BIKE_DIMENSIONS.x() * .3f);
 	const int DEFAULT_MAX_FENCE_PARTS(400);
+	const int FENCE_TO_MINIMAP_PARTS_RATIO(3);
+
 
 	// CAMERA
 	const osg::Vec3 CAMERA_POSITION_OFFSET(0, 0, BIKE_DIMENSIONS.y());

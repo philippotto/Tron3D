@@ -66,6 +66,11 @@ void FenceView::initializeFence()
 	m_node->addChild(m_radarElementsGroup);
 }
 
+void FenceView::updateFadeOutFactor(float fadeOutFactor)
+{
+	m_fadeOutFactorUniform->set(fadeOutFactor);
+}
+
 void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
 {
 	if (m_coordinates->size() > 1) {
@@ -79,11 +84,15 @@ void FenceView::updateFenceGap(osg::Vec3 lastPosition, osg::Vec3 position)
 void FenceView::initializeShader()
 {
 	osg::ref_ptr<osg::StateSet> NodeState = m_node->getOrCreateStateSet();
+	
 	osg::Uniform* fenceColorU = new osg::Uniform("fenceColor", m_playerColor);
 	NodeState->addUniform(fenceColorU);
 
 	osg::Uniform* modelIDU = new osg::Uniform("modelID", GLOW);
 	NodeState->addUniform(modelIDU);
+
+	m_fadeOutFactorUniform = new osg::Uniform("fadeOutFactor", 1.f);
+	NodeState->addUniform(m_fadeOutFactorUniform);
 
 	NodeState->setMode(GL_BLEND, osg::StateAttribute::ON);
 	NodeState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
@@ -109,25 +118,31 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 	m_relativeHeights->push_back(0.f);
 	m_relativeHeights->push_back(1.f);
 
+
+	int currentFenceParts = (m_coordinates->size() - 2) / 2;
+
 	// radar fence part
-	osg::ref_ptr<osg::Cylinder> box
-		= new osg::Cylinder(osg::Vec3(0, 0, 0), 30, 30);
-	osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable(box);
-	mark_shape->setColor(osg::Vec4f(m_playerColor, 1));
-	osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
-	mark_node->addDrawable(mark_shape.get());
-	//mark_node->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+	if (currentFenceParts % FENCE_TO_MINIMAP_PARTS_RATIO == 0)
+	{
+		osg::ref_ptr<osg::Box> box
+			= new osg::Box(osg::Vec3(0, 0, 0), 60, 60, 60);
+		osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable(box);
+		mark_shape->setColor(osg::Vec4f(m_playerColor, 1));
+		osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
+		mark_node->addDrawable(mark_shape.get());
+		//mark_node->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 
-	// place objects in world space
-	osg::Matrixd initialTransform;
-	//initialTransform.makeRotate(rotationQuatXY);
-	initialTransform *= initialTransform.translate((currentPosition + lastPosition) / 2);
+		// place objects in world space
+		osg::Matrixd initialTransform;
+		//initialTransform.makeRotate(rotationQuatXY);
+		initialTransform *= initialTransform.translate((currentPosition + lastPosition) / 2);
 
-	osg::ref_ptr<osg::MatrixTransform> matrixTransformRadar = new osg::MatrixTransform(initialTransform);
-	matrixTransformRadar->addChild(mark_node);
+		osg::ref_ptr<osg::MatrixTransform> matrixTransformRadar = new osg::MatrixTransform(initialTransform);
+		matrixTransformRadar->addChild(mark_node);
 
-	m_radarElementsGroup->addChild(matrixTransformRadar);
-	m_radarFenceBoxes.push_back(matrixTransformRadar);
+		m_radarElementsGroup->addChild(matrixTransformRadar);
+		m_radarFenceBoxes.push_back(matrixTransformRadar);
+	}
 
 	// limit
 	enforceFencePartsLimit();
@@ -165,9 +180,9 @@ void FenceView::enforceFencePartsLimit()
 		}
 	}
 	// radar fence boxes
-	if (maxFenceParts != 0 && m_radarFenceBoxes.size() > maxFenceParts)
+	if (maxFenceParts != 0 && m_radarFenceBoxes.size() > maxFenceParts / FENCE_TO_MINIMAP_PARTS_RATIO)
 	{
-		for (int i = 0; i < (m_radarFenceBoxes.size() - maxFenceParts); i++)
+		for (int i = 0; i < (m_radarFenceBoxes.size() - maxFenceParts / FENCE_TO_MINIMAP_PARTS_RATIO); i++)
 		{
 			m_radarElementsGroup->removeChild(m_radarFenceBoxes.front());
 			m_radarFenceBoxes.pop_front();

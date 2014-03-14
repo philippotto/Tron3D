@@ -144,7 +144,7 @@ float BikeModel::updateState(long double time)
 	btVector3 currentAngularVelocity = bikeRigidBody->getAngularVelocity();
 
 	// accelerate
-	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
+	float speedFactor = max(0, 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX);
 	// invsquared(t)   (1 - (1 - (t)) * (1 - (t)))
 	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
 
@@ -194,7 +194,10 @@ float BikeModel::updateState(long double time)
 	}
 
 	// let the bike drift, if the friction is low
-	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed).normalized() * speed;
+	currentVelocityVectorXY = (1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed;
+	if (currentVelocityVectorXY.length() > 0) {
+		currentVelocityVectorXY = currentVelocityVectorXY.normalized() * speed;
+	}
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 

@@ -2,6 +2,8 @@
 // OSG
 #include <osg/LineWidth>
 #include <osgUtil/Optimizer>
+// qt
+#include <qcoreapplication>
 // troen
 #include "troengamebuilder.h"
 #include "constants.h"
@@ -91,6 +93,8 @@ void TroenGame::startGameLoop()
 	{
 		g_gameLoopTime = m_gameloopTimer->elapsed();
 		g_gameTime = m_gameTimer->elapsed();
+
+		QCoreApplication::processEvents();
 
 		// are we significantly behind? if yes, "resync", force rendering
 		if ((g_gameLoopTime - nextTime) > maxMillisecondsBetweenFrames)

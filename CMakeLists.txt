@@ -250,7 +250,6 @@ set(sources
 
 	source/model/bikemodel.h
 	source/model/bikemodel.cpp
-	source/model/auto_levelmodel.cpp
 	source/model/levelmodel.h
 	source/model/levelmodel.cpp
 	source/model/fencemodel.h

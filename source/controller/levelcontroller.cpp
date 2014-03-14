@@ -13,11 +13,11 @@
 
 using namespace troen;
 
-LevelController::LevelController()
+LevelController::LevelController(std::string levelName)
 {
 	AbstractController();
-	m_model = m_levelModel = std::make_shared<LevelModel>(this);
-	m_view = m_levelView = std::make_shared<LevelView>(m_levelModel);
+	m_model = m_levelModel = std::make_shared<LevelModel>(this, levelName);
+	m_view = m_levelView = std::make_shared<LevelView>(m_levelModel, levelName);
 
 	m_currentItemCount = 0;
 

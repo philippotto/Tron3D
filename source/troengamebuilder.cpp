@@ -26,6 +26,7 @@
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
+#include "input/gamepadps4.h"
 #ifdef WIN32
 #include "input/gamepad.h"
 #endif
@@ -90,7 +91,7 @@ bool TroenGameBuilder::build()
 	////////////////////////////////////////////////////////////////////////////////
 	std::cout << "[TroenGame::build] controllers (models & views) ..." << std::endl;
 	{ // controllers
-		t->m_levelController = std::make_shared<LevelController>();
+		t->m_levelController = std::make_shared<LevelController>(t->m_gameConfig->levelName);
 		for (int i = 0; i < t->m_gameConfig->numberOfPlayers; i++)
 		{
 			std::shared_ptr<Player> player = std::make_shared<Player>(t, t->m_gameConfig, i);
@@ -271,6 +272,7 @@ bool TroenGameBuilder::destroy()
 #ifdef WIN32
 	input::Gamepad::clearPorts();
 #endif
+	input::GamepadPS4::reset();
 	t->m_statsHandler = nullptr;
 
 	t->m_physicsWorld.reset();

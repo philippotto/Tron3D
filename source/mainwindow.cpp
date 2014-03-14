@@ -9,6 +9,7 @@
 #include <QCoreApplication>
 #include <QSignalMapper>
 #include <QLineEdit>
+#include <QMessageBox>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -29,6 +30,25 @@ MainWindow::MainWindow(QWidget * parent)
 	QVBoxLayout* vBoxLayout = new QVBoxLayout;
 	vBoxWidget->setLayout(vBoxLayout);
 	setCentralWidget(vBoxWidget);
+
+	// levelName
+	m_levelComboBox = new QComboBox;
+	
+	// get files from levels folder
+	QStringList nameFilter("*.ive");
+	QDir directory("data/levels/");
+	QStringList levelFiles = directory.entryList(nameFilter);
+	foreach(QString currentFile, levelFiles) {
+		// remove .ive from string
+		currentFile.chop(4);
+		m_levelComboBox->addItem(currentFile);
+	}
+
+	if (m_levelComboBox->count() == 0){
+		QMessageBox::warning(NULL, "Missing levels", "Make sure you have the data/levels folder (see Dropbox).");
+	}
+
+	vBoxLayout->addWidget(m_levelComboBox);
 
 	// bikeNumber
 	{
@@ -115,6 +135,7 @@ MainWindow::MainWindow(QWidget * parent)
 		playerComboBox->setCurrentIndex(i < 2 ? i : 3);	
 		vBoxLayout->addWidget(playerInputWidget);
 	}
+
 	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(chooseColor(int)));
 	updatePlayerInputBoxes();
 
@@ -210,6 +231,7 @@ void MainWindow::prepareGameStart()
 		config.playerNames[i] = m_playerNameLineEdits[i]->text();
 		config.playerColors[i] = m_playerColors[i];
 	}
+	config.levelName = m_levelComboBox->currentText().toStdString();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	config.useDebugView = m_debugViewCheckBox->isChecked();
@@ -286,6 +308,7 @@ void MainWindow::loadSettings()
 	m_testPerformanceCheckBox->setChecked(settings.value("vSyncOff").toBool());
 	m_debugViewCheckBox->setChecked(settings.value("debugView").toBool());
 	m_reflectionCheckBox->setChecked(settings.value("reflection").toBool());
+	m_levelComboBox->setCurrentIndex(settings.value("level").toInt());
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
@@ -321,6 +344,7 @@ void MainWindow::saveSettings()
 	settings.setValue("vSyncOff", QString::number(m_testPerformanceCheckBox->isChecked()));
 	settings.setValue("debugView", QString::number(m_debugViewCheckBox->isChecked()));
 	settings.setValue("reflection", QString::number(m_reflectionCheckBox->isChecked()));
+	settings.setValue("level", QString::number(m_levelComboBox->currentIndex()));
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{

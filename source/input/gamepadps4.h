@@ -1,5 +1,6 @@
 #pragma once
-
+// OSG
+#include <osg/Vec3>
 // troen
 #include "pollingdevice.h"
 #include "../forwarddeclarations.h"
@@ -13,7 +14,7 @@ namespace input
 	class GamepadPS4 : public PollingDevice
 	{
 	public:
-		GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState);
+		GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState, osg::Vec3 color);
 		~GamepadPS4();
 		enum PS4KEY {
 			UP_PRESSED, DOWN_PRESSED, LEFT_PRESSED, RIGHT_PRESSED, ONE_PRESSED, TWO_PRESSED, THREE_PRESSED, FOUR_PRESSED, LEFT_1_PRESSED,
@@ -22,7 +23,14 @@ namespace input
 		};
 		void run() override;
 		bool checkConnection();
+		void setColor(osg::Vec3 color);
+		void setVibration(const bool b) override;
 		hid_device *_controller = nullptr;
+
+		static hid_device_info* allHidDevices;
+		static wchar_t* getFreeDeviceSN();
+		static void reset();
+		static bool enumeratedHidDevices;
 
 	private:
 		int getBitAt(int k, unsigned char * buf);
@@ -30,6 +38,10 @@ namespace input
 		int calcDecimalFromBinar(unsigned char *binar, int i, int jMax);
 
 		float m_deadzoneX, m_deadzoneY;
+
+		unsigned char m_writeBuffer[32];
+		bool m_vibrate = false;
+		wchar_t* m_serialNumber = NULL;
 	};
 }
 }

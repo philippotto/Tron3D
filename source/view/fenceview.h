@@ -24,6 +24,8 @@ namespace troen
 		void showFencesInRadarForPlayer(const int id);
 		void hideFencesInRadarForPlayer(const int id);
 
+		void updateFadeOutFactor(float fadeOutFactor);
+
 	private:
 		void initializeFence();
 		void initializeFenceGap();
@@ -37,6 +39,8 @@ namespace troen
 		std::deque<osg::ref_ptr<osg::MatrixTransform>>	m_radarFenceBoxes;
 
 		std::weak_ptr<FenceModel>		m_model;
+
+		osg::Uniform*	m_fadeOutFactorUniform;
 
 		osg::Vec3 m_playerColor;
 		float m_fenceHeight;

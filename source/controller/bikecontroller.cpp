@@ -171,7 +171,7 @@ void BikeController::initializeGamepad(osg::ref_ptr<input::BikeInputState> bikeI
 
 void BikeController::initializeGamepadPS4(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
-	std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState);
+	std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState, m_player->color());
 
 	if (gamepad->checkConnection())
 	{
@@ -301,7 +301,10 @@ void BikeController::updateModel(const long double gameTime)
 		m_bikeModel->freeze();
 		m_player->fenceController()->removeAllFencesFromModel();
 		updateFov(0);
-		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN" << std::endl;
+
+		// fades fence out when player died
+		m_player->fenceController()->updateFadeOutFactor(1 - (gameTime - m_respawnTime) / (RESPAWN_DURATION * 2.f / 3.f));
+		
 		if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
 		{
 			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
@@ -309,16 +312,15 @@ void BikeController::updateModel(const long double gameTime)
 			moveBikeToPosition(m_initialTransform);
 			reset();
 			updateFov(0);
+			m_player->fenceController()->updateFadeOutFactor(1);
 			m_state = RESPAWN_PART_2;
 		}
 		break;
 	}
 	case RESPAWN_PART_2:
 	{
-		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": RESPAWN_PART_2" << std::endl;
 		if (gameTime > m_respawnTime + RESPAWN_DURATION)
 		{
-			//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": start Driving" << std::endl;
 			m_state = DRIVING;
 		}
 		break;
@@ -396,6 +398,7 @@ void BikeController::updateUniforms()
 		m_timeFactorUniform->set((float) getTimeFactor());
 		m_healthUniform->set(m_player->health()/BIKE_DEFAULT_HEALTH);
 	}
+	
 }
 
 void BikeController::updateFov(double speed)

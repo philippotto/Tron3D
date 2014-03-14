@@ -185,19 +185,36 @@ void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>
 	}
 }
 
-void PhysicsWorld::addRigidBody(btRigidBody *body,const short group /*=0*/, const short mask /*=0*/)
+void PhysicsWorld::addRigidBody(btRigidBody *body, const short group /*=0*/, const short mask /*=0*/)
 {
 	m_world->addRigidBody(body, group, mask);
 }
 
 void PhysicsWorld::removeRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies)
 {
-	for (auto body : bodies)
+	for (auto body : bodies) {
+		removeRigidBodyFromCollisionPairs(body.get());
 		m_world->removeRigidBody(body.get());
+	}
 }
+
+void PhysicsWorld::removeRigidBodyFromCollisionPairs(btRigidBody* body)
+{
+	for (CollisionPairSet::iterator iter = m_pairsLastUpdate.begin(); iter != m_pairsLastUpdate.end(); /* no increment */) {
+		if ((btRigidBody*)iter->first == body || (btRigidBody*)iter->second == body) {
+			m_pairsLastUpdate.erase(iter++);
+		}
+		else {
+			++iter;
+		}
+	}
+	m_removedRigidBodies.push_back(body);
+}
+
 
 void PhysicsWorld::removeRigidBody(btRigidBody* body)
 {
+	removeRigidBodyFromCollisionPairs(body); 
 	m_world->removeRigidBody(body);
 }
 
@@ -268,17 +285,28 @@ void PhysicsWorld::checkForCollisionEvents()
 			const btRigidBody* pSortedBodyA = swapped ? pBody1 : pBody0;
 			const btRigidBody* pSortedBodyB = swapped ? pBody0 : pBody1;
 			
-			// create the pair
-			CollisionPair thisPair = std::make_pair(pSortedBodyA, pSortedBodyB);
-			
-			// insert the pair into the current list
-			pairsThisUpdate.insert(thisPair);
-			
-			// if this pair doesn't exist in the list
-			// from the previous update, it is a new
-			// pair and we must send a collision event
-			if (m_pairsLastUpdate.find(thisPair) == m_pairsLastUpdate.end())
+			bool notJustRemoved = true;
+			for (auto removedRigidBody : m_removedRigidBodies) {
+				if (pSortedBodyA == removedRigidBody || pSortedBodyB == removedRigidBody) {
+					notJustRemoved = false;
+					//std::cout << "A rigidBody was just removed and prevented from doing bad things." << std::endl;
+					break;
+				}
+			}
+
+			if (notJustRemoved) {
+				// create the pair
+				CollisionPair thisPair = std::make_pair(pSortedBodyA, pSortedBodyB);
+
+				// insert the pair into the current list
+				pairsThisUpdate.insert(thisPair);
+
+				// if this pair doesn't exist in the list
+				// from the previous update, it is a new
+				// pair and we must send a collision event
+				if (m_pairsLastUpdate.find(thisPair) == m_pairsLastUpdate.end())
 					m_gameLogic.lock()->collisionEvent((btRigidBody*)pBody0, (btRigidBody*)pBody1, contactManifold);
+			}
 		}	
 	}
 	
@@ -292,12 +320,14 @@ void PhysicsWorld::checkForCollisionEvents()
 		std::inserter(removedPairs, removedPairs.begin()));
 	
 	// iterate through all of the removed pairs sending separation events for them
-	for (CollisionPairSet::const_iterator iter = removedPairs.begin(); iter != removedPairs.end(); ++iter)
+	for (CollisionPairSet::const_iterator iter = removedPairs.begin(); iter != removedPairs.end(); ++iter) {
 		m_gameLogic.lock()->separationEvent((btRigidBody*)iter->first, (btRigidBody*)iter->second);
+	}
 	
 	// in the next iteration we'll want to compare against
 	// the pairs we found in this iteration
 	m_pairsLastUpdate = pairsThisUpdate;
+	m_removedRigidBodies.clear();
 }
 
 

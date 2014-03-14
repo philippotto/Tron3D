@@ -33,6 +33,7 @@ namespace troen
 		bool testPerformance;
 		bool useReflection;
 		bool ownView[MAX_BIKES];
+		std::string levelName;
         // TODO: add Destructor to avoid memory leak
 	};
 }
