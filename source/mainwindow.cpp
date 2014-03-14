@@ -30,6 +30,21 @@ MainWindow::MainWindow(QWidget * parent)
 	vBoxWidget->setLayout(vBoxLayout);
 	setCentralWidget(vBoxWidget);
 
+	// levelName
+	m_levelComboBox = new QComboBox;
+	
+	// get files from levels folder
+	QStringList nameFilter("*.ive");
+	QDir directory("data/levels/");
+	QStringList levelFiles = directory.entryList(nameFilter);
+	foreach(QString currentFile, levelFiles) {
+		// remove .ive from string
+		currentFile.chop(4);
+		m_levelComboBox->addItem(currentFile);
+	}
+
+	vBoxLayout->addWidget(m_levelComboBox);
+
 	// bikeNumber
 	{
 		QWidget* bikeNumberWidget = new QWidget;
@@ -115,11 +130,6 @@ MainWindow::MainWindow(QWidget * parent)
 		playerComboBox->setCurrentIndex(i < 2 ? i : 3);	
 		vBoxLayout->addWidget(playerInputWidget);
 	}
-
-	m_levelComboBox = new QComboBox;
-	m_levelComboBox->addItem("Level 1");
-	m_levelComboBox->addItem("Level 2");
-	vBoxLayout->addWidget(m_levelComboBox);
 
 	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(chooseColor(int)));
 	updatePlayerInputBoxes();

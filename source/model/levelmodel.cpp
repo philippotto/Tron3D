@@ -34,7 +34,7 @@ LevelModel::LevelModel(const LevelController* levelController, std::string level
 
 void LevelModel::addObstaclesFromFile(std::string levelName)
 {
-	std::ifstream input("F:\\Dropbox\\Studium\\5. Semester\\Game Programming\\git\\GP2013\\source\\model\\" + levelName + ".level");
+	std::ifstream input("data/levels/" + levelName + ".level");
 	std::string line;
 
 	btVector3 center, dimensions;

@@ -1,11 +1,26 @@
 import bpy
+import os
+import subprocess
 
 ### HOWTO: open this file in blender text editor. Edit your scene and make  sure only cubes are used (only translate and scale are supported for now)
 ## all cubes have to be prefixed by "Cube"
 
-#please modify to your own path, for now
-MODEL_PATH = r"F:\Dropbox\Studium\5. Semester\Game Programming\git\GP2013\source\model\level2.level"
-OBJ_PATH = r"F:\Dropbox\Studium\5. Semester\Game Programming\git\GP2013\data\models\simple_level.obj"
+# This script will create newLevel.ive and newLevel.level (for osg and bullet) in data/levels/
+# You can change the name of the level here:
+levelName = "newLevel"
+
+# make sure you got the TROEN and OSG_DIR environment variables
+# make sure that you got osgconv.exe in OSG_DIR/bin (see dropbox)
+osgPath = os.environ['OSG_DIR']
+osgconvPath = osgPath + r"\bin\osgconv.exe"
+troenPath = os.environ['TROEN']
+levelPath = troenPath + "data\levels\\"
+
+MODEL_PATH = levelPath + levelName + ".level"
+OBJ_PATH = levelPath + levelName + ".obj"
+IVE_PATH = levelPath + levelName + ".ive"
+
+
 #scale blender units by
 SCALE = 10.0
 
@@ -24,7 +39,6 @@ class LevelExporter():
 				object.scale.y = abs(object.scale.y)
 				object.scale.x = abs(object.scale.x)
 
-
 		#with open(VIEW_PATH,"w") as output_file:
 		#	output_file.write(self.levelView_template().format(auto_gen_code=self.get_view_autogen()))
 
@@ -39,6 +53,7 @@ class LevelExporter():
 		    group_by_material=False, keep_vertex_order=False, axis_forward='-Z',
 		     axis_up='Y', global_scale=SCALE, path_mode='AUTO')
 
+		subprocess.call([osgconvPath, OBJ_PATH, IVE_PATH])
 
 	def get_model_autogen(self):
 		#write out the cubes location and dimensions
@@ -75,7 +90,6 @@ class LevelExporter():
 {quat_w}
 {name}
 {collisionType}"""
-
 
 
 	def levelModel_template(self):
