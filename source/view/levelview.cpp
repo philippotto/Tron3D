@@ -23,16 +23,14 @@
 using namespace troen;
 
 
-LevelView::LevelView(std::shared_ptr<LevelModel> model) :
+LevelView::LevelView(std::shared_ptr<LevelModel> model, std::string levelName) :
 AbstractView()
 {
 	m_model = model;
 
 	int levelSize = m_model->getLevelSize();
 
-	m_node = new osg::Group();
-
-	m_node->addChild(constructObstacles(levelSize));
+	m_node->addChild(constructObstacles(levelSize, levelName));
 	m_node->addChild(constructWalls(levelSize));
 	m_node->addChild(constructFloors(levelSize));
 }
@@ -78,12 +76,12 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
     return floorsGroup;
 }
 
-osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
+osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::string levelName)
 {
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
 	obstaclesGroup->setName("obstaclesGroup");
 
-	osg::ref_ptr<osg::Node> obstacles = osgDB::readNodeFile("data/models/simple_level.ive");
+	osg::ref_ptr<osg::Node> obstacles = osgDB::readNodeFile("data/levels/" + levelName + ".ive");
 	obstacles->setCullingActive(false);
 
 	//osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles()); 
@@ -106,7 +104,7 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize)
 
 
 
-void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node>& node, int shaderIndex, int levelSize, int modelID)
+void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderIndex, int levelSize, int modelID)
 {
 	osg::StateSet *stateSet = node->getOrCreateStateSet();
 	stateSet->ref();
@@ -171,7 +169,7 @@ osg::ref_ptr<osg::Group> LevelView::constructRadarElementsForBoxes(std::vector<B
 		osg::ref_ptr<osg::Box> box
 			= new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z());
 		osg::ref_ptr<osg::ShapeDrawable> mark_shape = new osg::ShapeDrawable(box);
-		mark_shape->setColor(osg::Vec4f(1, 1, 1, .1));
+		mark_shape->setColor(osg::Vec4f(1, 1, 1, .5));
 		osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
 		mark_node->addDrawable(mark_shape.get());
 		mark_node->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);

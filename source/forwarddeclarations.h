@@ -67,15 +67,18 @@ namespace scriptzeug {
 namespace troen
 {
 	class TroenGame;
+	class TroenGameBuilder;
 	class SampleOSGViewer;
 	class GameEventHandler;
 	class GameLogic;
+	class Player;
 
 	class BikeModel;
 	class LevelModel;
 	class FenceModel;
 	class AbstractModel;
 	class PhysicsWorld;
+	class ItemModel;
 
 	class BikeController;
 	class LevelController;
@@ -90,6 +93,7 @@ namespace troen
 	class FenceView;
 	class AbstractView;	
 	class HUDView;
+	class ItemView;
 	class SkyDome;
 	class PostProcessing;
 	class NodeFollowCameraManipulator;

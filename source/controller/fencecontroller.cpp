@@ -10,13 +10,15 @@
 
 using namespace troen;
 
-FenceController::FenceController(BikeController *bikeController, osg::Vec3 color, btTransform initialTransform)
+FenceController::FenceController(
+	Player * player,
+	btTransform initialTransform) :
+AbstractController(),
+m_fenceLimitActivated(true)
 {
-	AbstractController();
-	m_playerColor = color;
-	m_bikeController = bikeController;
-	m_model = std::make_shared<FenceModel>(this);
-    m_view = std::shared_ptr<FenceView>(new FenceView(this, m_playerColor, m_model));
+	m_player = player;
+	m_model = m_fenceModel = std::make_shared<FenceModel>(this);
+	m_view = m_fenceView = std::shared_ptr<FenceView>(new FenceView(this, player->color(), m_model));
 
 	btQuaternion rotation = initialTransform.getRotation();
 	btVector3 position = initialTransform.getOrigin();
@@ -33,36 +35,43 @@ void FenceController::update(btVector3 position, btQuaternion rotation)
 	// add new fence part
 	if ((position - m_lastPosition).length() > FENCE_PART_LENGTH)
 	{
-		std::static_pointer_cast<FenceModel>(m_model)->addFencePart(m_lastPosition, position);
-		std::static_pointer_cast<FenceView>(m_view)->addFencePart(osgLastPosition,osgPosition);
+		m_fenceModel->addFencePart(m_lastPosition, position);
+		m_fenceView->addFencePart(osgLastPosition,osgPosition);
 		m_lastPosition = position;
 	}
 
 	// update fence gap
-	std::static_pointer_cast<FenceView>(m_view)->updateFenceGap(osgLastPosition, osgPosition);
+	m_fenceView->updateFenceGap(osgLastPosition, osgPosition);
 }
 
 
 void FenceController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 {
 	m_world = world;
-	std::static_pointer_cast<FenceModel>(m_model)->attachWorld(world);
+	m_fenceModel->attachWorld(world);
 }
 
 void FenceController::removeAllFences()
 {
-	std::static_pointer_cast<FenceModel>(m_model)->removeAllFences();
-	std::static_pointer_cast<FenceView>(m_view)->removeAllFences();
+	m_fenceModel->removeAllFences();
+	m_fenceView->removeAllFences();
 }
 
 void FenceController::removeAllFencesFromModel()
 {
-	std::static_pointer_cast<FenceModel>(m_model)->removeAllFences();
+	m_fenceModel->removeAllFences();
 }
 
+void FenceController::setLimitFence(bool boolean)
+{
+	m_fenceLimitActivated = boolean;
+}
 
 int FenceController::getFenceLimit() {
-	return m_bikeController->getFenceLimit();
+	if (m_fenceLimitActivated)
+		return m_player->points();
+	else
+		return 0;
 }
 
 void FenceController::adjustPositionUsingFenceOffset(const btQuaternion& rotation, btVector3& position)
@@ -80,4 +89,28 @@ void FenceController::setLastPosition(const btQuaternion rotation, btVector3 pos
 {
 	adjustPositionUsingFenceOffset(rotation, position);
 	m_lastPosition = position;
+}
+
+
+void FenceController::showFencesInRadarForPlayer(const int id)
+{
+	m_fenceView->showFencesInRadarForPlayer(id);
+}
+
+void FenceController::hideFencesInRadarForPlayer(const int id)
+{
+	m_fenceView->hideFencesInRadarForPlayer(id);
+}
+
+osg::ref_ptr<osg::Group> FenceController::getViewNode()
+{
+	osg::ref_ptr<osg::Group> group = m_fenceView->getNode();
+	// TODO (dw) try not to disable culling, by resizing the childrens bounding boxes
+	// group->setCullingActive(false);
+	return group;
+}
+
+void FenceController::updateFadeOutFactor(float fadeOutFactor)
+{
+	m_fenceView->updateFadeOutFactor(fadeOutFactor);
 }

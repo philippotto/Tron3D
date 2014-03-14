@@ -215,14 +215,19 @@ set(sources
 	source/mainwindow.cpp
 	source/troengame.h
 	source/troengame.cpp
+	source/troengamebuilder.h
+	source/troengamebuilder.cpp
 	source/sampleosgviewer.h
 	source/sampleosgviewer.cpp
 	source/gameeventhandler.h
+	source/gameeventhandler.cpp
 	source/globals.h
 	source/constants.h
 	source/constants.cpp
 	source/gamelogic.h
 	source/gamelogic.cpp
+	source/player.h
+	source/player.cpp
 
 	source/resourcepool.h
 	source/resourcepool.cpp
@@ -245,7 +250,6 @@ set(sources
 
 	source/model/bikemodel.h
 	source/model/bikemodel.cpp
-	source/model/auto_levelmodel.cpp
 	source/model/levelmodel.h
 	source/model/levelmodel.cpp
 	source/model/fencemodel.h
