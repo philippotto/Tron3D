@@ -9,6 +9,7 @@
 #include <QCoreApplication>
 #include <QSignalMapper>
 #include <QLineEdit>
+#include <QMessageBox>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -41,6 +42,10 @@ MainWindow::MainWindow(QWidget * parent)
 		// remove .ive from string
 		currentFile.chop(4);
 		m_levelComboBox->addItem(currentFile);
+	}
+
+	if (m_levelComboBox->count() == 0){
+		QMessageBox::warning(NULL, "Missing levels", "Make sure you have the data/levels folder (see Dropbox).");
 	}
 
 	vBoxLayout->addWidget(m_levelComboBox);
