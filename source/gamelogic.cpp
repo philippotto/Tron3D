@@ -97,12 +97,7 @@ void GameLogic::stepGameOver(const long double gameloopTime, const long double g
 
 void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold)
 {
-	if (!pBody0->isInWorld() || !pBody1->isInWorld()) {
-		std::cout << "one of the rigidbodies is not in the world anymore  (collision)" << std::endl;
-		return;
-	}
-	if (pBody0->getUserPointer() == nullptr || pBody1->getUserPointer() == nullptr) {
-		std::cout << "one of the userpointer is null (collision)" << std::endl;
+	if (!pBody0->isInWorld() || !pBody1->isInWorld() || pBody0->getUserPointer() == nullptr || pBody1->getUserPointer() == nullptr) {
 		return;
 	}
 
@@ -183,12 +178,7 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 
 void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 {
-	if (!pBody0->isInWorld() || !pBody1->isInWorld()) {
-		std::cout << "one of the rigidbodies is not in the world anymore (separation)" << std::endl;
-		return;
-	}
-	if (pBody0->getUserPointer() == nullptr || pBody1->getUserPointer() == nullptr) {
-		std::cout << "one of the userpointer is null (separation)" << std::endl;
+	if (!pBody0->isInWorld() || !pBody1->isInWorld() || pBody0->getUserPointer() == nullptr || pBody1->getUserPointer() == nullptr) {
 		return;
 	}
 
