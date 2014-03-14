@@ -384,8 +384,13 @@ btScalar GameLogic::impulseFromContactManifold(btPersistentManifold* contactMani
 	for (int i = 0; i < numContacts; i++)
 	{
 		btManifoldPoint& pt = contactManifold->getContactPoint(i);
-		impulse = impulse + pt.getAppliedImpulse();
+		if (abs(pt.m_normalWorldOnB.z()) < 0.5)
+		{
+			// ignore collisions with xy-plane (so the player doesn't lose health if he drives on a surface)
+			impulse = impulse + pt.getAppliedImpulse();
+		}
 	}
+	
 	return impulse;
 }
 
