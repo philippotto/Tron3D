@@ -4,8 +4,8 @@ import bpy
 ## all cubes have to be prefixed by "Cube"
 
 #please modify to your own path, for now
-MODEL_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\source\model\auto_levelmodel.cpp"
-OBJ_PATH = r"D:\Dropbox\Uebungen\GameProgramming\Tron\GP2013\data\models\simple_level.obj"
+MODEL_PATH = r"F:\Dropbox\Studium\5. Semester\Game Programming\git\GP2013\source\model\level2.level"
+OBJ_PATH = r"F:\Dropbox\Studium\5. Semester\Game Programming\git\GP2013\data\models\simple_level.obj"
 #scale blender units by
 SCALE = 10.0
 
@@ -59,47 +59,27 @@ class LevelExporter():
                                                           name=str(obstacle.name),
                                                           collisionType=str(obstacle["CollisionType"]))
 			if ob_index < len(self.obstacles) -1:
-				auto_gen_code += ",\n"
+				auto_gen_code += "\n"
 		return auto_gen_code
 
 	def create_box_collision_shape_str(self):
-		return """
-			{{
-				btVector3(btScalar({pos_x}), btScalar({pos_y}), btScalar({pos_z})),
-				btVector3(btScalar({length_x}), btScalar({length_y}), btScalar({length_z})),
-				btQuaternion(btScalar({quat_x}), btScalar({quat_y}),{quat_z}, btScalar({quat_w})),
-                std::string("{name}"),
-                {collisionType}
-			}}"""
+		return """{pos_x}
+{pos_y}
+{pos_z}
+{length_x}
+{length_y}
+{length_z}
+{quat_x}
+{quat_y}
+{quat_z}
+{quat_w}
+{name}
+{collisionType}"""
 
 
 
 	def levelModel_template(self):
-		return """
-		#include "levelmodel.h"
-		//bullet
-		#include <btBulletDynamicsCommon.h>
-		#include "LinearMath/btHashMap.h"
+		return "{auto_gen_code}"
 
-		using namespace troen;
-
-		//!!!!!!!!!!!!! WARNING: AUTO_GENERATED !!!!!!!!!!!!!!!!!!!!!!
-		// If you want to change something generally, please edit obstacle_export.py, otherwise be sure to mark changes to this code otherwise it might be overwritten
-
-
-		void LevelModel::auto_addObstacles()
-		{{
-			// obstacles
-			// TODO grab the value from origin
-			std::vector<BoxModel> newObstacles = {{
-
-			{auto_gen_code}
-
-			}};
-			m_obstacles.insert(m_obstacles.end(), newObstacles.begin(), newObstacles.end());
-
-			addBoxes(m_obstacles);
-		}}
-	"""
 if __name__ == '__main__':
 	LevelExporter()

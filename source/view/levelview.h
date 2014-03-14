@@ -15,7 +15,7 @@ namespace troen
 	class LevelView : public AbstractView
 	{
 	public:
-		LevelView(std::shared_ptr<LevelModel> model);
+		LevelView(std::shared_ptr<LevelModel> model, std::string levelName);
 		osg::ref_ptr<osg::Group> getFloor();
 
 		void addItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform);
@@ -23,7 +23,7 @@ namespace troen
 	private:
 		osg::ref_ptr<osg::Group> constructWalls(const int levelSize);
 		osg::ref_ptr<osg::Group> constructFloors(const int levelSize);
-		osg::ref_ptr<osg::Group> constructObstacles(const int levelSize);
+		osg::ref_ptr<osg::Group> constructObstacles(const int levelSize, std::string levelName);
 
 		osg::ref_ptr<osg::Group> constructGroupForBoxes(std::vector<BoxModel> &boxes);
 		osg::ref_ptr<osg::Group> constructRadarElementsForBoxes(std::vector<BoxModel> &boxes);

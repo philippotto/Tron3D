@@ -11,7 +11,7 @@ namespace troen
 	class LevelController : public AbstractController
 	{
 	public:
-		LevelController();
+		LevelController(std::string levelName);
 
 
 		virtual btTransform getSpawnPointForBikeWithIndex(const int index);

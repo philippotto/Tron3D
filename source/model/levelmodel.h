@@ -46,7 +46,7 @@ namespace troen
 	class LevelModel : public AbstractModel
 	{
 	public:
-		LevelModel(const LevelController* levelController);
+		LevelModel(const LevelController* levelController, std::string levelName);
 		int getLevelSize();
 
 		std::vector<BoxModel>& getWalls() { return m_walls; };
@@ -57,6 +57,7 @@ namespace troen
 		void addBoxes(std::vector<BoxModel> &boxes,const COLLISIONTYPE type = ABSTRACTTYPE);
 		void addWalls(const float levelSize, const float yPosition);
 		void addFloor(const float size, const float yPosition);
+		void addObstaclesFromFile(std::string levelName);
 
 
 		void auto_addObstacles();

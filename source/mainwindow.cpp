@@ -115,6 +115,12 @@ MainWindow::MainWindow(QWidget * parent)
 		playerComboBox->setCurrentIndex(i < 2 ? i : 3);	
 		vBoxLayout->addWidget(playerInputWidget);
 	}
+
+	m_levelComboBox = new QComboBox;
+	m_levelComboBox->addItem("Level 1");
+	m_levelComboBox->addItem("Level 2");
+	vBoxLayout->addWidget(m_levelComboBox);
+
 	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(chooseColor(int)));
 	updatePlayerInputBoxes();
 
@@ -210,6 +216,7 @@ void MainWindow::prepareGameStart()
 		config.playerNames[i] = m_playerNameLineEdits[i]->text();
 		config.playerColors[i] = m_playerColors[i];
 	}
+	config.levelName = m_levelComboBox->currentText().toStdString();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	config.useDebugView = m_debugViewCheckBox->isChecked();
@@ -286,6 +293,7 @@ void MainWindow::loadSettings()
 	m_testPerformanceCheckBox->setChecked(settings.value("vSyncOff").toBool());
 	m_debugViewCheckBox->setChecked(settings.value("debugView").toBool());
 	m_reflectionCheckBox->setChecked(settings.value("reflection").toBool());
+	m_levelComboBox->setCurrentIndex(settings.value("level").toInt());
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
@@ -321,6 +329,7 @@ void MainWindow::saveSettings()
 	settings.setValue("vSyncOff", QString::number(m_testPerformanceCheckBox->isChecked()));
 	settings.setValue("debugView", QString::number(m_debugViewCheckBox->isChecked()));
 	settings.setValue("reflection", QString::number(m_reflectionCheckBox->isChecked()));
+	settings.setValue("level", QString::number(m_levelComboBox->currentIndex()));
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
