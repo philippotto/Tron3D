@@ -40,7 +40,7 @@ namespace troen
 		//
 		void attachTrackingCamera(std::shared_ptr<HUDController>& hudController);
         void attachTrackingCamera (osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
-		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
+		void attachWorld(std::shared_ptr<PhysicsWorld> world);
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
 
 		void addUniformsToPlayerNode();

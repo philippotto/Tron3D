@@ -27,6 +27,7 @@
 
 #include "../util/filteredrayresultcallback.h"
 
+
 using namespace troen;
 
 BikeController::BikeController(
@@ -372,7 +373,7 @@ void BikeController::addUniformsToPlayerNode()
 	stateset->addUniform(m_healthUniform);
 }
 
-void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
+void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> world)
 {
 	m_world = world;
 	world->addRigidBodies(getRigidBodies(), COLGROUP_BIKE, COLMASK_BIKE);
@@ -414,8 +415,8 @@ float BikeController::getDistanceToObstacle(double angle) {
 
 	float rayLength = 10000;
 
-	if (m_world) {
-
+	if (m_world) { // && m_world->()) {
+		
 		btDiscreteDynamicsWorld* discreteWorld = m_world->getDiscreteWorld();
 		std::shared_ptr<BikeModel> bikeModel = std::static_pointer_cast<BikeModel>(m_model);
 
@@ -427,7 +428,9 @@ float BikeController::getDistanceToObstacle(double angle) {
 		FilteredRayResultCallback RayCallback(bikeModel->getRigidBody().get(), from, to);
 
 		// Perform raycast
+		m_world->getMutex()->lock();
 		discreteWorld->rayTest(from, to, RayCallback);
+		m_world->getMutex()->unlock();
 
 		if (RayCallback.hasHit()) {
 			btVector3 collisionPoint;
@@ -438,7 +441,7 @@ float BikeController::getDistanceToObstacle(double angle) {
 		else {
 			return rayLength;
 		}
-
+		//g_bulletMutex.unlock();
 	}
 
 	return rayLength;

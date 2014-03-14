@@ -190,7 +190,9 @@ std::array<std::array<int, 100>, 100>* PhysicsWorld::discretizeWorld()
 
 PhysicsWorld::~PhysicsWorld()
 {
-	delete m_world;
+	// TODO: why cant we delete m_world without crashes?
+	if (false)
+		delete m_world;
 	delete m_solver;
 	delete m_collisionConfiguration;
 	delete m_dispatcher;
@@ -284,8 +286,10 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	// timeStep < maxSubSteps * fixedTimeStep
 	// where the parameters are given as follows:
 	// stepSimulation(timeStep, maxSubSteps, fixedTimeStep)
+	getMutex()->lock();
 	m_world->stepSimulation(timeSinceLastSimulation/1000.f, 8);
-	
+	getMutex()->unlock();
+
 	if (m_useDebugView)
 	{
 		m_world->debugDrawWorld();

@@ -25,6 +25,8 @@
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
 
+#include <mutex>
+
 using namespace troen;
 extern long double g_currentTime;
 

@@ -5,6 +5,7 @@
 #include <iterator>
 #include <algorithm>
 #include <array>
+#include <mutex>
 // troen
 #include "../forwarddeclarations.h"
 
@@ -45,6 +46,8 @@ namespace troen
 			return m_world;
 		};
 
+		std::mutex* getMutex() { return &m_physicsMutex; };
+
 	private:
 		btDiscreteDynamicsWorld*			m_world;
 		btSequentialImpulseConstraintSolver*m_solver;
@@ -64,5 +67,7 @@ namespace troen
 		std::weak_ptr<GameLogic> m_gameLogic;
 
 		std::array<std::array<int, 100>, 100> m_discretizedWorld;
+
+		std::mutex m_physicsMutex;
 	};
 }
