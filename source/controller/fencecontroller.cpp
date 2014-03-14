@@ -109,3 +109,8 @@ osg::ref_ptr<osg::Group> FenceController::getViewNode()
 	// group->setCullingActive(false);
 	return group;
 }
+
+void FenceController::updateFadeOutFactor(float fadeOutFactor)
+{
+	m_fenceView->updateFadeOutFactor(fadeOutFactor);
+}

@@ -187,7 +187,10 @@ float BikeModel::updateState(long double time)
 	}
 
 	// let the bike drift, if the friction is low
-	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed).normalized() * speed;
+	currentVelocityVectorXY = (1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed;
+	if (currentVelocityVectorXY.length() > 0) {
+		currentVelocityVectorXY = currentVelocityVectorXY.normalized() * speed;
+	}
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 

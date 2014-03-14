@@ -33,6 +33,8 @@ namespace troen
 
 		void setLastPosition(btQuaternion rotation, const btVector3 position);
 
+		void updateFadeOutFactor(float fadeOutFactor);
+
 	private:
 		std::shared_ptr<FenceView> m_fenceView;
 		std::shared_ptr<FenceModel> m_fenceModel;
