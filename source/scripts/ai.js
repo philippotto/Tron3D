@@ -9,7 +9,8 @@ function move() {
 	leftDistance = player.getFreeDistanceInDirection(3.14/4);
 	rightDistance = player.getFreeDistanceInDirection(-3.14/4);
 
-
+	player.getID();
+	player.getHealth();
 	var isCurrentDirectionSafe = straightDistance > 500;
 	player.setTurbo(false);
 	if (isCurrentDirectionSafe) {

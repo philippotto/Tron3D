@@ -11,6 +11,7 @@
 #include "../util/scriptwatcher.h"
 
 #include "../controller/bikecontroller.h"
+#include "../player.h"
 
 
 using namespace scriptzeug;
@@ -28,9 +29,11 @@ namespace troen
 				m_bikeInputState = bikeInputState;
 
 				addFunction("getFreeDistanceInDirection", this, &AIScript::getFreeDistanceInDirection);
+				addFunction("getID", this, &AIScript::getID);
+				addFunction("getHealth", this, &AIScript::getHealth);
 				addFunction("log", this, &AIScript::log);
 				addFunction("setTurbo", this, &AIScript::setTurbo);
-
+				
 
 				addProperty<double>("acceleration", *this, &AIScript::getAcceleration, &AIScript::setAcceleration);
 				addProperty<double>("angle", *this, &AIScript::angle, &AIScript::setAngle);
@@ -59,6 +62,14 @@ namespace troen
 
 			void setTurbo(bool b) {
 				m_bikeInputState->setTurboPressed(b);
+			}
+
+			int getID() {
+				return m_bikeController->player()->id();
+			}
+
+			int getHealth() {
+				return m_bikeController->player()->health();
 			}
 
 		protected:
