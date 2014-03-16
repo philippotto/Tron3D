@@ -436,6 +436,11 @@ float BikeController::getDistanceToObstacle(double angle) {
 			btVector3 collisionPoint;
 			collisionPoint = RayCallback.m_hitPointWorld;
 
+			if (RayCallback.m_hitNormalWorld.z() > 0.4){
+				// ignore collisions with tilted objects
+				return rayLength;
+			}
+
 			return (collisionPoint - from).length();
 		}
 		else {
