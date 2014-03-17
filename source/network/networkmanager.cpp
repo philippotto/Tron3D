@@ -270,15 +270,7 @@ void NetworkManager::synchronizeGameStart(troen::GameConfig &config)
 	RakNet::BitStream bsOut;
 	bsOut.Write((RakNet::MessageID)GAME_START_MESSAGE);
 
-	bsOut.Write(123);
-
-	char message[32];
-	strncpy_s(message, "test", 32);
-	bsOut.Write(message);
-
-	bsOut.WriteVector(1234, 1234, 1);
-
-	//m_ownPlayerInfo->serialize(&bsOut);
+	m_ownPlayerInfo->serialize(&bsOut);
 	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 	m_gameStarted = true;
 }
