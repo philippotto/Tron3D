@@ -18,7 +18,7 @@ using namespace troen;
 
 
 PhysicsWorld::PhysicsWorld(
-	std::shared_ptr<GameLogic>& gameLogic, 
+	std::shared_ptr<GameLogic>& gameLogic,
 	bool useDebugView) :
 m_lastSimulationTime(0),
 m_useDebugView(useDebugView),
@@ -31,7 +31,7 @@ m_gameLogic(gameLogic)
 		m_debug = new util::GLDebugDrawer();
 		m_debug->setDebugMode(btIDebugDraw::DBG_MAX_DEBUG_DRAW_MODE);
 		m_world->setDebugDrawer(m_debug);
-	}	
+	}
 }
 
 std::array<std::array<int, 100>, 100>* PhysicsWorld::discretizeWorld()
@@ -54,7 +54,7 @@ std::array<std::array<int, 100>, 100>* PhysicsWorld::discretizeWorld()
 
 
 
-	
+
 	btCollisionObjectArray objects = m_world->getCollisionObjectArray();
 	for (size_t i = 0; i < objects.size(); i++)
 	{
@@ -65,7 +65,7 @@ std::array<std::array<int, 100>, 100>* PhysicsWorld::discretizeWorld()
 		//shape->get
 
 	}
-	
+
 
 
 
@@ -87,7 +87,7 @@ std::array<std::array<int, 100>, 100>* PhysicsWorld::discretizeWorld()
 		for (int y = 0; y < discreteLevelSize; y++) {
 			std::cout << " " << m_discretizedWorld[y][x];
 			m_discretizedWorld[y][x] = 0;
-			
+
 		}
 		std::cout << std::endl;
 	}
@@ -109,7 +109,7 @@ std::array<std::array<int, 100>, 100>* PhysicsWorld::discretizeWorld()
 	for (x = -halfedLevelSize; x < halfedLevelSize; x += stepSize) {
 		from.setX(x);
 		to.setX(x);
-		
+
 		btCollisionWorld::AllHitsRayResultCallback RayCallback(from, to);
 		m_world->rayTest(from, to, RayCallback);
 		if (RayCallback.hasHit()) {
@@ -197,7 +197,7 @@ PhysicsWorld::~PhysicsWorld()
 	delete m_collisionConfiguration;
 	delete m_dispatcher;
 	delete m_broadphase;
-	
+
 }
 
 void PhysicsWorld::initializeWorld()
@@ -253,7 +253,7 @@ void PhysicsWorld::removeRigidBodyFromCollisionPairs(btRigidBody* body)
 
 void PhysicsWorld::removeRigidBody(btRigidBody* body)
 {
-	removeRigidBodyFromCollisionPairs(body); 
+	removeRigidBodyFromCollisionPairs(body);
 	m_world->removeRigidBody(body);
 }
 
@@ -268,7 +268,7 @@ void PhysicsWorld::addCollisionObject(btCollisionObject* obj)
 }
 
 void PhysicsWorld::stepSimulation(long double currentTime)
-{	
+{
 	float timeSinceLastSimulation = currentTime - m_lastSimulationTime;
 	m_lastSimulationTime = currentTime;
 
@@ -276,12 +276,12 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	// including this debug-printout will significantly reduce
 	// framerate & flow of the game
 	//std::cout << "[PhysicsWorld::stepSimulation] timeSinceLastSimulation = " << timeSinceLastSimulation/1000 << std::endl;
-	
+
 	if (m_useDebugView)
 	{
 		m_debug->BeginDraw();
 	}
-	
+
 	// mind the following constraint:
 	// timeStep < maxSubSteps * fixedTimeStep
 	// where the parameters are given as follows:
@@ -294,7 +294,7 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	{
 		m_world->debugDrawWorld();
 		m_debug->EndDraw();
-	}	
+	}
 
 	checkForCollisionEvents();
 
@@ -307,10 +307,10 @@ void PhysicsWorld::checkForCollisionEvents()
 	// keep a list of the collision pairs we
 	// found during the current update
 	CollisionPairSet pairsThisUpdate;
-	
+
 	// iterate through all of the manifolds in the dispatcher
 	for (int i = 0; i < m_dispatcher->getNumManifolds(); ++i) {
-		
+
 		// get the manifold
 		btPersistentManifold* contactManifold = m_dispatcher->getManifoldByIndexInternal(i);
 
@@ -320,12 +320,12 @@ void PhysicsWorld::checkForCollisionEvents()
 			// get the two rigid bodies involved in the collision
 			const btRigidBody* pBody0 = static_cast<const btRigidBody*>(contactManifold->getBody0());
 			const btRigidBody* pBody1 = static_cast<const btRigidBody*>(contactManifold->getBody1());
-			
+
 			// create the pair in a predictable order (using the pointer value)
 			bool const swapped = pBody0 > pBody1;
 			const btRigidBody* pSortedBodyA = swapped ? pBody1 : pBody0;
 			const btRigidBody* pSortedBodyB = swapped ? pBody0 : pBody1;
-			
+
 			bool notJustRemoved = true;
 			for (auto removedRigidBody : m_removedRigidBodies) {
 				if (pSortedBodyA == removedRigidBody || pSortedBodyB == removedRigidBody) {
@@ -347,23 +347,23 @@ void PhysicsWorld::checkForCollisionEvents()
 				if (m_pairsLastUpdate.find(thisPair) == m_pairsLastUpdate.end())
 					m_gameLogic.lock()->collisionEvent((btRigidBody*)pBody0, (btRigidBody*)pBody1, contactManifold);
 			}
-		}	
+		}
 	}
-	
+
 	// create another list for pairs that were removed this update
 	CollisionPairSet removedPairs;
-	
+
 	// get the difference between collision pairs from the last update,
 	// and this update and pushes them into the removed pairs list
 	std::set_difference(m_pairsLastUpdate.begin(), m_pairsLastUpdate.end(),
 		pairsThisUpdate.begin(), pairsThisUpdate.end(),
 		std::inserter(removedPairs, removedPairs.begin()));
-	
+
 	// iterate through all of the removed pairs sending separation events for them
 	for (CollisionPairSet::const_iterator iter = removedPairs.begin(); iter != removedPairs.end(); ++iter) {
 		m_gameLogic.lock()->separationEvent((btRigidBody*)iter->first, (btRigidBody*)iter->second);
 	}
-	
+
 	// in the next iteration we'll want to compare against
 	// the pairs we found in this iteration
 	m_pairsLastUpdate = pairsThisUpdate;

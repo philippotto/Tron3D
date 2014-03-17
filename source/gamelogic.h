@@ -23,7 +23,7 @@ namespace troen
 
 		GameLogic(TroenGame* game, const int timeLimit = 5);
 		void attachPhysicsWorld(std::shared_ptr<PhysicsWorld>& physicsWorld);
-		
+
 		//
 		// stepping
 		//
@@ -35,7 +35,7 @@ namespace troen
 		//
 		virtual void collisionEvent(btRigidBody* pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold);
 		virtual void separationEvent(btRigidBody * pBody0, btRigidBody * pBody1);
-		
+
 		//
 		// logic methods
 		//
@@ -81,7 +81,7 @@ namespace troen
 		// communication links
 		//
 		TroenGame*t;
-		
+
 		//
 		// stepping variables & methods
 		//

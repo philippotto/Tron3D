@@ -25,7 +25,7 @@ namespace troen
 	const double GAME_START_COUNTDOWN_DURATION(3000);
 
 	//PHYSIS
-	const btVector3 DEFAULT_GRAVITY(0,0,-98);
+	const btVector3 DEFAULT_GRAVITY(0,0,-180);
 
 	// BIKE
 	const btVector3 BIKE_DIMENSIONS(2, 4, 2);

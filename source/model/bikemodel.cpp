@@ -170,7 +170,7 @@ float BikeModel::updateState(long double time)
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
 	if (speed > BIKE_VELOCITY_MAX) {
-		const float timeToSlowDown = 1000;
+		const float timeToSlowDown = 2000;
 		// decrease speed so that the user will reach the maximum speed within timeToSlowDown milli seconds
 		// this is done so that the turbo won't be resetted instantly
 		speed -= (speed - BIKE_VELOCITY_MAX) * m_timeSinceLastUpdate / timeToSlowDown;

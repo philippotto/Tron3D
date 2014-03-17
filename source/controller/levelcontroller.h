@@ -22,8 +22,9 @@ namespace troen
 		btTransform getRandomSpawnPoint();
 		osg::ref_ptr<osg::Group>  getFloorView();
 
-		int m_currentItemCount;
-		int m_targetItemCount = 100;
+		void addRigidBodiesToWorld();
+		void removeRigidBodiesFromWorld();
+		void reload();
 
 	private:
 		std::shared_ptr<LevelView> m_levelView;
@@ -31,5 +32,10 @@ namespace troen
 		std::vector<btTransform> m_initialBikePositionTransforms;
 		virtual void initializeSpawnPoints();
 		std::weak_ptr<PhysicsWorld> m_world;
+
+		int m_currentItemCount;
+		int m_targetItemCount = 100;
+
+		std::string m_levelName;
 	};
 }

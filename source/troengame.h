@@ -61,7 +61,7 @@ namespace troen
 			{ return m_levelController; };
 		std::vector<std::shared_ptr<Player>> players()
 			{ return m_players; };
-		osg::ref_ptr<SkyDome> skyDome() 
+		osg::ref_ptr<SkyDome> skyDome()
 			{ return m_skyDome; };
 		ResourcePool* resourcePool(){ return &m_resourcePool; };
 
@@ -73,6 +73,7 @@ namespace troen
 		void pauseSimulation();
 		void unpauseSimulation();
 		void resize(const int width,const int height);
+		void reloadLevel();
 
 	public slots:
 		void prepareAndStartGame(const GameConfig& config);
@@ -101,14 +102,14 @@ namespace troen
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
-		
+
 		//
 		// Game Components
 		//
 		std::shared_ptr<GameConfig>				m_gameConfig;
 		std::shared_ptr<LevelController>		m_levelController;
 		std::vector<std::shared_ptr<Player>>	m_players;
-		std::vector<std::shared_ptr<Player>>	m_playersWithView;		
+		std::vector<std::shared_ptr<Player>>	m_playersWithView;
 		std::shared_ptr<util::ChronoTimer>		m_gameloopTimer;
 		std::shared_ptr<util::ChronoTimer>		m_gameTimer;
 		std::shared_ptr<PhysicsWorld>			m_physicsWorld;

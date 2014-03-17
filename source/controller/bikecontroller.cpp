@@ -240,6 +240,7 @@ void BikeController::setFovy(float newFovy)
 {
 	if (!m_gameView.valid()) return;
 	double fovy, aspect, znear, zfar;
+	newFovy = min(newFovy, FOVY_INITIAL + FOVY_ADDITION_MAX);
 	m_gameView->getCamera()->getProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
 	m_gameView->getCamera()->setProjectionMatrixAsPerspective(newFovy, aspect, znear, zfar);
 }
