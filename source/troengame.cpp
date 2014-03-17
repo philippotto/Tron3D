@@ -266,6 +266,7 @@ void TroenGame::resize(int width, int height){
 	}
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Networking
@@ -325,4 +326,8 @@ std::shared_ptr<networking::NetworkManager> TroenGame::getNetworkManager()
 		return static_cast<std::shared_ptr<networking::NetworkManager>>(m_ServerManager);
 	else
 		return NULL;
+}
+void TroenGame::reloadLevel()
+{
+	m_levelController->reload();
 }

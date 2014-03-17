@@ -27,7 +27,7 @@ namespace troen
 	const double GAME_START_COUNTDOWN_DURATION(3000);
 
 	//PHYSIS
-	const btVector3 DEFAULT_GRAVITY(0,0,-98);
+	const btVector3 DEFAULT_GRAVITY(0,0,-180);
 
 	// BIKE
 	const btVector3 BIKE_DIMENSIONS(2, 4, 2);
@@ -71,6 +71,8 @@ namespace troen
 	const float FENCE_PART_LENGTH(BIKE_DIMENSIONS.y() / 2);
 	const float FENCE_PART_WIDTH(BIKE_DIMENSIONS.x() * .3f);
 	const int DEFAULT_MAX_FENCE_PARTS(400);
+	const int FENCE_TO_MINIMAP_PARTS_RATIO(10);
+
 
 	// CAMERA
 	const osg::Vec3 CAMERA_POSITION_OFFSET(0, 0, BIKE_DIMENSIONS.y());

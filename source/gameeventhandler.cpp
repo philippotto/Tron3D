@@ -29,6 +29,9 @@ void GameEventHandler::attachGameLogic(std::shared_ptr<GameLogic>& gamelogic)
         case osgGA::GUIEventAdapter::KEY_F:
             m_gameLogic.lock()->toggleFencePartsLimit();
             return true;
+		case osgGA::GUIEventAdapter::KEY_L:
+			m_troenGame->reloadLevel();
+			return true;
         case osgGA::GUIEventAdapter::KEY_R:
         {
             std::cout << "Reloading shaders" << std::endl;

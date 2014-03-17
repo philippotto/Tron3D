@@ -185,7 +185,7 @@ float BikeModel::updateState(long double time)
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
 	if (speed > BIKE_VELOCITY_MAX) {
-		const float timeToSlowDown = 1000;
+		const float timeToSlowDown = 2000;
 		// decrease speed so that the user will reach the maximum speed within timeToSlowDown milli seconds
 		// this is done so that the turbo won't be resetted instantly
 		speed -= (speed - BIKE_VELOCITY_MAX) * m_timeSinceLastUpdate / timeToSlowDown;
@@ -206,11 +206,10 @@ float BikeModel::updateState(long double time)
 	}
 
 	// let the bike drift, if the friction is low
-	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed);
-	if (currentVelocityVectorXY != btVector3(0.0, 0.0, 0.0))
+	currentVelocityVectorXY = (1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed;
+	if (currentVelocityVectorXY.length() > 0) {
 		currentVelocityVectorXY = currentVelocityVectorXY.normalized() * speed;
-	else
-		currentVelocityVectorXY = bikeRigidBody->getLinearVelocity() * speed;
+	}
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 

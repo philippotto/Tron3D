@@ -35,7 +35,8 @@ namespace troen
 		bool testPerformance;
 		bool useReflection;
 		bool ownView[MAX_BIKES];
-		// TODO: add Destructor to avoid memory leak
+		std::string levelName;
+        // TODO: add Destructor to avoid memory leak
 	};
 }
 Q_DECLARE_METATYPE(troen::GameConfig)
@@ -67,17 +68,9 @@ namespace troen
 			return m_levelController;
 		};
 		std::vector<std::shared_ptr<Player>> players()
-		{
-			return m_players;
-		};
+			{ return m_players; };
 		osg::ref_ptr<SkyDome> skyDome()
-		{
-			return m_skyDome;
-		};
-		std::shared_ptr<GameConfig> gameConfig() const 
-		{
-			return m_gameConfig;
-		};
+			{ return m_skyDome; };
 		ResourcePool* resourcePool(){ return &m_resourcePool; };
 
 		//
@@ -88,6 +81,7 @@ namespace troen
 		void pauseSimulation();
 		void unpauseSimulation();
 		void resize(const int width, const int height);
+		void reloadLevel();
 
 		public slots:
 		void prepareAndStartGame(const GameConfig& config);
@@ -135,8 +129,9 @@ namespace troen
 		std::shared_ptr<PhysicsWorld>				m_physicsWorld;
 		std::shared_ptr<GameLogic>					m_gameLogic;
 		std::shared_ptr<sound::AudioManager>		m_audioManager;
-		std::shared_ptr<networking::ServerManager> m_ServerManager;
-		std::shared_ptr<networking::ClientManager> m_ClientManager;
+		std::shared_ptr<networking::ServerManager>  m_ServerManager;
+		std::shared_ptr<networking::ClientManager>  m_ClientManager;
+
 		ResourcePool m_resourcePool;
 
 		// Startup Options

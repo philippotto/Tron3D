@@ -65,6 +65,7 @@ namespace troen
 		
 		std::vector<QCheckBox*> m_ownViewCheckboxes;
 		QSpinBox*		m_timeLimitSpinBox;
+		QComboBox* m_levelComboBox;
 
 		TroenGame*	m_troenGame;
 		QThread*	m_gameThread;
