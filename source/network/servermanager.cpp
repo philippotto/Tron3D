@@ -34,7 +34,7 @@ ServerManager::ServerManager(troen::TroenGame *game) : NetworkManager(game)
 	
 	m_startPosition = m_startPositions->at(0);
 
-
+	m_gameID = 0;
 
 	m_numClientsConnected = 0;
 }
@@ -84,6 +84,11 @@ void ServerManager::openServer()
 	// We need to let the server accept incoming connections from the clients
 	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
 
+	//alice -> for debugging
+	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>("alice", getPlayerColor(m_gameID), m_gameID, false, m_startPosition);
+	m_players.push_back(m_ownPlayerInfo);
+
+
 
 	//calls the run method in a seperate thread
 	start();
@@ -115,6 +120,14 @@ void ServerManager::addClientToGame(RakNet::Packet *packet)
 	//send a btTransform startposition
 	bsOut.Write(m_startPositions->at(m_numClientsConnected));
 	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
+
+	//send own player info
+	RakNet::BitStream bsAddPlayer;
+	bsAddPlayer.Write((RakNet::MessageID)ADD_PLAYER);
+	m_ownPlayerInfo->serialize(&bsAddPlayer);
+	peer->Send(&bsAddPlayer, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
+
+
 	printf("A connection is incoming.\n");
 }
 

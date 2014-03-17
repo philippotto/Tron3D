@@ -123,9 +123,9 @@ namespace troen
 	namespace networking
 	{
 		struct bikeUpdateMessage;
+		class NetworkPlayerInfo;
 		class NetworkManager;
 		class ClientManager;
 		class ServerManager;
-		class NetworkPlayerInfo;
 	}
 }

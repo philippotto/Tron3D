@@ -80,6 +80,12 @@ void TroenGame::startGameLoop()
 	m_gameTimer->start();
 	m_gameTimer->pause();
 
+	if (isNetworking())
+	{
+		getNetworkManager()->setLocalGameReady();
+		getNetworkManager()->waitOnAllPlayers(); //blocking call
+	}
+
 	// GAME LOOP VARIABLES
 	long double nextTime = m_gameloopTimer->elapsed();
 	const double minMillisecondsBetweenFrames = 16.7; // vSync to 60 fps

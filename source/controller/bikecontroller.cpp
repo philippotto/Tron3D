@@ -371,7 +371,7 @@ void BikeController::updateNetworkFence(btTransform transform)
 	if (!m_player->isRemote())
 	{
 		m_player->fenceController()->update(transform.getOrigin(),transform.getRotation());
-		m_player->getTroenGame()->getNetworkManager()->enqueueMessage(transform);
+		m_player->getTroenGame()->getNetworkManager()->updateFencePart(transform, m_player->getNetworkID());
 	}
 
 	else

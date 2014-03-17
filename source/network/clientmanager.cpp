@@ -87,6 +87,15 @@ void ClientManager::setInitParameters(RakNet::Packet *packet)
 	bsIn.Read(m_startPosition);
 	std::cout << "got game ID: " << m_gameID << std::endl;
 	std::cout << "starting at Position" << m_startPosition.getOrigin().x() << " " <<  m_startPosition.getOrigin().y() << std::endl; 
+
 	
+	//for debugging mallory
+	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>("mallory", getPlayerColor(m_gameID), m_gameID, false, m_startPosition );
+	m_players.push_back(m_ownPlayerInfo);
+
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)ADD_PLAYER);
+	m_ownPlayerInfo->serialize(&bsOut);
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
 
 }
