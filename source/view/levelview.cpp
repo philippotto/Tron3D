@@ -31,25 +31,17 @@ AbstractView()
 	int levelSize = m_model->getLevelSize();
 
 	m_node->addChild(constructObstacles(levelSize, levelName));
-	m_node->addChild(constructWalls(levelSize));
 	m_node->addChild(constructFloors(levelSize));
 }
 
-osg::ref_ptr<osg::Group> LevelView::constructWalls(int levelSize)
+void LevelView::reload(std::string levelName)
 {
-	osg::ref_ptr<osg::Group> wallsGroup = new osg::Group();
-	wallsGroup->setName("wallsGroup");
+	m_node->removeChildren(0, m_node->getNumChildren());
 
-    osg::ref_ptr<osg::Group> walls = constructGroupForBoxes(m_model->getWalls());
-	addShaderAndUniforms(static_cast<osg::ref_ptr<osg::Node>>(walls), shaders::OUTER_WALL, levelSize, DEFAULT);
-	walls->setNodeMask(CAMERA_MASK_MAIN);
-	wallsGroup->addChild(walls);
+	int levelSize = m_model->getLevelSize();
 
-	osg::ref_ptr<osg::Group> radarWalls = constructRadarElementsForBoxes(m_model->getWalls());
-	radarWalls->setNodeMask(CAMERA_MASK_RADAR);
-	wallsGroup->addChild(radarWalls);
-
-    return wallsGroup;
+	m_node->addChild(constructObstacles(levelSize, levelName));
+	m_node->addChild(constructFloors(levelSize));
 }
 
 osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)

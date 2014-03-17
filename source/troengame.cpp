@@ -251,3 +251,8 @@ void TroenGame::resize(int width, int height){
 			player->hudController()->resize(width, height);
 	}
 }
+
+void TroenGame::reloadLevel()
+{
+	m_levelController->reload();
+}

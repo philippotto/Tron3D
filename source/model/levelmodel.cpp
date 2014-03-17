@@ -21,16 +21,21 @@ LevelModel::LevelModel(const LevelController* levelController, std::string level
 	m_levelController = levelController;
 	m_rigidBodies = std::vector<std::shared_ptr<btRigidBody>>();
 
-	btScalar levelSize = btScalar(getLevelSize());
-
-	//addWalls(levelSize, -10);
-
-	addFloor(levelSize, -10);
-
-	//auto_addObstacles();
+	addFloor(-10);
 	addObstaclesFromFile(levelName);
 }
 
+void LevelModel::reload(std::string levelName)
+{
+	m_rigidBodies.clear();
+	m_motionStates.clear();
+	m_collisionShapes.clear();
+	m_obstacles.clear();
+	m_floors.clear();
+
+	addFloor(-10);
+	addObstaclesFromFile(levelName);
+}
 
 void LevelModel::addObstaclesFromFile(std::string levelName)
 {
@@ -44,11 +49,11 @@ void LevelModel::addObstaclesFromFile(std::string levelName)
 	std::vector<BoxModel> newObstacles;
 
 	while (std::getline(input, line)) {
-		
+
 		QString qLine;
-		
+
 		double x, y, z, w;
-		
+
 		// center
 
 		qLine = QString::fromStdString(line);
@@ -64,7 +69,7 @@ void LevelModel::addObstaclesFromFile(std::string levelName)
 
 		center = btVector3(x, y, z);
 
-		
+
 		// dimensions
 
 		std::getline(input, line);
@@ -81,7 +86,7 @@ void LevelModel::addObstaclesFromFile(std::string levelName)
 
 		dimensions = btVector3(x, y, z);
 
-		
+
 		// rotation
 
 		std::getline(input, line);
@@ -102,12 +107,12 @@ void LevelModel::addObstaclesFromFile(std::string levelName)
 
 		rotation = btQuaternion(x, y, z, w);
 
-		
+
 		// name, collisionType
-		
+
 		std::getline(input, line);
 		name = line;
-		
+
 		std::getline(input, line);
 		collisionTypeString = line;
 
@@ -123,51 +128,22 @@ void LevelModel::addObstaclesFromFile(std::string levelName)
 
 		BoxModel newBox(center, dimensions, rotation, name, collisionType);
 		newObstacles.push_back(newBox);
-
 	}
-	
+
 	m_obstacles.insert(m_obstacles.end(), newObstacles.begin(), newObstacles.end());
 	addBoxes(m_obstacles);
 }
 
 
-void LevelModel::addFloor(float size, float yPosition)
+void LevelModel::addFloor(float yPosition)
 {
+	btScalar size = getLevelSize();
 	m_floors.push_back({
 		btVector3(0, 0, yPosition),
 		btVector3(size, size, 20)
 	});
 
 	addBoxes(m_floors, LEVELGROUNDTYPE);
-}
-
-void LevelModel::addWalls(float levelSize, float yPosition)
-{
-
-	btScalar wallHeight = 40;
-
-	std::vector<BoxModel> newWalls = {
-		{
-			btVector3(levelSize / 2, 1, yPosition + wallHeight/2),
-			btVector3(2, levelSize, wallHeight)
-		},
-		{
-			btVector3(-levelSize / 2, 0, yPosition + wallHeight / 2),
-			btVector3(2, levelSize, wallHeight)
-		},
-		{
-			btVector3(0, levelSize / 2, yPosition + wallHeight / 2),
-			btVector3(levelSize, 2, wallHeight)
-		},
-		{
-			btVector3(0, -levelSize / 2, yPosition + wallHeight / 2),
-			btVector3(levelSize, 2, wallHeight)
-		}
-	};
-
-	m_walls.insert(m_walls.end(), newWalls.begin(), newWalls.end());
-
-	addBoxes(m_walls, LEVELWALLTYPE);
 }
 
 void LevelModel::addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type)
@@ -188,7 +164,7 @@ void LevelModel::addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type)
 			info = new ObjectInfo(const_cast<LevelController*>(m_levelController), boxes[i].collisionType);
 		else
 			info = new ObjectInfo(const_cast<LevelController*>(m_levelController), type);
-		
+
 		wallRigidBody->setUserPointer(info);
 
 		m_collisionShapes.push_back(wallShape);
@@ -197,9 +173,7 @@ void LevelModel::addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type)
 	}
 }
 
-
-
-int LevelModel::getLevelSize() {
-	return LEVEL_SIZE;
+btScalar LevelModel::getLevelSize()
+{
+	return btScalar(LEVEL_SIZE);
 }
-

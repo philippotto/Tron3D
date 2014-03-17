@@ -16,18 +16,18 @@ namespace troen
 	{
 	public:
 		LevelView(std::shared_ptr<LevelModel> model, std::string levelName);
-		osg::ref_ptr<osg::Group> getFloor();
+		void reload(std::string levelName);
 
+		osg::ref_ptr<osg::Group> getFloor();
 		void addItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform);
 		void removeItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform);
 	private:
-		osg::ref_ptr<osg::Group> constructWalls(const int levelSize);
 		osg::ref_ptr<osg::Group> constructFloors(const int levelSize);
 		osg::ref_ptr<osg::Group> constructObstacles(const int levelSize, std::string levelName);
 
 		osg::ref_ptr<osg::Group> constructGroupForBoxes(std::vector<BoxModel> &boxes);
 		osg::ref_ptr<osg::Group> constructRadarElementsForBoxes(std::vector<BoxModel> &boxes);
-		
+
 		osg::ref_ptr<osg::Group> m_floors;
 
 		void setTexture(osg::ref_ptr<osg::StateSet> stateset, const std::string filePath, const int unit);

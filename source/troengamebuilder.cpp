@@ -68,7 +68,7 @@ bool TroenGameBuilder::build()
 	t->m_audioManager->PlaySong("data/sound/theGameHasChanged.mp3");
 	t->m_audioManager->PlayEngineSound();
 	t->m_audioManager->SetMasterVolume(0.f);
-	
+
 	////////////////////////////////////////////////////////////////////////////////
 	//
 	// Event Handlers
@@ -212,7 +212,7 @@ bool TroenGameBuilder::composeSceneGraph()
 	//std::cout << "[TroenGameBuilder::composeSceneGraph] starting Optimizer" << std::endl;
 	//osgUtil::Optimizer optimizer;
 	//optimizer.optimize(t->m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
-	//	optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS | 
+	//	optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS |
 	//	optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
 	//std::cout << "[TroenGameBuilder::composeSceneGraph] done optimizing" << std::endl;
 
@@ -228,7 +228,7 @@ bool TroenGameBuilder::buildInput()
 		{
 			for (auto otherPlayer : t->m_playersWithView)
 			{
-					otherPlayer->gameView()->addEventHandler(player->bikeController()->keyboardHandler());
+				otherPlayer->gameView()->addEventHandler(player->bikeController()->keyboardHandler());
 			}
 		}
 	}
@@ -238,7 +238,8 @@ bool TroenGameBuilder::buildInput()
 bool TroenGameBuilder::buildPhysicsWorld()
 {
 	t->m_physicsWorld = std::make_shared<PhysicsWorld>(t->m_gameLogic, t->m_gameConfig->useDebugView);
-	t->m_physicsWorld->addRigidBodies(t->m_levelController->getRigidBodies(), COLGROUP_LEVEL, COLMASK_LEVEL);
+	t->m_levelController->attachWorld(t->m_physicsWorld);
+	t->m_levelController->addRigidBodiesToWorld();
 
 	// attach world
 	for (auto player : t->m_players)
@@ -246,7 +247,7 @@ bool TroenGameBuilder::buildPhysicsWorld()
 		player->bikeController()->attachWorld(t->m_physicsWorld);
 		player->fenceController()->attachWorld(t->m_physicsWorld);
 	}
-	t->m_levelController->attachWorld(t->m_physicsWorld);
+
 	return true;
 }
 
