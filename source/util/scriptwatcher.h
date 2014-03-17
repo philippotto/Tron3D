@@ -11,13 +11,12 @@
 #include <QMessageBox>
 #include <QTextStream>
 
-class ScriptWatcher : public QWidget
+class ScriptWatcher : public QObject
 {
 	Q_OBJECT
 
 public:
-	ScriptWatcher(QWidget* parent = 0)
-		:QWidget(parent){
+	ScriptWatcher() : QObject(){
 
 			QFileSystemWatcher *watcher = new QFileSystemWatcher();
 			watcher->addPath("source/scripts/");
