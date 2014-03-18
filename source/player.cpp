@@ -163,3 +163,8 @@ float Player::increasePoints(float diff)
 	m_points += diff;
 	return m_points;
 }
+
+bool Player::isDead()
+{
+	return m_health <= 0 && bikeController()->state() == BikeController::BIKESTATE::DRIVING;
+}

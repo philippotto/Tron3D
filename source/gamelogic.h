@@ -71,11 +71,14 @@ namespace troen
 			ItemController* item);
 		// death handling
 		void handlePlayerDeath(BikeController* bike);
-		void handlePlayerDeathOnFence(Player* fencePlayer, Player* bikePlayer);
-		void handlePlayerDeathNonFence(	Player* deadPlayer);
+		void handlePlayerDeathOnFence(BikeController* fenceBike, BikeController* deadBike);
+		void handlePlayerDeathNonFence(BikeController* deadBike);
+		void handlePlayerFall(BikeController* deadBike);
 		// helper
 		float impulseFromContactManifold(btPersistentManifold* contactManifold);
 		void playCollisionSound(float impulse);
+
+		void checkForFallenPlayers();
 
 		//
 		// communication links

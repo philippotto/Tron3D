@@ -49,7 +49,7 @@ namespace troen
 		void updateModel(const long double gameTime);
 		void setState(const BIKESTATE newState, const double respawnTime = -1);
 		void moveBikeToPosition(btTransform position);
-		const float registerCollision(const btScalar impulse);
+		void registerCollision(const btScalar impulse);
 		void rememberFenceCollision(FenceController* fence);
 		void activateTurbo();
 		void updateUniforms();
@@ -69,6 +69,8 @@ namespace troen
 
 		bool turboInitiated()	{ return m_turboInitiated; };
 		bool hasKeyboardHandler() {	return m_keyboardHandler != nullptr; };
+
+		bool isFalling();
 
 	private:
 		std::shared_ptr<BikeView> m_bikeView;
