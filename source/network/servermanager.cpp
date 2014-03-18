@@ -25,7 +25,7 @@ using namespace troen::networking;
 
 
 
-ServerManager::ServerManager(troen::TroenGame *game) : NetworkManager(game)
+ServerManager::ServerManager(troen::TroenGame *game, QString playerName) : NetworkManager(game)
 {
 	m_startPositions = std::make_shared<std::vector<btTransform>>();
 	btVector3 Z_AXIS(0, 0, 1);
@@ -41,6 +41,7 @@ ServerManager::ServerManager(troen::TroenGame *game) : NetworkManager(game)
 	m_gameID = 0;
 
 	m_numClientsConnected = 0;
+	m_playerName = playerName;
 }
 
 
@@ -92,7 +93,7 @@ void ServerManager::openServer()
 	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
 
 	//alice -> for debugging
-	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>("alice", getPlayerColor(m_gameID), m_gameID, false, m_startPosition);
+	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>(m_playerName, getPlayerColor(m_gameID), m_gameID, false, m_startPosition);
 	m_players.push_back(m_ownPlayerInfo);
 
 

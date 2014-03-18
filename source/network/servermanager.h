@@ -26,7 +26,7 @@ namespace troen
 		{
 			Q_OBJECT
 		public:
-			ServerManager(TroenGame *game);
+			ServerManager(TroenGame *game, QString playerName);
 			void openServer();
 			bool isValidSession();
 
@@ -41,6 +41,7 @@ namespace troen
 
 
 			std::shared_ptr<std::vector<btTransform>> m_startPositions;
+			QString m_playerName;
 		};
 	}
 

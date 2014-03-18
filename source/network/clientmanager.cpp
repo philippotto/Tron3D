@@ -23,9 +23,10 @@ using namespace troen::networking;
 #define SERVER_PORT 60000
 
 
-ClientManager::ClientManager(troen::TroenGame *game) : NetworkManager(game)
+ClientManager::ClientManager(troen::TroenGame *game, QString playerName) : NetworkManager(game)
 {
 	m_connectedToServer = false;
+	m_playerName = playerName;
 }
 
 
@@ -90,7 +91,7 @@ void ClientManager::setInitParameters(RakNet::Packet *packet)
 
 	
 	//for debugging mallory
-	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>("mallory", getPlayerColor(m_gameID), m_gameID, false, m_startPosition );
+	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>(m_playerName, getPlayerColor(m_gameID), m_gameID, false, m_startPosition);
 	m_players.push_back(m_ownPlayerInfo);
 
 	RakNet::BitStream bsOut;

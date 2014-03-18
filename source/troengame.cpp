@@ -274,18 +274,18 @@ void TroenGame::resize(int width, int height){
 ////////////////////////////////////////////////////////////////////////////////
 
 //setup the network connection and return the address of the remote connection
-std::string TroenGame::setupNetworking(bool server, std::string connectAddr)
+std::string TroenGame::setupNetworking(bool server,QString playerName, std::string connectAddr)
 {
 	std::cout << "[TroenGame::initialize] networking ..." << std::endl;
 
 	if (server)
 	{
-		m_ServerManager = std::make_shared<networking::ServerManager>(this);
+		m_ServerManager = std::make_shared<networking::ServerManager>(this, playerName);
 		m_ServerManager->openServer();
 	}
 	else
 	{
-		m_ClientManager = std::make_shared<networking::ClientManager>(this);
+		m_ClientManager = std::make_shared<networking::ClientManager>(this, playerName);
 		m_ClientManager->openClient(connectAddr);
 	}
 

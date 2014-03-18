@@ -352,28 +352,19 @@ void MainWindow::bikeNumberChanged(int newBikeNumber)
 void MainWindow::connectNetworking()
 {
 	m_statusLabel->setText(QString("Connecting..."));
-	int remote_player_slot = 1;
 	if (m_serverCheckBox->isChecked())
 	{
-		m_troenGame->setupNetworking(true);
+		m_troenGame->setupNetworking(true, m_playerNameLineEdits[0]->text());
 
 		//player_slot = 0;
 	}
 	else
 	{
-		m_troenGame->setupNetworking(false, m_connectAdressEdit->text().toStdString());
+		m_troenGame->setupNetworking(false, m_playerNameLineEdits[0]->text(), m_connectAdressEdit->text().toStdString());
 		m_statusLabel->setText(QString("Connected to " + m_connectAdressEdit->text()));
 		//player_slot = 1;
 	}
 
-	//m_statusLabel->setStyleSheet("QLabel { background-color : green; color : blue; }");
-	//m_playerNameLineEdits[remote_player_slot]->setText("remote player");
-	//m_ownViewCheckboxes[1]->setChecked(false);
-	//m_bikeNumberSpinBox->setValue(2);
-	//m_playerComboBoxes[remote_player_slot]->addItem("MULTIPLAYER");
-	//m_playerComboBoxes[remote_player_slot]->setCurrentText("MULTIPLAYER");
-	//bikeNumberChanged(m_bikeNumberSpinBox->value());
-	//updatePlayerInputBoxes();
 
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(newNetworkPlayer(QString)), this, SLOT(addNetworkPlayer(QString)));
@@ -387,7 +378,11 @@ void MainWindow::connectNetworking()
 void MainWindow::addNetworkPlayer(QString name)
 {
 	m_networkPlayers++;
-	m_statusLabel->setText(QString("Connected to ") + name);
+	if (m_networkPlayers == 1)
+		m_statusLabel->setText(QString(" Connected to ") + name);
+	else
+		m_statusLabel->setText(m_statusLabel->text() + QString("\n Connected to ") + name);
+		//m_statusLabel->setWordWrap(true);
 	m_statusLabel->setStyleSheet("QLabel { background-color : green; color : blue; }");
 	m_playerNameLineEdits[m_networkPlayers]->setText(name);
 	m_ownViewCheckboxes[m_networkPlayers]->setChecked(false);

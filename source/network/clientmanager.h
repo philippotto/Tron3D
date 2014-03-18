@@ -27,7 +27,7 @@ namespace troen
 		{
 			Q_OBJECT
 		public:
-			ClientManager(TroenGame *game);
+			ClientManager(TroenGame *game, QString playerName);
 			void openClient(std::string connectAddr);
 
 			bool isValidSession();
@@ -37,6 +37,7 @@ namespace troen
 	
 			bool m_isServer;
 			bool m_connectedToServer;
+			QString m_playerName;
 		};
 	}
 
