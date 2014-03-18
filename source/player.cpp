@@ -46,9 +46,9 @@ m_hasGameView(config->ownView[id])
 		m_color = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
 	else
 	{
-		int game_id = game->getNetworkManager()->getGameID();
-		int player_net_id = (config->ownView[m_id]) ? game_id : (1 - game_id); //only works for 2 players
-		QColor color = game->getNetworkManager()->getPlayerColor(player_net_id);
+		int game_ID = game->getNetworkManager()->getGameID();
+		int player_color_id = (config->ownView[m_id]) ? game_ID : (1 - game_ID); //only works for 2 players
+		QColor color = game->getNetworkManager()->getPlayerColor(player_color_id);
 		m_color = osg::Vec3(color.red(),color.green(),color.blue());
 	}
 
@@ -148,19 +148,20 @@ m_hasGameView(config->ownView[id])
 	//
 	////////////////////////////////////////////////////////////////////////////////
 	m_isRemote = false;
-	m_networkID = NULL;
+	m_networkID = -1;
 	if (game->isNetworking())
 	{
 		if (config->ownView[m_id])
 		{
+			m_networkID = (int)game->getNetworkManager()->getGameID();
 			game->getNetworkManager()->registerLocalPlayer(this);
-			m_networkID = (int) game->getNetworkManager()->getGameID();
+			
 		}
 		else if (config->playerInputTypes[m_id] == input::BikeInputState::REMOTE_PLAYER)
 		{
 			m_isRemote = true;
 			
-			game->getNetworkManager()->registerRemotePlayerInput(m_bikeController->getRemote());
+			m_networkID = game->getNetworkManager()->registerRemotePlayerInput(m_bikeController->getRemote());
 
 		}
 		btTransform networkedTransform = game->getNetworkManager()->getStartPosition();

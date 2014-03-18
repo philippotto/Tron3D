@@ -7,6 +7,7 @@
 // troen
 #include "forwarddeclarations.h"
 #include "network/networkmanager.h"
+#include "qqueue.h"
 
 // typedefs for collision events
 
@@ -51,8 +52,9 @@ namespace troen
 		void restartLevel();
 		
 		//networking
-		void networkMessages(troen::networking::gameStatus status, Player *bikePlayer, Player *fencePlayer);
+		void handleNetworkMessage(troen::networking::gameStatus status, Player *bikePlayer, Player *fencePlayer);
 		void sendStatusMessage(troen::networking::gameStatus status, Player *bikePlayer, Player *fencePlayer);
+		void processNetworkMessages();
 
 	private:
 		//
@@ -81,11 +83,13 @@ namespace troen
 		// helper
 		float impulseFromContactManifold(btPersistentManifold* contactManifold);
 		void playCollisionSound(float impulse);
+		Player* getPlayerWithID(int bikeID);
 
 		//
 		// communication links
 		//
 		TroenGame *m_troenGame;
+		QQueue<networking::gameStatusMessage> *m_receivedGameMessages;
 
 		//
 		// stepping variables & methods

@@ -30,7 +30,9 @@ m_gameState(GAMESTATE::GAME_START),
 m_timeLimit(timeLimit*1000*60),
 m_gameStartTime(-1),
 m_limitedFenceMode(true)
-{}
+{
+	m_receivedGameMessages = m_troenGame->getNetworkManager()->m_receivedGameStatusMessages;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -40,6 +42,7 @@ m_limitedFenceMode(true)
 
 void GameLogic::step(const long double gameloopTime, const long double gameTime)
 {
+	
 	switch (m_gameState)
 	{
 	case GAME_START:
@@ -54,6 +57,8 @@ void GameLogic::step(const long double gameloopTime, const long double gameTime)
 	default:
 		break;
 	}
+	
+	processNetworkMessages();
 }
 
 void GameLogic::stepGameStart(const long double gameloopTime, const long double gameTime)
@@ -77,6 +82,7 @@ void GameLogic::stepGameStart(const long double gameloopTime, const long double 
 
 void GameLogic::stepGameRunning(const long double gameloopTime, const long double gameTime)
 {
+
 	if (gameTime >= m_timeLimit && m_timeLimit != 0)
 	{
 		m_gameState = GAMESTATE::GAME_OVER;
@@ -487,7 +493,22 @@ void GameLogic::showFencesInRadarForPlayer(int id)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void GameLogic::networkMessages(troen::networking::gameStatus status, Player *deadPlayer, Player *fencePlayer)
+void GameLogic::processNetworkMessages()
+{
+	if (!m_troenGame->isNetworking())
+		return;
+
+	while (!m_receivedGameMessages->empty())
+	{
+		troen::networking::gameStatusMessage message = m_receivedGameMessages->dequeue();
+		Player *player1 = getPlayerWithID(message.bikeID);
+		Player *player2 = getPlayerWithID(message.bikeID2);
+		if (player1 != NULL) //player2 can be null
+			handleNetworkMessage(message.status, player1, player2);
+	}
+}
+
+void GameLogic::handleNetworkMessage(troen::networking::gameStatus status, Player *deadPlayer, Player *fencePlayer)
 {
 	switch (status)
 	{
@@ -508,4 +529,14 @@ void GameLogic::sendStatusMessage(troen::networking::gameStatus status, Player *
 {
 	if (m_troenGame->isNetworking())
 		m_troenGame->getNetworkManager()->sendGameStatusMessage(status, deadPlayer, fencePlayer);
+}
+
+Player* GameLogic::getPlayerWithID(int bikeID)
+{
+	for (auto player : m_troenGame->players())
+	{
+		if (player->getNetworkID() == bikeID)
+			return player.get();
+	}
+	return NULL;
 }

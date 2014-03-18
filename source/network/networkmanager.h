@@ -126,7 +126,7 @@ namespace troen
 			void waitOnAllPlayers();
 			
 			//register
-			void registerRemotePlayerInput(std::shared_ptr<input::RemotePlayer> remotePlayer);
+			int registerRemotePlayerInput(std::shared_ptr<input::RemotePlayer> remotePlayer);
 			void registerLocalPlayer(troen::Player* player);
 
 			//getters
@@ -138,6 +138,7 @@ namespace troen
 
 			//data polling
 			void update(long double g_gameTime);
+			QQueue<gameStatusMessage> *m_receivedGameStatusMessages;
 			//data pushing
 			void updateFencePart(btTransform fencePart, int bikeID);
 
@@ -163,6 +164,7 @@ namespace troen
 			QQueue<gameStatusMessage> *m_sendGameStatusMessage;
 			QQueue<bikeStatusMessage> *m_sendBikeStatusMessage;
 			QMutex* m_sendBufferMutex;
+			
 
 			//players
 			std::vector<std::shared_ptr<NetworkPlayerInfo>> m_players;

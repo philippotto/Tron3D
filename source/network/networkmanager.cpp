@@ -33,6 +33,7 @@ NetworkManager::NetworkManager(troen::TroenGame *game)
 	m_sendUpdateMessagesQueue = new QQueue<bikeUpdateMessage>();
 	m_sendFenceUpdateMessagesQueue = new QQueue<fenceUpdateMessage>();
 	m_sendGameStatusMessage = new QQueue<gameStatusMessage>();
+	m_receivedGameStatusMessages = new QQueue<gameStatusMessage>();
 	m_sendBikeStatusMessage = new QQueue<bikeStatusMessage>();
 	m_players = std::vector<std::shared_ptr<NetworkPlayerInfo>>();
 	m_sendBufferMutex = new QMutex();
@@ -84,7 +85,7 @@ void NetworkManager::run()
 			{
 										readMessage(packet, receivedBikeStatusMessage);
 										receiveBikeStatusMessage(receivedBikeStatusMessage);
-										//std::cout << "bike status message" << std::endl;
+										std::cout << "bike status message" << std::endl;
 
 			}
 				break;
@@ -93,7 +94,7 @@ void NetworkManager::run()
 			{
 
 											readMessage(packet, receivedFenceMessage);
-											std::cout << "fence part message" << std::endl;
+											//std::cout << "fence part message" << std::endl;
 											if (m_players.size() > 1)
 												getPlayerWithID(receivedFenceMessage.bikeID)->m_remoteInputPlayer->addNewFencePosition(receivedFenceMessage.fencePart);
 			}
@@ -114,6 +115,14 @@ void NetworkManager::run()
 			case ADD_PLAYER:
 			{
 							   addPlayer(packet);
+			}
+				break;
+
+			case GAME_STATUS_MESSAGE:
+			{
+										readMessage(packet, receivedGameStatusMessage);
+										m_receivedGameStatusMessages->push_back(receivedGameStatusMessage);
+										std::cout << "game status" << receivedGameStatusMessage.status << std::endl;
 			}
 				break;
 
@@ -386,13 +395,15 @@ void NetworkManager::waitOnAllPlayers()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void NetworkManager::registerRemotePlayerInput(std::shared_ptr<troen::input::RemotePlayer> remotePlayer)
+int NetworkManager::registerRemotePlayerInput(std::shared_ptr<troen::input::RemotePlayer> remotePlayer)
 {
 	int otherPlayer = 1 - m_gameID; //only works for 2 players
-	//wait until other player is registered
-	while (getPlayerWithID(otherPlayer) == NULL)
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	////wait until other player is registered
+	//while (getPlayerWithID(otherPlayer) == NULL)
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	
 	getPlayerWithID(otherPlayer)->m_remoteInputPlayer = remotePlayer;
+	return otherPlayer;
 }
 
 void NetworkManager::registerLocalPlayer(troen::Player* player)
