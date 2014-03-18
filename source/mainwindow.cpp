@@ -116,7 +116,7 @@ MainWindow::MainWindow(QWidget * parent)
 		QLineEdit* playerNameLineEdit = new QLineEdit;
 		playerNameLineEdit->setText(playerString);
 		playerNameLineEdit->setMaximumWidth(75);
-		playerNameLineEdit->setMaxLength(10);
+		playerNameLineEdit->setMaxLength(20);
 		m_playerNameLineEdits.push_back(playerNameLineEdit);
 		playerInputLayout->addWidget(playerNameLineEdit);
 
@@ -212,7 +212,7 @@ MainWindow::MainWindow(QWidget * parent)
 		m_connectAdressEdit = new QLineEdit;
 		m_connectAdressEdit->setText("127.0.0.1");
 		m_connectAdressEdit->setMaximumWidth(75);
-		m_connectAdressEdit->setMaxLength(10);
+		m_connectAdressEdit->setMaxLength(50);
 		connectionTypeLayout->addWidget(m_connectAdressEdit);
 
 		vBoxLayoutNetwork->addWidget(connectionTypeWidget);
@@ -232,6 +232,7 @@ MainWindow::MainWindow(QWidget * parent)
 	vBoxLayoutNetwork->addWidget(m_connectNetworkButton);
 
 	m_networkingReady = false;
+	m_networkPlayers = 0;
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -354,8 +355,8 @@ void MainWindow::connectNetworking()
 	int remote_player_slot = 1;
 	if (m_serverCheckBox->isChecked())
 	{
-		std::string connectedTo = m_troenGame->setupNetworking(true);
-		m_statusLabel->setText(QString("Connected to " + QString(connectedTo.c_str())));
+		m_troenGame->setupNetworking(true);
+
 		//player_slot = 0;
 	}
 	else
@@ -365,24 +366,36 @@ void MainWindow::connectNetworking()
 		//player_slot = 1;
 	}
 
-	m_statusLabel->setStyleSheet("QLabel { background-color : green; color : blue; }");
-	m_playerNameLineEdits[remote_player_slot]->setText("remote player");
-	m_ownViewCheckboxes[remote_player_slot]->setChecked(true);
-	m_ownViewCheckboxes[1]->setChecked(false);
-	m_bikeNumberSpinBox->setValue(2);
-	m_playerComboBoxes[remote_player_slot]->addItem("MULTIPLAYER");
-	m_playerComboBoxes[remote_player_slot]->setCurrentText("MULTIPLAYER");
-	bikeNumberChanged(m_bikeNumberSpinBox->value());
-	updatePlayerInputBoxes();
+	//m_statusLabel->setStyleSheet("QLabel { background-color : green; color : blue; }");
+	//m_playerNameLineEdits[remote_player_slot]->setText("remote player");
+	//m_ownViewCheckboxes[1]->setChecked(false);
+	//m_bikeNumberSpinBox->setValue(2);
+	//m_playerComboBoxes[remote_player_slot]->addItem("MULTIPLAYER");
+	//m_playerComboBoxes[remote_player_slot]->setCurrentText("MULTIPLAYER");
+	//bikeNumberChanged(m_bikeNumberSpinBox->value());
+	//updatePlayerInputBoxes();
 
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));
+	connect(m_troenGame->getNetworkManager().get(), SIGNAL(newNetworkPlayer(QString)), this, SLOT(addNetworkPlayer(QString)));
 	
-	//informations are stored and sent statically for now, everything else crashed.. maybe we should switch to using replica3
-	//connect(this, SIGNAL(startGame(GameConfig)), m_troenGame->getNetworkManager().get(), SLOT(buildOwnPlayerInfo(const GameConfig&)));
 	
 	m_networkingReady = true;
 
 
+}
+
+void MainWindow::addNetworkPlayer(QString name)
+{
+	m_networkPlayers++;
+	m_statusLabel->setText(QString("Connected to ") + name);
+	m_statusLabel->setStyleSheet("QLabel { background-color : green; color : blue; }");
+	m_playerNameLineEdits[m_networkPlayers]->setText(name);
+	m_ownViewCheckboxes[m_networkPlayers]->setChecked(false);
+	m_bikeNumberSpinBox->setValue(m_networkPlayers+1);
+	m_playerComboBoxes[m_networkPlayers]->addItem("MULTIPLAYER");
+	m_playerComboBoxes[m_networkPlayers]->setCurrentText("MULTIPLAYER");
+	bikeNumberChanged(m_networkPlayers+1);
+	updatePlayerInputBoxes();
 }
 
 bool MainWindow::eventFilter(QObject* object, QEvent* event)

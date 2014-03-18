@@ -20,6 +20,7 @@
 #include "../input/remoteplayer.h"
 #include "../troengame.h"
 #include "../controller/bikecontroller.h"
+#include "qstring.h"
 
 
 namespace troen
@@ -34,13 +35,14 @@ namespace troen
 			//game initiation
 			GAME_INIT_PARAMETERS = ID_USER_PACKET_ENUM + 1,
 			ADD_PLAYER = ID_USER_PACKET_ENUM+2,
-			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 3,
+			REGISTER_PLAYER_AT_SERVER = ID_USER_PACKET_ENUM + 3,
+			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 4,
 			//bike messages
-			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 4,
-			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 5,
-			BIKE_FENCE_PART_MESSAGE = ID_USER_PACKET_ENUM + 6,
+			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 5,
+			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 6,
+			BIKE_FENCE_PART_MESSAGE = ID_USER_PACKET_ENUM + 7,
 			//game messages
-			GAME_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 7,
+			GAME_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 8
 		};
 		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_FENCE};
 
@@ -145,6 +147,8 @@ namespace troen
 		
 		signals:
 			void remoteStartCall();
+			void newNetworkPlayer(QString name);
+
 		public slots:
 			void buildOwnPlayerInfo(const troen::GameConfig& config);
 		protected:

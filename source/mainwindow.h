@@ -31,6 +31,7 @@ namespace troen
 
 	public slots:
 		void updatePlayerInputBoxes();
+		void addNetworkPlayer(QString name);
 
 	protected:
 		virtual bool eventFilter(QObject* object, QEvent* event);
@@ -74,5 +75,6 @@ namespace troen
 		float		m_fps;
 		bool		m_networkingReady;
 		QLineEdit* m_connectAdressEdit;
+		int m_networkPlayers;
 	};
 }

@@ -29,8 +29,12 @@ ServerManager::ServerManager(troen::TroenGame *game) : NetworkManager(game)
 {
 	m_startPositions = std::make_shared<std::vector<btTransform>>();
 	btVector3 Z_AXIS(0, 0, 1);
-	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(20, 20, BIKE_DIMENSIONS.z() / 2)));
-	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(40, 20, BIKE_DIMENSIONS.z() / 2)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(20, 20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(40, 20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)-PI * 1.f / 4.f), btVector3(60, 20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)-PI * 3.f / 4.f), btVector3(80, 20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, 0), btVector3(100, 100, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, 0), btVector3(-100, -100, BIKE_DIMENSIONS.z() / 2 + 500)));
 	
 	m_startPosition = m_startPositions->at(0);
 
@@ -55,7 +59,7 @@ void ServerManager::handleSubClassMessages(RakNet::Packet *packet)
 			break;
 
 		case ID_NEW_INCOMING_CONNECTION:
-			addClientToGame(packet);
+			giveIDtoClient(packet);
 			break;
 
 		case ID_NO_FREE_INCOMING_CONNECTIONS:
@@ -66,6 +70,9 @@ void ServerManager::handleSubClassMessages(RakNet::Packet *packet)
 			break;
 		case ID_CONNECTION_LOST:
 			printf("A client lost the connection.\n");
+			break;
+		case REGISTER_PLAYER_AT_SERVER:
+			registerClient(packet);
 			break;
 		default:
 			printf("Message with identifier %i has arrived.\n", packet->data[0]);
@@ -109,7 +116,7 @@ std::string  ServerManager::getClientAddress()
 }
 
 
-void ServerManager::addClientToGame(RakNet::Packet *packet)
+void ServerManager::giveIDtoClient(RakNet::Packet *packet)
 {
 	m_numClientsConnected++;
 
@@ -120,14 +127,26 @@ void ServerManager::addClientToGame(RakNet::Packet *packet)
 	//send a btTransform startposition
 	bsOut.Write(m_startPositions->at(m_numClientsConnected));
 	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
-
-	//send own player info
-	RakNet::BitStream bsAddPlayer;
-	bsAddPlayer.Write((RakNet::MessageID)ADD_PLAYER);
-	m_ownPlayerInfo->serialize(&bsAddPlayer);
-	peer->Send(&bsAddPlayer, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
-
-
 	printf("A connection is incoming.\n");
+
 }
 
+
+
+void ServerManager::registerClient(RakNet::Packet *packet)
+{
+	addPlayer(packet);
+
+	//send info of all existing players to client
+	for (auto player : m_players)
+	{
+		RakNet::BitStream bsAddPlayer;
+		bsAddPlayer.Write((RakNet::MessageID)ADD_PLAYER);
+
+		player->serialize(&bsAddPlayer);
+
+		peer->Send(&bsAddPlayer, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
+	}
+
+
+}

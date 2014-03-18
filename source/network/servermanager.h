@@ -31,8 +31,9 @@ namespace troen
 			bool isValidSession();
 
 			std::string getClientAddress();
-			void addClientToGame(RakNet::Packet *packet);
+			void giveIDtoClient(RakNet::Packet *packet);
 			virtual void handleSubClassMessages(RakNet::Packet *packet);
+			void registerClient(RakNet::Packet *packet);
 		protected:
 			std::string m_clientAddress;
 			bool m_isServer;

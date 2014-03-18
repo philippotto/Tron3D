@@ -94,7 +94,7 @@ void ClientManager::setInitParameters(RakNet::Packet *packet)
 	m_players.push_back(m_ownPlayerInfo);
 
 	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)ADD_PLAYER);
+	bsOut.Write((RakNet::MessageID)REGISTER_PLAYER_AT_SERVER);
 	m_ownPlayerInfo->serialize(&bsOut);
 	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
 

@@ -167,6 +167,17 @@ void troen::networking::NetworkManager::addPlayer(RakNet::Packet *packet)
 
 	m_players.push_back(remote_player);
 	std::cout << "got remote player: " << remote_player->name.toStdString() << std::endl;
+
+	//send player info to all other clients
+	RakNet::BitStream bsAddPlayer;
+	bsAddPlayer.Write((RakNet::MessageID)ADD_PLAYER);
+	//write the player infos into the bitstream
+	remote_player->serialize(&bsAddPlayer);
+	//broadcast to all connected clients
+	peer->Send(&bsAddPlayer, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+
+	//add player in UI
+	emit newNetworkPlayer(remote_player->name);
 }
 
 
