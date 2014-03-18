@@ -75,10 +75,7 @@ void ItemController::destroy()
 
 osg::Vec3 ItemController::getDimensions()
 {
-	if (m_type == troen::ItemController::TURBOSTRIP)
-		return osg::Vec3(100, 100, 0.1);
-	else
-		return osg::Vec3(8, 8, 8);
+	return osg::Vec3(8, 8, 8);
 }
 
 void ItemController::hideFencesInRadarForPlayer()
