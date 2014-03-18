@@ -125,7 +125,7 @@ void TroenGame::startGameLoop()
 			{
 				for (auto player : m_players)
 				{
-					player->bikeController()->updateModel(g_gameTime);
+					player->update(g_gameTime);
 				}
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();

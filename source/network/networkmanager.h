@@ -31,14 +31,18 @@ namespace troen
 
 		enum GameMessages
 		{
-			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 1,
-			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 2,
-			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 3,
-			GAME_INIT_PARAMETERS = ID_USER_PACKET_ENUM + 4,
-			BIKE_FENCE_PART_MESSAGE = ID_USER_PACKET_ENUM + 5,
-			ADD_PLAYER = ID_USER_PACKET_ENUM+6
+			//game initiation
+			GAME_INIT_PARAMETERS = ID_USER_PACKET_ENUM + 1,
+			ADD_PLAYER = ID_USER_PACKET_ENUM+2,
+			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 3,
+			//bike messages
+			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 4,
+			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 5,
+			BIKE_FENCE_PART_MESSAGE = ID_USER_PACKET_ENUM + 6,
+			//game messages
+			GAME_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 7,
 		};
-		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_OWN_FENCE, PLAYER_DEATH_ON_OTHER_PLAYER};
+		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_FENCE};
 
 		enum NETWORK_BIKESTATE
 		{
@@ -102,17 +106,18 @@ namespace troen
 			
 			//queues
 			void enqueueMessage(bikeUpdateMessage message);
-			void enqueueMessage(bikeStatusMessage message);
+			void enqueueMessage(gameStatusMessage message);
 			void enqueueMessage(fenceUpdateMessage message);
-			
+			void enqueueMessage(bikeStatusMessage message);
+
 			//sending data
-			void sendData();
+			void sendUpdateMessages();
 			template <typename TQueue, typename TSendStruct> 
 			void sendMessages(QQueue<TQueue> *sendBufferQueue, TSendStruct &messageToSend, int order, int statusMessage);
 			void sendPoints(int pointCount, int status, short secondBike = NULL);
 			void synchronizeGameStart(troen::GameConfig &config);
 			void setLocalGameReady();
-
+			void sendGameStatusMessage(gameStatus status, troen::Player *bikePlayer, troen::Player *fencePlayer);
 			//receiving data
 			template <typename T>
 			void readMessage(RakNet::Packet *packet, T& readInto);
@@ -155,7 +160,8 @@ namespace troen
 			//Queues
 			QQueue<bikeUpdateMessage> *m_sendUpdateMessagesQueue;
 			QQueue<fenceUpdateMessage> *m_sendFenceUpdateMessagesQueue;
-			QQueue<bikeStatusMessage> *m_sendStatusUpdateMessage;
+			QQueue<gameStatusMessage> *m_sendGameStatusMessage;
+			QQueue<bikeStatusMessage> *m_sendBikeStatusMessage;
 			QMutex* m_sendBufferMutex;
 
 			//players
@@ -168,13 +174,14 @@ namespace troen
 			long double m_lastUpdateTime;
 			
 			//networked information
-			bool m_gameStarted;
+			bool m_gameInitStarted;
 			btTransform m_startPosition;
 			int m_gameID;
 			std::shared_ptr<NetworkPlayerInfo> m_ownPlayerInfo;
-
+			bool m_gameStarted;
 			struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage, messageToSend;
-			struct bikeStatusMessage receivedBikeStatusMessage, statusMessageToSend;
+			struct bikeStatusMessage receivedBikeStatusMessage, bikeStatusMessageToSend;
+			struct gameStatusMessage receivedGameStatusMessage, gameStatusMessageToSend;
 			struct fenceUpdateMessage receivedFenceMessage, fenceMessageToSend;
 		};
 

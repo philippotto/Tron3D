@@ -32,7 +32,8 @@ NetworkManager::NetworkManager(troen::TroenGame *game)
 	peer = RakNet::RakPeerInterface::GetInstance();
 	m_sendUpdateMessagesQueue = new QQueue<bikeUpdateMessage>();
 	m_sendFenceUpdateMessagesQueue = new QQueue<fenceUpdateMessage>();
-	m_sendStatusUpdateMessage = new QQueue<bikeStatusMessage>();
+	m_sendGameStatusMessage = new QQueue<gameStatusMessage>();
+	m_sendBikeStatusMessage = new QQueue<bikeStatusMessage>();
 	m_players = std::vector<std::shared_ptr<NetworkPlayerInfo>>();
 	m_sendBufferMutex = new QMutex();
 	
@@ -40,57 +41,236 @@ NetworkManager::NetworkManager(troen::TroenGame *game)
 	m_lastUpdateTime = 0;
 	m_gameID = 0;
 	m_troenGame = game;
+	//game init started when player presses start button
+	m_gameInitStarted = false;
+	//game started when all players have finished initalizing
 	m_gameStarted = false;
 	
 }
 
-void  NetworkManager::enqueueMessage(bikeUpdateMessage message)
-{
-	m_sendBufferMutex->lock();
-	m_sendUpdateMessagesQueue->enqueue(message);
-	m_sendBufferMutex->unlock();
-}
 
-void  NetworkManager::enqueueMessage(fenceUpdateMessage message)
-{
-	m_sendBufferMutex->lock();
-	m_sendFenceUpdateMessagesQueue->enqueue(message);
-	m_sendBufferMutex->unlock();
-}
 
-void  NetworkManager::enqueueMessage(bikeStatusMessage message)
+bool NetworkManager::isValidSession()
 {
-	m_sendBufferMutex->lock();
-	m_sendStatusUpdateMessage->enqueue(message);
-	m_sendBufferMutex->unlock();
+	//sublcass responsibilty
+	return false;
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// updating / raknet thread
+//
+////////////////////////////////////////////////////////////////////////////////
 
-
-
-void NetworkManager::registerRemotePlayerInput(std::shared_ptr<troen::input::RemotePlayer> remotePlayer)
+void NetworkManager::run()
 {
-	int otherPlayer = 1 - m_gameID; //only works for 2 players
-	//wait until other player is registered
-	while (getPlayerWithID(otherPlayer) == NULL)
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-	getPlayerWithID(otherPlayer)->m_remoteInputPlayer = remotePlayer;
+	RakNet::Packet *packet;
+	while (1)
+	{
+		for (packet = peer->Receive(); packet; peer->DeallocatePacket(packet), packet = peer->Receive())
+		{
+			switch (packet->data[0])
+			{
+			case BIKE_POSITION_MESSSAGE:
+			{
+										   readMessage(packet, receivedUpdateMessage);
+										   if (m_players.size() > 1)
+											   getPlayerWithID(receivedUpdateMessage.bikeID)->m_remoteInputPlayer->update(receivedUpdateMessage);
+			}
+				break;
+
+			case BIKE_STATUS_MESSAGE:
+			{
+										readMessage(packet, receivedBikeStatusMessage);
+										receiveBikeStatusMessage(receivedBikeStatusMessage);
+										//std::cout << "bike status message" << std::endl;
+
+			}
+				break;
+
+			case BIKE_FENCE_PART_MESSAGE:
+			{
+
+											readMessage(packet, receivedFenceMessage);
+											std::cout << "fence part message" << std::endl;
+											if (m_players.size() > 1)
+												getPlayerWithID(receivedFenceMessage.bikeID)->m_remoteInputPlayer->addNewFencePosition(receivedFenceMessage.fencePart);
+			}
+
+			case GAME_START_MESSAGE:
+			{
+
+									   //prevent game from calling start two times due to receviment of own packet
+									   if (!m_gameInitStarted)
+									   {
+
+										   emit remoteStartCall();
+										   m_gameInitStarted = true;
+									   }
+			}
+				break;
+
+			case ADD_PLAYER:
+			{
+							   addPlayer(packet);
+			}
+				break;
+
+			default:
+			{
+					   //handle all the client or server related stuff
+					   handleSubClassMessages(packet);
+			}
+				break;
+
+
+
+			}
+
+		}
+		sendUpdateMessages();
+		this->msleep(10);
+	}
+
+	//cleanup
+	RakNet::RakPeerInterface::DestroyInstance(peer);
+
 }
 
-void NetworkManager::registerLocalPlayer(troen::Player* player)
+////////////////////////////////////////////////////////////////////////////////
+//
+// synchronizing / receiving (raknet thread)
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void troen::networking::NetworkManager::addPlayer(RakNet::Packet *packet)
 {
-	m_localPlayer = std::shared_ptr<troen::Player>(player);
-	m_localBikeController = player->bikeController();
-	m_localBikeModel = m_localBikeController->getModel();
+	//instantiate the remote player
+	std::shared_ptr<NetworkPlayerInfo> remote_player = std::make_shared<NetworkPlayerInfo>();
+	remote_player->setParametersFromRemote(packet);
+
+	if (getPlayerWithID(remote_player->networkID) != NULL) //player was added before
+	{
+		remote_player.reset();
+		return;
+	}
+
+	m_players.push_back(remote_player);
+	std::cout << "got remote player: " << remote_player->name.toStdString() << std::endl;
 }
 
 
 void NetworkManager::receiveBikeStatusMessage(bikeStatusMessage message)
 {
-	getPlayerWithID(message.bikeID)->status =  message.status;
+	getPlayerWithID(message.bikeID)->status = message.status;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// synchronizing / sending (raknet thread)
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkManager::setLocalGameReady()
+{
+	getPlayerWithID(m_gameID)->status = WAITING_FOR_GAMESTART;
+
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)BIKE_STATUS_MESSAGE);
+	getPlayerWithID(m_gameID)->serializeStatus(&bsOut);
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+}
+
+
+void NetworkManager::synchronizeGameStart(troen::GameConfig &config)
+{
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)GAME_START_MESSAGE);
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+	m_gameInitStarted = true;
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// sending methods / raknet thread
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkManager::sendUpdateMessages()
+{
+	if (isValidSession() && m_gameStarted)
+	{
+		sendMessages(m_sendUpdateMessagesQueue, messageToSend, UNRELIABLE_SEQUENCED, BIKE_POSITION_MESSSAGE);
+		sendMessages(m_sendFenceUpdateMessagesQueue, fenceMessageToSend, RELIABLE_SEQUENCED, BIKE_FENCE_PART_MESSAGE);
+		sendMessages(m_sendGameStatusMessage, gameStatusMessageToSend, RELIABLE_SEQUENCED, GAME_STATUS_MESSAGE);
+		sendMessages(m_sendBikeStatusMessage, bikeStatusMessageToSend, RELIABLE_SEQUENCED, BIKE_STATUS_MESSAGE);
+
+	}
+}
+
+template <typename TQueue, typename TSendStruct>
+void NetworkManager::sendMessages(QQueue<TQueue> *sendBufferQueue, TSendStruct &messageToSend, int order, int statusMessage)
+{
+
+	while (!sendBufferQueue->empty())
+	{
+		RakNet::BitStream bsOut;
+		// Use a BitStream to write a custom user message
+		//Bitstreams are easier to use than sending casted structures, and handle endian swapping automatically
+		bsOut.Write((RakNet::MessageID)static_cast<GameMessages>(statusMessage));
+		m_sendBufferMutex->lock();
+		messageToSend = sendBufferQueue->dequeue();
+		m_sendBufferMutex->unlock();
+		bsOut.Write(messageToSend);
+
+		peer->Send(&bsOut, HIGH_PRIORITY, static_cast<PacketReliability>(order), 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// helpers
+//
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+void NetworkManager::readMessage(RakNet::Packet *packet, T& readInto)
+{
+	RakNet::BitStream bsIn(packet->data, packet->length, false);
+	bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+	bsIn.Read(readInto);
+}
+
+
+inline std::shared_ptr<NetworkPlayerInfo> NetworkManager::getPlayerWithID(int bikeID)
+{
+	for (auto player : m_players)
+	{
+		if (player->networkID == bikeID)
+			return player;
+	}
+	return NULL;
+}
+
+QColor NetworkManager::getPlayerColor(int playerID)
+{
+	//later, we might actually synchronize the chosen color
+	return std::vector<QColor>{ QColor(255.0, 0.0, 0.0), QColor(0.0, 255.0, 0.0), QColor(0.0, 0.0, 255.0),
+		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) }[playerID];
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// updating / main thread
+//
+////////////////////////////////////////////////////////////////////////////////
 
 void NetworkManager::update(long double g_gameTime)
 {
@@ -125,108 +305,101 @@ void NetworkManager::updateFencePart(btTransform fencePart, int bikeID)
 
 
 
-//!! This runs in a seperate thread //
-void NetworkManager::run()
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// sending methods / main thread
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkManager::sendGameStatusMessage(gameStatus status, troen::Player *bikePlayer, troen::Player *fencePlayer)
 {
-	RakNet::Packet *packet;
-	while (1)
+	gameStatusMessage message;
+	if (fencePlayer!=NULL)
+		message = { bikePlayer->getNetworkID(), status, bikePlayer->points(), fencePlayer->getNetworkID() };
+	else
+		message = { bikePlayer->getNetworkID(), status, bikePlayer->points(), NULL };
+
+	getPlayerWithID(m_gameID)->score = bikePlayer->points();
+	enqueueMessage(message);
+}
+
+
+void  NetworkManager::enqueueMessage(bikeUpdateMessage message)
+{
+	m_sendBufferMutex->lock();
+	m_sendUpdateMessagesQueue->enqueue(message);
+	m_sendBufferMutex->unlock();
+}
+
+void  NetworkManager::enqueueMessage(fenceUpdateMessage message)
+{
+	m_sendBufferMutex->lock();
+	m_sendFenceUpdateMessagesQueue->enqueue(message);
+	m_sendBufferMutex->unlock();
+}
+
+void  NetworkManager::enqueueMessage(gameStatusMessage message)
+{
+	m_sendBufferMutex->lock();
+	m_sendGameStatusMessage->enqueue(message);
+	m_sendBufferMutex->unlock();
+}
+
+
+void  NetworkManager::enqueueMessage(bikeStatusMessage message)
+{
+	m_sendBufferMutex->lock();
+	m_sendBikeStatusMessage->enqueue(message);
+	m_sendBufferMutex->unlock();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// synchronizing / main thread
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkManager::waitOnAllPlayers()
+{
+	//block until every player has waiting for gamestart status (aka finished initiliazing)
+	bool ready = false;
+	while (!ready)
 	{
-		for (packet = peer->Receive(); packet; peer->DeallocatePacket(packet), packet = peer->Receive())
+		ready = true;
+		for (auto player : m_players)
 		{
-			switch (packet->data[0])
-			{
-				case BIKE_POSITION_MESSSAGE:
-				{
-											   readMessage(packet, receivedUpdateMessage);
-											   if (m_players.size() > 1)
-												   getPlayerWithID(receivedUpdateMessage.bikeID)->m_remoteInputPlayer->update(receivedUpdateMessage);
-				}
-					break;
-
-				case BIKE_STATUS_MESSAGE:
-				{
-											readMessage(packet, receivedBikeStatusMessage);
-											receiveBikeStatusMessage(receivedBikeStatusMessage);
-											printf("status_message");
-
-				}
-					break;
-
-				case BIKE_FENCE_PART_MESSAGE:
-				{
-
-												readMessage(packet, receivedFenceMessage);
-												if (m_players.size() > 1)
-													getPlayerWithID(receivedFenceMessage.bikeID)->m_remoteInputPlayer->addNewFencePosition(receivedFenceMessage.fencePart);
-				}
-
-				case GAME_START_MESSAGE:
-				{
-
-										   //prevent game from calling start two times due to receviment of own packet
-										   if (!m_gameStarted)
-										   {   
-
-											   emit remoteStartCall();
-											   m_gameStarted = true;
-										   }
-				}
-					break;
-				
-				case ADD_PLAYER:
-				{
-								   addPlayer(packet);
-				}
-					break;
-				
-				default:
-				{
-						   //handle all the client or server related stuff
-						   handleSubClassMessages(packet);
-				}
-					break;
-
-
-
-			}
-
+			if (player->status != WAITING_FOR_GAMESTART)
+				ready = false;
 		}
-		sendData();
-		this->msleep(10);
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
 	}
 
-	//cleanup
-	RakNet::RakPeerInterface::DestroyInstance(peer);
-
-}
-
-inline std::shared_ptr<NetworkPlayerInfo> NetworkManager::getPlayerWithID(int bikeID)
-{
-	for (auto player : m_players)
-	{
-		if (player->networkID == bikeID)
-			return player;
-	}
-	return NULL;
-}
-
-void NetworkManager::sendData()
-{
-	if (isValidSession())
-	{
-		sendMessages(m_sendUpdateMessagesQueue, messageToSend, UNRELIABLE_SEQUENCED, BIKE_POSITION_MESSSAGE);
-		sendMessages(m_sendStatusUpdateMessage, statusMessageToSend, RELIABLE_SEQUENCED, BIKE_STATUS_MESSAGE);
-		sendMessages(m_sendFenceUpdateMessagesQueue, fenceMessageToSend, RELIABLE_SEQUENCED, BIKE_FENCE_PART_MESSAGE);
-		
-	}
-}
-
-void NetworkManager::synchronizeGameStart(troen::GameConfig &config)
-{
-	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)GAME_START_MESSAGE);
-	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 	m_gameStarted = true;
+}
+////////////////////////////////////////////////////////////////////////////////
+//
+// registering & building
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+void NetworkManager::registerRemotePlayerInput(std::shared_ptr<troen::input::RemotePlayer> remotePlayer)
+{
+	int otherPlayer = 1 - m_gameID; //only works for 2 players
+	//wait until other player is registered
+	while (getPlayerWithID(otherPlayer) == NULL)
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	getPlayerWithID(otherPlayer)->m_remoteInputPlayer = remotePlayer;
+}
+
+void NetworkManager::registerLocalPlayer(troen::Player* player)
+{
+	m_localPlayer = std::shared_ptr<troen::Player>(player);
+	m_localBikeController = player->bikeController();
+	m_localBikeModel = m_localBikeController->getModel();
 }
 
 
@@ -244,93 +417,14 @@ void NetworkManager::buildOwnPlayerInfo(const troen::GameConfig& config)
 }
 
 
-bool NetworkManager::isValidSession()
-{
-	//sublcass responsibilty
-	return false;
-}
-
-template <typename TQueue, typename TSendStruct>
-void NetworkManager::sendMessages(QQueue<TQueue> *sendBufferQueue, TSendStruct &messageToSend, int order, int statusMessage)
-{
-
-	while (!sendBufferQueue->empty())
-	{
-		RakNet::BitStream bsOut;
-		// Use a BitStream to write a custom user message
-		//Bitstreams are easier to use than sending casted structures, and handle endian swapping automatically
-		bsOut.Write((RakNet::MessageID)static_cast<GameMessages>(statusMessage));
-		m_sendBufferMutex->lock();
-		messageToSend = sendBufferQueue->dequeue();
-		m_sendBufferMutex->unlock();
-		bsOut.Write(messageToSend);
-
-		peer->Send(&bsOut, HIGH_PRIORITY, static_cast<PacketReliability>(order), 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
-	}
-}
 
 
-template <typename T>
-void NetworkManager::readMessage(RakNet::Packet *packet, T& readInto)
-{
-	RakNet::BitStream bsIn(packet->data, packet->length, false);
-	bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-	bsIn.Read(readInto);
-}
 
-QColor NetworkManager::getPlayerColor(int playerID)
-{
-	//later, we might actually synchronize the chosen color
-	return std::vector<QColor>{ QColor(255.0, 0.0, 0.0), QColor(0.0, 255.0, 0.0), QColor(0.0, 0.0, 255.0),
-		QColor(255.0, 255.0, 0.0), QColor(0.0, 255.0, 255.0), QColor(255.0, 0.0, 255.0) }[playerID];
-}
-
-void troen::networking::NetworkManager::addPlayer(RakNet::Packet *packet)
-{
-
-	//instantiate the remote player
-	std::shared_ptr<NetworkPlayerInfo> remote_player = std::make_shared<NetworkPlayerInfo>();
-	remote_player->setParametersFromRemote(packet);
-	
-	if (getPlayerWithID(remote_player->networkID) != NULL) //player was added before
-	{
-
-		remote_player.reset();
-		return;
-	}
-
-	m_players.push_back(remote_player); 
-	std::cout << "got remote player: " << remote_player->name.toStdString() << std::endl;
-}
-
-void troen::networking::NetworkManager::waitOnAllPlayers()
-{
-	//block until every player has waiting for gamestart status (aka finished initiliazing)
-	bool ready = false;
-	while (!ready)
-	{
-		ready = true;
-		for (auto player : m_players)
-		{
-			if (player->status != WAITING_FOR_GAMESTART)
-				ready = false;
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		
-	}
-}
-
-void NetworkManager::setLocalGameReady()
-{
-	getPlayerWithID(m_gameID)->status = WAITING_FOR_GAMESTART;
-	
-	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)BIKE_STATUS_MESSAGE);
-	getPlayerWithID(m_gameID)->serializeStatus(&bsOut);
-	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
-}
-
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// NetworkPlayerInfo
+//
+////////////////////////////////////////////////////////////////////////////////
 
 NetworkPlayerInfo::NetworkPlayerInfo(QString name, QColor color, int networkID, bool remote, btTransform position) :
 name(name), color(color), networkID(networkID), remote(remote), position(position)
@@ -344,11 +438,11 @@ name(name), color(color), networkID(networkID), remote(remote), position(positio
 
 void NetworkPlayerInfo::serializeStatus(RakNet::BitStream *bs)
 {
-	bikeStatusMessage statusMessageToSend = { networkID, status};
+	bikeStatusMessage statusMessageToSend = { networkID, status };
 	bs->Write(statusMessageToSend);
 }
 
-void troen::networking::NetworkPlayerInfo::serialize(RakNet::BitStream *bs)
+void NetworkPlayerInfo::serialize(RakNet::BitStream *bs)
 {
 	bs->Write(networkID);
 
@@ -361,7 +455,7 @@ void troen::networking::NetworkPlayerInfo::serialize(RakNet::BitStream *bs)
 	bs->Write(position);
 }
 
-void troen::networking::NetworkPlayerInfo::setParametersFromRemote(RakNet::Packet *packet)
+void NetworkPlayerInfo::setParametersFromRemote(RakNet::Packet *packet)
 {
 	RakNet::BitStream bsIn(packet->data, packet->length, false);
 
@@ -382,4 +476,3 @@ void troen::networking::NetworkPlayerInfo::setParametersFromRemote(RakNet::Packe
 
 
 }
-

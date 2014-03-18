@@ -6,6 +6,7 @@
 #include <algorithm>
 // troen
 #include "forwarddeclarations.h"
+#include "network/networkmanager.h"
 
 // typedefs for collision events
 
@@ -48,6 +49,10 @@ namespace troen
 		void resetBikePositions();
 
 		void restartLevel();
+		
+		//networking
+		void networkMessages(troen::networking::gameStatus status, Player *bikePlayer, Player *fencePlayer);
+		void sendStatusMessage(troen::networking::gameStatus status, Player *bikePlayer, Player *fencePlayer);
 
 	private:
 		//
@@ -80,7 +85,7 @@ namespace troen
 		//
 		// communication links
 		//
-		TroenGame*t;
+		TroenGame *m_troenGame;
 
 		//
 		// stepping variables & methods

@@ -71,7 +71,8 @@ namespace troen
 		void decreaseKillCount() { m_killCount--; };
 		float increaseHealth(const float diff);
 		float increasePoints(const float diff);
-		
+		void update(int g_gameTime);
+
 
 
 	private:
