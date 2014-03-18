@@ -79,6 +79,7 @@ namespace troen
 		void prepareAndStartGame(const GameConfig& config);
 
 	private:
+		TroenGameBuilder *m_builder;
 		//
 		// Game Loop
 		//

@@ -13,6 +13,7 @@ namespace troen
 
 		bool build();
 		bool destroy();
+		bool setupReflections();
 
 	private:
 		bool buildInput();

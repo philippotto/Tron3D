@@ -116,17 +116,14 @@ m_hasGameView(config->ownView[id])
 #endif
 	}
 
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	// Reflection
-	//
-	////////////////////////////////////////////////////////////////////////////////
-	
-	if (config->useReflection && config->ownView[id])
-	{
-		m_reflection = std::make_shared<Reflection>(game->levelController()->getFloorView(), m_gameView, game->skyDome()->getSkyboxTexture(), m_id);
-		m_playerNode->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + m_id));
-	}
+}
+
+void Player::setupReflections(TroenGame* game, osg::ref_ptr<osg::Group>& sceneNode) {
+	m_reflection = std::make_shared<Reflection>(game->levelController()->getFloorView(), m_gameView, game->skyDome()->getSkyboxTexture(), m_id);
+	m_playerNode->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + m_id));
+
+	reflection()->addSceneNode(sceneNode);
+	playerNode()->addChild(reflection()->getReflectionCameraGroup());
 }
 
 void Player::createHUDController(const std::vector<std::shared_ptr<Player>>& players)
