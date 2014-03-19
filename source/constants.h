@@ -43,6 +43,7 @@ namespace troen
 	extern const float BIKE_TURN_FACTOR_MAX;
 	extern const float BIKE_ANGULAR_DAMPENING_TERM;
 	extern const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE;
+	extern const float BIKE_VIEWING_ANGLE_DAMPENING_TERM;
 
 	extern const float TURBO_PHASE_LENGTH;
 
@@ -68,6 +69,7 @@ namespace troen
 	extern const float FENCE_PART_LENGTH;
 	extern const float FENCE_PART_WIDTH;
 	extern const int DEFAULT_MAX_FENCE_PARTS;
+	extern const int FENCE_TO_MINIMAP_PARTS_RATIO;
 
 	// CAMERA
 	extern const osg::Vec3 CAMERA_POSITION_OFFSET;
@@ -78,6 +80,8 @@ namespace troen
 
 	extern const unsigned int CAMERA_MASK_MAIN;
 	extern const unsigned int CAMERA_MASK_RADAR;
+	extern const unsigned int CAMERA_MASK_PLAYER[6];
+	extern const unsigned int CAMERA_MASK_NONE;
 
 	// PHYSICS
 	extern const float BIKE_FENCE_IMPACT_THRESHOLD_LOW;

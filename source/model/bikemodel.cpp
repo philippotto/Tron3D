@@ -6,23 +6,22 @@
 // troen
 #include "../constants.h"
 #include "../input/bikeinputstate.h"
+#include "../controller/bikecontroller.h"
 #include "bikemotionstate.h"
 #include "objectinfo.h"
-#include "../controller/bikecontroller.h"
 
 using namespace troen;
 
 BikeModel::BikeModel(
 	btTransform initialTransform,
 	osg::ref_ptr<osg::Group> node,
-	std::shared_ptr<FenceController> fenceController,
+	Player * player,
 	BikeController* bikeController) :
 AbstractModel(),
-m_lastUpdateTime(0)
+m_lastUpdateTime(0),
+m_bikeController(bikeController)
 {
 	resetState();
-
-	m_bikeController = bikeController;
 
 	osg::BoundingBox bb;
 	bb.expandBy(node->getBound());
@@ -32,7 +31,7 @@ m_lastUpdateTime(0)
 	std::shared_ptr<BikeMotionState> bikeMotionState = std::make_shared<BikeMotionState>(
 		initialTransform,
 		dynamic_cast<osg::PositionAttitudeTransform*> (node->getChild(0)),
-		fenceController,
+		player,
 		this
 	);
 
@@ -93,9 +92,9 @@ float BikeModel::getTurboFactor()
 
 void BikeModel::updateTurboFactor(float newVelocity, float time)
 {
-	m_turboFactor = std::max(0.f, m_turboFactor);
+	m_turboFactor = fmax(0.f, m_turboFactor);
 
-	if (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()) {
+	if (m_bikeController->turboInitiated() || m_bikeInputState->getTurboPressed()) {
 		m_turboFactor = 1.f;
 		m_timeOfLastTurboInitiation = time;
 	}
@@ -106,7 +105,7 @@ void BikeModel::updateTurboFactor(float newVelocity, float time)
 		}
 		else {
 			m_turboFactor = 1 - (time - m_timeOfLastTurboInitiation) / TURBO_PHASE_LENGTH;
-			m_turboFactor = std::max(0.f, m_turboFactor);
+			m_turboFactor = fmax(0.f, m_turboFactor);
 		}
 	}
 
@@ -141,14 +140,14 @@ float BikeModel::updateState(long double time)
 	btVector3 currentAngularVelocity = bikeRigidBody->getAngularVelocity();
 
 	// accelerate
-	float speedFactor = 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX;
+	float speedFactor = max(0, 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX);
 	// invsquared(t)   (1 - (1 - (t)) * (1 - (t)))
 	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
 
 	// TODO: merge turboInitiation and turboPressed (Philipp)
 	float turboSpeed = 0;
 	// only initiate turbo, if no other turbo is active
-	if (getTurboFactor() == 0 && (m_bikeController->getTurboInitiation() || m_bikeInputState->getTurboPressed()))
+	if (getTurboFactor() == 0 && (m_bikeController->turboInitiated() || m_bikeInputState->getTurboPressed()))
 	{
 		turboSpeed =  BIKE_VELOCITY_MAX / 2;
 	}
@@ -167,7 +166,7 @@ float BikeModel::updateState(long double time)
 	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
 
 	if (speed > BIKE_VELOCITY_MAX) {
-		const float timeToSlowDown = 1000;
+		const float timeToSlowDown = 2000;
 		// decrease speed so that the user will reach the maximum speed within timeToSlowDown milli seconds
 		// this is done so that the turbo won't be resetted instantly
 		speed -= (speed - BIKE_VELOCITY_MAX) * m_timeSinceLastUpdate / timeToSlowDown;
@@ -188,7 +187,10 @@ float BikeModel::updateState(long double time)
 	}
 
 	// let the bike drift, if the friction is low
-	currentVelocityVectorXY = ((1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed).normalized() * speed;
+	currentVelocityVectorXY = (1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed;
+	if (currentVelocityVectorXY.length() > 0) {
+		currentVelocityVectorXY = currentVelocityVectorXY.normalized() * speed;
+	}
 	currentVelocityVectorXY.setZ(zComponent);
 	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
@@ -214,10 +216,9 @@ osg::Vec3d BikeModel::getPositionOSG()
 }
 
 btVector3 BikeModel::getPositionBt()
-{
+ {
 	btTransform trans;
-	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
-
+	trans = m_rigidBodies[0]->getWorldTransform();
 	return trans.getOrigin();
 }
 

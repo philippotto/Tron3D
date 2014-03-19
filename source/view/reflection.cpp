@@ -50,7 +50,7 @@ public:
 	{
 		if (nv->getVisitorType() == osg::NodeVisitor::CULL_VISITOR)
 		{
-			osgUtil::CullVisitor	*cv = static_cast<osgUtil::CullVisitor *>(nv);
+			//osgUtil::CullVisitor	*cv = static_cast<osgUtil::CullVisitor *>(nv);
 			osg::Camera				*camera = static_cast<osg::Camera *>(node->asGroup()->getChild(0));
 
 			camera->setViewMatrix(m_gameView->getCamera()->getViewMatrix());

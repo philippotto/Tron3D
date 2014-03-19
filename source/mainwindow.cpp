@@ -9,6 +9,7 @@
 #include <QCoreApplication>
 #include <QSignalMapper>
 #include <QLineEdit>
+#include <QMessageBox>
 // OSG
 #include <osg/ref_ptr>
 // troen
@@ -29,6 +30,25 @@ MainWindow::MainWindow(QWidget * parent)
 	QVBoxLayout* vBoxLayout = new QVBoxLayout;
 	vBoxWidget->setLayout(vBoxLayout);
 	setCentralWidget(vBoxWidget);
+
+	// levelName
+	m_levelComboBox = new QComboBox;
+	
+	// get files from levels folder
+	QStringList nameFilter("*.ive");
+	QDir directory("data/levels/");
+	QStringList levelFiles = directory.entryList(nameFilter);
+	foreach(QString currentFile, levelFiles) {
+		// remove .ive from string
+		currentFile.chop(4);
+		m_levelComboBox->addItem(currentFile);
+	}
+
+	if (m_levelComboBox->count() == 0){
+		QMessageBox::warning(NULL, "Missing levels", "Make sure you have the data/levels folder (see Dropbox).");
+	}
+
+	vBoxLayout->addWidget(m_levelComboBox);
 
 	// bikeNumber
 	{
@@ -115,6 +135,7 @@ MainWindow::MainWindow(QWidget * parent)
 		playerComboBox->setCurrentIndex(i < 2 ? i : 3);	
 		vBoxLayout->addWidget(playerInputWidget);
 	}
+
 	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(chooseColor(int)));
 	updatePlayerInputBoxes();
 
@@ -199,23 +220,25 @@ void MainWindow::updatePlayerInputBoxes()
 void MainWindow::prepareGameStart()
 {
 	GameConfig config;
-	config.numberOfBikes = m_bikeNumberSpinBox->value();
+	config.numberOfPlayers = m_bikeNumberSpinBox->value();
 	config.timeLimit = m_timeLimitSpinBox->value();
-	config.playerInputTypes = new int[config.numberOfBikes];
-	config.playerColors = new QColor[config.numberOfBikes];
-	config.playerNames = new QString[config.numberOfBikes];
-	for (int i = 0; i < config.numberOfBikes; i++)
+	config.playerInputTypes = new int[config.numberOfPlayers];
+	config.playerColors = new QColor[config.numberOfPlayers];
+	config.playerNames = new QString[config.numberOfPlayers];
+	for (int i = 0; i < config.numberOfPlayers; i++)
 	{
 		config.playerInputTypes[i] = m_playerComboBoxes.at(i)->currentIndex();
 		config.playerNames[i] = m_playerNameLineEdits[i]->text();
 		config.playerColors[i] = m_playerColors[i];
 	}
+	config.levelName = m_levelComboBox->currentText().toStdString();
 	config.fullscreen = m_fullscreenCheckBox->isChecked();
 	config.usePostProcessing = m_postProcessingCheckBox->isChecked();
 	config.useDebugView = m_debugViewCheckBox->isChecked();
 	config.testPerformance = m_testPerformanceCheckBox->isChecked();
-	config.reflection = m_reflectionCheckBox->isChecked();
+	config.useReflection = m_reflectionCheckBox->isChecked();
 
+	//TODO: remove ownView checkboxes & replace with spinbox for number of views
 	int i = 0;
 	for (auto ownViewCheckbox : m_ownViewCheckboxes) {
 		config.ownView[i] = ownViewCheckbox->isChecked();
@@ -285,6 +308,7 @@ void MainWindow::loadSettings()
 	m_testPerformanceCheckBox->setChecked(settings.value("vSyncOff").toBool());
 	m_debugViewCheckBox->setChecked(settings.value("debugView").toBool());
 	m_reflectionCheckBox->setChecked(settings.value("reflection").toBool());
+	m_levelComboBox->setCurrentIndex(settings.value("level").toInt());
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{
@@ -320,6 +344,7 @@ void MainWindow::saveSettings()
 	settings.setValue("vSyncOff", QString::number(m_testPerformanceCheckBox->isChecked()));
 	settings.setValue("debugView", QString::number(m_debugViewCheckBox->isChecked()));
 	settings.setValue("reflection", QString::number(m_reflectionCheckBox->isChecked()));
+	settings.setValue("level", QString::number(m_levelComboBox->currentIndex()));
 
 	for (int i = 0; i < MAX_BIKES; i++)
 	{

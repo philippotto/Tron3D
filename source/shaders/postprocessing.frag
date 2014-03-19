@@ -156,7 +156,7 @@ void main(void)
 	float circleTransparency = st.x * st.x + st.y * st.y;
 	float pulsating = (sin(time*2.f) + 1.f)/3.f + 0.4 ;
 	circleTransparency = (1-enableDamageHUD)*pulsating *  min(1, 2 * circleTransparency);
-	float hitPulse = 20.0/timeSinceLastHit;
+	float hitPulse = 20.0 / max(timeSinceLastHit, 50);
 	circleTransparency += hitPulse;
 
 	//vec3 hsl = RGBToHSL((sceneColor + pongColor).xyz);

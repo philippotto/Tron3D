@@ -10,19 +10,69 @@
 
 using namespace troen::input;
 
-GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState) : PollingDevice(bikeInputState)
+hid_device_info* GamepadPS4::allHidDevices = NULL;
+bool GamepadPS4::enumeratedHidDevices = false;
+
+wchar_t* GamepadPS4::getFreeDeviceSN()
 {
+	if (!enumeratedHidDevices) {
+		enumeratedHidDevices = true;
+		allHidDevices = hid_enumerate(VID, PID);
+	}
+
+	if (allHidDevices != NULL) {
+		wchar_t* serialNumber = allHidDevices->serial_number;
+		allHidDevices = allHidDevices->next;
+		return serialNumber;
+	}
+	
+	return NULL;
+}
+
+void GamepadPS4::reset()
+{
+	enumeratedHidDevices = false;
+	hid_free_enumeration(allHidDevices);
+}
+
+GamepadPS4::GamepadPS4(osg::ref_ptr<BikeInputState> bikeInputState, osg::Vec3 color) : PollingDevice(bikeInputState)
+{
+	for (int i = 0; i < sizeof(m_writeBuffer); i++) {
+		m_writeBuffer[i] = 0;
+	}
+
+	m_writeBuffer[0] = 5; // report number has to be 5
+	m_writeBuffer[1] = 255; // flip LSB to enable/disable rumble
+	m_writeBuffer[4] = 0; // right motor fast/weak
+	m_writeBuffer[5] = 0; // left motor slow/strong
+	m_writeBuffer[6] = 0; // R
+	m_writeBuffer[7] = 255; // G
+	m_writeBuffer[8] = 255; // B
+	m_writeBuffer[9] = 0; // flash on duration
+	m_writeBuffer[10] = 0; // flash off duration
+
 	m_deadzoneX = 0.05f;
 	m_deadzoneY = 0.05f;
 
 	//initialise hid api
 	hid_init();
+
+	if (checkConnection()) {
+		setColor(color);
+	}
 }
 
 GamepadPS4::~GamepadPS4()
 {
-	hid_close(_controller);
-	hid_exit();
+	if (_controller) {
+		// turn off vibration/LED etc.
+		for (int i = 4; i <= 10; i++) {
+			m_writeBuffer[i] = 0;
+		}
+		hid_write(_controller, m_writeBuffer, 32);
+		hid_close(_controller);
+		hid_exit();
+	}
 }
 
 /*
@@ -102,6 +152,24 @@ int GamepadPS4::getBitAt(int k, unsigned char * buffer){
 	return -1;
 }
 
+void GamepadPS4::setColor(osg::Vec3 color)
+{
+	m_writeBuffer[6] = (uchar) color.x();
+	m_writeBuffer[7] = (uchar) color.y();
+	m_writeBuffer[8] = (uchar) color.z();
+	hid_write(_controller, m_writeBuffer, 32);
+}
+
+void GamepadPS4::setVibration(const bool b)
+{
+	if (_controller && m_vibrate != b) {
+		m_writeBuffer[4] = b ? 255 : 0;
+		m_writeBuffer[5] = b ? 255 : 0;
+		hid_write(_controller, m_writeBuffer, 32);
+		m_vibrate = b;
+	}
+}
+
 //check for events and handle them
 void GamepadPS4::run()
 {
@@ -113,6 +181,7 @@ void GamepadPS4::run()
 		// check whether controller is available, if not search for controller
 		// if it is still not available do nothing
 		if (!_controller || hid_read(_controller, buf, 96) == -1){
+			_controller = hid_open(VID, PID, m_serialNumber);
 			if (!checkConnection())
 			{
 				m_bikeInputState->setAngle(0);
@@ -134,10 +203,10 @@ void GamepadPS4::run()
 		float normRY = (getValueFromKey(GamepadPS4::PS4KEY::RIGHT_HAT_Y, buffer) - 128) / 128.f;
 		float rightStickY = (abs(normRY) < m_deadzoneY ? 0 : (abs(normRY) - m_deadzoneY) * (normRY / abs(normRY)));
 
-		float viewingAngle;
+		float viewingAngle, relativeAngle;
 		if (rightStickX != 0.0 || rightStickY != 0.0) {
-			float relativeAngle = atan(rightStickX / rightStickY);// *abs(rightStickX);
-			viewingAngle = (rightStickY >= 0.f ? rightStickX < 0 ? -PI + relativeAngle : PI + relativeAngle : relativeAngle);
+			relativeAngle = atan(rightStickX / rightStickY);
+			viewingAngle = (rightStickY >= 0.f ? rightStickX < 0 ? PI + relativeAngle : -PI + relativeAngle : relativeAngle);
 		}
 		else {
 			viewingAngle = 0.f;
@@ -162,7 +231,11 @@ void GamepadPS4::run()
 bool GamepadPS4::checkConnection(){
 	// Open the device using the vendor_id, product_id,
 	// and optionally the Serial number.
-	if ((_controller = hid_open(VID, PID, nullptr)) != nullptr)
+	if (!m_serialNumber) {
+		m_serialNumber = GamepadPS4::getFreeDeviceSN();
+	}
+
+	if (_controller || (m_serialNumber && (_controller = hid_open(VID, PID, m_serialNumber)) != nullptr))
 		return true;
 
 	return false;

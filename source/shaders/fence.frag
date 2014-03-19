@@ -3,6 +3,7 @@
 uniform vec3 fenceColor;
 uniform int modelID;
 uniform float glowIntensity;
+uniform float fadeOutFactor;
 
 in float v_relHeight;
 
@@ -16,10 +17,11 @@ void main()
 		mixFactor
 	);
 
+	color.w *= fadeOutFactor;
+
 	gl_FragData[0] = color;
 
 	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
 	gl_FragData[1] = vec4(modelID, glowIntensity, 0, 0);
-
 	return;
 }

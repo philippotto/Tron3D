@@ -42,28 +42,26 @@ namespace troen
 		troen::COLLISIONTYPE collisionType;
 	};
 
-	
+
 	class LevelModel : public AbstractModel
 	{
 	public:
-		LevelModel(const LevelController* levelController);
-		int getLevelSize();
+		LevelModel(const LevelController* levelController, std::string levelName);
+		btScalar getLevelSize();
 
-		std::vector<BoxModel>& getWalls() { return m_walls; };
+		void reload(std::string levelName);
+
 		std::vector<BoxModel>& getFloors() { return m_floors; };
 		std::vector<BoxModel>& getObstacles() { return m_obstacles; };
 
 	private:
 
-		void addBoxes(std::vector<BoxModel> &boxes,const COLLISIONTYPE type = ABSTRACTTYPE);
-		void addWalls(const float levelSize, const float yPosition);
-		void addFloor(const float size, const float yPosition);
-
-		void auto_addObstacles();
+		void addBoxes(std::vector<BoxModel> &boxes, const COLLISIONTYPE type = ABSTRACTTYPE);
+		void addFloor(const float yPosition);
+		void addObstaclesFromFile(std::string levelName);
 
 		const LevelController* m_levelController;
 
-		std::vector<BoxModel> m_walls;
 		std::vector<BoxModel> m_floors;
 		std::vector<BoxModel> m_obstacles;
 	};

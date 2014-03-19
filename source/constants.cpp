@@ -25,7 +25,7 @@ namespace troen
 	const double GAME_START_COUNTDOWN_DURATION(3000);
 
 	//PHYSIS
-	const btVector3 DEFAULT_GRAVITY(0,0,-98);
+	const btVector3 DEFAULT_GRAVITY(0,0,-180);
 
 	// BIKE
 	const btVector3 BIKE_DIMENSIONS(2, 4, 2);
@@ -41,6 +41,7 @@ namespace troen
 	const float BIKE_DECELERATION_FACTOR(4.f);
 	const float BIKE_TURN_FACTOR_MAX(15);
 	const float BIKE_ANGULAR_DAMPENING_TERM(0.001f);
+	const float BIKE_VIEWING_ANGLE_DAMPENING_TERM(0.1f);
 
 	const float TURBO_PHASE_LENGTH(1000);
 
@@ -52,8 +53,8 @@ namespace troen
 	const float THRESHOLD_FOR_ABRUPT_VELOCITY_CHANGE(20.f);
 
 	//INPUT
-	const float BIKE_ROTATION_VALUE(10.0f);
-	const float BIKE_HANDBRAKE_FACTOR(1.5f);
+	const float BIKE_ROTATION_VALUE(12.0f);
+	const float BIKE_HANDBRAKE_FACTOR(1.4f);
 	// this should always be less than 1000/60FPS - the smaller, the more responsive is the input
 	const int POLLING_DELAY_MS(8);
 	const int VIBRATION_TIME_MS(500);
@@ -68,6 +69,8 @@ namespace troen
 	const float FENCE_PART_LENGTH(BIKE_DIMENSIONS.y() / 2);
 	const float FENCE_PART_WIDTH(BIKE_DIMENSIONS.x() * .3f);
 	const int DEFAULT_MAX_FENCE_PARTS(400);
+	const int FENCE_TO_MINIMAP_PARTS_RATIO(10);
+
 
 	// CAMERA
 	const osg::Vec3 CAMERA_POSITION_OFFSET(0, 0, BIKE_DIMENSIONS.y());
@@ -77,8 +80,12 @@ namespace troen
 	const int HUD_PROJECTION_SIZE(1000);
 
 
-	const unsigned int CAMERA_MASK_MAIN(0x1);
-	const unsigned int CAMERA_MASK_RADAR(0x2);
+	const unsigned int CAMERA_MASK_MAIN(1 << 0);
+	const unsigned int CAMERA_MASK_RADAR(1 << 1);
+	const unsigned int CAMERA_MASK_PLAYER[6] {1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7};
+	const unsigned int CAMERA_MASK_NONE(0);
+
+
 
 	// PHYSICS
 	const float BIKE_FENCE_IMPACT_THRESHOLD_LOW(BIKE_MASS*BIKE_VELOCITY_MIN);

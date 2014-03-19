@@ -14,17 +14,25 @@
 
 using namespace troen;
 
-LevelController::LevelController(TroenGame* troenGame)
+LevelController::LevelController(TroenGame* troenGame, std::string levelName) : m_levelName(levelName)
 {
 	AbstractController();
-	m_model = std::make_shared<LevelModel>(this);
-	m_view = std::make_shared<LevelView>(std::static_pointer_cast<LevelModel>(m_model));
+	m_model = m_levelModel = std::make_shared<LevelModel>(this, levelName);
+	m_view = m_levelView = std::make_shared<LevelView>(m_levelModel, levelName);
 
 	m_troenGame = troenGame;
-	
 	m_currentItemCount = 0;
 
 	initializeSpawnPoints();
+}
+
+void LevelController::reload()
+{
+	removeRigidBodiesFromWorld();
+	m_levelModel->reload(m_levelName);
+	addRigidBodiesToWorld();
+
+	m_levelView->reload(m_levelName);
 }
 
 btTransform LevelController::getSpawnPointForBikeWithIndex(int index)
@@ -41,24 +49,32 @@ btTransform LevelController::getRandomSpawnPoint()
 void LevelController::initializeSpawnPoints()
 {
 	btVector3 Z_AXIS(0, 0, 1);
-	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(20, 20, BIKE_DIMENSIONS.z() / 2)));
-	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 1.f / 4.f), btVector3(20, -20, BIKE_DIMENSIONS.z() / 2)));
-	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS, (float)-PI * 1.f / 4.f), btVector3(-20, -20, BIKE_DIMENSIONS.z() / 2)));
-	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS, (float)-PI * 3.f / 4.f), btVector3(-20, 20, BIKE_DIMENSIONS.z() / 2)));
-	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS,0), btVector3(100, 100, BIKE_DIMENSIONS.z() / 2)));
-	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS,0), btVector3(-100, -100, BIKE_DIMENSIONS.z() / 2)));
+	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(20, 20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 1.f / 4.f), btVector3(20, -20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS, (float)-PI * 1.f / 4.f), btVector3(-20, -20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS, (float)-PI * 3.f / 4.f), btVector3(-20, 20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS,0), btVector3(100, 100, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_initialBikePositionTransforms.push_back(btTransform(btQuaternion(Z_AXIS,0), btVector3(-100, -100, BIKE_DIMENSIONS.z() / 2 + 500)));
 }
-
-
 
 osg::ref_ptr<osg::Group>  LevelController::getFloorView()
 {
-		return std::static_pointer_cast<LevelView>(m_view)->getFloor();
-
+	return m_levelView->getFloor();
 }
+
 void LevelController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 {
 	m_world = world;
+}
+
+void LevelController::removeRigidBodiesFromWorld()
+{
+	m_world.lock()->removeRigidBodies(getRigidBodies());
+}
+
+void LevelController::addRigidBodiesToWorld()
+{
+	m_world.lock()->addRigidBodies(getRigidBodies(), COLGROUP_LEVEL, COLMASK_LEVEL);
 }
 
 void LevelController::addItemBox()
@@ -68,7 +84,7 @@ void LevelController::addItemBox()
 	btVector3 position(x, y, +0.5);
 
 	// the item controller will remove itself
-	new ItemController(position, m_world, m_troenGame, std::static_pointer_cast<LevelView>(m_view).get());
+	new ItemController(position, m_world, m_troenGame, m_levelView.get());
 
 	m_currentItemCount++;
 }
