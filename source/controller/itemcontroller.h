@@ -20,14 +20,14 @@ namespace troen
 
 		enum Type
 		{
-			TURBOSTRIP, HEALTHUP, RADAR, COUNT
+			TURBOSTRIP, HEALTHUP, RADAR, BENDEDVIEWS, COUNT
 		};
 
 		void triggerOn(BikeController* bikeController, GameLogic* gamelogic = nullptr);
 
 	public slots:
 		void hideFencesInRadarForPlayer();
-
+		void deactivateBendedViews();
 	private:
 		std::shared_ptr<ItemView> m_itemView;
 		std::shared_ptr<ItemModel> m_itemModel;

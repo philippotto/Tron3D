@@ -21,6 +21,8 @@ namespace troen
 		osg::ref_ptr<osg::Group> getFloor();
 		void addItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform);
 		void removeItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform);
+
+		void setBendingFactor(float bendingFactor);
 	private:
 		osg::ref_ptr<osg::Group> constructFloors(const int levelSize);
 		osg::ref_ptr<osg::Group> constructObstacles(const int levelSize, std::string levelName);
@@ -36,5 +38,7 @@ namespace troen
 
 
 		std::shared_ptr<LevelModel> m_model;
+
+		osg::Uniform *m_bendedUniform;
 	};
 }

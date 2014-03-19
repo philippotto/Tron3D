@@ -12,7 +12,7 @@ uniform int modelID;
 uniform vec2 nearFar;
 uniform float glowIntensity;
 uniform vec3 cameraEye;
-
+uniform float bendingFactor;
 
 in vec3 vertex_objCoords;
 in vec4 bendedVertex;
@@ -43,11 +43,11 @@ void main()
 	float skybox_blend = clamp(smoothstep(0.0, 0.2, xy_dist) * xy_dist, 0.0, 0.6);
 	//occlude skybox, when reflection occludes it
 	float occlusion_fac = (1.0 - scene_reflection.a);
-	vec4 reflectionTextureColor = mix(scene_reflection, skydome_reflection, skybox_blend * occlusion_fac);
+	vec4 reflectionTextureColor = mix(scene_reflection, skydome_reflection, mix(skybox_blend * occlusion_fac, 0.8, bendingFactor));
 
 	//vec4(skybox_blend,0.0,1.0);//
-	gl_FragData[0] = mix(grid * 2.0, reflectionTextureColor, 0.5);
-
+	gl_FragData[0] = mix(grid * 2.0, reflectionTextureColor, 0.5 - (1 - bendingFactor) / 4);
+	// gl_FragData[0] = vec4(bendingFactor);
 	// 2 channels: select_group, attribute (f.e glowintensity for glow group
 	gl_FragData[1] = vec4(modelID, glowIntensity, 0, 0);
 

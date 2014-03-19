@@ -34,6 +34,11 @@ AbstractView()
 
 	m_node->addChild(constructObstacles(levelSize, levelName));
 	m_node->addChild(constructFloors(levelSize));
+
+
+	osg::StateSet *stateSet = m_node->getOrCreateStateSet();
+	m_bendedUniform = new osg::Uniform("bendingFactor", 0.f);
+	stateSet->addUniform(m_bendedUniform);
 }
 
 void LevelView::reload(std::string levelName)
@@ -230,4 +235,9 @@ void troen::LevelView::removeItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixT
 osg::ref_ptr<osg::Group>  LevelView::getFloor()
 {
 	return m_node;
+}
+
+void LevelView::setBendingFactor(float bendingFactor)
+{
+	m_bendedUniform->set(bendingFactor);
 }

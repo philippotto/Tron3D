@@ -18,6 +18,8 @@ namespace troen
 		void addItemBox();
 		void update();
 
+		void setBendingFactor(float bendingFactor);
+
 		btTransform getRandomSpawnPoint();
 		osg::ref_ptr<osg::Group>  getFloorView();
 

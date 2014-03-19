@@ -125,20 +125,25 @@ void TroenGame::startGameLoop()
 			}
 
 
-			// Hack: normalize and use the speed to control the deformation
-			float bikeSpeed = m_players[0]->bikeController()->speed();
-			float maxSpeed = 400.f;
 			m_audioManager->Update(g_gameLoopTime / 1000);
 			m_audioManager->setMotorSpeed(m_players[0]->bikeController()->speed());
 
+			// Hack: normalize and use the speed to control the deformation
+			float bikeSpeed = m_players[0]->bikeController()->speed();
+			float maxSpeed = 400.f;
 			m_deformationRendering->setInterpolationSkalar(double(bikeSpeed / maxSpeed));
 
 			double currentBending = m_deformationRendering->getDeformationEnd();
-			const double targetBlending = m_deformationEnd;
-			currentBending += (targetBlending - currentBending) / 250;
-			m_deformationRendering->setDeformationStartEnd(0.1, currentBending);
+			const double targetBending = m_deformationEnd;
+			const double bendedStep = (BENDED_VIEWS_DEACTIVATED - BENDED_VIEWS_ACTIVATED) / 600;
+			
+			currentBending += bendedStep * (currentBending < targetBending ? 1 : -1);
+			currentBending = clamp(BENDED_VIEWS_ACTIVATED, BENDED_VIEWS_DEACTIVATED, currentBending);
 
-			m_deformationEnd += (10000 - m_deformationEnd) / 5000;
+			m_deformationRendering->setDeformationStartEnd(0.1, currentBending);
+			
+			m_levelController->setBendingFactor(1.0 - currentBending / BENDED_VIEWS_DEACTIVATED);
+
 
 
 			if (m_postProcessing)

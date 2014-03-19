@@ -11,6 +11,7 @@
 #include <osgViewer/ViewerEventHandlers>
 // troen
 #include "forwarddeclarations.h"
+#include "constants.h"
 #include "gameeventhandler.h"
 #include "resourcepool.h"
 #include "view/skydome.h"
@@ -79,11 +80,10 @@ namespace troen
 			return m_deformationRendering;
 		}
 
-		void setDeformationEnd(double end) {
-			m_deformationEnd = end;
-		}
-
-		double m_deformationEnd = 10000;
+		void enableBendedViews() { m_deformationEnd = BENDED_VIEWS_ACTIVATED; }
+		void disableBendedViews() { m_deformationEnd = BENDED_VIEWS_DEACTIVATED; }
+		
+		double m_deformationEnd = BENDED_VIEWS_DEACTIVATED;
 
 
 	public slots:

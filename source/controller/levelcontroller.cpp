@@ -89,7 +89,7 @@ void LevelController::addItemBox()
 	m_currentItemCount++;
 }
 
-void troen::LevelController::update()
+void LevelController::update()
 {
 	if (m_currentItemCount >= m_targetItemCount) {
 		return;
@@ -100,4 +100,9 @@ void troen::LevelController::update()
 	// creating all at once would cause a lag
 
 	addItemBox();
+}
+
+void LevelController::setBendingFactor(float bendingFactor)
+{
+	m_levelView->setBendingFactor(bendingFactor);
 }
