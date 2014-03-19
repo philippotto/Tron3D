@@ -7,7 +7,7 @@ project(troen)
 
 set(META_PROJECT_NAME        "Troen")
 set(META_VERSION_MAJOR       "0")
-set(META_VERSION_MINOR       "1")
+set(META_VERSION_MINOR       "2")
 set(META_VERSION_PATCH       "0")
 set(META_VERSION             "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}")
 set(META_AUTHOR_ORGANIZATION "GameProgramming")
@@ -20,6 +20,8 @@ set(META_AUTHOR_DOMAIN       "https://github.com/philippotto/GP2013")
 option(OPTION_LIMIT_CONFIGS  "Generate limited configs (Release; Debug)" ON)
 option(OPTION_LOCAL_INSTALL  "Install to a local directory instead of the system" OFF)
 option(OPTION_ERRORS_AS_EXCEPTION "Throw exceptions" OFF)
+option(OPTION_PORTABLE_INSTALL    "Install to a local directory instead of the system" ON)
+
 
 #################################################
 # CMAKE CONFIGURATION
@@ -54,6 +56,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Include custom cmake functions
 include(cmake/Custom.cmake)
+include(cmake/GitRevision.cmake)
 
 #################################################
 # PLATFORM AND ARCHITECTURE
@@ -87,60 +90,6 @@ else()
 	# Unsupported system/compiler
 	message(WARNING "Unsupported platform/compiler combination")
 endif()
-
-
-#################################################
-# INSTALL
-#################################################
-
-
-# if(X64)
-#     # http://public.kitware.com/Bug/view.php?id=9094
-#     set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
-# endif()
-
-# set(project ${META_PROJECT_NAME})
-# if(WIN32)
-#     set(INSTALL_BIN           ".")                      # C:\Programme\<project>
-#     set(INSTALL_SHARED        ".")                      # C:\Programme\<project>
-#     set(INSTALL_LIB           "lib")                    # C:\Programme\<project>\lib
-#     set(INSTALL_INCLUDE       "include")                # C:\Programme\<project>\include
-#     set(INSTALL_DOC           "doc")                    # C:\Programme\<project>\doc
-#     set(INSTALL_APPLICATIONS  "")                       # Not available under Windows
-#     set(INSTALL_ICONS         "")                       # Not available under Windows
-#     set(INSTALL_INIT          "")                       # Not available under Windows
-#     set(INSTALL_DATA          ".")                      # C:\Programme\<project>
-#     set(INSTALL_EXAMPLES      ".")                      # C:\Programme\<project>
-# else()
-#     set(INSTALL_BIN           "bin")                    # /usr/[local]/bin
-#     set(INSTALL_SHARED        "lib")                    # /usr/[local]/lib
-#     set(INSTALL_LIB           "lib")                    # /usr/[local]/lib
-#     set(INSTALL_INCLUDE       "include")                # /usr/[local]/include
-#     set(INSTALL_DOC           "share/doc/${project}")   # /usr/[local]/share/doc/<project>
-#     set(INSTALL_APPLICATIONS  "share/applications")     # /usr/[local]/share/applications
-#     set(INSTALL_ICONS         "share/pixmaps")          # /usr/[local]/share/pixmaps
-#     set(INSTALL_INIT          "/etc/init")              # /etc/init (upstart init scripts)
-#     set(INSTALL_DATA          "share/${project}")       # /usr/[local]/share/<project>
-#     set(INSTALL_EXAMPLES      "share/${project}")       # /usr/[local]/share/<project>
-
-#     # Adjust target paths for Local installs
-#     if(OPTION_LOCAL_INSTALL)
-#         # Put binaries in root directory and keep data directory name
-#         set(INSTALL_BIN                       ".")           # /<INSTALL_PREFIX>
-#         set(INSTALL_DATA                      ".")           # /<INSTALL_PREFIX>
-
-#         # We have to change the RPATH of binaries to achieve a usable local install.
-#         # [TODO] For binaries, "$ORIGIN/lib" is right, so that libraries are found in ./lib.
-#         #        However, I have not yet tested what happens when libraries use other libraries.
-#         #        In that case, they might need the rpath $ORIGIN instead ...
-#         set(CMAKE_SKIP_BUILD_RPATH            FALSE)         # Use automatic rpath for build
-#         set(CMAKE_BUILD_WITH_INSTALL_RPATH    FALSE)         # Use specific rpath for INSTALL
-#         set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)         # NO automatic rpath for INSTALL
-#         set(CMAKE_INSTALL_RPATH               "$ORIGIN/lib") # Libraries are relative to binary
-#     endif()
-# endif()
-
-# install(DIRECTORY ${GLOW_SOURCE_DIR}/include/ DESTINATION ${INSTALL_INCLUDE})
 
 
 #################################################
@@ -334,3 +283,90 @@ target_link_libraries( ${target}
 	${CMAKE_PREFIX_PATH}/Xinput9_1_0.lib
 )
 endif (WIN32)
+
+#################################################
+# INSTALL
+#################################################
+
+
+# Installation paths
+set(project ${META_PROJECT_NAME})
+if(WIN32)
+    set(INSTALL_ROOT      ".")                         # C:\Programme\<project>
+    set(INSTALL_EXAMPLES  "bin")                       # C:\Programme\<project>
+    set(INSTALL_DATA      ".")	                       # C:\Programme\<project>
+    set(INSTALL_BIN       "bin")                       # C:\Programme\<project>
+    set(INSTALL_SHARED    ".")                         # C:\Programme\<project>
+    set(INSTALL_LIB       "3rdParty")                  # C:\Programme\<project>\lib
+    set(INSTALL_INCLUDE   "include")                   # C:\Programme\<project>\include
+    set(INSTALL_DOC       "doc")                       # C:\Programme\<project>\doc
+    set(INSTALL_SHORTCUTS ".")                         # Not available under Windows
+    set(INSTALL_ICONS     ".")                         # Not available under Windows
+    set(INSTALL_INIT      ".")                         # Not available under Windows
+else()
+    set(INSTALL_ROOT      "share/${project}")          # /usr/[local]/share/<project>
+    set(INSTALL_EXAMPLES  "share/${project}/examples") # /usr/[local]/share/<project>/examples
+    set(INSTALL_DATA      "share/${project}/data") # /usr/[local]/share/<project>/data
+    set(INSTALL_BIN       "bin")                       # /usr/[local]/bin
+    set(INSTALL_SHARED    "lib")                       # /usr/[local]/lib
+    set(INSTALL_LIB       "lib")                       # /usr/[local]/lib
+    set(INSTALL_INCLUDE   "include")                   # /usr/[local]/include
+    set(INSTALL_DOC       "share/doc/${project}")      # /usr/[local]/share/doc/<project>
+    set(INSTALL_SHORTCUTS "share/applications")        # /usr/[local]/share/applications
+    set(INSTALL_ICONS     "share/pixmaps")             # /usr/[local]/share/pixmaps
+    set(INSTALL_INIT      "/etc/init")                 # /etc/init (upstart init scripts)
+
+    # Adjust target paths for portable installs
+    if(OPTION_PORTABLE_INSTALL)
+        # Put binaries in root directory and keep data directory name
+        set(INSTALL_ROOT     ".") # <INSTALL_PREFIX>/
+        set(INSTALL_EXAMPLES "examples") # <INSTALL_PREFIX>/
+        set(INSTALL_DATA     "data") # <INSTALL_PREFIX>/
+        set(INSTALL_BIN      "bin") # <INSTALL_PREFIX>/
+
+        # We have to change the RPATH of binaries to achieve a usable local install.
+        # [TODO] For binaries, "$ORIGIN/lib" is right, so that libraries are found in ./lib.
+        #        However, I have not yet tested what happens when libraries use other libraries.
+        #        In that case, they might need the rpath $ORIGIN instead ...
+        set(CMAKE_SKIP_BUILD_RPATH            FALSE)         # Use automatic rpath for build
+        set(CMAKE_BUILD_WITH_INSTALL_RPATH    FALSE)         # Use specific rpath for INSTALL
+        set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)         # NO automatic rpath for INSTALL
+        set(CMAKE_INSTALL_RPATH               "$ORIGIN/3rdParty") # Libraries are relative to binary
+    endif()
+endif()
+
+
+#
+# Global deployment
+#
+
+# Project meta files
+# install(FILES glow-config.cmake DESTINATION ${INSTALL_ROOT})
+# install(FILES AUTHORS           DESTINATION ${INSTALL_ROOT})
+# install(FILES LICENSE           DESTINATION ${INSTALL_ROOT})
+
+# Add a revision file containing the git-head tag for cpack and install
+create_revision_file(${CMAKE_BINARY_DIR}/revision ${INSTALL_ROOT})
+# Data files
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/data DESTINATION ${INSTALL_DATA})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/data DESTINATION ${INSTALL_ROOT}/shaders)
+# executable
+INSTALL(TARGETS troen DESTINATION ${INSTALL_ROOT})
+
+
+#################################################
+# CPACK DEPLOY
+#################################################
+
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_SOURCE_GENERATOR "ZIP")
+
+set(CPACK_PACKAGE_VERSION_MAJOR ${META_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${META_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${GIT_REV})
+
+set(CPACK_INSTALL_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR})
+set(CPACK_IGNORE_FILES "/.pdb/;/.ilk/;/.svn/;/.hg/;/.git/;.swp$;.#;/#")
+set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_BINARY_DIR}/install)
+
+include(CPack)
