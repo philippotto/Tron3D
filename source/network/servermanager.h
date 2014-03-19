@@ -37,7 +37,7 @@ namespace troen
 			virtual void handleBikeStatusMessage(bikeStatusMessage message, RakNet::SystemAddress adress);
 			virtual void handleFencePartMessage(fenceUpdateMessage message, RakNet::SystemAddress adress);
 			virtual void handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress adress);
-			virtual void addPlayer(RakNet::Packet *packet);
+			virtual bool addPlayer(RakNet::Packet *packet);
 		protected:
 			std::string m_clientAddress;
 			bool m_isServer;

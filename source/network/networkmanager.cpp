@@ -149,16 +149,26 @@ void NetworkManager::run()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void troen::networking::NetworkManager::addPlayer(RakNet::Packet *packet)
+bool troen::networking::NetworkManager::addPlayer(RakNet::Packet *packet)
 {
 	//instantiate the remote player
 	std::shared_ptr<NetworkPlayerInfo> remote_player = std::make_shared<NetworkPlayerInfo>();
 	remote_player->setParametersFromRemote(packet);
-
-	if (getPlayerWithID(remote_player->networkID) != NULL) //player was added before
+	
+	if (getPlayerWithID(remote_player->networkID) != NULL)  //player was added before
 	{
 		remote_player.reset();
-		return;
+		return false;
+	}
+
+	if ( getPlayerWithName(remote_player->name) != NULL) //other player already has name
+	{
+		remote_player.reset();
+		RakNet::BitStream bsOut;
+		bsOut.Write((RakNet::MessageID)PLAYERNAME_REFUSED);
+		//notify sending client
+		peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
+		return false;
 	}
 
 	m_players.push_back(remote_player);
@@ -167,6 +177,8 @@ void troen::networking::NetworkManager::addPlayer(RakNet::Packet *packet)
 
 	//add player in UI
 	emit newNetworkPlayer(remote_player->name);
+
+	return true;
 }
 
 

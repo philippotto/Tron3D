@@ -43,6 +43,7 @@ namespace troen
 		void chooseColor(const int i);
 		void connectNetworking();
 		void connectionTypeChanged();
+		void showPlayerNameRefused();
 
 	private:
 		void loadSettings();

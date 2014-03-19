@@ -15,6 +15,7 @@
 // troen
 #include "troengame.h"
 #include "network/networkmanager.h"
+#include "network/clientmanager.h"
 
 using namespace troen;
 
@@ -351,6 +352,13 @@ void MainWindow::bikeNumberChanged(int newBikeNumber)
 
 void MainWindow::connectNetworking()
 {
+	if (m_networkingReady)
+	{
+		if (!m_serverCheckBox->isChecked())
+			m_troenGame->getClientManager()->changeOwnName(m_playerNameLineEdits[0]->text());
+		return;
+	}
+
 	m_statusLabel->setText(QString("Connecting..."));
 	if (m_serverCheckBox->isChecked())
 	{
@@ -368,6 +376,7 @@ void MainWindow::connectNetworking()
 
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(newNetworkPlayer(QString)), this, SLOT(addNetworkPlayer(QString)));
+	connect(m_troenGame->getNetworkManager().get(), SIGNAL(playerNameRefused()), this, SLOT(showPlayerNameRefused()));
 	
 	
 	m_networkingReady = true;
@@ -392,6 +401,13 @@ void MainWindow::addNetworkPlayer(QString name)
 	bikeNumberChanged(m_networkPlayers+1);
 	updatePlayerInputBoxes();
 }
+
+void MainWindow::showPlayerNameRefused()
+{
+	m_statusLabel->setText(QString("This Name is already taken, choose another one"));
+	m_statusLabel->setStyleSheet("QLabel { background-color : red; color : blue; }");
+}
+
 
 bool MainWindow::eventFilter(QObject* object, QEvent* event)
 {
@@ -491,3 +507,4 @@ void MainWindow::saveSettings()
 
 	settings.sync();
 }
+

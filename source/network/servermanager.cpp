@@ -134,9 +134,11 @@ void ServerManager::giveIDtoClient(RakNet::Packet *packet)
 
 
 
-void ServerManager::addPlayer(RakNet::Packet *packet)
+bool ServerManager::addPlayer(RakNet::Packet *packet)
 {
-	NetworkManager::addPlayer(packet);
+
+	if (!NetworkManager::addPlayer(packet))
+		return false;
 
 	//send player info to all other clients
 	RakNet::BitStream bsAddPlayer;
@@ -158,6 +160,7 @@ void ServerManager::addPlayer(RakNet::Packet *packet)
 		peer->Send(&bsAddPlayer, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
 	}
 
+	return true;
 
 }
 

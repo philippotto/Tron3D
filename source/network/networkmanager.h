@@ -35,7 +35,7 @@ namespace troen
 			//game initiation
 			GAME_INIT_PARAMETERS = ID_USER_PACKET_ENUM + 1,
 			ADD_PLAYER = ID_USER_PACKET_ENUM+2,
-			REGISTER_PLAYER_AT_SERVER = ID_USER_PACKET_ENUM + 3,
+			PLAYERNAME_REFUSED = ID_USER_PACKET_ENUM + 3,
 			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 4,
 			//bike messages
 			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 5,
@@ -127,7 +127,7 @@ namespace troen
 			virtual void handleBikePositionMessage(bikeUpdateMessage message, RakNet::SystemAddress adress);
 			virtual void handleFencePartMessage(fenceUpdateMessage message, RakNet::SystemAddress adress);
 			virtual void handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress adress);
-			virtual void addPlayer(RakNet::Packet *packet);
+			virtual bool addPlayer(RakNet::Packet *packet);
 
 			//synchronize threads
 			void waitOnAllPlayers();
@@ -154,6 +154,7 @@ namespace troen
 		signals:
 			void remoteStartCall();
 			void newNetworkPlayer(QString name);
+			void playerNameRefused();
 
 		public slots:
 			void buildOwnPlayerInfo(const troen::GameConfig& config);
