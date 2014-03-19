@@ -39,7 +39,7 @@ namespace troen
 			virtual void handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress adress);
 			virtual bool addPlayer(RakNet::Packet *packet);
 			
-			void setLocalGameReady();
+			virtual void setLocalGameReady();
 
 		protected:
 			std::string m_clientAddress;

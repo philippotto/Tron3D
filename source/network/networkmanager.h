@@ -118,7 +118,7 @@ namespace troen
 			void sendMessages(QQueue<TQueue> *sendBufferQueue, TSendStruct &messageToSend, int order, int statusMessage);
 			void sendPoints(int pointCount, int status, short secondBike = NULL);
 			void synchronizeGameStart(troen::GameConfig &config);
-			void setLocalGameReady();
+			virtual void setLocalGameReady();
 			void sendGameStatusMessage(gameStatus status, troen::Player *bikePlayer, troen::Player *fencePlayer);
 			//receiving data
 			template <typename T>

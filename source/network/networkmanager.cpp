@@ -336,7 +336,7 @@ void NetworkManager::update(long double g_gameTime)
 			btQuaternion quat = localBikeController->getModel()->getRotationQuat();
 			btVector3 linearVelocity = localBikeController->getModel()->getLinearVelocity();
 			bikeUpdateMessage message = {
-				m_gameID,
+				localBikeController->player()->getNetworkID(),
 				pos.x(), pos.y(), pos.z(),
 				quat.x(), quat.y(), quat.z(), quat.w(),
 				linearVelocity.x(), linearVelocity.y(), linearVelocity.z()

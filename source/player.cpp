@@ -159,7 +159,7 @@ m_hasGameView(config->ownView[id])
 	m_isRemote = false;
 	if (game->isNetworking())
 	{
-		if (config->ownView[m_id])
+		if (config->ownView[m_id] || config->playerInputTypes[m_id] == input::BikeInputState::AI)
 		{
 			game->getNetworkManager()->registerLocalPlayer(this);
 
