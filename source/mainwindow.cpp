@@ -362,16 +362,30 @@ void MainWindow::connectNetworking()
 	m_statusLabel->setText(QString("Connecting..."));
 	if (m_serverCheckBox->isChecked())
 	{
-		m_troenGame->setupNetworking(true, m_playerNameLineEdits[0]->text());
+		std::vector<QString> playerNames;
+		playerNames.push_back(m_playerNameLineEdits[0]->text());
 
+		//add AIs as seperate players in the server
+		for (int i = 0; i < m_playerComboBoxes.size() && i < m_bikeNumberSpinBox->value(); i++)
+		{
+			if (m_playerComboBoxes[i]->currentText() == "AI")
+			{
+				m_networkPlayers++;
+				playerNames.push_back(m_playerNameLineEdits[i]->text());
+
+			}
+		}
+
+		m_troenGame->setupServer(playerNames);
+		
 		//player_slot = 0;
 	}
 	else
 	{
-		m_troenGame->setupNetworking(false, m_playerNameLineEdits[0]->text(), m_connectAdressEdit->text().toStdString());
+		m_troenGame->setupClient(m_playerNameLineEdits[0]->text(), m_connectAdressEdit->text().toStdString());
 		m_statusLabel->setText(QString("Connected to " + m_connectAdressEdit->text()));
-		//player_slot = 1;
 	}
+
 
 
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));

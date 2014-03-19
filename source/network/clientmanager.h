@@ -43,6 +43,7 @@ namespace troen
 			bool m_connectedToServer;
 			QString m_playerName;
 			RakNet::SystemAddress m_serverAddress;
+			std::shared_ptr<NetworkPlayerInfo> m_ownPlayer;
 		};
 	}
 

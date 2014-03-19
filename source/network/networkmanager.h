@@ -156,8 +156,6 @@ namespace troen
 			void newNetworkPlayer(QString name);
 			void playerNameRefused();
 
-		public slots:
-			void buildOwnPlayerInfo(const troen::GameConfig& config);
 		protected:
 			TroenGame *m_troenGame;
 
@@ -179,8 +177,7 @@ namespace troen
 
 			//players
 			std::vector<std::shared_ptr<NetworkPlayerInfo>> m_players;
-			std::shared_ptr<troen::Player>  m_localPlayer;
-			std::shared_ptr<BikeController> m_localBikeController;
+			std::vector<std::shared_ptr<BikeController>> m_localBikeControllers;
 			std::shared_ptr<BikeModel> m_localBikeModel;
 
 
@@ -190,7 +187,7 @@ namespace troen
 			bool m_gameInitStarted;
 			btTransform m_startPosition;
 			int m_gameID;
-			std::shared_ptr<NetworkPlayerInfo> m_ownPlayerInfo;
+			std::vector<std::shared_ptr<NetworkPlayerInfo>> m_ownPlayersInfo;
 			bool m_gameStarted;
 			struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage, messageToSend;
 			struct bikeStatusMessage receivedBikeStatusMessage, bikeStatusMessageToSend;

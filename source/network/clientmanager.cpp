@@ -93,9 +93,9 @@ void ClientManager::setInitParameters(RakNet::Packet *packet)
 	std::cout << "got game ID: " << m_gameID << std::endl;
 	std::cout << "starting at Position" << m_startPosition.getOrigin().x() << " " <<  m_startPosition.getOrigin().y() << std::endl; 
 
-	
-	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>(m_playerName, getPlayerColor(m_gameID), m_gameID, false, m_startPosition);
-	m_players.push_back(m_ownPlayerInfo);
+	m_ownPlayer = std::make_shared<NetworkPlayerInfo>(m_playerName, getPlayerColor(m_gameID), m_gameID, false, m_startPosition);
+	m_players.push_back(m_ownPlayer);
+	m_ownPlayersInfo.push_back(m_ownPlayer);
 
 	m_serverAddress = packet->systemAddress;
 
@@ -112,12 +112,12 @@ void ClientManager::registerAtServer()
 {
 	RakNet::BitStream bsOut;
 	bsOut.Write((RakNet::MessageID)ADD_PLAYER);
-	m_ownPlayerInfo->serialize(&bsOut);
+	m_ownPlayer->serialize(&bsOut);
 	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, m_serverAddress, false);
 }
 
 void ClientManager::changeOwnName(QString name)
 {
-	m_ownPlayerInfo->name = name;
+	m_ownPlayer->name = name;
 	registerAtServer(); //only works, if old name has not been accepted
 }

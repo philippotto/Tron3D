@@ -26,7 +26,7 @@ namespace troen
 		{
 			Q_OBJECT
 		public:
-			ServerManager(TroenGame *game, QString playerName);
+			ServerManager(TroenGame *game, std::vector<QString> playerNames);
 			void openServer();
 			bool isValidSession();
 
@@ -38,6 +38,9 @@ namespace troen
 			virtual void handleFencePartMessage(fenceUpdateMessage message, RakNet::SystemAddress adress);
 			virtual void handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress adress);
 			virtual bool addPlayer(RakNet::Packet *packet);
+			
+			void setLocalGameReady();
+
 		protected:
 			std::string m_clientAddress;
 			bool m_isServer;
@@ -45,7 +48,7 @@ namespace troen
 
 
 			std::shared_ptr<std::vector<btTransform>> m_startPositions;
-			QString m_playerName;
+			std::vector<QString> m_playerNames;
 		};
 	}
 

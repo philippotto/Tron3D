@@ -25,7 +25,7 @@ using namespace troen::networking;
 
 
 
-ServerManager::ServerManager(troen::TroenGame *game, QString playerName) : NetworkManager(game)
+ServerManager::ServerManager(troen::TroenGame *game, std::vector<QString> playerNames) : NetworkManager(game)
 {
 	m_startPositions = std::make_shared<std::vector<btTransform>>();
 	btVector3 Z_AXIS(0, 0, 1);
@@ -38,10 +38,19 @@ ServerManager::ServerManager(troen::TroenGame *game, QString playerName) : Netwo
 	
 	m_startPosition = m_startPositions->at(0);
 
-	m_gameID = 0;
 
 	m_numClientsConnected = 0;
-	m_playerName = playerName;
+	m_playerNames = playerNames;
+
+	//gameid also is a count of the server local player + AIs
+	//clients will have increasing ids from this
+	m_gameID = m_playerNames.size()-1;
+	for (int i = 0; i < playerNames.size(); i++)
+	{
+		std::shared_ptr<NetworkPlayerInfo> ownPlayer = std::make_shared<NetworkPlayerInfo>(m_playerNames[i], getPlayerColor(i), i, false, m_startPositions->at(i));
+		m_ownPlayersInfo.push_back(ownPlayer);
+		m_players.push_back(ownPlayer);
+	}
 }
 
 
@@ -92,9 +101,7 @@ void ServerManager::openServer()
 	// We need to let the server accept incoming connections from the clients
 	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
 
-	//alice -> for debugging
-	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>(m_playerName, getPlayerColor(m_gameID), m_gameID, false, m_startPosition);
-	m_players.push_back(m_ownPlayerInfo);
+
 
 
 
@@ -124,9 +131,9 @@ void ServerManager::giveIDtoClient(RakNet::Packet *packet)
 	RakNet::BitStream bsOut;
 	//set remote GameID
 	bsOut.Write((RakNet::MessageID)GAME_INIT_PARAMETERS);
-	bsOut.Write(m_numClientsConnected);
+	bsOut.Write(m_gameID + m_numClientsConnected);
 	//send a btTransform startposition
-	bsOut.Write(m_startPositions->at(m_numClientsConnected));
+	bsOut.Write(m_startPositions->at(m_gameID + m_numClientsConnected));
 	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
 	printf("A connection is incoming.\n");
 
@@ -163,6 +170,22 @@ bool ServerManager::addPlayer(RakNet::Packet *packet)
 	return true;
 
 }
+
+
+void ServerManager::setLocalGameReady()
+{
+	for (int i = 0; i <= m_gameID; i++)
+	{
+
+		getPlayerWithID(i)->status = WAITING_FOR_GAMESTART;
+
+		RakNet::BitStream bsOut;
+		bsOut.Write((RakNet::MessageID)BIKE_STATUS_MESSAGE);
+		getPlayerWithID(i)->serializeStatus(&bsOut);
+		peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+	}
+}
+
 
 void ServerManager::handleBikePositionMessage(bikeUpdateMessage message, RakNet::SystemAddress address)
 {

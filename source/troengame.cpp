@@ -273,33 +273,24 @@ void TroenGame::resize(int width, int height){
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-//setup the network connection and return the address of the remote connection
-std::string TroenGame::setupNetworking(bool server,QString playerName, std::string connectAddr)
+//setup the network connection
+std::string TroenGame::setupServer(std::vector<QString> playerNames)
 {
-	std::cout << "[TroenGame::initialize] networking ..." << std::endl;
 
-	if (server)
-	{
-		m_ServerManager = std::make_shared<networking::ServerManager>(this, playerName);
+		std::cout << "[TroenGame::initialize] networking Server..." << std::endl;
+		m_ServerManager = std::make_shared<networking::ServerManager>(this, playerNames);
 		m_ServerManager->openServer();
-	}
-	else
-	{
+		return std::string("ok");
+}
+
+std::string TroenGame::setupClient(QString playerName, std::string connectAddr)
+{
+		std::cout << "[TroenGame::initialize] networking Client..." << std::endl;
 		m_ClientManager = std::make_shared<networking::ClientManager>(this, playerName);
 		m_ClientManager->openClient(connectAddr);
-	}
-
-
-	//// sleep until a valid session is initiated
-	//while (!getNetworkManager()->isValidSession())
-	//	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-	//if (server)
-	//	return m_ServerManager->getClientAddress();
-	//else
-	//	return connectAddr;
-	return std::string("ok");
+		return std::string("ok");
 }
+
 
 
 bool TroenGame::synchronizeGameStart(GameConfig config)
@@ -332,3 +323,4 @@ void TroenGame::reloadLevel()
 {
 	m_levelController->reload();
 }
+
