@@ -347,10 +347,26 @@ endif()
 
 # Add a revision file containing the git-head tag for cpack and install
 create_revision_file(${CMAKE_BINARY_DIR}/revision ${INSTALL_ROOT})
+# data
+install(
+	DIRECTORY ${CMAKE_SOURCE_DIR}/data
+	DESTINATION ${INSTALL_DATA})
+# shaders
+install(
+	DIRECTORY ${CMAKE_SOURCE_DIR}/shaders
+	DESTINATION ${INSTALL_ROOT})
+# library dlls
+install(
+	FILES 
+		${CMAKE_SOURCE_DIR}/3rdParty/hidapi/hidapi.dll
+		${CMAKE_SOURCE_DIR}/3rdParty/fmod/api/fmodex64.dll
+		${CMAKE_SOURCE_DIR}/3rdParty/RakNet/Lib/RakNet_VS2008_DLL_Release_x64.dll
+		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/propertyzeug.dll
+		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/signalzeug.dll
+		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/scriptzeug.dll
+		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/reflectionzeug.dll
 
-# resources for install
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/data DESTINATION ${INSTALL_DATA})
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/shaders DESTINATION ${INSTALL_ROOT})
+	DESTINATION ${INSTALL_ROOT})
 
 
 # executable

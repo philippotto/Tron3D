@@ -24,7 +24,6 @@ void shaders::reloadShaders()
 	reloadShader(shaders::m_allShaderPrograms[OUTER_WALL], "shaders/outer_wall.frag", "shaders/outer_wall.vert");
 	reloadShader(shaders::m_allShaderPrograms[SELECT_GLOW_OBJECTS], "shaders/selectglowobjects.frag", "");
 	reloadShader(shaders::m_allShaderPrograms[SKYDOME], "shaders/skydome.frag", "");
-
 }
 
 void shaders::reloadShader(
