@@ -114,6 +114,7 @@ namespace troen
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
+		osg::ref_ptr<osg::Group>			m_sceneWithSkyboxNode;
 
 		//
 		// Game Components

@@ -40,6 +40,7 @@ t(game) {};
 bool TroenGameBuilder::build()
 {
 	t->m_rootNode = new osg::Group;
+	t->m_sceneNode = new osg::Group;
 
 	osg::DisplaySettings::instance()->setNumMultiSamples(NUM_MULTISAMPLES);
 
@@ -145,14 +146,14 @@ bool TroenGameBuilder::composeSceneGraph()
 
 		t->m_postProcessing = std::make_shared<PostProcessing>(t->m_rootNode, viewport->width(), viewport->height());
 
-		t->m_sceneNode = t->m_postProcessing->getSceneNode();
+		t->m_sceneWithSkyboxNode = t->m_postProcessing->getSceneNode();
 
 		//explicit call, to enable glow from start
 		t->resize(viewport->width(), viewport->height());
 	}
 	else
 	{
-		t->m_sceneNode = t->m_rootNode;
+		t->m_sceneWithSkyboxNode = t->m_rootNode;
 	}
 
 	for (auto player : t->m_playersWithView)
@@ -161,7 +162,8 @@ bool TroenGameBuilder::composeSceneGraph()
 	}
 
 	t->m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
-	//t->m_sceneNode->addChild(t->m_skyDome.get());
+	t->m_sceneWithSkyboxNode->addChild(t->m_sceneNode);
+	t->m_sceneWithSkyboxNode->addChild(t->m_skyDome.get());
 
 	t->m_sceneNode->addChild(t->m_levelController->getViewNode());
 	//t->m_sceneNode->addChild(t->m_sunLightSource.get());
@@ -182,14 +184,14 @@ bool TroenGameBuilder::composeSceneGraph()
 
 	for (auto player : t->m_playersWithView)
 	{
-			osg::Group * node = player->hudController()->getViewNode();
-			osg::Group * playerNode = player->playerNode();
-			playerNode->addChild(node);
+		osg::Group * node = player->hudController()->getViewNode();
+		osg::Group * playerNode = player->playerNode();
+		playerNode->addChild(node);
 	}
 
 
 	if (t->m_gameConfig->usePostProcessing)
-		t->m_rootNode->addChild(t->m_sceneNode);
+		t->m_rootNode->addChild(t->m_sceneWithSkyboxNode);
 
 	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
 
