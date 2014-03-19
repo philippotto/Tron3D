@@ -51,12 +51,12 @@ namespace troen
 		void updateModel(const long double gameTime);
 		void setState(const BIKESTATE newState, const double respawnTime = -1);
 		void moveBikeToPosition(btTransform position);
-		const float registerCollision(const btScalar impulse);
+		void registerCollision(const btScalar impulse);
 		void rememberFenceCollision(FenceController* fence);
 		void activateTurbo();
 		void updateUniforms();
 		void reset();
-		
+
 		//
 		// getters & setters & attributes
 		//
@@ -73,6 +73,7 @@ namespace troen
 		bool hasKeyboardHandler() {	return m_keyboardHandler != nullptr; };
 
 		float getDistanceToObstacle(double angle);
+		bool isFalling();
 
 	private:
 		std::shared_ptr<BikeView> m_bikeView;
@@ -87,7 +88,7 @@ namespace troen
 		float computeFovyDelta(const float speed, const float currentFovy);
 
 		//
-		// input 
+		// input
 		//
 		void initializeInput(const input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
@@ -100,7 +101,7 @@ namespace troen
 #endif
 
 		long double getTimeFactor();
-		
+
 		//
 		// communication links
 		//

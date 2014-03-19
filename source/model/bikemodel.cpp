@@ -222,7 +222,7 @@ osg::Vec3d BikeModel::getPositionOSG()
 }
 
 btVector3 BikeModel::getPositionBt()
-{
+ {
 	btTransform trans;
 	trans = m_rigidBodies[0]->getWorldTransform();
 	return trans.getOrigin();

@@ -69,7 +69,8 @@ namespace troen
 		float increaseHealth(const float diff);
 		float increasePoints(const float diff);
 
-
+		void setupReflections(TroenGame* game, osg::ref_ptr<osg::Group>& sceneNode);
+		bool isDead();
 	private:
 		//
 		// player attributes

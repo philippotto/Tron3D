@@ -66,12 +66,12 @@ void BikeController::reset()
 	m_timeOfLastCollision = -1;
 }
 
-const float BikeController::registerCollision(const btScalar impulse)
+void BikeController::registerCollision(const btScalar impulse)
 {
 	if (impulse > 0) {
 		m_timeOfLastCollision = g_gameTime;
 	}
-	return m_player->increaseHealth(-1 * impulse);
+	m_player->increaseHealth(-1 * impulse);
 }
 
 void BikeController::rememberFenceCollision(FenceController* fence)
@@ -306,7 +306,7 @@ void BikeController::updateModel(const long double gameTime)
 
 		// fades fence out when player died
 		m_player->fenceController()->updateFadeOutFactor(1 - (gameTime - m_respawnTime) / (RESPAWN_DURATION * 2.f / 3.f));
-		
+
 		if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
 		{
 			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
@@ -400,7 +400,7 @@ void BikeController::updateUniforms()
 		m_timeFactorUniform->set((float) getTimeFactor());
 		m_healthUniform->set(m_player->health()/BIKE_DEFAULT_HEALTH);
 	}
-	
+
 }
 
 void BikeController::updateFov(double speed)
@@ -417,7 +417,7 @@ float BikeController::getDistanceToObstacle(double angle) {
 	float rayLength = 10000;
 
 	if (m_world) { // && m_world->()) {
-		
+
 		btDiscreteDynamicsWorld* discreteWorld = m_world->getDiscreteWorld();
 		std::shared_ptr<BikeModel> bikeModel = std::static_pointer_cast<BikeModel>(m_model);
 
@@ -451,4 +451,10 @@ float BikeController::getDistanceToObstacle(double angle) {
 	}
 
 	return rayLength;
+}
+
+bool BikeController::isFalling()
+{
+	const int fallThreshold = -100;
+	return m_bikeModel->getPositionBt().z() < fallThreshold && state() == BikeController::BIKESTATE::DRIVING;
 }
