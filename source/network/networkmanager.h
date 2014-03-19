@@ -123,12 +123,17 @@ namespace troen
 			//receiving data
 			template <typename T>
 			void readMessage(RakNet::Packet *packet, T& readInto);
-			void receiveBikeStatusMessage(bikeStatusMessage message);
-			void addPlayer(RakNet::Packet *packet);
+			virtual void handleBikeStatusMessage(bikeStatusMessage message, RakNet::SystemAddress adress);
+			virtual void handleBikePositionMessage(bikeUpdateMessage message, RakNet::SystemAddress adress);
+			virtual void handleFencePartMessage(fenceUpdateMessage message, RakNet::SystemAddress adress);
+			virtual void handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress adress);
+			virtual void addPlayer(RakNet::Packet *packet);
+
+			//synchronize threads
 			void waitOnAllPlayers();
 			
 			//register
-			int registerRemotePlayerInput(std::shared_ptr<input::RemotePlayer> remotePlayer);
+			int registerRemotePlayerInput(int playerID, std::shared_ptr<input::RemotePlayer> remotePlayer);
 			void registerLocalPlayer(troen::Player* player);
 
 			//getters
@@ -137,6 +142,7 @@ namespace troen
 			std::string getClientAddress();
 			QColor getPlayerColor(int playerID);
 			std::shared_ptr<NetworkPlayerInfo> getPlayerWithID(int bikeID);
+			std::shared_ptr<NetworkPlayerInfo> getPlayerWithName(QString name);
 
 			//data polling
 			void update(long double g_gameTime);

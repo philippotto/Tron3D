@@ -33,7 +33,11 @@ namespace troen
 			std::string getClientAddress();
 			void giveIDtoClient(RakNet::Packet *packet);
 			virtual void handleSubClassMessages(RakNet::Packet *packet);
-			void registerClient(RakNet::Packet *packet);
+			virtual void handleBikePositionMessage(bikeUpdateMessage message, RakNet::SystemAddress adress);
+			virtual void handleBikeStatusMessage(bikeStatusMessage message, RakNet::SystemAddress adress);
+			virtual void handleFencePartMessage(fenceUpdateMessage message, RakNet::SystemAddress adress);
+			virtual void handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress adress);
+			virtual void addPlayer(RakNet::Packet *packet);
 		protected:
 			std::string m_clientAddress;
 			bool m_isServer;

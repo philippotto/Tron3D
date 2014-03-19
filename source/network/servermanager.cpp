@@ -72,9 +72,9 @@ void ServerManager::handleSubClassMessages(RakNet::Packet *packet)
 		case ID_CONNECTION_LOST:
 			printf("A client lost the connection.\n");
 			break;
-		case REGISTER_PLAYER_AT_SERVER:
-			registerClient(packet);
-			break;
+		//case REGISTER_PLAYER_AT_SERVER:
+		//	registerClient(packet);
+		//	break;
 		default:
 			printf("Message with identifier %i has arrived.\n", packet->data[0]);
 			break;
@@ -134,9 +134,18 @@ void ServerManager::giveIDtoClient(RakNet::Packet *packet)
 
 
 
-void ServerManager::registerClient(RakNet::Packet *packet)
+void ServerManager::addPlayer(RakNet::Packet *packet)
 {
-	addPlayer(packet);
+	NetworkManager::addPlayer(packet);
+
+	//send player info to all other clients
+	RakNet::BitStream bsAddPlayer;
+	bsAddPlayer.Write((RakNet::MessageID)ADD_PLAYER);
+	//write the player infos into the bitstream
+	m_players.back()->serialize(&bsAddPlayer);
+	//broadcast to all connected clients except sending client
+	peer->Send(&bsAddPlayer, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, true);
+
 
 	//send info of all existing players to client
 	for (auto player : m_players)
@@ -150,4 +159,50 @@ void ServerManager::registerClient(RakNet::Packet *packet)
 	}
 
 
+}
+
+void ServerManager::handleBikePositionMessage(bikeUpdateMessage message, RakNet::SystemAddress address)
+{
+	NetworkManager::handleBikePositionMessage(message, address);
+
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)BIKE_POSITION_MESSSAGE);
+	bsOut.Write(message);
+	//relay message to all systems except the origin of the message
+	peer->Send(&bsOut, HIGH_PRIORITY, UNRELIABLE_SEQUENCED, 0, address, true);
+
+}
+
+void ServerManager::handleBikeStatusMessage(bikeStatusMessage message, RakNet::SystemAddress address)
+{
+	NetworkManager::handleBikeStatusMessage(message, address);
+
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)BIKE_STATUS_MESSAGE);
+	bsOut.Write(message);
+	//relay message to all systems except the origin of the message
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, address, true);
+}
+
+
+void ServerManager::handleFencePartMessage(fenceUpdateMessage message, RakNet::SystemAddress address)
+{
+	NetworkManager::handleFencePartMessage(message, address);
+
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)BIKE_FENCE_PART_MESSAGE);
+	bsOut.Write(message);
+	//relay message to all systems except the origin of the message
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, address, true);
+}
+
+void ServerManager::handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress address)
+{
+	NetworkManager::handleGameStatusMessage(message, address);
+
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)GAME_STATUS_MESSAGE);
+	bsOut.Write(message);
+	//relay message to all systems except the origin of the message
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, address, true);
 }
