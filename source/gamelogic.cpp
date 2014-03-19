@@ -31,7 +31,8 @@ m_timeLimit(timeLimit*1000*60),
 m_gameStartTime(-1),
 m_limitedFenceMode(true)
 {
-	m_receivedGameMessages = m_troenGame->getNetworkManager()->m_receivedGameStatusMessages;
+	if (m_troenGame->isNetworking())
+		m_receivedGameMessages = m_troenGame->getNetworkManager()->m_receivedGameStatusMessages;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
