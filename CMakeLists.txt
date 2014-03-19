@@ -347,9 +347,12 @@ endif()
 
 # Add a revision file containing the git-head tag for cpack and install
 create_revision_file(${CMAKE_BINARY_DIR}/revision ${INSTALL_ROOT})
-# Data files
+
+# resources for install
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/data DESTINATION ${INSTALL_DATA})
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/data DESTINATION ${INSTALL_ROOT}/shaders)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/shaders DESTINATION ${INSTALL_ROOT})
+
+
 # executable
 INSTALL(TARGETS troen DESTINATION ${INSTALL_ROOT})
 
