@@ -57,22 +57,21 @@ void shaders::reloadShader(
 			program->addShader(vertShader);
 		}
 		
-		std::string *mystr;
-		mystr = new std::string(osgDB::getStrippedName(fragmentFileName));
+		std::string mystr = osgDB::getStrippedName(fragmentFileName);
 		
-		program->setName(*mystr);
+		program->setName(mystr);
 	}
 }
 
 bool shaders::loadShaderSource(osg::Shader* obj, const std::string& fileName)
 {
-	std::string *fqFileName = new std::string(osgDB::findDataFile(fileName));
-	if (fqFileName->length() == 0)
+	std::string fqFileName = osgDB::findDataFile(fileName);
+	if (fqFileName.length() == 0)
 	{
 		std::cout << "[TroenGame::abstractView]  File \"" << fileName << "\" not found." << std::endl;
 		return false;
 	}
-	bool success = obj->loadShaderSourceFromFile(fqFileName->c_str());
+	bool success = obj->loadShaderSourceFromFile(fqFileName.c_str());
 	if (!success)
 	{
 		std::cout << "Couldn't load file: " << fileName << std::endl;

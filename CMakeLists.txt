@@ -134,6 +134,13 @@ find_package(FMOD REQUIRED)
 # HIDAPI
 find_package(HIDAPI REQUIRED)
 
+# V8
+find_package(V8 REQUIRED)
+
+# Scriptzeug
+find_package(Scriptzeug REQUIRED)
+
+
 #################################################
 # SOURCES
 #################################################
@@ -241,6 +248,8 @@ set(sources
 	source/util/gldebugdrawer.h
 	source/util/gldebugdrawer.cpp
 
+	source/util/scriptwatcher.h
+	source/util/filteredrayresultcallback.h
 
 )
 
@@ -264,14 +273,20 @@ include_directories(
 	${BULLET_INCLUDE_DIRS}
 	${FMOD_INCLUDE_DIRS}
 	${HIDAPI_INCLUDE_DIRS}
+	${V8_INCLUDE}
+	${SCRIPTZEUG_INCLUDE_DIRS}
 )
+
+
 
 target_link_libraries( ${target}
     ${OPENGL_LIBRARIES}
     ${OPENSCENEGRAPH_LIBRARIES}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
-	${HIDAPI_LIBRARIES}
+		${HIDAPI_LIBRARIES}
+		${V8_LIBS}
+		${SCRIPTZEUG_LIBRARIES}
 )
 
 if (WIN32)

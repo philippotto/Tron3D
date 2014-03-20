@@ -45,23 +45,27 @@ m_bikeController(bikeController)
 	m_bikeRigidBodyCI.m_friction = 0.f;
 	//std::cout << m_bikeRigidBodyCI.m_friction << std::endl;
 
-	std::shared_ptr<btRigidBody> bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
-
-	bikeRigidBody->setCcdMotionThreshold(1 / BIKE_DIMENSIONS.y());
-	bikeRigidBody->setCcdSweptSphereRadius(BIKE_DIMENSIONS.x() * .5f - BIKE_DIMENSIONS.x() * 0.01);
+	m_bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
+	
+	m_bikeRigidBody->setCcdMotionThreshold(1 / BIKE_DIMENSIONS.y());
+	m_bikeRigidBody->setCcdSweptSphereRadius(BIKE_DIMENSIONS.x() * .5f - BIKE_DIMENSIONS.x() * 0.01);
 	// this seems to be necessary so that we can move the object via setVelocity()
-	bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
-	bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
+	m_bikeRigidBody->setActivationState(DISABLE_DEACTIVATION);
+	m_bikeRigidBody->setAngularFactor(btVector3(0, 0, 1));
 
 	// for collision event handling
 	ObjectInfo* info = new ObjectInfo(bikeController, BIKETYPE);
-	bikeRigidBody->setUserPointer(info);
+	m_bikeRigidBody->setUserPointer(info);
 
-	bikeMotionState->setRigidBody(bikeRigidBody);
+	bikeMotionState->setRigidBody(m_bikeRigidBody);
 
 	m_collisionShapes.push_back(bikeShape);
 	m_motionStates.push_back(bikeMotionState);
-	m_rigidBodies.push_back(bikeRigidBody);
+	m_rigidBodies.push_back(m_bikeRigidBody);
+}
+
+std::shared_ptr<btRigidBody> BikeModel::getRigidBody() {
+	return m_bikeRigidBody;
 }
 
 void BikeModel::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
@@ -94,7 +98,7 @@ void BikeModel::updateTurboFactor(float newVelocity, float time)
 {
 	m_turboFactor = fmax(0.f, m_turboFactor);
 
-	if (m_bikeController->turboInitiated() || m_bikeInputState->getTurboPressed()) {
+	if (m_turboFactor <= 0 && (m_bikeController->turboInitiated() || m_bikeInputState->getTurboPressed())) {
 		m_turboFactor = 1.f;
 		m_timeOfLastTurboInitiation = time;
 	}
@@ -170,6 +174,9 @@ float BikeModel::updateState(long double time)
 		// decrease speed so that the user will reach the maximum speed within timeToSlowDown milli seconds
 		// this is done so that the turbo won't be resetted instantly
 		speed -= (speed - BIKE_VELOCITY_MAX) * m_timeSinceLastUpdate / timeToSlowDown;
+		if (speed > BIKE_TURBO_VELOCITY_MAX) {
+			speed = BIKE_TURBO_VELOCITY_MAX;
+		}
 	}
 
 	if (speed < BIKE_VELOCITY_MIN)
@@ -210,8 +217,7 @@ float BikeModel::getVelocity()
 osg::Vec3d BikeModel::getPositionOSG()
 {
 	btTransform trans;
-	(m_rigidBodies[0]->getMotionState()->getWorldTransform(trans));
-
+	trans = m_rigidBodies[0]->getWorldTransform();
 	return osg::Vec3d(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
 }
 
@@ -220,6 +226,15 @@ btVector3 BikeModel::getPositionBt()
 	btTransform trans;
 	trans = m_rigidBodies[0]->getWorldTransform();
 	return trans.getOrigin();
+}
+
+btVector3 BikeModel::getDirection()
+{
+	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
+	float angle = bikeRigidBody->getOrientation().getAngle();
+	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
+	const btVector3 front = btVector3(0, -1, 0);
+	return front.rotate(axis, angle);
 }
 
 

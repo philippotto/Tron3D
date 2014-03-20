@@ -17,6 +17,15 @@ namespace troen
 	class BikeController : public AbstractController
 	{
 	public:
+		BikeController(
+			Player * player,
+			const input::BikeInputState::InputDevice& inputDevice,
+			const btTransform initialPosition,
+			ResourcePool *resourcePool);
+		~BikeController();
+
+		void killThread();
+
 		typedef enum enum_BIKESTATE
 		{
 			DRIVING,
@@ -26,19 +35,12 @@ namespace troen
 			WAITING
 		} BIKESTATE;
 
-		BikeController(
-			Player * player,
-			const input::BikeInputState::InputDevice& inputDevice,
-			const btTransform initialPosition,
-			ResourcePool *resourcePool);
-		~BikeController();
-
 		//
 		// initialization & communication
 		//
 		void attachTrackingCamera(std::shared_ptr<HUDController>& hudController);
         void attachTrackingCamera (osg::ref_ptr<NodeFollowCameraManipulator> &manipulator);
-		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
+		void attachWorld(std::shared_ptr<PhysicsWorld> world);
 		void attachGameView(osg::ref_ptr<osgViewer::View> gameView);
 
 		void addUniformsToPlayerNode();
@@ -54,7 +56,7 @@ namespace troen
 		void activateTurbo();
 		void updateUniforms();
 		void reset();
-		
+
 		//
 		// getters & setters & attributes
 		//
@@ -70,6 +72,7 @@ namespace troen
 		bool turboInitiated()	{ return m_turboInitiated; };
 		bool hasKeyboardHandler() {	return m_keyboardHandler != nullptr; };
 
+		float getDistanceToObstacle(double angle);
 		bool isFalling();
 
 	private:
@@ -85,7 +88,7 @@ namespace troen
 		float computeFovyDelta(const float speed, const float currentFovy);
 
 		//
-		// input 
+		// input
 		//
 		void initializeInput(const input::BikeInputState::InputDevice inputDevice);
 		void setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState);
@@ -98,7 +101,7 @@ namespace troen
 #endif
 
 		long double getTimeFactor();
-		
+
 		//
 		// communication links
 		//
@@ -124,6 +127,7 @@ namespace troen
 		float		m_speed;
 		bool		m_turboInitiated = false;
 		double		m_respawnTime;
+		std::shared_ptr<PhysicsWorld> m_world;
 		float		m_timeOfLastCollision;
 		std::pair<float, FenceController*> m_lastFenceCollision;
 	};
