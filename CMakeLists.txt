@@ -252,7 +252,7 @@ source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source"
 #################################################
 
 # Set target name
-set(target troen)
+set(target ${META_PROJECT_NAME})
 
 add_executable(${target} ${sources})
 
@@ -347,12 +347,12 @@ create_revision_file(${CMAKE_BINARY_DIR}/revision ${INSTALL_ROOT})
 install(
 	DIRECTORY ${CMAKE_SOURCE_DIR}/data
 	DESTINATION ${INSTALL_DATA}
-	COMPONENT troen)
+	COMPONENT ${META_PROJECT_NAME})
 # shaders
 install(
 	DIRECTORY ${CMAKE_SOURCE_DIR}/shaders
 	DESTINATION ${INSTALL_ROOT}
-	COMPONENT troen)
+	COMPONENT ${META_PROJECT_NAME})
 
 # hidapi, fmod, raknet
 install(
@@ -361,7 +361,7 @@ install(
 		${CMAKE_SOURCE_DIR}/3rdParty/fmod/api/fmodex64.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/RakNet/Lib/RakNet_VS2008_DLL_Release_x64.dll
 	DESTINATION ${INSTALL_ROOT}
-	COMPONENT ThirdParty)
+	COMPONENT ${META_PROJECT_NAME})
 
 # scriptzeug & v8
 install(
@@ -375,7 +375,7 @@ install(
 		${CMAKE_SOURCE_DIR}/3rdParty/v8/bin/icui18n.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/v8/bin/icuuc.dll
 	DESTINATION ${INSTALL_ROOT}
-	COMPONENT ThirdParty)
+	COMPONENT ${META_PROJECT_NAME})
 
 # Qt5
 get_target_property(QtCore_location Qt5::Core LOCATION)
@@ -388,7 +388,7 @@ install(
 		${QtGui_location}
 		${QtWidgets_location}		
 	DESTINATION ${INSTALL_ROOT}
-	COMPONENT ThirdParty)
+	COMPONENT ${META_PROJECT_NAME})
 
 # OSG
 string(REGEX REPLACE "/include" "/bin" OPENSCENEGRAPH_DLL_DIR ${OPENSCENEGRAPH_INCLUDE_DIRS})
@@ -415,25 +415,25 @@ install(
 		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgWidget.dll
 		${OPENSCENEGRAPH_DLL_DIR}/ot14-OpenThreads.dll
 	DESTINATION ${INSTALL_ROOT}
-	COMPONENT ThirdParty)
+	COMPONENT ${META_PROJECT_NAME})
 
 install(
 	DIRECTORY ${OPENSCENEGRAPH_DLL_DIR}/osgPlugins-3.3.1
 	DESTINATION ${INSTALL_ROOT}
-	COMPONENT ThirdParty)
+	COMPONENT ${META_PROJECT_NAME})
 
 # executable
 INSTALL(
-	TARGETS troen
+	TARGETS ${META_PROJECT_NAME}
 	DESTINATION ${INSTALL_ROOT}
-	COMPONENT troen)
+	COMPONENT ${META_PROJECT_NAME})
 
 
 #################################################
 # CPACK DEPLOY
 #################################################
 
-set(CPACK_GENERATOR "ZIP")
+set(CPACK_GENERATOR "NSIS")
 set(CPACK_SOURCE_GENERATOR "ZIP")
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${META_VERSION_MAJOR})
@@ -443,5 +443,7 @@ set(CPACK_PACKAGE_VERSION_PATCH ${GIT_REV})
 set(CPACK_INSTALL_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR})
 set(CPACK_IGNORE_FILES "/.pdb/;/.ilk/;/.svn/;/.hg/;/.git/;.swp$;.#;/#")
 set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_BINARY_DIR}/install)
+
+SET(CPACK_NSIS_MODIFY_PATH ON)
 
 include(CPack)

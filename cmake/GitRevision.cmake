@@ -18,6 +18,6 @@ macro(create_revision_file filename dest)
     file(WRITE ${filename} ${GIT_REV})
 
     # Install
-    install(FILES ${filename} DESTINATION ${dest})
+    install(FILES ${filename} DESTINATION ${dest} COMPONENT ${META_PROJECT_NAME})
 
 endmacro()
