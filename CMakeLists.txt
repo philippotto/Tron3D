@@ -113,7 +113,6 @@ set(QT_PACKAGES
 	Qt5Core
 	Qt5Gui
 	Qt5Widgets
-	Qt5OpenGL
 )
 foreach(package ${QT_PACKAGES})
 	find_package(${package} 5.1 REQUIRED)
@@ -138,9 +137,6 @@ find_package(HIDAPI REQUIRED)
 #################################################
 # SOURCES
 #################################################
-
-#possibly: add subdirectories here
-#add_subdirectory(source)
 
 set(sources
 	source/main.cpp
@@ -260,7 +256,7 @@ set(target troen)
 
 add_executable(${target} ${sources})
 
-qt5_use_modules(${target} Core OpenGL Gui Widgets)
+qt5_use_modules(${target} Core Gui Widgets)
 
 include_directories(
 	${CMAKE_SOURCE_DIR}
@@ -350,27 +346,87 @@ create_revision_file(${CMAKE_BINARY_DIR}/revision ${INSTALL_ROOT})
 # data
 install(
 	DIRECTORY ${CMAKE_SOURCE_DIR}/data
-	DESTINATION ${INSTALL_DATA})
+	DESTINATION ${INSTALL_DATA}
+	COMPONENT troen)
 # shaders
 install(
 	DIRECTORY ${CMAKE_SOURCE_DIR}/shaders
-	DESTINATION ${INSTALL_ROOT})
-# library dlls
+	DESTINATION ${INSTALL_ROOT}
+	COMPONENT troen)
+
+# hidapi, fmod, raknet
 install(
 	FILES 
 		${CMAKE_SOURCE_DIR}/3rdParty/hidapi/hidapi.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/fmod/api/fmodex64.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/RakNet/Lib/RakNet_VS2008_DLL_Release_x64.dll
+	DESTINATION ${INSTALL_ROOT}
+	COMPONENT ThirdParty)
+
+# scriptzeug & v8
+install(
+	FILES 
 		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/propertyzeug.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/signalzeug.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/scriptzeug.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/reflectionzeug.dll
+		${CMAKE_SOURCE_DIR}/3rdParty/v8/bin/v8.dll
+		${CMAKE_SOURCE_DIR}/3rdParty/v8/bin/icudt.dll
+		${CMAKE_SOURCE_DIR}/3rdParty/v8/bin/icui18n.dll
+		${CMAKE_SOURCE_DIR}/3rdParty/v8/bin/icuuc.dll
+	DESTINATION ${INSTALL_ROOT}
+	COMPONENT ThirdParty)
 
-	DESTINATION ${INSTALL_ROOT})
+# Qt5
+get_target_property(QtCore_location Qt5::Core LOCATION)
+get_target_property(QtGui_location Qt5::Gui LOCATION)
+get_target_property(QtWidgets_location Qt5::Widgets LOCATION)
 
+install(
+	FILES 
+		${QtCore_location}
+		${QtGui_location}
+		${QtWidgets_location}		
+	DESTINATION ${INSTALL_ROOT}
+	COMPONENT ThirdParty)
+
+# OSG
+string(REGEX REPLACE "/include" "/bin" OPENSCENEGRAPH_DLL_DIR ${OPENSCENEGRAPH_INCLUDE_DIRS})
+#file(GLOB osgDLLs RELATIVE "${OPENSCENEGRAPH_DLL_DIR}" "*.dll")
+
+install(
+	FILES
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osg.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgAnimation.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgDB.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgFX.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgGA.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgManipulator.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgParticle.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgPresentation.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgQt.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgShadow.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgSim.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgText.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgTerrain.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgUtil.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgViewer.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgVolume.dll
+		${OPENSCENEGRAPH_DLL_DIR}/osg111-osgWidget.dll
+		${OPENSCENEGRAPH_DLL_DIR}/ot14-OpenThreads.dll
+	DESTINATION ${INSTALL_ROOT}
+	COMPONENT ThirdParty)
+
+install(
+	DIRECTORY ${OPENSCENEGRAPH_DLL_DIR}/osgPlugins-3.3.1
+	DESTINATION ${INSTALL_ROOT}
+	COMPONENT ThirdParty)
 
 # executable
-INSTALL(TARGETS troen DESTINATION ${INSTALL_ROOT})
+INSTALL(
+	TARGETS troen
+	DESTINATION ${INSTALL_ROOT}
+	COMPONENT troen)
 
 
 #################################################
