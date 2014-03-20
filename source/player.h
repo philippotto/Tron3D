@@ -61,6 +61,7 @@ namespace troen
 		//
 		void setHealth(float health)	{ m_health = health; };
 		void setPoints(float points)	{ m_points = points; };
+		void setKillCount(int killCount) { m_killCount = killCount; };
 
 		//
 		// logic methods
@@ -74,7 +75,8 @@ namespace troen
 		void update(int g_gameTime);
 
 
-
+		void setupReflections(TroenGame* game, osg::ref_ptr<osg::Group>& sceneNode);
+		bool isDead();
 	private:
 		TroenGame*						m_troenGame;
 		//

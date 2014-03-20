@@ -43,6 +43,7 @@ namespace troen
 		btVector3 getLinearVelocity();
 		btVector3 getAngularVelocity();
 		osg::Quat getTilt();
+		btTransform getTransform();
 	private:
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 		float m_oldVelocity;

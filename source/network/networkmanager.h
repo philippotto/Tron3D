@@ -20,6 +20,7 @@
 #include "../input/remoteplayer.h"
 #include "../troengame.h"
 #include "../controller/bikecontroller.h"
+#include "qstring.h"
 
 
 namespace troen
@@ -34,15 +35,16 @@ namespace troen
 			//game initiation
 			GAME_INIT_PARAMETERS = ID_USER_PACKET_ENUM + 1,
 			ADD_PLAYER = ID_USER_PACKET_ENUM+2,
-			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 3,
+			PLAYERNAME_REFUSED = ID_USER_PACKET_ENUM + 3,
+			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 4,
 			//bike messages
-			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 4,
-			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 5,
-			BIKE_FENCE_PART_MESSAGE = ID_USER_PACKET_ENUM + 6,
+			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 5,
+			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 6,
+			BIKE_FENCE_PART_MESSAGE = ID_USER_PACKET_ENUM + 7,
 			//game messages
-			GAME_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 7,
+			GAME_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 8
 		};
-		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_FENCE};
+		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_FENCE, RESET_SCORE};
 
 		enum NETWORK_BIKESTATE
 		{
@@ -56,8 +58,9 @@ namespace troen
 		struct bikeUpdateMessage
 		{
 			int bikeID;
-			float x, y, z;
-			float quat_x, quat_y, quat_z, quat_w;
+			//float x, y, z;
+			//float quat_x, quat_y, quat_z, quat_w;
+			btTransform transform;
 			float linearVelX, linearVelY, linearVelZ;
 		};
 
@@ -116,37 +119,45 @@ namespace troen
 			void sendMessages(QQueue<TQueue> *sendBufferQueue, TSendStruct &messageToSend, int order, int statusMessage);
 			void sendPoints(int pointCount, int status, short secondBike = NULL);
 			void synchronizeGameStart(troen::GameConfig &config);
-			void setLocalGameReady();
+			virtual void setLocalGameReady();
 			void sendGameStatusMessage(gameStatus status, troen::Player *bikePlayer, troen::Player *fencePlayer);
 			//receiving data
 			template <typename T>
 			void readMessage(RakNet::Packet *packet, T& readInto);
-			void receiveBikeStatusMessage(bikeStatusMessage message);
-			void addPlayer(RakNet::Packet *packet);
+			virtual void handleBikeStatusMessage(bikeStatusMessage message, RakNet::SystemAddress adress);
+			virtual void handleBikePositionMessage(bikeUpdateMessage message, RakNet::SystemAddress adress);
+			virtual void handleFencePartMessage(fenceUpdateMessage message, RakNet::SystemAddress adress);
+			virtual void handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress adress);
+			virtual bool addPlayer(RakNet::Packet *packet);
+
+			//synchronize threads
 			void waitOnAllPlayers();
 			
 			//register
-			int registerRemotePlayerInput(std::shared_ptr<input::RemotePlayer> remotePlayer);
+			int registerRemotePlayerInput(int playerID, std::shared_ptr<input::RemotePlayer> remotePlayer);
 			void registerLocalPlayer(troen::Player* player);
 
 			//getters
-			int getGameID()  { return m_gameID; }
-			btTransform getStartPosition()  { return m_startPosition; }
+			int getGameID()  const { return m_gameID; }
+			bool isServer() const { return m_isServer; }
+			btTransform getStartPosition()  const { return m_startPosition; }
 			std::string getClientAddress();
 			QColor getPlayerColor(int playerID);
 			std::shared_ptr<NetworkPlayerInfo> getPlayerWithID(int bikeID);
+			std::shared_ptr<NetworkPlayerInfo> getPlayerWithName(QString name);
 
 			//data polling
-			void update(long double g_gameTime);
-			QQueue<gameStatusMessage> *m_receivedGameStatusMessages;
+			virtual void update(long double g_gameTime);
+			void pollPositionUpdates(long double g_gameTime);
 			//data pushing
 			void updateFencePart(btTransform fencePart, int bikeID);
 
+			QQueue<gameStatusMessage> *m_receivedGameStatusMessages;
 		
 		signals:
 			void remoteStartCall();
-		public slots:
-			void buildOwnPlayerInfo(const troen::GameConfig& config);
+			void newNetworkPlayer(QString name);
+			void playerNameRefused();
 		protected:
 			TroenGame *m_troenGame;
 
@@ -168,8 +179,7 @@ namespace troen
 
 			//players
 			std::vector<std::shared_ptr<NetworkPlayerInfo>> m_players;
-			std::shared_ptr<troen::Player>  m_localPlayer;
-			std::shared_ptr<BikeController> m_localBikeController;
+			std::vector<std::shared_ptr<BikeController>> m_localBikeControllers;
 			std::shared_ptr<BikeModel> m_localBikeModel;
 
 
@@ -179,7 +189,7 @@ namespace troen
 			bool m_gameInitStarted;
 			btTransform m_startPosition;
 			int m_gameID;
-			std::shared_ptr<NetworkPlayerInfo> m_ownPlayerInfo;
+			std::vector<std::shared_ptr<NetworkPlayerInfo>> m_ownPlayersInfo;
 			bool m_gameStarted;
 			struct bikeUpdateMessage receivedUpdateMessage, lastSentMessage, messageToSend;
 			struct bikeStatusMessage receivedBikeStatusMessage, bikeStatusMessageToSend;

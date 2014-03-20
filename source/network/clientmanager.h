@@ -27,16 +27,23 @@ namespace troen
 		{
 			Q_OBJECT
 		public:
-			ClientManager(TroenGame *game);
+			ClientManager(TroenGame *game, QString playerName);
 			void openClient(std::string connectAddr);
 
 			bool isValidSession();
 			void setInitParameters(RakNet::Packet *packet);
 			virtual void handleSubClassMessages(RakNet::Packet *packet);
+			void handlePlayerNameRefused();
+			void registerAtServer();
+			void changeOwnName(QString name);
+			
 		protected:
 	
 			bool m_isServer;
 			bool m_connectedToServer;
+			QString m_playerName;
+			RakNet::SystemAddress m_serverAddress;
+			std::shared_ptr<NetworkPlayerInfo> m_ownPlayer;
 		};
 	}
 

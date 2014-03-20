@@ -35,5 +35,6 @@ namespace troen
 		void addShaderAndUniforms(osg::ref_ptr<osg::Node> node, const int shaderIndex, const int levelSize, const int modelID);
 
 		std::shared_ptr<LevelModel> m_model;
+		osg::Group *m_itemGroup;
 	};
 }

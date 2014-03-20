@@ -15,6 +15,7 @@
 // troen
 #include "troengame.h"
 #include "network/networkmanager.h"
+#include "network/clientmanager.h"
 
 using namespace troen;
 
@@ -116,7 +117,7 @@ MainWindow::MainWindow(QWidget * parent)
 		QLineEdit* playerNameLineEdit = new QLineEdit;
 		playerNameLineEdit->setText(playerString);
 		playerNameLineEdit->setMaximumWidth(75);
-		playerNameLineEdit->setMaxLength(10);
+		playerNameLineEdit->setMaxLength(20);
 		m_playerNameLineEdits.push_back(playerNameLineEdit);
 		playerInputLayout->addWidget(playerNameLineEdit);
 
@@ -212,7 +213,7 @@ MainWindow::MainWindow(QWidget * parent)
 		m_connectAdressEdit = new QLineEdit;
 		m_connectAdressEdit->setText("127.0.0.1");
 		m_connectAdressEdit->setMaximumWidth(75);
-		m_connectAdressEdit->setMaxLength(10);
+		m_connectAdressEdit->setMaxLength(50);
 		connectionTypeLayout->addWidget(m_connectAdressEdit);
 
 		vBoxLayoutNetwork->addWidget(connectionTypeWidget);
@@ -232,6 +233,7 @@ MainWindow::MainWindow(QWidget * parent)
 	vBoxLayoutNetwork->addWidget(m_connectNetworkButton);
 
 	m_networkingReady = false;
+	m_networkPlayers = 0;
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -350,40 +352,76 @@ void MainWindow::bikeNumberChanged(int newBikeNumber)
 
 void MainWindow::connectNetworking()
 {
+	if (m_networkingReady)
+	{
+		if (!m_serverCheckBox->isChecked())
+			m_troenGame->getClientManager()->changeOwnName(m_playerNameLineEdits[0]->text());
+		return;
+	}
+
 	m_statusLabel->setText(QString("Connecting..."));
-	int remote_player_slot = 1;
 	if (m_serverCheckBox->isChecked())
 	{
-		std::string connectedTo = m_troenGame->setupNetworking(true);
-		m_statusLabel->setText(QString("Connected to " + QString(connectedTo.c_str())));
+		std::vector<QString> playerNames;
+		playerNames.push_back(m_playerNameLineEdits[0]->text());
+
+		//add AIs as seperate players in the server
+		for (int i = 0; i < m_playerComboBoxes.size() && i < m_bikeNumberSpinBox->value(); i++)
+		{
+			if (m_playerComboBoxes[i]->currentText() == "AI")
+			{
+				m_networkPlayers++;
+				playerNames.push_back(m_playerNameLineEdits[i]->text());
+
+			}
+		}
+
+		m_troenGame->setupServer(playerNames);
+		
 		//player_slot = 0;
 	}
 	else
 	{
-		m_troenGame->setupNetworking(false, m_connectAdressEdit->text().toStdString());
+		m_troenGame->setupClient(m_playerNameLineEdits[0]->text(), m_connectAdressEdit->text().toStdString());
 		m_statusLabel->setText(QString("Connected to " + m_connectAdressEdit->text()));
-		//player_slot = 1;
 	}
 
-	m_statusLabel->setStyleSheet("QLabel { background-color : green; color : blue; }");
-	m_playerNameLineEdits[remote_player_slot]->setText("remote player");
-	m_ownViewCheckboxes[remote_player_slot]->setChecked(true);
-	m_ownViewCheckboxes[1]->setChecked(false);
-	m_bikeNumberSpinBox->setValue(2);
-	m_playerComboBoxes[remote_player_slot]->addItem("MULTIPLAYER");
-	m_playerComboBoxes[remote_player_slot]->setCurrentText("MULTIPLAYER");
-	bikeNumberChanged(m_bikeNumberSpinBox->value());
-	updatePlayerInputBoxes();
+
 
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));
+	connect(m_troenGame->getNetworkManager().get(), SIGNAL(newNetworkPlayer(QString)), this, SLOT(addNetworkPlayer(QString)));
+	connect(m_troenGame->getNetworkManager().get(), SIGNAL(playerNameRefused()), this, SLOT(showPlayerNameRefused()));
 	
-	//informations are stored and sent statically for now, everything else crashed.. maybe we should switch to using replica3
-	//connect(this, SIGNAL(startGame(GameConfig)), m_troenGame->getNetworkManager().get(), SLOT(buildOwnPlayerInfo(const GameConfig&)));
 	
 	m_networkingReady = true;
 
 
 }
+
+void MainWindow::addNetworkPlayer(QString name)
+{
+	m_networkPlayers++;
+	if (m_networkPlayers == 1)
+		m_statusLabel->setText(QString(" Connected to ") + name);
+	else
+		m_statusLabel->setText(m_statusLabel->text() + QString("\n Connected to ") + name);
+		//m_statusLabel->setWordWrap(true);
+	m_statusLabel->setStyleSheet("QLabel { background-color : green; color : blue; }");
+	m_playerNameLineEdits[m_networkPlayers]->setText(name);
+	m_ownViewCheckboxes[m_networkPlayers]->setChecked(false);
+	m_bikeNumberSpinBox->setValue(m_networkPlayers+1);
+	m_playerComboBoxes[m_networkPlayers]->addItem("MULTIPLAYER");
+	m_playerComboBoxes[m_networkPlayers]->setCurrentText("MULTIPLAYER");
+	bikeNumberChanged(m_networkPlayers+1);
+	updatePlayerInputBoxes();
+}
+
+void MainWindow::showPlayerNameRefused()
+{
+	m_statusLabel->setText(QString("This Name is already taken, choose another one"));
+	m_statusLabel->setStyleSheet("QLabel { background-color : red; color : blue; }");
+}
+
 
 bool MainWindow::eventFilter(QObject* object, QEvent* event)
 {
@@ -483,3 +521,4 @@ void MainWindow::saveSettings()
 
 	settings.sync();
 }
+

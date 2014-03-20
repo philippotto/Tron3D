@@ -25,18 +25,34 @@ using namespace troen::networking;
 
 
 
-ServerManager::ServerManager(troen::TroenGame *game) : NetworkManager(game)
+ServerManager::ServerManager(troen::TroenGame *game, std::vector<QString> playerNames) : NetworkManager(game)
 {
 	m_startPositions = std::make_shared<std::vector<btTransform>>();
 	btVector3 Z_AXIS(0, 0, 1);
-	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(20, 20, BIKE_DIMENSIONS.z() / 2)));
-	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(40, 20, BIKE_DIMENSIONS.z() / 2)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(20, 20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)PI * 3.f / 4.f), btVector3(40, 20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)-PI * 1.f / 4.f), btVector3(60, 20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, (float)-PI * 3.f / 4.f), btVector3(80, 20, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, 0), btVector3(100, 100, BIKE_DIMENSIONS.z() / 2 + 500)));
+	m_startPositions->push_back(btTransform(btQuaternion(Z_AXIS, 0), btVector3(-100, -100, BIKE_DIMENSIONS.z() / 2 + 500)));
 	
 	m_startPosition = m_startPositions->at(0);
 
-	m_gameID = 0;
 
 	m_numClientsConnected = 0;
+	m_playerNames = playerNames;
+
+	//gameid also is a count of the server local player + AIs
+	//clients will have increasing ids from this
+	m_gameID = m_playerNames.size()-1;
+	for (int i = 0; i < playerNames.size(); i++)
+	{
+		std::shared_ptr<NetworkPlayerInfo> ownPlayer = std::make_shared<NetworkPlayerInfo>(m_playerNames[i], getPlayerColor(i), i, false, m_startPositions->at(i));
+		m_ownPlayersInfo.push_back(ownPlayer);
+		m_players.push_back(ownPlayer);
+	}
+
+	m_initialReset = false;
 }
 
 
@@ -55,7 +71,7 @@ void ServerManager::handleSubClassMessages(RakNet::Packet *packet)
 			break;
 
 		case ID_NEW_INCOMING_CONNECTION:
-			addClientToGame(packet);
+			giveIDtoClient(packet);
 			break;
 
 		case ID_NO_FREE_INCOMING_CONNECTIONS:
@@ -67,6 +83,9 @@ void ServerManager::handleSubClassMessages(RakNet::Packet *packet)
 		case ID_CONNECTION_LOST:
 			printf("A client lost the connection.\n");
 			break;
+		//case REGISTER_PLAYER_AT_SERVER:
+		//	registerClient(packet);
+		//	break;
 		default:
 			printf("Message with identifier %i has arrived.\n", packet->data[0]);
 			break;
@@ -84,9 +103,7 @@ void ServerManager::openServer()
 	// We need to let the server accept incoming connections from the clients
 	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
 
-	//alice -> for debugging
-	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>("alice", getPlayerColor(m_gameID), m_gameID, false, m_startPosition);
-	m_players.push_back(m_ownPlayerInfo);
+
 
 
 
@@ -102,32 +119,137 @@ bool ServerManager::isValidSession()
 
 }
 
-
-std::string  ServerManager::getClientAddress()
+void ServerManager::update(long double g_gameTime)
 {
-	return m_clientAddress;
+	NetworkManager::update(g_gameTime);
+
+	//after 1 second, reset all players score to 0, this is a workaround for some obscure synchronization issues at start
+	if (!m_initialReset && g_gameTime > 1000)
+	{
+		m_initialReset = true;
+		for (auto player : m_troenGame->players())
+		{
+			NetworkPlayerInfo *netplayer = getPlayerWithID(player->getNetworkID()).get();
+			player->setKillCount(0);
+
+			RakNet::BitStream bsOut;
+			bsOut.Write((RakNet::MessageID)GAME_STATUS_MESSAGE);
+			gameStatusMessage message = { player->getNetworkID(), RESET_SCORE, NULL, NULL };
+			bsOut.Write(message);
+			//relay message to all systems
+			peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+
+		}
+	}
 }
 
 
-void ServerManager::addClientToGame(RakNet::Packet *packet)
+
+void ServerManager::giveIDtoClient(RakNet::Packet *packet)
 {
 	m_numClientsConnected++;
 
 	RakNet::BitStream bsOut;
 	//set remote GameID
 	bsOut.Write((RakNet::MessageID)GAME_INIT_PARAMETERS);
-	bsOut.Write(m_numClientsConnected);
+	bsOut.Write(m_gameID + m_numClientsConnected);
 	//send a btTransform startposition
-	bsOut.Write(m_startPositions->at(m_numClientsConnected));
+	bsOut.Write(m_startPositions->at(m_gameID + m_numClientsConnected));
 	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
-
-	//send own player info
-	RakNet::BitStream bsAddPlayer;
-	bsAddPlayer.Write((RakNet::MessageID)ADD_PLAYER);
-	m_ownPlayerInfo->serialize(&bsAddPlayer);
-	peer->Send(&bsAddPlayer, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
-
-
 	printf("A connection is incoming.\n");
+
 }
 
+
+
+bool ServerManager::addPlayer(RakNet::Packet *packet)
+{
+
+	if (!NetworkManager::addPlayer(packet))
+		return false;
+
+	//send player info to all other clients
+	RakNet::BitStream bsAddPlayer;
+	bsAddPlayer.Write((RakNet::MessageID)ADD_PLAYER);
+	//write the player infos into the bitstream
+	m_players.back()->serialize(&bsAddPlayer);
+	//broadcast to all connected clients except sending client
+	peer->Send(&bsAddPlayer, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, true);
+
+
+	//send info of all existing players to client
+	for (auto player : m_players)
+	{
+		RakNet::BitStream bsAddPlayer;
+		bsAddPlayer.Write((RakNet::MessageID)ADD_PLAYER);
+
+		player->serialize(&bsAddPlayer);
+
+		peer->Send(&bsAddPlayer, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
+	}
+
+	return true;
+
+}
+
+
+void ServerManager::setLocalGameReady()
+{
+	for (int i = 0; i <= m_gameID; i++)
+	{
+
+		getPlayerWithID(i)->status = WAITING_FOR_GAMESTART;
+
+		RakNet::BitStream bsOut;
+		bsOut.Write((RakNet::MessageID)BIKE_STATUS_MESSAGE);
+		getPlayerWithID(i)->serializeStatus(&bsOut);
+		peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+	}
+}
+
+
+void ServerManager::handleBikePositionMessage(bikeUpdateMessage message, RakNet::SystemAddress address)
+{
+	NetworkManager::handleBikePositionMessage(message, address);
+
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)BIKE_POSITION_MESSSAGE);
+	bsOut.Write(message);
+	//relay message to all systems except the origin of the message
+	peer->Send(&bsOut, HIGH_PRIORITY, UNRELIABLE_SEQUENCED, 0, address, true);
+
+}
+
+void ServerManager::handleBikeStatusMessage(bikeStatusMessage message, RakNet::SystemAddress address)
+{
+	NetworkManager::handleBikeStatusMessage(message, address);
+
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)BIKE_STATUS_MESSAGE);
+	bsOut.Write(message);
+	//relay message to all systems except the origin of the message
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, address, true);
+}
+
+
+void ServerManager::handleFencePartMessage(fenceUpdateMessage message, RakNet::SystemAddress address)
+{
+	NetworkManager::handleFencePartMessage(message, address);
+
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)BIKE_FENCE_PART_MESSAGE);
+	bsOut.Write(message);
+	//relay message to all systems except the origin of the message
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, address, true);
+}
+
+void ServerManager::handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress address)
+{
+	NetworkManager::handleGameStatusMessage(message, address);
+
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)GAME_STATUS_MESSAGE);
+	bsOut.Write(message);
+	//relay message to all systems except the origin of the message
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, address, true);
+}

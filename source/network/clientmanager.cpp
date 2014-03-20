@@ -23,9 +23,10 @@ using namespace troen::networking;
 #define SERVER_PORT 60000
 
 
-ClientManager::ClientManager(troen::TroenGame *game) : NetworkManager(game)
+ClientManager::ClientManager(troen::TroenGame *game, QString playerName) : NetworkManager(game)
 {
 	m_connectedToServer = false;
+	m_playerName = playerName;
 }
 
 
@@ -39,6 +40,10 @@ void ClientManager::handleSubClassMessages(RakNet::Packet *packet)
 		break;
 	case GAME_INIT_PARAMETERS:
 		setInitParameters(packet);
+		break;
+
+	case PLAYERNAME_REFUSED:
+		handlePlayerNameRefused();
 		break;
 
 	case ID_NO_FREE_INCOMING_CONNECTIONS:
@@ -88,14 +93,32 @@ void ClientManager::setInitParameters(RakNet::Packet *packet)
 	std::cout << "got game ID: " << m_gameID << std::endl;
 	std::cout << "starting at Position" << m_startPosition.getOrigin().x() << " " <<  m_startPosition.getOrigin().y() << std::endl; 
 
-	
-	//for debugging mallory
-	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>("mallory", getPlayerColor(m_gameID), m_gameID, false, m_startPosition );
-	m_players.push_back(m_ownPlayerInfo);
+	m_ownPlayer = std::make_shared<NetworkPlayerInfo>(m_playerName, getPlayerColor(m_gameID), m_gameID, false, m_startPosition);
+	m_players.push_back(m_ownPlayer);
+	m_ownPlayersInfo.push_back(m_ownPlayer);
 
-	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)ADD_PLAYER);
-	m_ownPlayerInfo->serialize(&bsOut);
-	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
+	m_serverAddress = packet->systemAddress;
+
+	registerAtServer();
 
 }
+
+void ClientManager::handlePlayerNameRefused()
+{
+	emit playerNameRefused();
+}
+
+void ClientManager::registerAtServer()
+{
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)ADD_PLAYER);
+	m_ownPlayer->serialize(&bsOut);
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, m_serverAddress, false);
+}
+
+void ClientManager::changeOwnName(QString name)
+{
+	m_ownPlayer->name = name;
+	registerAtServer(); //only works, if old name has not been accepted
+}
+

@@ -67,8 +67,8 @@ void TroenGame::startGameLoop()
 	// http://entropyinteractive.com/2011/02/game-engine-design-the-game-loop/
 
 	// INITIALIZATION
-	TroenGameBuilder builder(this);
-	builder.build();
+	m_builder = new TroenGameBuilder(this);
+	m_builder->build();
 
 	if (m_gameConfig->useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
@@ -183,7 +183,8 @@ void TroenGame::startGameLoop()
 		returnFromFullScreen();
 
 	// SHUTDOWN
-	builder.destroy();
+	m_builder->destroy();
+	delete m_builder;
 }
 
 void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View> view)
@@ -273,32 +274,24 @@ void TroenGame::resize(int width, int height){
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-//setup the network connection and return the address of the remote connection
-std::string TroenGame::setupNetworking(bool server, std::string connectAddr)
+//setup the network connection
+std::string TroenGame::setupServer(std::vector<QString> playerNames)
 {
-	std::cout << "[TroenGame::initialize] networking ..." << std::endl;
 
-	if (server)
-	{
-		m_ServerManager = std::make_shared<networking::ServerManager>(this);
+		std::cout << "[TroenGame::initialize] networking Server..." << std::endl;
+		m_ServerManager = std::make_shared<networking::ServerManager>(this, playerNames);
 		m_ServerManager->openServer();
-	}
-	else
-	{
-		m_ClientManager = std::make_shared<networking::ClientManager>(this);
-		m_ClientManager->openClient(connectAddr);
-	}
-
-
-	// sleep until a valid session is initiated
-	while (!getNetworkManager()->isValidSession())
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-	if (server)
-		return m_ServerManager->getClientAddress();
-	else
-		return connectAddr;
+		return std::string("ok");
 }
+
+std::string TroenGame::setupClient(QString playerName, std::string connectAddr)
+{
+		std::cout << "[TroenGame::initialize] networking Client..." << std::endl;
+		m_ClientManager = std::make_shared<networking::ClientManager>(this, playerName);
+		m_ClientManager->openClient(connectAddr);
+		return std::string("ok");
+}
+
 
 
 bool TroenGame::synchronizeGameStart(GameConfig config)
@@ -327,7 +320,9 @@ std::shared_ptr<networking::NetworkManager> TroenGame::getNetworkManager()
 	else
 		return NULL;
 }
+
 void TroenGame::reloadLevel()
 {
 	m_levelController->reload();
+	m_builder->setupReflections();
 }

@@ -87,12 +87,14 @@ namespace troen
 		void prepareAndStartGame(const GameConfig& config);
 		bool synchronizeGameStart(GameConfig config);
 		bool isNetworking();
-		std::string setupNetworking(bool server, std::string connectAddr = "127.0.0.1");
+		std::string setupClient(QString playerName, std::string connectAddr = "127.0.0.1");
+		std::string setupServer(std::vector<QString> playerNames);
 
 		std::shared_ptr<networking::ClientManager> getClientManager() { return m_ClientManager; }
 		std::shared_ptr<networking::ServerManager> getServerManager() { return m_ServerManager; }
 		std::shared_ptr<networking::NetworkManager> getNetworkManager();
 	private:
+		TroenGameBuilder *m_builder;
 		//
 		// Game Loop
 		//

@@ -42,17 +42,26 @@ m_killCount(0),
 m_deathCount(0),
 m_hasGameView(config->ownView[id])
 {
+
+	m_troenGame = game;
+
+	if (game->isNetworking())
+		m_networkID = game->getNetworkManager()->getPlayerWithName(QString(m_name.c_str()))->networkID;
+	
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	// Color
+	//
+	////////////////////////////////////////////////////////////////////////////////
+
 	if (!game->isNetworking())
 		m_color = osg::Vec3(config->playerColors[id].red(), config->playerColors[id].green(), config->playerColors[id].blue());
 	else
 	{
-		int game_ID = game->getNetworkManager()->getGameID();
-		int player_color_id = (config->ownView[m_id]) ? game_ID : (1 - game_ID); //only works for 2 players
-		QColor color = game->getNetworkManager()->getPlayerColor(player_color_id);
-		m_color = osg::Vec3(color.red(),color.green(),color.blue());
+		QColor color = game->getNetworkManager()->getPlayerColor(m_networkID);
+		m_color = osg::Vec3(color.red(), color.green(), color.blue());
 	}
 
-	m_troenGame = game;
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -130,6 +139,7 @@ m_hasGameView(config->ownView[id])
 #endif
 	}
 
+
 	////////////////////////////////////////////////////////////////////////////////
 	//
 	// Reflection
@@ -148,26 +158,34 @@ m_hasGameView(config->ownView[id])
 	//
 	////////////////////////////////////////////////////////////////////////////////
 	m_isRemote = false;
-	m_networkID = -1;
 	if (game->isNetworking())
 	{
-		if (config->ownView[m_id])
+		if (config->ownView[m_id] || config->playerInputTypes[m_id] == input::BikeInputState::AI)
 		{
-			m_networkID = (int)game->getNetworkManager()->getGameID();
 			game->getNetworkManager()->registerLocalPlayer(this);
-			
+
 		}
 		else if (config->playerInputTypes[m_id] == input::BikeInputState::REMOTE_PLAYER)
 		{
 			m_isRemote = true;
-			
-			m_networkID = game->getNetworkManager()->registerRemotePlayerInput(m_bikeController->getRemote());
+			game->getNetworkManager()->registerRemotePlayerInput(m_networkID, m_bikeController->getRemote());
 
 		}
 		btTransform networkedTransform = game->getNetworkManager()->getStartPosition();
 		m_bikeController->getModel()->moveBikeToPosition(networkedTransform);
 	}
 
+
+
+
+}
+
+void Player::setupReflections(TroenGame* game, osg::ref_ptr<osg::Group>& sceneNode) {
+	m_reflection = std::make_shared<Reflection>(game->levelController()->getFloorView(), m_gameView, game->skyDome()->getSkyboxTexture(), m_id);
+	m_playerNode->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + m_id));
+
+	reflection()->addSceneNode(sceneNode);
+	playerNode()->addChild(reflection()->getReflectionCameraGroup());
 }
 
 void Player::createHUDController(const std::vector<std::shared_ptr<Player>>& players)
@@ -181,11 +199,6 @@ void Player::createHUDController(const std::vector<std::shared_ptr<Player>>& pla
 void Player::update(int g_gameTime)
 {
 	bikeController()->updateModel(g_gameTime);
-	
-	//if (isRemote()) //not needed because .. just because
-	//{
-	//	m_points = (m_troenGame->getNetworkManager()->getPlayerWithID(m_networkID))->score;
-	//}
 }
 
 Player::~Player()
@@ -216,4 +229,9 @@ float Player::increasePoints(float diff)
 {
 	m_points += diff;
 	return m_points;
+}
+
+bool Player::isDead()
+{
+	return m_health <= 0 && bikeController()->state() == BikeController::BIKESTATE::DRIVING;
 }

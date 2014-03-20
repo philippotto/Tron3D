@@ -38,7 +38,7 @@ NetworkManager::NetworkManager(troen::TroenGame *game)
 	m_players = std::vector<std::shared_ptr<NetworkPlayerInfo>>();
 	m_sendBufferMutex = new QMutex();
 	
-	m_localBikeController = NULL;
+	m_localBikeControllers = std::vector<std::shared_ptr<BikeController>>();
 	m_lastUpdateTime = 0;
 	m_gameID = 0;
 	m_troenGame = game;
@@ -76,16 +76,14 @@ void NetworkManager::run()
 			case BIKE_POSITION_MESSSAGE:
 			{
 										   readMessage(packet, receivedUpdateMessage);
-										   if (m_players.size() > 1)
-											   getPlayerWithID(receivedUpdateMessage.bikeID)->m_remoteInputPlayer->update(receivedUpdateMessage);
+										   handleBikePositionMessage(receivedUpdateMessage, packet->systemAddress);
 			}
 				break;
 
 			case BIKE_STATUS_MESSAGE:
 			{
 										readMessage(packet, receivedBikeStatusMessage);
-										receiveBikeStatusMessage(receivedBikeStatusMessage);
-										std::cout << "bike status message" << std::endl;
+										handleBikeStatusMessage(receivedBikeStatusMessage, packet->systemAddress);
 
 			}
 				break;
@@ -94,9 +92,7 @@ void NetworkManager::run()
 			{
 
 											readMessage(packet, receivedFenceMessage);
-											//std::cout << "fence part message" << std::endl;
-											if (m_players.size() > 1)
-												getPlayerWithID(receivedFenceMessage.bikeID)->m_remoteInputPlayer->addNewFencePosition(receivedFenceMessage.fencePart);
+											handleFencePartMessage(receivedFenceMessage, packet->systemAddress);
 			}
 
 			case GAME_START_MESSAGE:
@@ -121,8 +117,8 @@ void NetworkManager::run()
 			case GAME_STATUS_MESSAGE:
 			{
 										readMessage(packet, receivedGameStatusMessage);
-										m_receivedGameStatusMessages->push_back(receivedGameStatusMessage);
-										std::cout << "game status" << receivedGameStatusMessage.status << std::endl;
+										handleGameStatusMessage(receivedGameStatusMessage, packet->systemAddress);
+		
 			}
 				break;
 
@@ -153,27 +149,65 @@ void NetworkManager::run()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void troen::networking::NetworkManager::addPlayer(RakNet::Packet *packet)
+bool troen::networking::NetworkManager::addPlayer(RakNet::Packet *packet)
 {
 	//instantiate the remote player
 	std::shared_ptr<NetworkPlayerInfo> remote_player = std::make_shared<NetworkPlayerInfo>();
 	remote_player->setParametersFromRemote(packet);
-
-	if (getPlayerWithID(remote_player->networkID) != NULL) //player was added before
+	
+	if (getPlayerWithID(remote_player->networkID) != NULL)  //player was added before
 	{
 		remote_player.reset();
-		return;
+		return false;
+	}
+
+	if ( getPlayerWithName(remote_player->name) != NULL) //other player already has name
+	{
+		remote_player.reset();
+		RakNet::BitStream bsOut;
+		bsOut.Write((RakNet::MessageID)PLAYERNAME_REFUSED);
+		//notify sending client
+		peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, packet->systemAddress, false);
+		return false;
 	}
 
 	m_players.push_back(remote_player);
 	std::cout << "got remote player: " << remote_player->name.toStdString() << std::endl;
+
+
+	//add player in UI
+	emit newNetworkPlayer(remote_player->name);
+
+	return true;
 }
 
 
-void NetworkManager::receiveBikeStatusMessage(bikeStatusMessage message)
+void NetworkManager::handleBikeStatusMessage(bikeStatusMessage message, RakNet::SystemAddress adress)
 {
-	getPlayerWithID(message.bikeID)->status = message.status;
+	std::cout << "bike status message" << std::endl;
+	if (m_players.size() > 1)
+		getPlayerWithID(message.bikeID)->status = message.status;
 }
+
+void NetworkManager::handleBikePositionMessage(bikeUpdateMessage message, RakNet::SystemAddress adress)
+{
+	if (m_players.size() > 1)
+		getPlayerWithID(receivedUpdateMessage.bikeID)->m_remoteInputPlayer->update(receivedUpdateMessage);
+}
+
+void NetworkManager::handleFencePartMessage(fenceUpdateMessage message, RakNet::SystemAddress adress)
+{
+	if (m_players.size() > 1)
+		getPlayerWithID(receivedFenceMessage.bikeID)->m_remoteInputPlayer->addNewFencePosition(receivedFenceMessage.fencePart);
+}
+
+void NetworkManager::handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress adress)
+{
+	m_receivedGameStatusMessages->push_back(message);
+	std::cout << "game status " << receivedGameStatusMessage.status << std::endl;
+}
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,6 +301,16 @@ inline std::shared_ptr<NetworkPlayerInfo> NetworkManager::getPlayerWithID(int bi
 	return NULL;
 }
 
+std::shared_ptr<NetworkPlayerInfo> NetworkManager::getPlayerWithName(QString name)
+{
+	for (auto player : m_players)
+	{
+		if (player->name == name)
+			return player;
+	}
+	return NULL;
+}
+
 QColor NetworkManager::getPlayerColor(int playerID)
 {
 	//later, we might actually synchronize the chosen color
@@ -285,24 +329,7 @@ void NetworkManager::update(long double g_gameTime)
 {
 	if (this->isValidSession())
 	{
-		btVector3 pos = m_localBikeController->getModel()->getPositionBt();
-		btQuaternion quat = m_localBikeController->getModel()->getRotationQuat();
-		btVector3 linearVelocity = m_localBikeController->getModel()->getLinearVelocity();
-		bikeUpdateMessage message = {
-			m_gameID,
-			pos.x(), pos.y(), pos.z(),
-			quat.x(), quat.y(), quat.z(), quat.w(),
-			linearVelocity.x(), linearVelocity.y(), linearVelocity.z()
-		};
-
-		if ((message.linearVelX != lastSentMessage.linearVelX) || (message.linearVelY != lastSentMessage.linearVelY) || (message.linearVelZ != lastSentMessage.linearVelZ) ||
-			(message.quat_x != lastSentMessage.quat_x) || (message.quat_y != lastSentMessage.quat_y) || (message.quat_z != lastSentMessage.quat_z) || (message.quat_w != lastSentMessage.quat_w) ||
-			g_gameTime - m_lastUpdateTime > 20.0)
-		{
-			enqueueMessage(message);
-			lastSentMessage = message;
-		}
-
+		pollPositionUpdates(g_gameTime);
 	}
 }
 
@@ -312,6 +339,31 @@ void NetworkManager::updateFencePart(btTransform fencePart, int bikeID)
 	enqueueMessage(message);
 }
 
+
+void NetworkManager::pollPositionUpdates(long double g_gameTime)
+{
+	for (auto localBikeController : m_localBikeControllers)
+	{
+
+		btTransform transform = localBikeController->getModel()->getTransform();
+		btQuaternion quat = localBikeController->getModel()->getRotationQuat();
+		btVector3 linearVelocity = localBikeController->getModel()->getLinearVelocity();
+		bikeUpdateMessage message = {
+			localBikeController->player()->getNetworkID(),
+			transform,
+			linearVelocity.x(), linearVelocity.y(), linearVelocity.z()
+		};
+
+		//std::cout << "bikeID" << localBikeController->player()->getNetworkID() << " transform origin x " << transform.getOrigin().x() << " y " << transform.getOrigin().y() << " z " << transform.getOrigin().z()
+		//	<< " rotation x " << transform.getRotation().getX() << " y " << transform.getRotation().getY() << " z " << transform.getRotation().getZ() << " lin vel x " << linearVelocity.x() << " y " << linearVelocity.y() << " z " << linearVelocity.z() << std::endl;
+
+		if ((message.linearVelX != lastSentMessage.linearVelX) || (message.linearVelY != lastSentMessage.linearVelY) || (message.linearVelZ != lastSentMessage.linearVelZ) || g_gameTime - m_lastUpdateTime > 20.0)
+		{
+			enqueueMessage(message);
+			lastSentMessage = message;
+		}
+	}
+}
 
 
 
@@ -329,7 +381,7 @@ void NetworkManager::sendGameStatusMessage(gameStatus status, troen::Player *bik
 	else
 		message = { bikePlayer->getNetworkID(), status, bikePlayer->points(), NULL };
 
-	getPlayerWithID(m_gameID)->score = bikePlayer->points();
+	getPlayerWithID(bikePlayer->getNetworkID())->score = bikePlayer->points();
 	enqueueMessage(message);
 }
 
@@ -395,38 +447,35 @@ void NetworkManager::waitOnAllPlayers()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-int NetworkManager::registerRemotePlayerInput(std::shared_ptr<troen::input::RemotePlayer> remotePlayer)
+int NetworkManager::registerRemotePlayerInput(int playerID, std::shared_ptr<troen::input::RemotePlayer> remoteInputPlayer)
 {
-	int otherPlayer = 1 - m_gameID; //only works for 2 players
-	////wait until other player is registered
-	//while (getPlayerWithID(otherPlayer) == NULL)
-	//	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	NetworkPlayerInfo *remotePlayer = getPlayerWithID(playerID).get();
 	
-	getPlayerWithID(otherPlayer)->m_remoteInputPlayer = remotePlayer;
-	return otherPlayer;
+	if (remotePlayer!=NULL)
+		remotePlayer->m_remoteInputPlayer = remoteInputPlayer;
+	
+	return 1;
 }
 
 void NetworkManager::registerLocalPlayer(troen::Player* player)
 {
-	m_localPlayer = std::shared_ptr<troen::Player>(player);
-	m_localBikeController = player->bikeController();
-	m_localBikeModel = m_localBikeController->getModel();
+	m_localBikeControllers.push_back(player->bikeController());
 }
 
 
-void NetworkManager::buildOwnPlayerInfo(const troen::GameConfig& config)
-{
-	if (getPlayerWithID(m_gameID) != NULL)
-		return;
-	int i;
-	for (i = 0; i < 6; i++)
-	if (config.ownView[i])
-		break;
-
-	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>(config.playerNames[i], config.playerColors[i], m_gameID, false, m_startPosition);
-	m_players.push_back(m_ownPlayerInfo);
-}
-
+//void NetworkManager::buildOwnPlayerInfo(const troen::GameConfig& config)
+//{
+//	if (getPlayerWithID(m_gameID) != NULL)
+//		return;
+//	int i;
+//	for (i = 0; i < 6; i++)
+//	if (config.ownView[i])
+//		break;
+//
+//	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>(config.playerNames[i], config.playerColors[i], m_gameID, false, m_startPosition);
+//	m_players.push_back(m_ownPlayerInfo);
+//}
+//
 
 
 
