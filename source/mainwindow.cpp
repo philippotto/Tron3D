@@ -391,8 +391,10 @@ void MainWindow::connectNetworking()
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(newNetworkPlayer(QString)), this, SLOT(addNetworkPlayer(QString)));
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(playerNameRefused()), this, SLOT(showPlayerNameRefused()));
+	connect(m_troenGame->getNetworkManager().get(), SIGNAL(levelChanged(int)), this, SLOT(changeLevel(int)));
+	connect(m_levelComboBox, SIGNAL(currentIndexChanged(int)), m_troenGame->getNetworkManager().get(), SLOT(synchronizeLevel(int)));
 	
-	
+
 	m_networkingReady = true;
 
 
@@ -414,6 +416,10 @@ void MainWindow::addNetworkPlayer(QString name)
 	m_playerComboBoxes[m_networkPlayers]->setCurrentText("MULTIPLAYER");
 	bikeNumberChanged(m_networkPlayers+1);
 	updatePlayerInputBoxes();
+
+	//send index of level to clients
+	if (m_troenGame->getNetworkManager()->isServer())
+		m_troenGame->getNetworkManager()->synchronizeLevel(m_levelComboBox->currentIndex());
 }
 
 void MainWindow::showPlayerNameRefused()
@@ -520,5 +526,10 @@ void MainWindow::saveSettings()
 	}
 
 	settings.sync();
+}
+
+void MainWindow::changeLevel(int levelID)
+{
+	m_levelComboBox->setCurrentIndex(levelID);
 }
 

@@ -37,12 +37,13 @@ namespace troen
 			ADD_PLAYER = ID_USER_PACKET_ENUM+2,
 			PLAYERNAME_REFUSED = ID_USER_PACKET_ENUM + 3,
 			GAME_START_MESSAGE = ID_USER_PACKET_ENUM + 4,
+			CHANGE_LEVEL = ID_USER_PACKET_ENUM + 5,
 			//bike messages
-			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 5,
-			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 6,
-			BIKE_FENCE_PART_MESSAGE = ID_USER_PACKET_ENUM + 7,
+			BIKE_POSITION_MESSSAGE = ID_USER_PACKET_ENUM + 6,
+			BIKE_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 7,
+			BIKE_FENCE_PART_MESSAGE = ID_USER_PACKET_ENUM + 8,
 			//game messages
-			GAME_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 8
+			GAME_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 9
 		};
 		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_FENCE, RESET_SCORE};
 
@@ -129,6 +130,7 @@ namespace troen
 			virtual void handleFencePartMessage(fenceUpdateMessage message, RakNet::SystemAddress adress);
 			virtual void handleGameStatusMessage(gameStatusMessage message, RakNet::SystemAddress adress);
 			virtual bool addPlayer(RakNet::Packet *packet);
+			void changeLevel(RakNet::Packet *packet);
 
 			//synchronize threads
 			void waitOnAllPlayers();
@@ -158,6 +160,10 @@ namespace troen
 			void remoteStartCall();
 			void newNetworkPlayer(QString name);
 			void playerNameRefused();
+			void levelChanged(int levelID);
+		
+			public slots:
+			void synchronizeLevel(int levelID);
 		protected:
 			TroenGame *m_troenGame;
 

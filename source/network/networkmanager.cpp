@@ -121,6 +121,11 @@ void NetworkManager::run()
 		
 			}
 				break;
+			case CHANGE_LEVEL:
+			{
+								 changeLevel(packet);
+			}
+				break;
 
 			default:
 			{
@@ -208,6 +213,14 @@ void NetworkManager::handleGameStatusMessage(gameStatusMessage message, RakNet::
 }
 
 
+void NetworkManager::changeLevel(RakNet::Packet *packet)
+{
+	int levelID;
+	readMessage(packet, levelID);
+
+	emit levelChanged(levelID);
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -235,6 +248,13 @@ void NetworkManager::synchronizeGameStart(troen::GameConfig &config)
 	m_gameInitStarted = true;
 }
 
+void NetworkManager::synchronizeLevel(int levelID)
+{
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)CHANGE_LEVEL);
+	bsOut.Write(levelID);
+	peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+}
 
 
 
@@ -461,24 +481,6 @@ void NetworkManager::registerLocalPlayer(troen::Player* player)
 {
 	m_localBikeControllers.push_back(player->bikeController());
 }
-
-
-//void NetworkManager::buildOwnPlayerInfo(const troen::GameConfig& config)
-//{
-//	if (getPlayerWithID(m_gameID) != NULL)
-//		return;
-//	int i;
-//	for (i = 0; i < 6; i++)
-//	if (config.ownView[i])
-//		break;
-//
-//	m_ownPlayerInfo = std::make_shared<NetworkPlayerInfo>(config.playerNames[i], config.playerColors[i], m_gameID, false, m_startPosition);
-//	m_players.push_back(m_ownPlayerInfo);
-//}
-//
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -32,6 +32,7 @@ namespace troen
 	public slots:
 		void updatePlayerInputBoxes();
 		void addNetworkPlayer(QString name);
+		void changeLevel(int levelID);
 
 	protected:
 		virtual bool eventFilter(QObject* object, QEvent* event);
