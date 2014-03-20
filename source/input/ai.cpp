@@ -42,7 +42,7 @@ void AI::run()
 	g_scriptingThread.registerObject(this);
 
 	ScriptWatcher scriptWatcher;
-	scriptWatcher.watchAndLoad("source/scripts/ai.js", &g_scriptingThread);
+	scriptWatcher.watchAndLoad("scripts/ai.js", &g_scriptingThread);
 	
 	while (m_pollingEnabled)
 	{

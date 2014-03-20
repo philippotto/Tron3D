@@ -369,6 +369,12 @@ install(
 	DESTINATION ${INSTALL_ROOT}
 	COMPONENT ${META_PROJECT_NAME})
 
+#scripts
+install(
+	DIRECTORY ${CMAKE_SOURCE_DIR}/scripts
+	DESTINATION ${INSTALL_ROOT}
+	COMPONENT ${META_PROJECT_NAME})
+
 # hidapi, fmod, raknet
 install(
 	FILES 
