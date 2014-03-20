@@ -251,6 +251,9 @@ void GameLogic::handleCollisionOfTwoBikes(
 	// TODO
 	// set different thredsholds of collisions between bikes
 	// they dont have as much impact ?
+	if (m_troenGame->isNetworking() && !m_troenGame->getNetworkManager()->isServer())
+		return; //only server has authority over collision
+
 	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, BIKETYPE, contactManifold);
 }
 
@@ -338,7 +341,6 @@ void GameLogic::handlePlayerDeathOnFence(
 	BikeController* fenceBike, BikeController* deadBike)
 {
 
-	handlePlayerDeath(deadBike);
 	Player* fencePlayer = fenceBike->player();
 	Player* deadPlayer = deadBike->player();
 
@@ -381,7 +383,6 @@ void GameLogic::handlePlayerDeathOnFence(
 
 void GameLogic::handlePlayerDeathNonFence(BikeController* deadBike)
 {
-	handlePlayerDeath(deadBike);
 
 	Player* deadPlayer = deadBike->player();
 
@@ -551,6 +552,9 @@ void GameLogic::handleNetworkMessage(troen::networking::gameStatus status, Playe
 	case troen::networking::PLAYER_DEATH_ON_FENCE:
 		handlePlayerDeath(deadPlayer->bikeController().get());
 		handlePlayerDeathOnFence(fencePlayer->bikeController().get(), deadPlayer->bikeController().get());
+		break;
+	case troen::networking::RESET_SCORE:
+		deadPlayer->setKillCount(0);
 		break;
 	default:
 		break;

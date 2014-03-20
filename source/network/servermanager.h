@@ -30,7 +30,6 @@ namespace troen
 			void openServer();
 			bool isValidSession();
 
-			std::string getClientAddress();
 			void giveIDtoClient(RakNet::Packet *packet);
 			virtual void handleSubClassMessages(RakNet::Packet *packet);
 			virtual void handleBikePositionMessage(bikeUpdateMessage message, RakNet::SystemAddress adress);
@@ -41,6 +40,8 @@ namespace troen
 			
 			virtual void setLocalGameReady();
 
+			virtual void update(long double g_gameTime);
+
 		protected:
 			std::string m_clientAddress;
 			bool m_isServer;
@@ -49,6 +50,7 @@ namespace troen
 
 			std::shared_ptr<std::vector<btTransform>> m_startPositions;
 			std::vector<QString> m_playerNames;
+			bool m_initialReset;
 		};
 	}
 

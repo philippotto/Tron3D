@@ -61,6 +61,7 @@ namespace troen
 		//
 		void setHealth(float health)	{ m_health = health; };
 		void setPoints(float points)	{ m_points = points; };
+		void setKillCount(int killCount) { m_killCount = killCount; };
 
 		//
 		// logic methods

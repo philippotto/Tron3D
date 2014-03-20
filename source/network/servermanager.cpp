@@ -51,6 +51,8 @@ ServerManager::ServerManager(troen::TroenGame *game, std::vector<QString> player
 		m_ownPlayersInfo.push_back(ownPlayer);
 		m_players.push_back(ownPlayer);
 	}
+
+	m_initialReset = false;
 }
 
 
@@ -117,11 +119,30 @@ bool ServerManager::isValidSession()
 
 }
 
-
-std::string  ServerManager::getClientAddress()
+void ServerManager::update(long double g_gameTime)
 {
-	return m_clientAddress;
+	NetworkManager::update(g_gameTime);
+
+	//after 1 second, reset all players score to 0, this is a workaround for some obscure synchronization issues at start
+	if (!m_initialReset && g_gameTime > 1000)
+	{
+		m_initialReset = true;
+		for (auto player : m_troenGame->players())
+		{
+			NetworkPlayerInfo *netplayer = getPlayerWithID(player->getNetworkID()).get();
+			player->setKillCount(0);
+
+			RakNet::BitStream bsOut;
+			bsOut.Write((RakNet::MessageID)GAME_STATUS_MESSAGE);
+			gameStatusMessage message = { player->getNetworkID(), RESET_SCORE, NULL, NULL };
+			bsOut.Write(message);
+			//relay message to all systems
+			peer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
+
+		}
+	}
 }
+
 
 
 void ServerManager::giveIDtoClient(RakNet::Packet *packet)

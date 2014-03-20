@@ -199,11 +199,6 @@ void Player::createHUDController(const std::vector<std::shared_ptr<Player>>& pla
 void Player::update(int g_gameTime)
 {
 	bikeController()->updateModel(g_gameTime);
-	
-	//if (isRemote()) //not needed because .. just because
-	//{
-	//	m_points = (m_troenGame->getNetworkManager()->getPlayerWithID(m_networkID))->score;
-	//}
 }
 
 Player::~Player()

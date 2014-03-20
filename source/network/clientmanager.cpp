@@ -121,3 +121,4 @@ void ClientManager::changeOwnName(QString name)
 	m_ownPlayer->name = name;
 	registerAtServer(); //only works, if old name has not been accepted
 }
+

@@ -329,28 +329,7 @@ void NetworkManager::update(long double g_gameTime)
 {
 	if (this->isValidSession())
 	{
-		for (auto localBikeController : m_localBikeControllers)
-		{
-
-			btVector3 pos = localBikeController->getModel()->getPositionBt();
-			btQuaternion quat = localBikeController->getModel()->getRotationQuat();
-			btVector3 linearVelocity = localBikeController->getModel()->getLinearVelocity();
-			bikeUpdateMessage message = {
-				localBikeController->player()->getNetworkID(),
-				pos.x(), pos.y(), pos.z(),
-				quat.x(), quat.y(), quat.z(), quat.w(),
-				linearVelocity.x(), linearVelocity.y(), linearVelocity.z()
-			};
-
-			if ((message.linearVelX != lastSentMessage.linearVelX) || (message.linearVelY != lastSentMessage.linearVelY) || (message.linearVelZ != lastSentMessage.linearVelZ) ||
-				(message.quat_x != lastSentMessage.quat_x) || (message.quat_y != lastSentMessage.quat_y) || (message.quat_z != lastSentMessage.quat_z) || (message.quat_w != lastSentMessage.quat_w) ||
-				g_gameTime - m_lastUpdateTime > 20.0)
-			{
-				enqueueMessage(message);
-				lastSentMessage = message;
-			}
-		}
-
+		pollPositionUpdates(g_gameTime);
 	}
 }
 
@@ -360,6 +339,31 @@ void NetworkManager::updateFencePart(btTransform fencePart, int bikeID)
 	enqueueMessage(message);
 }
 
+
+void NetworkManager::pollPositionUpdates(long double g_gameTime)
+{
+	for (auto localBikeController : m_localBikeControllers)
+	{
+
+		btVector3 pos = localBikeController->getModel()->getPositionBt();
+		btQuaternion quat = localBikeController->getModel()->getRotationQuat();
+		btVector3 linearVelocity = localBikeController->getModel()->getLinearVelocity();
+		bikeUpdateMessage message = {
+			localBikeController->player()->getNetworkID(),
+			pos.x(), pos.y(), pos.z(),
+			quat.x(), quat.y(), quat.z(), quat.w(),
+			linearVelocity.x(), linearVelocity.y(), linearVelocity.z()
+		};
+
+		if ((message.linearVelX != lastSentMessage.linearVelX) || (message.linearVelY != lastSentMessage.linearVelY) || (message.linearVelZ != lastSentMessage.linearVelZ) ||
+			(message.quat_x != lastSentMessage.quat_x) || (message.quat_y != lastSentMessage.quat_y) || (message.quat_z != lastSentMessage.quat_z) || (message.quat_w != lastSentMessage.quat_w) ||
+			g_gameTime - m_lastUpdateTime > 20.0)
+		{
+			enqueueMessage(message);
+			lastSentMessage = message;
+		}
+	}
+}
 
 
 

@@ -44,7 +44,7 @@ namespace troen
 			//game messages
 			GAME_STATUS_MESSAGE = ID_USER_PACKET_ENUM + 8
 		};
-		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_FENCE};
+		enum gameStatus { PLAYER_DEATH_ON_WALL, PLAYER_DEATH_ON_FENCE, RESET_SCORE};
 
 		enum NETWORK_BIKESTATE
 		{
@@ -137,25 +137,26 @@ namespace troen
 			void registerLocalPlayer(troen::Player* player);
 
 			//getters
-			int getGameID()  { return m_gameID; }
-			btTransform getStartPosition()  { return m_startPosition; }
+			int getGameID()  const { return m_gameID; }
+			bool isServer() const { return m_isServer; }
+			btTransform getStartPosition()  const { return m_startPosition; }
 			std::string getClientAddress();
 			QColor getPlayerColor(int playerID);
 			std::shared_ptr<NetworkPlayerInfo> getPlayerWithID(int bikeID);
 			std::shared_ptr<NetworkPlayerInfo> getPlayerWithName(QString name);
 
 			//data polling
-			void update(long double g_gameTime);
-			QQueue<gameStatusMessage> *m_receivedGameStatusMessages;
+			virtual void update(long double g_gameTime);
+			void pollPositionUpdates(long double g_gameTime);
 			//data pushing
 			void updateFencePart(btTransform fencePart, int bikeID);
 
+			QQueue<gameStatusMessage> *m_receivedGameStatusMessages;
 		
 		signals:
 			void remoteStartCall();
 			void newNetworkPlayer(QString name);
 			void playerNameRefused();
-
 		protected:
 			TroenGame *m_troenGame;
 
