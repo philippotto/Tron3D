@@ -292,6 +292,11 @@ btQuaternion BikeModel::getRotationQuat()
 	return trans.getRotation();
 }
 
+btTransform BikeModel::getTransform()
+{
+	return  m_rigidBodies[0]->getWorldTransform();
+}
+
 btVector3 BikeModel::getLinearVelocity()
 {
 	return m_rigidBodies[0]->getLinearVelocity();

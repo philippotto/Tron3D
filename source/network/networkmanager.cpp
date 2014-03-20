@@ -345,19 +345,19 @@ void NetworkManager::pollPositionUpdates(long double g_gameTime)
 	for (auto localBikeController : m_localBikeControllers)
 	{
 
-		btVector3 pos = localBikeController->getModel()->getPositionBt();
+		btTransform transform = localBikeController->getModel()->getTransform();
 		btQuaternion quat = localBikeController->getModel()->getRotationQuat();
 		btVector3 linearVelocity = localBikeController->getModel()->getLinearVelocity();
 		bikeUpdateMessage message = {
 			localBikeController->player()->getNetworkID(),
-			pos.x(), pos.y(), pos.z(),
-			quat.x(), quat.y(), quat.z(), quat.w(),
+			transform,
 			linearVelocity.x(), linearVelocity.y(), linearVelocity.z()
 		};
 
-		if ((message.linearVelX != lastSentMessage.linearVelX) || (message.linearVelY != lastSentMessage.linearVelY) || (message.linearVelZ != lastSentMessage.linearVelZ) ||
-			(message.quat_x != lastSentMessage.quat_x) || (message.quat_y != lastSentMessage.quat_y) || (message.quat_z != lastSentMessage.quat_z) || (message.quat_w != lastSentMessage.quat_w) ||
-			g_gameTime - m_lastUpdateTime > 20.0)
+		//std::cout << "bikeID" << localBikeController->player()->getNetworkID() << " transform origin x " << transform.getOrigin().x() << " y " << transform.getOrigin().y() << " z " << transform.getOrigin().z()
+		//	<< " rotation x " << transform.getRotation().getX() << " y " << transform.getRotation().getY() << " z " << transform.getRotation().getZ() << " lin vel x " << linearVelocity.x() << " y " << linearVelocity.y() << " z " << linearVelocity.z() << std::endl;
+
+		if ((message.linearVelX != lastSentMessage.linearVelX) || (message.linearVelY != lastSentMessage.linearVelY) || (message.linearVelZ != lastSentMessage.linearVelZ) || g_gameTime - m_lastUpdateTime > 20.0)
 		{
 			enqueueMessage(message);
 			lastSentMessage = message;

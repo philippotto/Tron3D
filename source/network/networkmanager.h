@@ -58,8 +58,9 @@ namespace troen
 		struct bikeUpdateMessage
 		{
 			int bikeID;
-			float x, y, z;
-			float quat_x, quat_y, quat_z, quat_w;
+			//float x, y, z;
+			//float quat_x, quat_y, quat_z, quat_w;
+			btTransform transform;
 			float linearVelX, linearVelY, linearVelZ;
 		};
 
