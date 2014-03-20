@@ -338,7 +338,7 @@ endif()
 
 # Project meta files
 # install(FILES glow-config.cmake DESTINATION ${INSTALL_ROOT})
-# install(FILES AUTHORS           DESTINATION ${INSTALL_ROOT})
+install(FILES AUTHORS DESTINATION ${INSTALL_ROOT} COMPONENT ${META_PROJECT_NAME})
 # install(FILES LICENSE           DESTINATION ${INSTALL_ROOT})
 
 # Add a revision file containing the git-head tag for cpack and install
