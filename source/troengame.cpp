@@ -67,8 +67,8 @@ void TroenGame::startGameLoop()
 	// http://entropyinteractive.com/2011/02/game-engine-design-the-game-loop/
 
 	// INITIALIZATION
-	TroenGameBuilder builder(this);
-	builder.build();
+	m_builder = new TroenGameBuilder(this);
+	m_builder->build();
 
 	if (m_gameConfig->useDebugView)
 		m_sceneNode->addChild(m_physicsWorld->m_debug->getSceneGraph());
@@ -183,7 +183,8 @@ void TroenGame::startGameLoop()
 		returnFromFullScreen();
 
 	// SHUTDOWN
-	builder.destroy();
+	m_builder->destroy();
+	delete m_builder;
 }
 
 void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View> view)
@@ -319,8 +320,9 @@ std::shared_ptr<networking::NetworkManager> TroenGame::getNetworkManager()
 	else
 		return NULL;
 }
+
 void TroenGame::reloadLevel()
 {
 	m_levelController->reload();
+	m_builder->setupReflections();
 }
-

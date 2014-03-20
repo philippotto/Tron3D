@@ -177,12 +177,8 @@ bool TroenGameBuilder::composeSceneGraph()
 
 	if (t->m_gameConfig->useReflection)
 	{
-		//sceneNode has to be added to reflection after adding all (non hud) objects
-		for (auto player : t->m_playersWithView)
-		{
-			player->reflection()->addSceneNode(t->m_sceneNode);
-			player->playerNode()->addChild(player->reflection()->getReflectionCameraGroup());
-		}
+		// sceneNode has to be added to reflection after adding all (non hud) objects
+		setupReflections();
 	}
 
 	for (auto player : t->m_playersWithView)
@@ -217,6 +213,16 @@ bool TroenGameBuilder::composeSceneGraph()
 	//	optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS |
 	//	optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
 	//std::cout << "[TroenGameBuilder::composeSceneGraph] done optimizing" << std::endl;
+
+	return true;
+}
+
+bool TroenGameBuilder::setupReflections()
+{
+	for (auto player : t->m_playersWithView)
+	{
+		player->setupReflections(t, t->m_sceneNode);
+	}
 
 	return true;
 }

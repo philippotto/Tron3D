@@ -51,6 +51,7 @@ void GameLogic::step(const long double gameloopTime, const long double gameTime)
 		break;
 	case GAME_RUNNING:
 		stepGameRunning(gameloopTime, gameTime);
+		checkForFallenPlayers();
 		break;
 	case GAME_OVER:
 		stepGameOver(gameloopTime, gameTime);
@@ -247,7 +248,7 @@ void GameLogic::handleCollisionOfTwoBikes(
 	btPersistentManifold* contactManifold)
 {
 	std::cout << "[GameLogic::handleCollisionOfTwoBikes]" << std::endl;
-	//TODO
+	// TODO
 	// set different thredsholds of collisions between bikes
 	// they dont have as much impact ?
 	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, BIKETYPE, contactManifold);
@@ -272,19 +273,23 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	btScalar impulse = impulseFromContactManifold(contactManifold);
 	playCollisionSound(impulse);
 
+
 	if (bike->player()->isRemote())
 		return; //let the remote player handle the collsions himself
 
-	float newHealth = bike->registerCollision(impulse);
+	bike->registerCollision(impulse);
+
 
 	//
 	// player death
 	//
-	if (newHealth <= 0 && bike->state() == BikeController::BIKESTATE::DRIVING)
+	if (bike->player()->isDead())
 	{
 		handlePlayerDeath(bike);
-		handlePlayerDeathNonFence(bike->player());
+		handlePlayerDeathNonFence(bike);
 		sendStatusMessage(networking::PLAYER_DEATH_ON_WALL, bike->player(),NULL);
+
+
 	}
 }
 
@@ -301,7 +306,8 @@ void GameLogic::handleCollisionOfBikeAndFence(
 	if (bike->player()->isRemote())
 		return; //let the remote player handle the collsions himself
 	
-	float newHealth = bike->registerCollision(impulse);
+
+	bike->registerCollision(impulse);
 
 	// workaround to deal with bike bouncing between own and other fence
 	if (bike->player() != fence->player())
@@ -313,10 +319,10 @@ void GameLogic::handleCollisionOfBikeAndFence(
 	//
 	// player death
 	//
-	if (newHealth <= 0 && bike->state() == BikeController::BIKESTATE::DRIVING)
+	if (bike->player()->isDead())
 	{
 		handlePlayerDeath(bike);
-		handlePlayerDeathOnFence(fence->player(), bike->player());
+		handlePlayerDeathOnFence(fence->player()->bikeController().get(), bike);
 		sendStatusMessage(networking::PLAYER_DEATH_ON_FENCE, bike->player(), fence->player());
 	}
 }
@@ -329,59 +335,83 @@ void GameLogic::handlePlayerDeath(
 }
 
 void GameLogic::handlePlayerDeathOnFence(
-	Player* fencePlayer,
-	Player* bikePlayer)
+	BikeController* fenceBike, BikeController* deadBike)
 {
 
-	if (fencePlayer == bikePlayer) // hit own fence
+	handlePlayerDeath(deadBike);
+	Player* fencePlayer = fenceBike->player();
+	Player* deadPlayer = deadBike->player();
+
+	if (fenceBike == deadBike) // hit own fence
 	{
 		// workaround to deal with bike bouncing between own and other fence
-		//std::pair<float, FenceController*> lastFenceCollision =	bikePlayer->bikeController()->lastFenceCollision();
-		//if (lastFenceCollision.first > g_gameTime-400)
-		//{
-		//	handlePlayerDeathOnFence(lastFenceCollision.second->player(), bikePlayer);
-		//	return;
-		//}
+		std::pair<float, FenceController*> lastFenceCollision =	deadBike->lastFenceCollision();
+		if (false && lastFenceCollision.first > g_gameTime-400)
+		{
+			handlePlayerDeathOnFence(lastFenceCollision.second->player()->bikeController().get(), deadBike);
+			return;
+		}
 		// end workaround
 
-		bikePlayer->decreaseKillCount();
-		if (bikePlayer->hasGameView())
+		deadPlayer->decreaseKillCount();
+		if (deadPlayer->hasGameView())
 		{
-			bikePlayer->hudController()->addSelfKillMessage();
+			deadPlayer->hudController()->addSelfKillMessage();
 		}
 	}
-	else //hit someone elses fence
+	else
 	{
+		// hit someone elses fence
 
 		fencePlayer->increaseKillCount();
 		for (auto player : m_troenGame->m_playersWithView)
 		{
-			if (&(*player) == fencePlayer)
+			if (player.get() == fencePlayer)
 			{
-				fencePlayer->hudController()->addKillMessage(bikePlayer);
-
+				fencePlayer->hudController()->addKillMessage(deadPlayer);
 			}
-			else if (&(*player) != bikePlayer)
+			else if (player.get() != deadPlayer)
 			{
-				player->hudController()->addDiedOnFenceMessage(bikePlayer, fencePlayer);
+				player->hudController()->addDiedOnFenceMessage(deadPlayer, fencePlayer);
 			}
 		}
 	}
 }
 
 
-
-void GameLogic::handlePlayerDeathNonFence(Player* deadPlayer)
+void GameLogic::handlePlayerDeathNonFence(BikeController* deadBike)
 {
+	handlePlayerDeath(deadBike);
+
+	Player* deadPlayer = deadBike->player();
 
 	for (auto player : m_troenGame->m_players)
 	{
-		if (&(*player) != deadPlayer)
+		if (player.get() != deadPlayer)
 		{
 			player->increaseKillCount();
 			if (player->hasGameView())
 			{
 				player->hudController()->addDiedMessage(deadPlayer);
+			}
+		}
+	}
+}
+
+void GameLogic::handlePlayerFall(BikeController* deadBike)
+{
+	handlePlayerDeath(deadBike);
+
+	Player* deadPlayer = deadBike->player();
+
+	for (auto player : m_troenGame->m_players)
+	{
+		if (player.get() != deadPlayer)
+		{
+			player->increaseKillCount();
+			if (player->hasGameView())
+			{
+				player->hudController()->addDiedOnFallMessage(deadPlayer);
 			}
 		}
 	}
@@ -488,6 +518,7 @@ void GameLogic::showFencesInRadarForPlayer(int id)
 	}
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // networking methods
@@ -515,11 +546,11 @@ void GameLogic::handleNetworkMessage(troen::networking::gameStatus status, Playe
 	{
 	case troen::networking::PLAYER_DEATH_ON_WALL:
 		handlePlayerDeath(deadPlayer->bikeController().get());
-		handlePlayerDeathNonFence(deadPlayer);
+		handlePlayerDeathNonFence(deadPlayer->bikeController().get());
 		break;
 	case troen::networking::PLAYER_DEATH_ON_FENCE:
 		handlePlayerDeath(deadPlayer->bikeController().get());
-		handlePlayerDeathOnFence(fencePlayer, deadPlayer);
+		handlePlayerDeathOnFence(fencePlayer->bikeController().get(), deadPlayer->bikeController().get());
 		break;
 	default:
 		break;
@@ -541,3 +572,16 @@ Player* GameLogic::getPlayerWithID(int bikeID)
 	}
 	return NULL;
 }
+
+void GameLogic::checkForFallenPlayers()
+{
+	for (auto player : m_troenGame->m_players)
+	{
+		BikeController* bike = player->bikeController().get();
+		if (bike->isFalling())
+		{
+			handlePlayerFall(bike);
+		}
+	}
+}
+

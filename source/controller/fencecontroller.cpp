@@ -107,7 +107,7 @@ osg::ref_ptr<osg::Group> FenceController::getViewNode()
 {
 	osg::ref_ptr<osg::Group> group = m_fenceView->getNode();
 	// TODO (dw) try not to disable culling, by resizing the childrens bounding boxes
-	// group->setCullingActive(false);
+	group->setCullingActive(false);
 	return group;
 }
 

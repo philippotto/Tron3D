@@ -28,6 +28,7 @@ namespace
 		"PLAYER_X\njust crashed!"
 	};
 	const std::string diedOnFenceMessage("PLAYER_X\njust crashed into PLAYER_Y's fence");
+	const std::string diedOnFallMessage("PLAYER_X\njust fell into the abyss");
 }
 
 using namespace troen;
@@ -174,6 +175,21 @@ void HUDController::addDiedOnFenceMessage(Player* bikePlayer, Player* fencePlaye
 
 	message->text = text;
 	message->color = osg::Vec4(bikePlayer->color(), 1);
+	message->endTime = g_gameTime + RESPAWN_DURATION;
+
+	m_ingameMessages.push_back(message);
+}
+
+void HUDController::addDiedOnFallMessage(Player* deadPlayer)
+{
+	std::shared_ptr<IngameMessage> message = std::make_shared<IngameMessage>();
+
+	std::string text = diedOnFallMessage;
+	std::regex regx("PLAYER_X");
+	text = std::regex_replace(text, regx, deadPlayer->name());
+
+	message->text = text;
+	message->color = osg::Vec4(deadPlayer->color(), 1);
 	message->endTime = g_gameTime + RESPAWN_DURATION;
 
 	m_ingameMessages.push_back(message);

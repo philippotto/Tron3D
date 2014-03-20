@@ -74,7 +74,8 @@ namespace troen
 		void update(int g_gameTime);
 
 
-
+		void setupReflections(TroenGame* game, osg::ref_ptr<osg::Group>& sceneNode);
+		bool isDead();
 	private:
 		TroenGame*						m_troenGame;
 		//

@@ -64,12 +64,12 @@ void BikeController::reset()
 	m_timeOfLastCollision = -1;
 }
 
-const float BikeController::registerCollision(const btScalar impulse)
+void BikeController::registerCollision(const btScalar impulse)
 {
 	if (impulse > 0) {
 		m_timeOfLastCollision = g_gameTime;
 	}
-	return m_player->increaseHealth(-1 * impulse);
+	m_player->increaseHealth(-1 * impulse);
 }
 
 void BikeController::rememberFenceCollision(FenceController* fence)
@@ -442,8 +442,16 @@ void BikeController::updateFov(double speed)
 	}
 }
 
+
 std::shared_ptr<BikeModel>  BikeController::getModel()
 {
 	return std::static_pointer_cast<BikeModel>(m_model);
+}
+
+
+bool BikeController::isFalling()
+{
+	const int fallThreshold = -100;
+	return m_bikeModel->getPositionBt().z() < fallThreshold && state() == BikeController::BIKESTATE::DRIVING;
 }
 

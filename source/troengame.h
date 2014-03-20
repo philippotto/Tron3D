@@ -94,6 +94,7 @@ namespace troen
 		std::shared_ptr<networking::ServerManager> getServerManager() { return m_ServerManager; }
 		std::shared_ptr<networking::NetworkManager> getNetworkManager();
 	private:
+		TroenGameBuilder *m_builder;
 		//
 		// Game Loop
 		//

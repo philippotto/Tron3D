@@ -50,7 +50,7 @@ namespace troen
 		void updateView(const btTransform &worldTrans);
 		void setState(const BIKESTATE newState, const double respawnTime = -1);
 		void moveBikeToPosition(btTransform position);
-		const float registerCollision(const btScalar impulse);
+		void registerCollision(const btScalar impulse);
 		void rememberFenceCollision(FenceController* fence);
 		void activateTurbo();
 		void updateUniforms();
@@ -77,6 +77,8 @@ namespace troen
 
 		std::shared_ptr<BikeModel> getModel();
 		std::shared_ptr<input::RemotePlayer> getRemote() const { return m_remote; }
+		bool isFalling();
+
 	private:
 		std::shared_ptr<BikeView> m_bikeView;
 		std::shared_ptr<BikeModel> m_bikeModel;
