@@ -41,5 +41,7 @@ namespace troen
 
 		osg::Uniform *m_bendedUniform;
 		osg::Uniform *m_bendingActiveUniform;
+		osg::Group *m_itemGroup;
+
 	};
 }

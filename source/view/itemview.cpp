@@ -56,6 +56,7 @@ ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelVie
 	m_matrixTransform = new osg::MatrixTransform(initialTransform);
 	m_matrixTransform->addChild(boxGeode);
 
+
 	levelView->addItemBox(m_matrixTransform);
 }
 
