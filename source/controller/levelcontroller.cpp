@@ -106,3 +106,9 @@ void LevelController::setBendingFactor(float bendingFactor)
 {
 	m_levelView->setBendingFactor(bendingFactor);
 }
+
+
+void LevelController::setBendingActive(bool active)
+{
+	m_levelView->setBendingActive(active);
+}

@@ -203,15 +203,35 @@ void TroenGame::handleBending(double interpolationSkalar)
 	const double targetBending = m_deformationEnd;
 	const double bendedStep = (BENDED_VIEWS_DEACTIVATED - BENDED_VIEWS_ACTIVATED) / 300;
 	
-	if (targetBending==BENDED_VIEWS_ACTIVATED)
+	if (targetBending == BENDED_VIEWS_ACTIVATED)
+	{
+		m_levelController->setBendingActive(true);
+		for (auto player : m_players)
+		{
+			player->fenceController()->setBendingActive(true);
+		}
 		currentBending -= bendedStep;
+	}
 	else
+	{
 		currentBending += bendedStep;
+		if (currentBending >= BENDED_VIEWS_DEACTIVATED)
+		{
+
+			m_levelController->setBendingActive(false);
+			for (auto player : m_players)
+			{
+				player->fenceController()->setBendingActive(true);
+			}
+
+		}
+	}
 
 	currentBending = clamp(BENDED_VIEWS_ACTIVATED, BENDED_VIEWS_DEACTIVATED, currentBending);
 
 	m_deformationRendering->setDeformationStartEnd(0.05, currentBending);
 	m_levelController->setBendingFactor(1.0 - currentBending / BENDED_VIEWS_DEACTIVATED);
+	
 
 }
 

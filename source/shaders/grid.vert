@@ -3,6 +3,7 @@
 uniform int levelSize;
 uniform float objectID;
 uniform vec2 nearFar;
+uniform bool bendingActivated;
 
 void mainDeform();
 
@@ -23,8 +24,8 @@ void main()
 	// theNormal = normalize(gl_NormalMatrix * gl_Normal);
 	// linearDepth = (-(gl_ModelViewMatrix * gl_Vertex).z-nearFar.x)/(nearFar.y-nearFar.x);
 	// gl_TexCoord[1] = vec4(objectID);
-
-	mainDeform();
+	if (bendingActivated)
+		mainDeform();
 
 	bendedVertex = gl_Position;
 

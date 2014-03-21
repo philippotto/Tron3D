@@ -3,6 +3,7 @@
 uniform float objectID;
 uniform bool isReflecting;
 out vec2 uv;
+uniform bool bendingActivated;
 
 void mainDeform();
 void mainDeformReflected();
@@ -15,7 +16,7 @@ void main(void)
 	scaled_height = gl_Vertex.z;
 
 
-	if (isReflecting) {
+	if (isReflecting || !bendingActivated) {
 		gl_Position = gl_ModelViewProjectionMatrix  * gl_Vertex;
 		//TODO: make mainDeformReflected work
 		//mainDeformReflected();

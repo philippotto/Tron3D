@@ -39,6 +39,9 @@ AbstractView()
 	osg::StateSet *stateSet = m_node->getOrCreateStateSet();
 	m_bendedUniform = new osg::Uniform("bendingFactor", 0.f);
 	stateSet->addUniform(m_bendedUniform);
+
+	m_bendingActiveUniform = new osg::Uniform("bendingActivated",false);
+	stateSet->addUniform(m_bendingActiveUniform);
 }
 
 void LevelView::reload(std::string levelName)
@@ -240,4 +243,8 @@ osg::ref_ptr<osg::Group>  LevelView::getFloor()
 void LevelView::setBendingFactor(float bendingFactor)
 {
 	m_bendedUniform->set(bendingFactor);
+}
+void LevelView::setBendingActive(bool val)
+{
+	m_bendingActiveUniform->set(val);
 }

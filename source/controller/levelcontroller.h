@@ -19,7 +19,7 @@ namespace troen
 		void update();
 
 		void setBendingFactor(float bendingFactor);
-
+		void setBendingActive(bool active);
 		btTransform getRandomSpawnPoint();
 		osg::ref_ptr<osg::Group>  getFloorView();
 
