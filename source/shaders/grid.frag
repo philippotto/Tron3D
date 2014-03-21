@@ -41,13 +41,15 @@ void main()
 
 	float xy_dist = length(v_eye) / 330.0;
 	float skybox_blend = clamp(smoothstep(0.0, 0.2, xy_dist) * xy_dist, 0.0, 0.6);
-	float bending_blend = clamp(smoothstep(0.0, 0.15, xy_dist) * xy_dist, 0.0, 0.7);
+	float bending_blend = bendingFactor * clamp(smoothstep(0.0, 0.07, xy_dist  * xy_dist), 0.0, 0.9);
 	//occlude skybox, when reflection occludes it
 	float occlusion_fac = (1.0 - scene_reflection.a);
 	//dont use skybox in a parameter around player
-	vec4 reflectionTextureColor = mix(scene_reflection, skydome_reflection, skybox_blend * occlusion_fac);
+	vec4 reflectionTextureColor = mix(scene_reflection, skydome_reflection, skybox_blend * occlusion_fac + bending_blend);
+	
+	// reflectionTextureColor = mix(reflectionTextureColor,vec4(0.0),  xy_dist);
 	//blend farther away grid to white if bending
-	reflectionTextureColor = mix(reflectionTextureColor, vec4(1.0), skybox_blend * smoothstep(0.1,0.3,bendingFactor));
+	reflectionTextureColor = mix(reflectionTextureColor, vec4(1.0), bending_blend);
 	//vec4(skybox_blend,0.0,1.0);//
 	gl_FragData[0] = mix(grid * 2.0, reflectionTextureColor, 0.5 - (1 - bendingFactor) / 4);
 	// gl_FragData[0] = vec4(bendingFactor);

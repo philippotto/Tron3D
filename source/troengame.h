@@ -96,6 +96,7 @@ namespace troen
 		//
 		void startGameLoop();
 		void fixCulling(osg::ref_ptr<osgViewer::View> view);
+		void handleBending(double interpolationSkalar);
 
 		//
 		// fullscreen handling

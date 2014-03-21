@@ -131,19 +131,8 @@ void TroenGame::startGameLoop()
 			// Hack: normalize and use the speed to control the deformation
 			float bikeSpeed = m_players[0]->bikeController()->speed();
 			float maxSpeed = 400.f;
-			m_deformationRendering->setInterpolationSkalar(double(bikeSpeed / maxSpeed));
 
-			double currentBending = m_deformationRendering->getDeformationEnd();
-			const double targetBending = m_deformationEnd;
-			const double bendedStep = (BENDED_VIEWS_DEACTIVATED - BENDED_VIEWS_ACTIVATED) / 600;
-			
-			currentBending += bendedStep * (currentBending < targetBending ? 1 : -1);
-			currentBending = clamp(BENDED_VIEWS_ACTIVATED, BENDED_VIEWS_DEACTIVATED, currentBending);
-
-			m_deformationRendering->setDeformationStartEnd(0.1, currentBending);
-			
-			m_levelController->setBendingFactor(1.0 - currentBending / BENDED_VIEWS_DEACTIVATED);
-
+			handleBending(double(bikeSpeed / maxSpeed));
 
 
 			if (m_postProcessing)
@@ -204,6 +193,26 @@ void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View> view)
 	view->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 	znear = 1.0;
 	view->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
+}
+
+void TroenGame::handleBending(double interpolationSkalar)
+{
+	m_deformationRendering->setInterpolationSkalar(1.0);
+
+	double currentBending = m_deformationRendering->getDeformationEnd();
+	const double targetBending = m_deformationEnd;
+	const double bendedStep = (BENDED_VIEWS_DEACTIVATED - BENDED_VIEWS_ACTIVATED) / 300;
+	
+	if (targetBending==BENDED_VIEWS_ACTIVATED)
+		currentBending -= bendedStep;
+	else
+		currentBending += bendedStep;
+
+	currentBending = clamp(BENDED_VIEWS_ACTIVATED, BENDED_VIEWS_DEACTIVATED, currentBending);
+
+	m_deformationRendering->setDeformationStartEnd(0.05, currentBending);
+	m_levelController->setBendingFactor(1.0 - currentBending / BENDED_VIEWS_DEACTIVATED);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
