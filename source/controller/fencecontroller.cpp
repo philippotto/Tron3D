@@ -114,8 +114,3 @@ void FenceController::updateFadeOutFactor(float fadeOutFactor)
 {
 	m_fenceView->updateFadeOutFactor(fadeOutFactor);
 }
-
-void FenceController::setBendingActive(bool active)
-{
-	m_fenceView->setBendingActive(active);
-}

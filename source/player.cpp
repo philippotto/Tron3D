@@ -71,7 +71,6 @@ m_hasGameView(config->ownView[id])
 
 		m_gameView = new osgViewer::View();
 		m_gameView->getCamera()->setCullMask(CAMERA_MASK_MAIN);
-		m_gameView->getCamera()->getOrCreateStateSet()->addUniform(new osg::Uniform("isReflecting", false));
 		m_gameView->setSceneData(m_playerNode);
 
 		osg::ref_ptr<NodeFollowCameraManipulator> manipulator
@@ -102,7 +101,7 @@ m_hasGameView(config->ownView[id])
 	// Viewer
 	//
 	////////////////////////////////////////////////////////////////////////////////
-
+	
 	if (config->ownView[m_id])
 	{
 		m_viewer = new SampleOSGViewer();
@@ -121,7 +120,7 @@ m_hasGameView(config->ownView[id])
 
 void Player::setupReflections(TroenGame* game, osg::ref_ptr<osg::Group>& sceneNode) {
 	m_reflection = std::make_shared<Reflection>(game->levelController()->getFloorView(), m_gameView, game->skyDome()->getSkyboxTexture(), m_id);
-	m_playerNode->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 5 + m_id));
+	m_playerNode->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionTex", 4 + m_id));
 
 	reflection()->addSceneNode(sceneNode);
 	playerNode()->addChild(reflection()->getReflectionCameraGroup());

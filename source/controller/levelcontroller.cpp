@@ -10,17 +10,15 @@
 #include "../model/physicsworld.h"
 
 #include "itemcontroller.h"
-#include "../troengame.h"
 
 using namespace troen;
 
-LevelController::LevelController(TroenGame* troenGame, std::string levelName) : m_levelName(levelName)
+LevelController::LevelController(std::string levelName) : m_levelName(levelName)
 {
 	AbstractController();
 	m_model = m_levelModel = std::make_shared<LevelModel>(this, levelName);
 	m_view = m_levelView = std::make_shared<LevelView>(m_levelModel, levelName);
 
-	m_troenGame = troenGame;
 	m_currentItemCount = 0;
 
 	initializeSpawnPoints();
@@ -84,31 +82,21 @@ void LevelController::addItemBox()
 	btVector3 position(x, y, +0.5);
 
 	// the item controller will remove itself
-	new ItemController(position, m_world, m_troenGame, m_levelView.get());
+	new ItemController(position, m_world, m_levelView.get());
 
 	m_currentItemCount++;
 }
 
-void LevelController::update()
+void troen::LevelController::update()
 {
 	if (m_currentItemCount >= m_targetItemCount) {
 		return;
 		m_targetItemCount = 0;
 	}
 
+
 	// this method is called in each frame, so the amount of items will be refreshed relatively quickly
 	// creating all at once would cause a lag
 
 	addItemBox();
-}
-
-void LevelController::setBendingFactor(float bendingFactor)
-{
-	m_levelView->setBendingFactor(bendingFactor);
-}
-
-
-void LevelController::setBendingActive(bool active)
-{
-	m_levelView->setBendingActive(active);
 }

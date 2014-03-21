@@ -55,7 +55,6 @@ namespace troen
 		std::vector<BoxModel>& getObstacles() { return m_obstacles; };
 
 	private:
-
 		void addBoxes(std::vector<BoxModel> &boxes, const COLLISIONTYPE type = ABSTRACTTYPE);
 		void addFloor(const float yPosition);
 		void addObstaclesFromFile(std::string levelName);

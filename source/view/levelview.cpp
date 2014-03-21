@@ -14,8 +14,6 @@
 #include <osg/TexEnv>
 #include <osg/TexGen>
 #include <osg/TexGenNode>
-
-#include <osg/PolygonMode>
 // bullet
 #include <btBulletDynamicsCommon.h>
 // troen
@@ -35,14 +33,6 @@ AbstractView()
 	m_node->addChild(constructObstacles(levelSize, levelName));
 	m_node->addChild(constructFloors(levelSize));
 
-
-	osg::StateSet *stateSet = m_node->getOrCreateStateSet();
-	m_bendedUniform = new osg::Uniform("bendingFactor", 0.f);
-	stateSet->addUniform(m_bendedUniform);
-
-	m_bendingActiveUniform = new osg::Uniform("bendingActivated",false);
-	stateSet->addUniform(m_bendingActiveUniform);
-
 	m_itemGroup = new osg::Group();
 	m_itemGroup->setName("itemGroup");
 	m_node->addChild(m_itemGroup);
@@ -61,13 +51,8 @@ void LevelView::reload(std::string levelName)
 osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 {
 	osg::ref_ptr<osg::Group> floorsGroup = new osg::Group();
-
-	osg::ref_ptr<osg::Node> floors = osgDB::readNodeFile("data/models/floor_highres.ive");
-	floors->setNodeMask(CAMERA_MASK_MAIN);
-
-	 //osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
+	osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
 	floors->setName("floorsNode");
-
 	osg::StateSet *obstaclesStateSet = floors->getOrCreateStateSet();
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
@@ -75,7 +60,6 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 
 	//will be overwritten if reflection is used
 	addShaderAndUniforms(static_cast<osg::ref_ptr<osg::Node>>(floors), shaders::GRID_NOREFLECTION, levelSize, GLOW);
-
 
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 	floorsGroup->addChild(floors);
@@ -85,8 +69,7 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 	radarFloors->setNodeMask(CAMERA_MASK_RADAR);
 	floorsGroup->addChild(radarFloors);
 
-
-  return floorsGroup;
+    return floorsGroup;
 }
 
 osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::string levelName)
@@ -97,7 +80,7 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 	osg::ref_ptr<osg::Node> obstacles = osgDB::readNodeFile("data/levels/" + levelName + ".ive");
 	obstacles->setCullingActive(false);
 
-	//osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles());
+	//osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles()); 
 	osg::StateSet *obstaclesStateSet =  obstacles->getOrCreateStateSet();
 	obstaclesStateSet->ref();
 	//obstacles->setStateSet(obstaclesStateSet);
@@ -111,8 +94,6 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 	osg::ref_ptr<osg::Group> radarObstacles = constructRadarElementsForBoxes(m_model->getObstacles());
 	radarObstacles->setNodeMask(CAMERA_MASK_RADAR);
 	obstaclesGroup->addChild(radarObstacles);
-
-	std::cout << "Obstacles radius" << obstaclesGroup->getBound().radius() << std::endl;
 
 	return obstaclesGroup;
 }
@@ -144,22 +125,13 @@ osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel>
 		btQuaternion rotation = boxes[i].rotation;
 
 		// create obstacle
-		//box 0 new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z())
-
-		osg::ref_ptr<osg::TessellationHints> hints = new osg::TessellationHints;
-		hints->setDetailRatio(2.0f);
-		hints->setTargetNumFaces(64);
-		hints->setTessellationMode(osg::TessellationHints::USE_TARGET_NUM_FACES);
-
+		osg::ref_ptr<osg::Box> box
+				= new osg::Box(osg::Vec3(0,0,0), dimensions.x(), dimensions.y(), dimensions.z());
 		osg::ref_ptr<osg::ShapeDrawable> boxDrawable
-			= new osg::ShapeDrawable(new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z()));// , hints.get());
-
-
-		//osg::ref_ptr<osg::Geode> boxGeode
-		//	= createCube(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z());// new osg::Geode();
-		osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
+				= new osg::ShapeDrawable(box);
+		osg::ref_ptr<osg::Geode> boxGeode
+				= new osg::Geode();
 		boxGeode->addDrawable(boxDrawable);
-		//boxGeode->getOrCreateStateSet()->setAttribute(new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
 
 		// place objects in world space
 		osg::Matrixd initialTransform;
@@ -226,6 +198,7 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 		texture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
 		texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
 		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
+
 	}
 }
 
@@ -234,21 +207,17 @@ void LevelView::addItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform)
 	m_itemGroup->addChild(matrixTransform);
 }
 
+
 void troen::LevelView::removeItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixTransform)
 {
 	m_itemGroup->removeChild(matrixTransform);
 }
+
 
 osg::ref_ptr<osg::Group>  LevelView::getFloor()
 {
 	return m_node;
 }
 
-void LevelView::setBendingFactor(float bendingFactor)
-{
-	m_bendedUniform->set(bendingFactor);
-}
-void LevelView::setBendingActive(bool val)
-{
-	m_bendingActiveUniform->set(val);
-}
+
+

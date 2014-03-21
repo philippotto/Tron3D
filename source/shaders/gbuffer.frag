@@ -15,7 +15,5 @@ void main(void)
 	gl_FragData[0] = texColor; // sceneColor
 
 	//8bit int, 2 channels: select_group, attribute (f.e glowintensity for glow group)
-	gl_FragData[1] = vec4(objectID, 0, 0, 0);
-
-	return;
+	gl_FragData[1] = vec4(objectID, 0,0,0);
 }

@@ -289,7 +289,7 @@ void BikeController::updateModel(const long double gameTime)
 
 		// fades fence out when player died
 		m_player->fenceController()->updateFadeOutFactor(1 - (gameTime - m_respawnTime) / (RESPAWN_DURATION * 2.f / 3.f));
-
+		
 		if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
 		{
 			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
@@ -382,7 +382,7 @@ void BikeController::updateUniforms()
 		m_timeFactorUniform->set((float) getTimeFactor());
 		m_healthUniform->set(m_player->health()/BIKE_DEFAULT_HEALTH);
 	}
-
+	
 }
 
 void BikeController::updateFov(double speed)

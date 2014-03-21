@@ -10,6 +10,4 @@ void main()
 	gl_Position = gl_Vertex;
 	v_texCoord = (gl_Vertex.xy + vec2(1.0)) / 2.0;
 	doHorizontalBlur = 0.f;
-
-	return;
 }

@@ -15,5 +15,5 @@ void main() {
 	gl_FragData[0] = mix(adjustedColor, diffuseColor, trueColor);
 
 	//3channels: select_group, attribute (f.e glowintensity for glow group), height in world coords
-	gl_FragData[1] = vec4(modelID, glowIntensity, scaled_height / 200.0, 0);
+	gl_FragData[1] = vec4(modelID, glowIntensity,  scaled_height / 200.0, 0);
 }

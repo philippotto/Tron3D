@@ -88,7 +88,7 @@ namespace troen
 	class BikeView;
 	class LevelView;
 	class FenceView;
-	class AbstractView;
+	class AbstractView;	
 	class HUDView;
 	class ItemView;
 	class SkyDome;
@@ -96,7 +96,6 @@ namespace troen
 	class NodeFollowCameraManipulator;
 	class Reflection;
 	class ResourcePool;
-	class SplineDeformationRendering;
 
 	namespace util
 	{

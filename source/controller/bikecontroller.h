@@ -106,7 +106,6 @@ namespace troen
 		osg::ref_ptr<osgViewer::View>		m_gameView;
 		osg::ref_ptr<input::Keyboard>		m_keyboardHandler;
 		std::shared_ptr<input::PollingDevice> m_pollingThread;
-
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
 
 
