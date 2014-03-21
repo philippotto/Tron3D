@@ -17,6 +17,7 @@
 #include "networkmanager.h"
 #include <thread>
 //raknet
+#include "GetTime.h"
 
 
 using namespace troen::networking;
@@ -369,6 +370,7 @@ void NetworkManager::pollPositionUpdates(long double g_gameTime)
 		btQuaternion quat = localBikeController->getModel()->getRotationQuat();
 		btVector3 linearVelocity = localBikeController->getModel()->getLinearVelocity();
 		bikeUpdateMessage message = {
+			RakNet::GetTime(),
 			localBikeController->player()->getNetworkID(),
 			transform,
 			linearVelocity.x(), linearVelocity.y(), linearVelocity.z()

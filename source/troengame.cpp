@@ -131,14 +131,13 @@ void TroenGame::startGameLoop()
 				m_levelController->update();
 			}
 
-<<<<<<< HEAD
+
 
 			if (isNetworking())
 				getNetworkManager()->update(g_gameTime);
 
 
-=======
->>>>>>> 41edb7b4d623a3fc83f61ba32ecadb522e9730e5
+
 			m_audioManager->Update(g_gameLoopTime / 1000);
 			m_audioManager->setMotorSpeed(m_players[0]->bikeController()->speed());
 

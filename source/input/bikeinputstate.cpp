@@ -2,6 +2,8 @@
 // troen
 #include "pollingdevice.h"
 #include "../constants.h"
+#include "LocklessTypes.h"
+
 
 using namespace troen::input;
 
@@ -118,4 +120,14 @@ bool BikeInputState::isNewPosition()
 void BikeInputState::setIsNewPosition(bool value)
 {
 	m_isNewPosition = value;
+}
+
+void BikeInputState::setReceivementTimestamp(RakNet::Time time)
+{
+	m_receivementTime = time;
+}
+
+RakNet::Time BikeInputState::getReceivementTime()
+{
+	return m_receivementTime;
 }

@@ -5,6 +5,7 @@
 #include "RakPeerInterface.h"
 #include "RakNetTypes.h"  // MessageID
 #include "MessageIdentifiers.h"
+#include "RakNetTime.h"
 // OSG
 #include <osg/ref_ptr>
 #include <osg/Vec3>
@@ -58,6 +59,7 @@ namespace troen
 
 		struct bikeUpdateMessage
 		{
+			RakNet::Time timeStamp; // Put the system time in here returned by RakNet::GetTime()
 			int bikeID;
 			//float x, y, z;
 			//float quat_x, quat_y, quat_z, quat_w;

@@ -68,6 +68,7 @@ void ClientManager::openClient(std::string connectAddr)
 	m_isServer = false;
 	RakNet::SocketDescriptor sd;
 	peer->Startup(1, &sd, 1);
+	peer->SetOccasionalPing(true);
 
 	printf("Starting the client.\n");
 	RakNet::ConnectionAttemptResult r = peer->Connect(connectAddr.c_str(), SERVER_PORT, 0, 0);

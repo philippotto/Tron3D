@@ -1,4 +1,5 @@
 #pragma once
+#include "RakNetTime.h"
 // OSG
 #include <osg/Referenced>
 // troen
@@ -39,6 +40,8 @@ namespace input
 		void setAngularVelocityZ(float val);
 		void setIsNewPosition(bool value);
 		bool isNewPosition();
+		void setReceivementTimestamp(RakNet::Time time);
+		RakNet::Time getReceivementTime();
 	private:
 		float m_acceleration;
 		float m_angle;
@@ -50,6 +53,7 @@ namespace input
 		btVector3 m_linearVeloctiy;
 		float m_angularVelocity;
 		bool m_isNewPosition;
+		RakNet::Time m_receivementTime;
 	};
 }
 }

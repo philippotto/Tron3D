@@ -24,6 +24,7 @@ void RemotePlayer::update(troen::networking::bikeUpdateMessage updateMessage)
 	m_bikeInputState->setRotation(updateMessage.transform.getRotation());
 	m_bikeInputState->setLinearVeloctiy(btVector3(updateMessage.linearVelX, updateMessage.linearVelY, updateMessage.linearVelZ));
 	m_bikeInputState->setIsNewPosition(true);
+	m_bikeInputState->setReceivementTimestamp(updateMessage.timeStamp);
 }
 
 

@@ -102,6 +102,7 @@ void ServerManager::openServer()
 	printf("Starting the server.\n");
 	// We need to let the server accept incoming connections from the clients
 	peer->SetMaximumIncomingConnections(MAX_CLIENTS);
+	peer->SetOccasionalPing(true);
 
 
 
