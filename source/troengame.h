@@ -11,6 +11,7 @@
 #include <osgViewer/ViewerEventHandlers>
 // troen
 #include "forwarddeclarations.h"
+#include "constants.h"
 #include "gameeventhandler.h"
 #include "resourcepool.h"
 #include "view/skydome.h"
@@ -75,6 +76,16 @@ namespace troen
 		void resize(const int width,const int height);
 		void reloadLevel();
 
+		SplineDeformationRendering* getBendedViews() {
+			return m_deformationRendering;
+		}
+
+		void enableBendedViews() { m_deformationEnd = BENDED_VIEWS_ACTIVATED; }
+		void disableBendedViews() { m_deformationEnd = BENDED_VIEWS_DEACTIVATED; }
+		
+		double m_deformationEnd = BENDED_VIEWS_DEACTIVATED;
+
+
 	public slots:
 		void prepareAndStartGame(const GameConfig& config);
 
@@ -85,6 +96,7 @@ namespace troen
 		//
 		void startGameLoop();
 		void fixCulling(osg::ref_ptr<osgViewer::View> view);
+		void handleBending(double interpolationSkalar);
 
 		//
 		// fullscreen handling
@@ -103,6 +115,7 @@ namespace troen
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
+		osg::ref_ptr<osg::Group>			m_sceneWithSkyboxNode;
 
 		//
 		// Game Components
@@ -117,6 +130,10 @@ namespace troen
 		std::shared_ptr<GameLogic>				m_gameLogic;
 		std::shared_ptr<sound::AudioManager>	m_audioManager;
 		ResourcePool m_resourcePool;
+
+
+		// BendedViews
+		SplineDeformationRendering* m_deformationRendering;
 
 		// Startup Options
 		QThread* m_gameThread;
