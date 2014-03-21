@@ -160,12 +160,10 @@ void LevelModel::addBoxes(std::vector<BoxModel> &boxes, COLLISIONTYPE type)
 		std::shared_ptr<btRigidBody> wallRigidBody = std::make_shared<btRigidBody>(wallRigidBodyCI);
 
 		ObjectInfo* info;
-		if (type == ABSTRACTTYPE) {
+		if (type == ABSTRACTTYPE)
 			info = new ObjectInfo(const_cast<LevelController*>(m_levelController), boxes[i].collisionType);
-		}
-		else {
+		else
 			info = new ObjectInfo(const_cast<LevelController*>(m_levelController), type);
-		}
 
 		wallRigidBody->setUserPointer(info);
 

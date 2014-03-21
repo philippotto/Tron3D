@@ -72,5 +72,4 @@ void main() {
 	}
 
 	gl_FragColor = avgValue / coefficientSum;
-	return;
 }

@@ -11,15 +11,14 @@ namespace troen
 	class LevelController : public AbstractController
 	{
 	public:
-		LevelController(TroenGame* troenGame, std::string levelName);
+		LevelController(std::string levelName);
+
 
 		virtual btTransform getSpawnPointForBikeWithIndex(const int index);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
 		void addItemBox();
 		void update();
 
-		void setBendingFactor(float bendingFactor);
-		void setBendingActive(bool active);
 		btTransform getRandomSpawnPoint();
 		osg::ref_ptr<osg::Group>  getFloorView();
 
@@ -34,9 +33,9 @@ namespace troen
 		virtual void initializeSpawnPoints();
 		std::weak_ptr<PhysicsWorld> m_world;
 
-		TroenGame* m_troenGame;
-		std::string m_levelName;
 		int m_currentItemCount;
 		int m_targetItemCount = 100;
+
+		std::string m_levelName;
 	};
 }

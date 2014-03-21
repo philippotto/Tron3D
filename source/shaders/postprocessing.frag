@@ -143,6 +143,8 @@ void main(void)
 		+ texture2D(pongLayer, st + vec2(-diff, diff))
 	) / 8;
 
+
+
 	vec4 oldColor = texture2D(oldLayer, st);
 
 	// motion blur is framerate independent
@@ -172,6 +174,4 @@ void main(void)
 	newColor = mix(newColor, vec4(reddedColor, 1.f), circleTransparency);
 
 	gl_FragColor = newFrameWeight * newColor + oldFrameWeight * oldColor;
-
-	return;
 }

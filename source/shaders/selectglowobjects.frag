@@ -15,5 +15,4 @@ void main(void)
 
 	vec4 sceneColor = texture2D(sceneLayer, st);
 	gl_FragColor = sceneColor;
-	return;
 }

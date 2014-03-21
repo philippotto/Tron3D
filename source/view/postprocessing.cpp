@@ -143,7 +143,7 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	cam->setReferenceFrame(osg::Camera::RELATIVE_RF);
-	cam->setRenderOrder(osg::Camera::PRE_RENDER, 0);
+	cam->setRenderOrder(osg::Camera::POST_RENDER, 0);
 
 	// need to know about near far changes for correct depth 
 	//cam->setCullCallback(new NearFarCallback());
