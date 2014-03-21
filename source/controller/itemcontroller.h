@@ -14,20 +14,20 @@ namespace troen
 	{
 		Q_OBJECT
 	public:
-		ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> world, LevelView* view);
+		ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> world, TroenGame* troenGame, LevelView* view);
 
 		osg::Vec3 getDimensions();
 
 		enum Type
 		{
-			TURBOSTRIP, HEALTHUP, RADAR, COUNT
+			TURBOSTRIP, HEALTHUP, RADAR, BENDEDVIEWS, COUNT
 		};
 
 		void triggerOn(BikeController* bikeController, GameLogic* gamelogic = nullptr);
 
 	public slots:
 		void hideFencesInRadarForPlayer();
-
+		void deactivateBendedViews();
 	private:
 		std::shared_ptr<ItemView> m_itemView;
 		std::shared_ptr<ItemModel> m_itemModel;
@@ -36,6 +36,7 @@ namespace troen
 		int m_id;
 		BikeController* m_bikeController;
 		GameLogic* m_gamelogic;
+		TroenGame* m_troenGame;
 
 		void remove();
 		void destroy();

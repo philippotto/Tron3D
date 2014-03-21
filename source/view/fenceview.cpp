@@ -64,6 +64,9 @@ void FenceView::initializeFence()
 	m_radarElementsGroup = new osg::Group();
 	m_radarElementsGroup->setNodeMask(CAMERA_MASK_NONE);
 	m_node->addChild(m_radarElementsGroup);
+
+	m_bendingActiveUniform = new osg::Uniform("bendingActivated", false);
+	m_node->getOrCreateStateSet()->addUniform(m_bendingActiveUniform);
 }
 
 void FenceView::updateFadeOutFactor(float fadeOutFactor)
@@ -201,4 +204,9 @@ void FenceView::hideFencesInRadarForPlayer(const int id)
 	osg::Node::NodeMask currentMask = m_radarElementsGroup->getNodeMask();
 	osg::Node::NodeMask newMask = currentMask & ~ CAMERA_MASK_PLAYER[id];
 	m_radarElementsGroup->setNodeMask(newMask);
+}
+
+void FenceView::setBendingActive(bool val)
+{
+	m_bendingActiveUniform->set(val);
 }

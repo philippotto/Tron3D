@@ -25,6 +25,7 @@ namespace troen
 		void hideFencesInRadarForPlayer(const int id);
 
 		void updateFadeOutFactor(float fadeOutFactor);
+		void setBendingActive(bool val);
 
 	private:
 		void initializeFence();
@@ -41,6 +42,7 @@ namespace troen
 		std::weak_ptr<FenceModel>		m_model;
 
 		osg::Uniform*	m_fadeOutFactorUniform;
+		osg::Uniform*   m_bendingActiveUniform;
 
 		osg::Vec3 m_playerColor;
 		float m_fenceHeight;
