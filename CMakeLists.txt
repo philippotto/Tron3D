@@ -170,6 +170,8 @@ foreach(package ${QT_PACKAGES})
 	find_package(${package} 5.1 REQUIRED)
 endforeach(package)
 
+
+
 # OpenGL
 find_package(OpenGL REQUIRED)
 
@@ -311,6 +313,39 @@ set(sources
 
 
 
+	BendedViews/src/DeformationRendering.cpp
+	BendedViews/src/DeformationRendering.h
+	BendedViews/src/GlobalDeformationsExample.cpp
+	BendedViews/src/GlobalDeformationsExample.h
+	BendedViews/src/PreRenderCallback.cpp
+	BendedViews/src/PreRenderCallback.h
+	BendedViews/src/SplineDeformationRendering.cpp
+	BendedViews/src/SplineDeformationRendering.h
+
+	BendedViews/src/deformentities/bsplinedeformationfunction.cpp
+	BendedViews/src/deformentities/bsplinedeformationfunction.h
+	BendedViews/src/deformentities/curve.cpp
+	BendedViews/src/deformentities/curve.h
+	BendedViews/src/deformentities/curvestylingpreset.cpp
+	BendedViews/src/deformentities/curvestylingpreset.h
+	BendedViews/src/deformentities/preset.cpp
+	BendedViews/src/deformentities/preset.h
+	BendedViews/src/deformentities/tagpoint.cpp
+	BendedViews/src/deformentities/tagpoint.h
+	
+	##################################################
+	# Bended Views GUI
+	##################################################
+	BendedViews/src/ui/DeformationConfigWidget.ui
+	BendedViews/src/ui/DeformationConfigWidget.h
+	BendedViews/src/ui/DeformationConfigWidget.cpp
+	BendedViews/src/ui/ControlPointItem.h
+	BendedViews/src/ui/ControlPointItem.cpp
+	BendedViews/src/ui/SplineItem.h
+	BendedViews/src/ui/SplineItem.cpp
+	BendedViews/src/ui/SplineSceneItem.h
+	BendedViews/src/ui/SplineSceneItem.cpp
+
 )
 
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source"
@@ -326,6 +361,7 @@ set(target troen)
 add_executable(${target} ${sources})
 
 qt5_use_modules(${target} Core OpenGL Gui Widgets)
+qt5_wrap_ui(${target} BendedViews/src/ui/DeformationConfigWidget.ui)
 
 include_directories(
 	${CMAKE_SOURCE_DIR}
@@ -335,7 +371,6 @@ include_directories(
 	${HIDAPI_INCLUDE_DIRS}
 	${RakNet_INCLUDES}
 	${PROJECT_BINARY_DIR} #for the generated files
-
 )
 
 target_link_libraries( ${target}

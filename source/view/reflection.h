@@ -16,7 +16,9 @@ namespace troen
 	{
 		public:
 			Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap, int playerID);
+
 			bool addSceneNode(osg::ref_ptr<osg::Group> sceneNode);
+			void setReflectMode(bool mode);
 
 			virtual osg::ref_ptr<osg::Group> getReflectionCameraGroup();	
 

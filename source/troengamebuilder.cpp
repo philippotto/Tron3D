@@ -23,6 +23,7 @@
 #include "view/shaders.h"
 #include "view/postprocessing.h"
 #include "view/reflection.h"
+#include "BendedViews/src/SplineDeformationRendering.h"
 
 #include "util/chronotimer.h"
 #include "util/gldebugdrawer.h"
@@ -31,7 +32,9 @@
 #ifdef WIN32
 #include "input/gamepad.h"
 #endif
+
 #include <thread>
+
 using namespace troen;
 
 TroenGameBuilder::TroenGameBuilder(TroenGame * game) :
@@ -41,6 +44,7 @@ t(game) {};
 bool TroenGameBuilder::build()
 {
 	t->m_rootNode = new osg::Group;
+	t->m_sceneNode = new osg::Group;
 
 	osg::DisplaySettings::instance()->setNumMultiSamples(NUM_MULTISAMPLES);
 	std::cout << "[TroenGame::build] building game ..." << std::endl;
@@ -93,7 +97,7 @@ bool TroenGameBuilder::build()
 	////////////////////////////////////////////////////////////////////////////////
 	std::cout << "[TroenGame::build] controllers (models & views) ..." << std::endl;
 	{ // controllers
-		t->m_levelController = std::make_shared<LevelController>(t->m_gameConfig->levelName);
+		t->m_levelController = std::make_shared<LevelController>(t, t->m_gameConfig->levelName);
 		for (int i = 0; i < t->m_gameConfig->numberOfPlayers; i++)
 		{
 			std::shared_ptr<Player> player = std::make_shared<Player>(t, t->m_gameConfig, i);
@@ -146,14 +150,14 @@ bool TroenGameBuilder::composeSceneGraph()
 
 		t->m_postProcessing = std::make_shared<PostProcessing>(t->m_rootNode, viewport->width(), viewport->height());
 
-		t->m_sceneNode = t->m_postProcessing->getSceneNode();
+		t->m_sceneWithSkyboxNode = t->m_postProcessing->getSceneNode();
 
 		//explicit call, to enable glow from start
 		t->resize(viewport->width(), viewport->height());
 	}
 	else
 	{
-		t->m_sceneNode = t->m_rootNode;
+		t->m_sceneWithSkyboxNode = t->m_rootNode;
 	}
 
 	for (auto player : t->m_playersWithView)
@@ -162,7 +166,8 @@ bool TroenGameBuilder::composeSceneGraph()
 	}
 
 	t->m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
-	t->m_sceneNode->addChild(t->m_skyDome.get());
+	t->m_sceneWithSkyboxNode->addChild(t->m_sceneNode);
+	t->m_sceneWithSkyboxNode->addChild(t->m_skyDome.get());
 
 	t->m_sceneNode->addChild(t->m_levelController->getViewNode());
 	//t->m_sceneNode->addChild(t->m_sunLightSource.get());
@@ -183,14 +188,14 @@ bool TroenGameBuilder::composeSceneGraph()
 
 	for (auto player : t->m_playersWithView)
 	{
-			osg::Group * node = player->hudController()->getViewNode();
-			osg::Group * playerNode = player->playerNode();
-			playerNode->addChild(node);
+		osg::Group * node = player->hudController()->getViewNode();
+		osg::Group * playerNode = player->playerNode();
+		playerNode->addChild(node);
 	}
 
 
 	if (t->m_gameConfig->usePostProcessing)
-		t->m_rootNode->addChild(t->m_sceneNode);
+		t->m_rootNode->addChild(t->m_sceneWithSkyboxNode);
 
 	osg::ref_ptr<osg::Group> radarScene = new osg::Group;
 
@@ -200,6 +205,17 @@ bool TroenGameBuilder::composeSceneGraph()
 		radarScene->addChild(player->fenceController()->getViewNode());
 	}
 	radarScene->addChild(t->m_levelController->getViewNode());
+
+
+ 	const osg::BoundingSphere& bs = t->m_sceneNode->getBound();
+ 	// todo: the magic number (0.25) can be used to control the length of the deformation and must be possibly adjusted after the scene graph tweaks
+ 	float radius = LEVEL_SIZE / 5;
+	radius = 1071;
+ 	double nearD = 0.1;
+	std::cout << "radius  " << radius << std::endl;
+ 	t->m_deformationRendering = new SplineDeformationRendering(t->m_sceneNode);
+ 	t->m_deformationRendering->setDeformationStartEnd(nearD, radius);
+ 	t->m_deformationRendering->setPreset(4);
 
 	for (auto player : t->m_playersWithView)
 	{
@@ -213,6 +229,7 @@ bool TroenGameBuilder::composeSceneGraph()
 	//	optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS |
 	//	optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
 	//std::cout << "[TroenGameBuilder::composeSceneGraph] done optimizing" << std::endl;
+
 
 	return true;
 }

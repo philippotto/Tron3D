@@ -13,6 +13,7 @@
 //order is important, has to be imported before windows.h
 #include "network/networkmanager.h"
 #include "forwarddeclarations.h"
+#include "constants.h"
 #include "gameeventhandler.h"
 #include "resourcepool.h"
 #include "view/skydome.h"
@@ -83,9 +84,20 @@ namespace troen
 		void resize(const int width, const int height);
 		void reloadLevel();
 
+
 		std::shared_ptr<networking::ClientManager> getClientManager() { return m_ClientManager; }
 		std::shared_ptr<networking::ServerManager> getServerManager() { return m_ServerManager; }
 		std::shared_ptr<networking::NetworkManager> getNetworkManager();
+
+		SplineDeformationRendering* getBendedViews() {
+			return m_deformationRendering;
+		}
+
+		void enableBendedViews() { m_deformationEnd = BENDED_VIEWS_ACTIVATED; }
+		void disableBendedViews() { m_deformationEnd = BENDED_VIEWS_DEACTIVATED; }
+		
+		double m_deformationEnd = BENDED_VIEWS_DEACTIVATED;
+
 
 
 	public slots:
@@ -102,6 +114,7 @@ namespace troen
 		//
 		void startGameLoop();
 		void fixCulling(osg::ref_ptr<osgViewer::View> view);
+		void handleBending(double interpolationSkalar);
 
 		//
 		// fullscreen handling
@@ -120,6 +133,7 @@ namespace troen
 		osg::ref_ptr<osgViewer::StatsHandler> m_statsHandler;
 		std::shared_ptr<PostProcessing>		m_postProcessing;
 		osg::ref_ptr<osg::Group>			m_sceneNode;
+		osg::ref_ptr<osg::Group>			m_sceneWithSkyboxNode;
 
 		//
 		// Game Components
@@ -137,6 +151,10 @@ namespace troen
 		std::shared_ptr<networking::ClientManager>  m_ClientManager;
 
 		ResourcePool m_resourcePool;
+
+
+		// BendedViews
+		SplineDeformationRendering* m_deformationRendering;
 
 		// Startup Options
 		QThread* m_gameThread;
