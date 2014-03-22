@@ -25,15 +25,16 @@
 using namespace troen;
 
 
-class FindRamp : public osg::NodeVisitor
+class CategorizeLevelElements : public osg::NodeVisitor
 {
 public:
-	FindRamp()
+	CategorizeLevelElements()
 		: osg::NodeVisitor( // Traverse all children.
 		osg::NodeVisitor::TRAVERSE_ALL_CHILDREN)
-		{
-			noRampNode = new osg::Group();
-			rampNode = new osg::Group();
+	{
+			boxesNode = new osg::Group();
+			rampsNode = new osg::Group();
+			raisedFloorsNode = new osg::Group();
 		}
 
 	// This method gets called for every node in the scene
@@ -41,24 +42,27 @@ public:
 	//   out target. If so, save the node's address.
 	virtual void apply(osg::Node& node)
 	{
-		if (node.getName().find("ramp")==-1)
-			noRampNode->addChild(&node);
+		if (node.getName().find("ramp") != std::string::npos)
+			rampsNode->addChild(&node);
+		else if (node.getName().find("floor") != std::string::npos || node.getName().find("raisedFloor") != std::string::npos)
+			raisedFloorsNode->addChild(&node);
 		else
-			rampNode->addChild(&node);
+			boxesNode->addChild(&node);
 
 		// Keep traversing the rest of the scene graph.
 		traverse(node);
 	}
 
-	osg::ref_ptr<osg::Group> getRampNode() { return rampNode.get(); }
-	osg::ref_ptr<osg::Group> getNoRampNode()  { return noRampNode.get(); }
+	osg::ref_ptr<osg::Group> getRampNode() { return rampsNode; }
+	osg::ref_ptr<osg::Group> getBoxesNode()  { return boxesNode; }
+	osg::ref_ptr<osg::Group> getRaisedFloorsNode()  { return raisedFloorsNode; }
 
 protected:
 	std::string _name;
-	osg::ref_ptr<osg::Group> noRampNode;
-	osg::ref_ptr<osg::Group> rampNode;
+	osg::ref_ptr<osg::Group> boxesNode;
+	osg::ref_ptr<osg::Group> rampsNode;
+	osg::ref_ptr<osg::Group> raisedFloorsNode;
 };
-
 
 
 LevelView::LevelView(std::shared_ptr<LevelModel> model, std::string levelName) :
@@ -136,28 +140,40 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 	readObstacles->setCullingActive(false);
 
 
-	FindRamp *findRamp = new FindRamp();
+	CategorizeLevelElements *findRamp = new CategorizeLevelElements();
 	readObstacles->accept(*findRamp);
-	osg::ref_ptr<osg::Group> rampNode = findRamp->getRampNode();
-	osg::ref_ptr<osg::Group> noRampNode = findRamp->getNoRampNode();
+	osg::ref_ptr<osg::Group> rampsNode = findRamp->getRampNode();
+	osg::ref_ptr<osg::Group> boxesNode = findRamp->getBoxesNode();
 
-	mainGroup->addChild(rampNode);
-	mainGroup->addChild(noRampNode);
+	osg::ref_ptr<osg::Group> floorsNode = findRamp->getRaisedFloorsNode();
+
+
+	mainGroup->addChild(rampsNode);
+	mainGroup->addChild(floorsNode);
+	mainGroup->addChild(boxesNode);
 
 
 
 	//osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles());
 	osg::StateSet *obstaclesStateSet = obstaclesGroup->getOrCreateStateSet();
 	obstaclesStateSet->ref();
-	//obstacles->setStateSet(obstaclesStateSet);
+
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
-	obstaclesStateSet->addUniform(textureMapU);
+	boxesNode->getOrCreateStateSet()->addUniform(textureMapU);
+	rampsNode->getOrCreateStateSet()->addUniform(textureMapU);
 
-	setTexture(noRampNode->getOrCreateStateSet(), "data/textures/box.tga", 0);
-	setTexture(rampNode->getOrCreateStateSet(), "data/textures/ramptexture.tga", 0);
+	setTexture(boxesNode->getOrCreateStateSet(), "data/textures/box.tga", 0);
+	setTexture(rampsNode->getOrCreateStateSet(), "data/textures/ramptexture.tga", 0);
 
-	addShaderAndUniforms(mainGroup, shaders::DEFAULT, levelSize, GLOW);
+
+	//bind to 0 and 1 to prevent other textures to fill reflection
+	setTexture(floorsNode->getOrCreateStateSet(), "data/textures/floor.tga", 0);
+
+
+	addShaderAndUniforms(boxesNode, shaders::DEFAULT, levelSize, GLOW);
+	addShaderAndUniforms(rampsNode, shaders::DEFAULT, levelSize, GLOW);
 	mainGroup->setNodeMask(CAMERA_MASK_MAIN);
+
 
 
 	osg::ref_ptr<osg::Group> radarObstacles = constructRadarElementsForBoxes(m_model->getObstacles());
@@ -169,7 +185,6 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 
 	return obstaclesGroup;
 }
-
 
 
 void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderIndex, int levelSize, int modelID)
