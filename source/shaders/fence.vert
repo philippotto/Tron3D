@@ -12,7 +12,7 @@ void main()
 	// this is the relative height of the fence between 0 and 1
 	v_relHeight = a_relHeight;
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-	if (bendingActivated && !isReflecting)
+	if (false && bendingActivated && !isReflecting)
 		mainDeform();
 	return;
 }

@@ -222,7 +222,7 @@ bool TroenGameBuilder::composeSceneGraph()
 		player->hudController()->attachSceneToRadarCamera(radarScene);
 	}
 
-	// disbled optimizer for now, takes a lot of time to execute
+	//// disbled optimizer for now, takes a lot of time to execute
 	//std::cout << "[TroenGameBuilder::composeSceneGraph] starting Optimizer" << std::endl;
 	//osgUtil::Optimizer optimizer;
 	//optimizer.optimize(t->m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
@@ -286,6 +286,13 @@ bool TroenGameBuilder::buildPhysicsWorld()
 bool TroenGameBuilder::destroy()
 {
 	// clean up in reverse order from initialization
+
+	// AIs
+
+	for (auto player : t->m_players) {
+		player->bikeController()->killThread();
+	}
+
 	t->m_gameloopTimer.reset();
 	t->m_gameTimer.reset();
 

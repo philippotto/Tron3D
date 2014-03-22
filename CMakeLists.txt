@@ -191,6 +191,13 @@ find_package(HIDAPI REQUIRED)
 #RakNet
 find_package(RakNet REQUIRED)
 
+# V8
+find_package(V8 REQUIRED)
+
+# Scriptzeug
+find_package(Scriptzeug REQUIRED)
+
+
 #################################################
 # SOURCES
 #################################################
@@ -297,9 +304,11 @@ set(sources
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
-
 	source/util/gldebugdrawer.h
 	source/util/gldebugdrawer.cpp
+	source/util/scriptwatcher.h
+	source/util/filteredrayresultcallback.h
+
 
 	source/network/networkmanager.h
 	source/network/networkmanager.cpp
@@ -310,8 +319,6 @@ set(sources
 	source/input/remoteplayer.cpp
 	source/input/remoteplayer.h
 	
-
-
 
 	BendedViews/src/DeformationRendering.cpp
 	BendedViews/src/DeformationRendering.h
@@ -332,7 +339,7 @@ set(sources
 	BendedViews/src/deformentities/preset.h
 	BendedViews/src/deformentities/tagpoint.cpp
 	BendedViews/src/deformentities/tagpoint.h
-	
+
 	##################################################
 	# Bended Views GUI
 	##################################################
@@ -370,8 +377,12 @@ include_directories(
 	${FMOD_INCLUDE_DIRS}
 	${HIDAPI_INCLUDE_DIRS}
 	${RakNet_INCLUDES}
+	${V8_INCLUDE}
+	${SCRIPTZEUG_INCLUDE_DIRS}
 	${PROJECT_BINARY_DIR} #for the generated files
 )
+
+
 
 target_link_libraries( ${target}
     ${OPENGL_LIBRARIES}
@@ -380,6 +391,8 @@ target_link_libraries( ${target}
     ${FMOD_LIBRARIES}
 	${HIDAPI_LIBRARIES}
 	${RakNet_LIBRARY}
+		${V8_LIBS}
+		${SCRIPTZEUG_LIBRARIES}
 )
 
 if (WIN32)

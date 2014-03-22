@@ -37,6 +37,7 @@ namespace troen
 	extern const float BIKE_MASS;
 	extern const int BIKE_VELOCITY_MAX;
 	extern const int BIKE_VELOCITY_MIN;
+	extern const int BIKE_TURBO_VELOCITY_MAX;
 	extern const float BIKE_VELOCITY_DAMPENING_TERM;
 	extern const float BIKE_ACCELERATION_FACTOR_MAX;
 	extern const float BIKE_DECELERATION_FACTOR;

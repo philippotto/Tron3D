@@ -27,6 +27,9 @@
 #include "../input/remoteplayer.h"
 #include "../model/bikemotionstate.h"
 
+#include "../util/filteredrayresultcallback.h"
+
+
 using namespace troen;
 
 BikeController::BikeController(
@@ -84,6 +87,16 @@ BikeController::~BikeController()
 	{
 		m_pollingThread->stop();
 		m_pollingThread->wait();
+	}
+}
+
+void BikeController::killThread()
+{
+	if (m_pollingThread != nullptr)
+	{
+		m_pollingThread->stop();
+		m_pollingThread->wait();
+		m_pollingThread = nullptr;
 	}
 }
 
@@ -179,7 +192,7 @@ void BikeController::initializeGamepadPS4(osg::ref_ptr<input::BikeInputState> bi
 
 void BikeController::initializeAI(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
-	std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(bikeInputState);
+	std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(bikeInputState, this);
 	m_pollingThread = ai;
 	m_pollingThread->start();
 }
@@ -266,7 +279,11 @@ float BikeController::computeFovyDelta(float speed, float currentFovy)
 }
 void BikeController::activateTurbo()
 {
-	m_turboInitiated = true;
+	std::shared_ptr<BikeModel> bikeModel = std::static_pointer_cast<BikeModel>(m_model);
+
+	float turboFactor = bikeModel->getTurboFactor();
+	if (turboFactor <= 0)
+		m_turboInitiated = true;
 }
 
 void BikeController::setState(BIKESTATE newState, double respawnTime /*=-1*/)
@@ -406,8 +423,9 @@ void BikeController::addUniformsToPlayerNode()
 	stateset->addUniform(m_healthUniform);
 }
 
-void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
+void BikeController::attachWorld(std::shared_ptr<PhysicsWorld> world)
 {
+	m_world = world;
 	world->addRigidBodies(getRigidBodies(), COLGROUP_BIKE, COLMASK_BIKE);
 }
 
@@ -443,11 +461,53 @@ void BikeController::updateFov(double speed)
 }
 
 
+
 std::shared_ptr<BikeModel>  BikeController::getModel()
 {
 	return std::static_pointer_cast<BikeModel>(m_model);
 }
 
+float BikeController::getDistanceToObstacle(double angle) {
+	// angle specifies the deviation from the current direction the bike is heading
+
+	float rayLength = 10000;
+
+	if (m_world) { // && m_world->()) {
+
+		btDiscreteDynamicsWorld* discreteWorld = m_world->getDiscreteWorld();
+		std::shared_ptr<BikeModel> bikeModel = std::static_pointer_cast<BikeModel>(m_model);
+
+		btVector3 from, to, direction;
+		direction = bikeModel->getDirection().rotate(btVector3(0, 0, 1), angle);
+		from = bikeModel->getPositionBt();
+		to = from + direction * rayLength;
+
+		FilteredRayResultCallback RayCallback(bikeModel->getRigidBody().get(), from, to);
+
+		// Perform raycast
+		m_world->getMutex()->lock();
+		discreteWorld->rayTest(from, to, RayCallback);
+		m_world->getMutex()->unlock();
+
+		if (RayCallback.hasHit()) {
+			btVector3 collisionPoint;
+			collisionPoint = RayCallback.m_hitPointWorld;
+
+			if (RayCallback.m_hitNormalWorld.z() > 0.4){
+				// ignore collisions with tilted objects
+				return rayLength;
+			}
+
+			return (collisionPoint - from).length();
+		}
+		else {
+			return rayLength;
+		}
+		//g_bulletMutex.unlock();
+	}
+
+	return rayLength;
+}
 
 bool BikeController::isFalling()
 {

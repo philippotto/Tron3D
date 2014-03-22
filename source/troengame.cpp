@@ -31,9 +31,12 @@
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
 
+
 #include "network/clientmanager.h"
 #include "network/servermanager.h"
 #include <thread>
+#include <mutex>
+
 
 using namespace troen;
 extern long double g_currentTime;
@@ -46,6 +49,7 @@ m_gameThread(thread)
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
 	}
+
 	moveToThread(m_gameThread);
 	m_gameThread->start(QThread::HighestPriority);
 	m_ServerManager = NULL;

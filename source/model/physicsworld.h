@@ -4,6 +4,8 @@
 #include <set>
 #include <iterator>
 #include <algorithm>
+#include <array>
+#include <mutex>
 // troen
 #include "../forwarddeclarations.h"
 
@@ -35,9 +37,20 @@ namespace troen
 		
 		void addCollisionObject(btCollisionObject* obj);
 		void removeCollisionObject(btCollisionObject* obj);
+
 		void checkForCollisionEvents();
+		std::array<std::array<int, 100>, 100>* discretizeWorld();
+
 		// debugview
 		util::GLDebugDrawer* m_debug;
+
+		
+		btDiscreteDynamicsWorld* getDiscreteWorld()
+		{
+			return m_world;
+		};
+
+		std::mutex* getMutex() { return &m_physicsMutex; };
 
 	private:
 		btDiscreteDynamicsWorld*			m_world;
@@ -55,5 +68,9 @@ namespace troen
 
 		bool m_useDebugView;
 		std::weak_ptr<GameLogic> m_gameLogic;
+
+		std::array<std::array<int, 100>, 100> m_discretizedWorld;
+
+		std::mutex m_physicsMutex;
 	};
 }
