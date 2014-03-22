@@ -136,7 +136,6 @@ void AudioManager::PlaySong(const std::string& path) {
 }
 
 void AudioManager::StopSongs() {
-	return; //reduce loading time
 	if(currentSong != 0)
 		fade = FADE_OUT;
 	nextSongPath.clear();
@@ -262,7 +261,6 @@ void AudioManager::Update(float elapsed)
 }
 
 void AudioManager::SetMasterVolume(float volume) {
-	return; //reduce loading time
 	master->setVolume(volume);
 }
 float AudioManager::GetMasterVolume(){
@@ -271,10 +269,8 @@ float AudioManager::GetMasterVolume(){
 	return 0.0;
 }
 void AudioManager::SetSFXsVolume(float volume) {
-	return; //reduce loading time
 	groups[CATEGORY_SFX]->setVolume(volume);
 }
 void AudioManager::SetSongsVolume(float volume) {
-	return; //reduce loading time
 	groups[CATEGORY_SONG]->setVolume(volume);
 }

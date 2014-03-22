@@ -20,6 +20,7 @@
 #include "controller/itemcontroller.h"
 #include "sound/audiomanager.h"
 #include "model/objectinfo.h"
+#include "model/bikemodel.h"
 
 
 using namespace troen;
@@ -304,7 +305,13 @@ void GameLogic::handleCollisionOfBikeAndFence(
 
 
 	btScalar impulse = impulseFromContactManifold(contactManifold);
-	playCollisionSound(impulse);
+	if (bike->player()->hasGameView())
+		playCollisionSound(impulse);
+	//else
+	//{
+	//	//distance = m_troenGame->m_playersWithView->at(0)->bikeController()->getModel()->getPositionBt() bike->getModel()->getPositionBt()
+	//	playCollisionSound(impulse * bike->getModel()->getPositionBt())
+	//}
 	
 	if (bike->player()->isRemote())
 		return; //let the remote player handle the collsions himself
@@ -584,7 +591,8 @@ void GameLogic::checkForFallenPlayers()
 		BikeController* bike = player->bikeController().get();
 		if (bike->isFalling())
 		{
-			handlePlayerFall(bike);
+			//network stuff..
+			//handlePlayerFall(bike);
 		}
 	}
 }
