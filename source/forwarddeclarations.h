@@ -71,6 +71,7 @@ namespace troen
 	class SampleOSGViewer;
 	class GameEventHandler;
 	class GameLogic;
+	class GameConfig;
 	class Player;
 
 	class BikeModel;
@@ -101,6 +102,7 @@ namespace troen
 	class ResourcePool;
 	class SplineDeformationRendering;
 
+
 	namespace util
 	{
 		class ChronoTimer;
@@ -113,10 +115,20 @@ namespace troen
 		class BikeInputState;
 		class PollingDevice;
 		class AI;
+		class RemotePlayer;
 	}
 
 	namespace sound
 	{
 		class AudioManager;
+	}
+	
+	namespace networking
+	{
+		struct bikeUpdateMessage;
+		class NetworkPlayerInfo;
+		class NetworkManager;
+		class ClientManager;
+		class ServerManager;
 	}
 }

@@ -1,5 +1,6 @@
 #include "troengamebuilder.h"
 // OSG
+
 #include <osg/LineWidth>
 #include <osgUtil/Optimizer>
 // troen
@@ -31,7 +32,9 @@
 #ifdef WIN32
 #include "input/gamepad.h"
 #endif
-#include "osgDB/WriteFile"
+
+#include <thread>
+
 using namespace troen;
 
 TroenGameBuilder::TroenGameBuilder(TroenGame * game) :
@@ -44,13 +47,13 @@ bool TroenGameBuilder::build()
 	t->m_sceneNode = new osg::Group;
 
 	osg::DisplaySettings::instance()->setNumMultiSamples(NUM_MULTISAMPLES);
+	std::cout << "[TroenGame::build] building game ..." << std::endl;
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
 	// timers & shaders
 	//
 	////////////////////////////////////////////////////////////////////////////////
-	std::cout << "[TroenGame::build] building game ..." << std::endl;
 	std::cout << "[TroenGame::build] timer & shaders ..." << std::endl;
 	t->m_gameloopTimer = std::make_shared<util::ChronoTimer>(false, true);
 	t->m_gameTimer = std::make_shared<util::ChronoTimer>(false, true);
@@ -219,7 +222,7 @@ bool TroenGameBuilder::composeSceneGraph()
 		player->hudController()->attachSceneToRadarCamera(radarScene);
 	}
 
-	// disbled optimizer for now, takes a lot of time to execute
+	//// disbled optimizer for now, takes a lot of time to execute
 	//std::cout << "[TroenGameBuilder::composeSceneGraph] starting Optimizer" << std::endl;
 	//osgUtil::Optimizer optimizer;
 	//optimizer.optimize(t->m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
@@ -272,6 +275,7 @@ bool TroenGameBuilder::buildPhysicsWorld()
 
 	return true;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //

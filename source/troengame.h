@@ -10,6 +10,8 @@
 #include <osg/Group>
 #include <osgViewer/ViewerEventHandlers>
 // troen
+//order is important, has to be imported before windows.h
+#include "network/networkmanager.h"
 #include "forwarddeclarations.h"
 #include "constants.h"
 #include "gameeventhandler.h"
@@ -55,11 +57,17 @@ namespace troen
 		// getters
 		//
 		osg::ref_ptr<GameEventHandler> gameEventHandler()
-			{ return m_gameEventHandler; };
+		{
+			return m_gameEventHandler;
+		};
 		osg::ref_ptr<osgViewer::StatsHandler> statsHandler()
-			{ return m_statsHandler; };
+		{
+			return m_statsHandler;
+		};
 		std::shared_ptr<LevelController> levelController()
-			{ return m_levelController; };
+		{
+			return m_levelController;
+		};
 		std::vector<std::shared_ptr<Player>> players()
 			{ return m_players; };
 		osg::ref_ptr<SkyDome> skyDome()
@@ -73,8 +81,13 @@ namespace troen
 		void pauseEvent();
 		void pauseSimulation();
 		void unpauseSimulation();
-		void resize(const int width,const int height);
+		void resize(const int width, const int height);
 		void reloadLevel();
+
+
+		std::shared_ptr<networking::ClientManager> getClientManager() { return m_ClientManager; }
+		std::shared_ptr<networking::ServerManager> getServerManager() { return m_ServerManager; }
+		std::shared_ptr<networking::NetworkManager> getNetworkManager();
 
 		SplineDeformationRendering* getBendedViews() {
 			return m_deformationRendering;
@@ -86,8 +99,13 @@ namespace troen
 		double m_deformationEnd = BENDED_VIEWS_DEACTIVATED;
 
 
+
 	public slots:
 		void prepareAndStartGame(const GameConfig& config);
+		bool synchronizeGameStart(GameConfig config);
+		bool isNetworking();
+		std::string setupClient(QString playerName, std::string connectAddr = "127.0.0.1");
+		std::string setupServer(std::vector<QString> playerNames);
 
 	private:
 		TroenGameBuilder *m_builder;
@@ -120,15 +138,18 @@ namespace troen
 		//
 		// Game Components
 		//
-		std::shared_ptr<GameConfig>				m_gameConfig;
-		std::shared_ptr<LevelController>		m_levelController;
-		std::vector<std::shared_ptr<Player>>	m_players;
-		std::vector<std::shared_ptr<Player>>	m_playersWithView;
-		std::shared_ptr<util::ChronoTimer>		m_gameloopTimer;
-		std::shared_ptr<util::ChronoTimer>		m_gameTimer;
-		std::shared_ptr<PhysicsWorld>			m_physicsWorld;
-		std::shared_ptr<GameLogic>				m_gameLogic;
-		std::shared_ptr<sound::AudioManager>	m_audioManager;
+		std::shared_ptr<GameConfig>					m_gameConfig;
+		std::shared_ptr<LevelController>			m_levelController;
+		std::vector<std::shared_ptr<Player>>		m_players;
+		std::vector<std::shared_ptr<Player>>		m_playersWithView;
+		std::shared_ptr<util::ChronoTimer>			m_gameloopTimer;
+		std::shared_ptr<util::ChronoTimer>			m_gameTimer;
+		std::shared_ptr<PhysicsWorld>				m_physicsWorld;
+		std::shared_ptr<GameLogic>					m_gameLogic;
+		std::shared_ptr<sound::AudioManager>		m_audioManager;
+		std::shared_ptr<networking::ServerManager>  m_ServerManager;
+		std::shared_ptr<networking::ClientManager>  m_ClientManager;
+
 		ResourcePool m_resourcePool;
 
 

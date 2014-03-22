@@ -3,6 +3,8 @@
 #include "btBulletDynamicsCommon.h"
 #include <osg/Array>
 
+#include "RakNetTypes.h"  // MessageID
+
 // http://stackoverflow.com/questions/3681140/how-do-i-avoid-both-global-variables-and-magic-numbers
 
 namespace troen

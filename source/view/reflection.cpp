@@ -33,6 +33,35 @@ using namespace troen;
 
 static osg::ref_ptr<osg::Uniform> g_cameraEyeU = new osg::Uniform("cameraEye", osg::Vec3(0.0, 0.0,0.0));
 
+class FindNamedNode : public osg::NodeVisitor
+{
+public:
+	FindNamedNode(const std::string& name)
+		: osg::NodeVisitor( // Traverse all children.
+		osg::NodeVisitor::TRAVERSE_ALL_CHILDREN),
+		_name(name) {
+			_node = new osg::Group();
+		}
+
+	// This method gets called for every node in the scene
+	//   graph. Check each node to see if its name matches
+	//   out target. If so, save the node's address.
+	virtual void apply(osg::Node& node)
+	{
+		if (node.getName() == _name)
+			_node->addChild(&node);
+
+		// Keep traversing the rest of the scene graph.
+		traverse(node);
+	}
+
+	osg::Node* getNode() { return _node.get(); }
+
+protected:
+	std::string _name;
+	osg::ref_ptr<osg::Group> _node;
+};
+
 
 class CUpdateCameraCallback : public osg::NodeCallback
 {
@@ -69,34 +98,6 @@ public:
 };
 
 
-class FindNamedNode : public osg::NodeVisitor
-{
-public:
-	FindNamedNode(const std::string& name)
-		: osg::NodeVisitor( // Traverse all children.
-		osg::NodeVisitor::TRAVERSE_ALL_CHILDREN),
-		_name(name) {
-			_node = new osg::Group();
-		}
-
-	// This method gets called for every node in the scene
-	//   graph. Check each node to see if its name matches
-	//   out target. If so, save the node's address.
-	virtual void apply(osg::Node& node)
-	{
-		if (node.getName() == _name)
-			_node->addChild(&node);
-
-		// Keep traversing the rest of the scene graph.
-		traverse(node);
-	}
-
-	osg::Node* getNode() { return _node.get(); }
-
-protected:
-	std::string _name;
-	osg::ref_ptr<osg::Group> _node;
-};
 
 
 Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap, int playerID )

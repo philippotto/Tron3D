@@ -31,7 +31,12 @@
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
 
+
+#include "network/clientmanager.h"
+#include "network/servermanager.h"
+#include <thread>
 #include <mutex>
+
 
 using namespace troen;
 extern long double g_currentTime;
@@ -47,7 +52,12 @@ m_gameThread(thread)
 
 	moveToThread(m_gameThread);
 	m_gameThread->start(QThread::HighestPriority);
+	m_ServerManager = NULL;
+	m_ClientManager = NULL;
 }
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -79,6 +89,12 @@ void TroenGame::startGameLoop()
 	m_gameloopTimer->start();
 	m_gameTimer->start();
 	m_gameTimer->pause();
+
+	if (isNetworking())
+	{
+		getNetworkManager()->setLocalGameReady();
+		getNetworkManager()->waitOnAllPlayers(); //blocking call
+	}
 
 	// GAME LOOP VARIABLES
 	long double nextTime = m_gameloopTimer->elapsed();
@@ -121,11 +137,16 @@ void TroenGame::startGameLoop()
 			{
 				for (auto player : m_players)
 				{
-					player->bikeController()->updateModel(g_gameTime);
+					player->update(g_gameTime);
 				}
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();
 			}
+
+
+
+			if (isNetworking())
+				getNetworkManager()->update(g_gameTime);
 
 
 			m_audioManager->Update(g_gameLoopTime / 1000);
@@ -247,7 +268,7 @@ void TroenGame::handleBending(double interpolationSkalar)
 void TroenGame::setupForFullScreen()
 {
 	osg::GraphicsContext::WindowingSystemInterface* wsi =
-	osg::GraphicsContext::getWindowingSystemInterface();
+		osg::GraphicsContext::getWindowingSystemInterface();
 	if (!wsi)
 	{
 		std::cout << "[TroenGame::setupForFullScreen] error ..." << std::endl;
@@ -271,11 +292,7 @@ void TroenGame::returnFromFullScreen()
 	wsi->setScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), m_originalWidth, m_originalHeight);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Event Handling
-//
-////////////////////////////////////////////////////////////////////////////////
+
 
 void TroenGame::switchSoundVolumeEvent()
 {
@@ -309,8 +326,62 @@ void TroenGame::resize(int width, int height){
 
 	for (auto player : m_playersWithView)
 	{
-			player->hudController()->resize(width, height);
+		player->hudController()->resize(width, height);
 	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Networking
+//
+////////////////////////////////////////////////////////////////////////////////
+
+//setup the network connection
+std::string TroenGame::setupServer(std::vector<QString> playerNames)
+{
+
+		std::cout << "[TroenGame::initialize] networking Server..." << std::endl;
+		m_ServerManager = std::make_shared<networking::ServerManager>(this, playerNames);
+		m_ServerManager->openServer();
+		return std::string("ok");
+}
+
+std::string TroenGame::setupClient(QString playerName, std::string connectAddr)
+{
+		std::cout << "[TroenGame::initialize] networking Client..." << std::endl;
+		m_ClientManager = std::make_shared<networking::ClientManager>(this, playerName);
+		m_ClientManager->openClient(connectAddr);
+		return std::string("ok");
+}
+
+
+
+bool TroenGame::synchronizeGameStart(GameConfig config)
+{
+	getNetworkManager()->synchronizeGameStart(config);
+	return true;
+}
+
+
+bool TroenGame::isNetworking()
+{
+	if (getNetworkManager() != nullptr)
+	{
+		if (getNetworkManager()->isValidSession())
+			return true;
+	}
+	return false;
+}
+
+std::shared_ptr<networking::NetworkManager> TroenGame::getNetworkManager()
+{
+	if (m_ClientManager != NULL)
+		return static_cast<std::shared_ptr<networking::NetworkManager>>(m_ClientManager);
+	else if (m_ServerManager != NULL)
+		return static_cast<std::shared_ptr<networking::NetworkManager>>(m_ServerManager);
+	else
+		return NULL;
 }
 
 void TroenGame::reloadLevel()

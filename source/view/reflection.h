@@ -14,24 +14,24 @@ namespace troen
 {
 	class Reflection
 	{
-		public:
-			Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap, int playerID);
+	public:
+		Reflection(osg::ref_ptr<osg::Group> reflectSurface, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap, int playerID);
 
-			bool addSceneNode(osg::ref_ptr<osg::Group> sceneNode);
-			void setReflectMode(bool mode);
+		bool addSceneNode(osg::ref_ptr<osg::Group> sceneNode);
+		void setReflectMode(bool mode);
 
-			virtual osg::ref_ptr<osg::Group> getReflectionCameraGroup();	
+		virtual osg::ref_ptr<osg::Group> getReflectionCameraGroup();
 
-		protected:
-			osg::ref_ptr<osg::Group> m_node;
+	protected:
+		osg::ref_ptr<osg::Group> m_node;
 
-			osg::ref_ptr<osg::Group>			cameraGroup;
-			osg::ref_ptr<osg::Camera>			reflectionCamera;
-			osg::ref_ptr<osg::MatrixTransform>	reflectionTransform;
-			osg::ref_ptr<osg::Group>			reflectionObjectsGroup;
-			osg::ref_ptr<osg::ClipNode>			m_reflectionClipNode;
+		osg::ref_ptr<osg::Group>			cameraGroup;
+		osg::ref_ptr<osg::Camera>			reflectionCamera;
+		osg::ref_ptr<osg::MatrixTransform>	reflectionTransform;
+		osg::ref_ptr<osg::Group>			reflectionObjectsGroup;
+		osg::ref_ptr<osg::ClipNode>			m_reflectionClipNode;
 
-			osg::ref_ptr<osg::ClipPlane> m_ReflectionClipPlane;
-			
+		osg::ref_ptr<osg::ClipPlane> m_ReflectionClipPlane;
+
 	};
 }

@@ -164,6 +164,7 @@ void main(void)
 	//hsl.y *= 1.4;
 	//hsl.z *= 0.5;
 	vec3 reddedColor = vec3(1.0,0.0,0.0);//HSLToRGB(hsl);
+
 	// BlendPhoenix could be used for a some special mode
 	// color = BlendPhoenix(color, pongColor);
 

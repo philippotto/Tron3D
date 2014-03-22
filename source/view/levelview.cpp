@@ -25,6 +25,42 @@
 using namespace troen;
 
 
+class FindRamp : public osg::NodeVisitor
+{
+public:
+	FindRamp()
+		: osg::NodeVisitor( // Traverse all children.
+		osg::NodeVisitor::TRAVERSE_ALL_CHILDREN)
+		{
+			noRampNode = new osg::Group();
+			rampNode = new osg::Group();
+		}
+
+	// This method gets called for every node in the scene
+	//   graph. Check each node to see if its name matches
+	//   out target. If so, save the node's address.
+	virtual void apply(osg::Node& node)
+	{
+		if (node.getName().find("ramp")==-1)
+			noRampNode->addChild(&node);
+		else
+			rampNode->addChild(&node);
+
+		// Keep traversing the rest of the scene graph.
+		traverse(node);
+	}
+
+	osg::ref_ptr<osg::Group> getRampNode() { return rampNode.get(); }
+	osg::ref_ptr<osg::Group> getNoRampNode()  { return noRampNode.get(); }
+
+protected:
+	std::string _name;
+	osg::ref_ptr<osg::Group> noRampNode;
+	osg::ref_ptr<osg::Group> rampNode;
+};
+
+
+
 LevelView::LevelView(std::shared_ptr<LevelModel> model, std::string levelName) :
 AbstractView()
 {
@@ -94,23 +130,40 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
 	obstaclesGroup->setName("obstaclesGroup");
 
-	osg::ref_ptr<osg::Node> obstacles = osgDB::readNodeFile("data/levels/" + levelName + ".ive");
-	obstacles->setCullingActive(false);
+	osg::ref_ptr<osg::Group> mainGroup = new osg::Group();
+
+	osg::ref_ptr<osg::Node> readObstacles = osgDB::readNodeFile("data/levels/" + levelName + ".ive");
+	readObstacles->setCullingActive(false);
+
+
+	FindRamp *findRamp = new FindRamp();
+	readObstacles->accept(*findRamp);
+	osg::ref_ptr<osg::Group> rampNode = findRamp->getRampNode();
+	osg::ref_ptr<osg::Group> noRampNode = findRamp->getNoRampNode();
+
+	mainGroup->addChild(rampNode);
+	mainGroup->addChild(noRampNode);
+
+
 
 	//osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles());
-	osg::StateSet *obstaclesStateSet =  obstacles->getOrCreateStateSet();
+	osg::StateSet *obstaclesStateSet = obstaclesGroup->getOrCreateStateSet();
 	obstaclesStateSet->ref();
 	//obstacles->setStateSet(obstaclesStateSet);
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	obstaclesStateSet->addUniform(textureMapU);
-	setTexture(obstaclesStateSet, "data/textures/box.tga", 0);
-	addShaderAndUniforms(obstacles, shaders::DEFAULT, levelSize, GLOW);
-	obstacles->setNodeMask(CAMERA_MASK_MAIN);
-	obstaclesGroup->addChild(obstacles);
+
+	setTexture(noRampNode->getOrCreateStateSet(), "data/textures/box.tga", 0);
+	setTexture(rampNode->getOrCreateStateSet(), "data/textures/ramptexture.tga", 0);
+
+	addShaderAndUniforms(mainGroup, shaders::DEFAULT, levelSize, GLOW);
+	mainGroup->setNodeMask(CAMERA_MASK_MAIN);
+
 
 	osg::ref_ptr<osg::Group> radarObstacles = constructRadarElementsForBoxes(m_model->getObstacles());
 	radarObstacles->setNodeMask(CAMERA_MASK_RADAR);
 	obstaclesGroup->addChild(radarObstacles);
+	obstaclesGroup->addChild(mainGroup);
 
 	std::cout << "Obstacles radius" << obstaclesGroup->getBound().radius() << std::endl;
 
@@ -252,3 +305,6 @@ void LevelView::setBendingActive(bool val)
 {
 	m_bendingActiveUniform->set(val);
 }
+
+
+

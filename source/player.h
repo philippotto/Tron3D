@@ -29,12 +29,15 @@ namespace troen
 		// getters
 		//
 		const int id() 			{ return m_id; };
-		osg::Vec3 color()		{ return m_color; };
-		const std::string name(){ return m_name; };
-		int deathCount() 		{ return m_deathCount; };
-		int killCount() 		{ return m_killCount; };
-		const float health()	{ return m_health; };
-		const float points()	{ return m_points; };
+		osg::Vec3 color()			{ return m_color; };
+		const std::string name()	{ return m_name; };
+		int deathCount() 			{ return m_deathCount; };
+		int killCount() 			{ return m_killCount; };
+		const float health()		{ return m_health; };
+		const float points()		{ return m_points; };
+		const bool isRemote()		{ return m_isRemote; }
+		int	getNetworkID()			{ return m_networkID; }
+		TroenGame* getTroenGame()	{ return m_troenGame; }
 		//
 		// controllers
 		//
@@ -58,6 +61,7 @@ namespace troen
 		//
 		void setHealth(float health)	{ m_health = health; };
 		void setPoints(float points)	{ m_points = points; };
+		void setKillCount(int killCount) { m_killCount = killCount; };
 
 		//
 		// logic methods
@@ -68,10 +72,13 @@ namespace troen
 		void decreaseKillCount() { m_killCount--; };
 		float increaseHealth(const float diff);
 		float increasePoints(const float diff);
+		void update(int g_gameTime);
+
 
 		void setupReflections(TroenGame* game, osg::ref_ptr<osg::Group>& sceneNode);
 		bool isDead();
 	private:
+		TroenGame*						m_troenGame;
 		//
 		// player attributes
 		//
@@ -82,7 +89,8 @@ namespace troen
 		float		m_points;
 		int			m_killCount;
 		int			m_deathCount;
-
+		bool		m_isRemote;
+		int			m_networkID;
 		//
 		// controllers
 		//
@@ -98,5 +106,6 @@ namespace troen
 		osg::ref_ptr<osgViewer::View>	m_gameView;
 		osg::ref_ptr<osg::Group>		m_playerNode;
 		std::shared_ptr<Reflection>		m_reflection;
+
 	};
 }

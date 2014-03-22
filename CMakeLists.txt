@@ -188,6 +188,9 @@ find_package(FMOD REQUIRED)
 # HIDAPI
 find_package(HIDAPI REQUIRED)
 
+#RakNet
+find_package(RakNet REQUIRED)
+
 # V8
 find_package(V8 REQUIRED)
 
@@ -301,12 +304,21 @@ set(sources
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
-
 	source/util/gldebugdrawer.h
 	source/util/gldebugdrawer.cpp
-
 	source/util/scriptwatcher.h
 	source/util/filteredrayresultcallback.h
+
+
+	source/network/networkmanager.h
+	source/network/networkmanager.cpp
+	source/network/clientmanager.cpp
+	source/network/clientmanager.h
+	source/network/servermanager.cpp
+	source/network/servermanager.h
+	source/input/remoteplayer.cpp
+	source/input/remoteplayer.h
+	
 
 	BendedViews/src/DeformationRendering.cpp
 	BendedViews/src/DeformationRendering.h
@@ -364,6 +376,7 @@ include_directories(
 	${BULLET_INCLUDE_DIRS}
 	${FMOD_INCLUDE_DIRS}
 	${HIDAPI_INCLUDE_DIRS}
+	${RakNet_INCLUDES}
 	${V8_INCLUDE}
 	${SCRIPTZEUG_INCLUDE_DIRS}
 	${PROJECT_BINARY_DIR} #for the generated files
@@ -376,7 +389,8 @@ target_link_libraries( ${target}
     ${OPENSCENEGRAPH_LIBRARIES}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
-		${HIDAPI_LIBRARIES}
+	${HIDAPI_LIBRARIES}
+	${RakNet_LIBRARY}
 		${V8_LIBS}
 		${SCRIPTZEUG_LIBRARIES}
 )

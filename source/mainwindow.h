@@ -11,6 +11,7 @@
 // troen
 #include "forwarddeclarations.h"
 #include "troengame.h"
+#include "qlabel.h"
 
 
 namespace troen
@@ -22,12 +23,16 @@ namespace troen
 	public:
 		MainWindow (QWidget * parent = nullptr);
 		virtual ~MainWindow();
+		GameConfig getGameConfig();
 
 	signals:
 		void startGame(const GameConfig config);
 
+
 	public slots:
 		void updatePlayerInputBoxes();
+		void addNetworkPlayer(QString name);
+		void changeLevel(int levelID);
 
 	protected:
 		virtual bool eventFilter(QObject* object, QEvent* event);
@@ -37,6 +42,9 @@ namespace troen
 		void prepareGameStart();
 		void bikeNumberChanged(const int newBikeNumber);
 		void chooseColor(const int i);
+		void connectNetworking();
+		void connectionTypeChanged();
+		void showPlayerNameRefused();
 
 	private:
 		void loadSettings();
@@ -44,6 +52,7 @@ namespace troen
 		QString			m_settingsFileName;
 		QStatusBar*		m_statusBar;
 		QPushButton*	m_gameStartButton;
+		QPushButton*  m_connectNetworkButton;
 		QSpinBox*		m_bikeNumberSpinBox;
 		QVector<QComboBox*>	m_playerComboBoxes;
 		QVector<QColor> m_playerColors;
@@ -54,6 +63,9 @@ namespace troen
 		QCheckBox*		m_testPerformanceCheckBox;
 		QCheckBox*		m_debugViewCheckBox;
 		QCheckBox*		m_reflectionCheckBox;
+		QCheckBox*		m_serverCheckBox;
+		QLabel*			m_statusLabel;
+		
 		std::vector<QCheckBox*> m_ownViewCheckboxes;
 		QSpinBox*		m_timeLimitSpinBox;
 		QComboBox* m_levelComboBox;
@@ -63,5 +75,8 @@ namespace troen
 
 		double		m_lastTime;
 		float		m_fps;
+		bool		m_networkingReady;
+		QLineEdit* m_connectAdressEdit;
+		int m_networkPlayers;
 	};
 }

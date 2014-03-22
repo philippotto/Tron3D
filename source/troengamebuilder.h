@@ -20,7 +20,7 @@ namespace troen
 		bool composeSceneGraph();
 		bool buildGameLogic();
 		bool buildPhysicsWorld();
-
+		bool setupNetworking();
 		TroenGame * t;
 	};
 }

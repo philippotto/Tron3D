@@ -25,12 +25,15 @@
 using namespace troen;
 
 GameLogic::GameLogic(TroenGame* game,const int timeLimit) :
-t(game),
+m_troenGame(game),
 m_gameState(GAMESTATE::GAME_START),
 m_timeLimit(timeLimit*1000*60),
 m_gameStartTime(-1),
 m_limitedFenceMode(true)
-{}
+{
+	if (m_troenGame->isNetworking())
+		m_receivedGameMessages = m_troenGame->getNetworkManager()->m_receivedGameStatusMessages;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -40,6 +43,7 @@ m_limitedFenceMode(true)
 
 void GameLogic::step(const long double gameloopTime, const long double gameTime)
 {
+	
 	switch (m_gameState)
 	{
 	case GAME_START:
@@ -55,6 +59,8 @@ void GameLogic::step(const long double gameloopTime, const long double gameTime)
 	default:
 		break;
 	}
+	
+	processNetworkMessages();
 }
 
 void GameLogic::stepGameStart(const long double gameloopTime, const long double gameTime)
@@ -62,26 +68,27 @@ void GameLogic::stepGameStart(const long double gameloopTime, const long double 
 	if (m_gameStartTime == -1)
 	{
 		m_gameStartTime = gameloopTime + GAME_START_COUNTDOWN_DURATION;
-		for (auto player : t->m_players)
+		for (auto player : m_troenGame->m_players)
 			player->bikeController()->setState(BikeController::BIKESTATE::WAITING_FOR_GAMESTART,gameloopTime);
 	}
 
 	if (gameloopTime > m_gameStartTime)
 	{
-		for (auto player : t->m_players)
+		for (auto player : m_troenGame->m_players)
 			player->bikeController()->setState(BikeController::BIKESTATE::DRIVING);
 		m_gameState = GAMESTATE::GAME_RUNNING;
 		m_gameStartTime = -1;
-		t->unpauseSimulation();
+		m_troenGame->unpauseSimulation();
 	}
 }
 
 void GameLogic::stepGameRunning(const long double gameloopTime, const long double gameTime)
 {
+
 	if (gameTime >= m_timeLimit && m_timeLimit != 0)
 	{
 		m_gameState = GAMESTATE::GAME_OVER;
-		t->pauseSimulation();
+		m_troenGame->pauseSimulation();
 	}
 }
 
@@ -98,7 +105,7 @@ void GameLogic::stepGameOver(const long double gameloopTime, const long double g
 
 void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPersistentManifold* contactManifold)
 {
-	if (!pBody0->isInWorld() || !pBody1->isInWorld() || pBody0->getUserPointer() == nullptr || pBody1->getUserPointer() == nullptr) {
+	if (!pBody0->isInWorld() || !pBody1->isInWorld()) {
 		return;
 	}
 
@@ -112,7 +119,7 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
 
 	// try to recognize invalid pointers - workaround for debugmode
-	if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
+	//if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
 
 	AbstractController* collisionBodyControllers[2];
 	try {
@@ -192,7 +199,7 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
 
 	// try to recognize invalid pointers - workaround for debugmode
-	if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
+	//if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
 
 	// get the controllers of the separating objects
 	AbstractController* collisionBodyControllers[2];
@@ -244,6 +251,9 @@ void GameLogic::handleCollisionOfTwoBikes(
 	// TODO
 	// set different thredsholds of collisions between bikes
 	// they dont have as much impact ?
+	if (m_troenGame->isNetworking() && !m_troenGame->getNetworkManager()->isServer())
+		return; //only server has authority over collision
+
 	handleCollisionOfBikeAndNonmovingObject(bike1, bike2, BIKETYPE, contactManifold);
 }
 
@@ -264,16 +274,25 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	btPersistentManifold* contactManifold)
 {
 	btScalar impulse = impulseFromContactManifold(contactManifold);
-
 	playCollisionSound(impulse);
+
+
+	if (bike->player()->isRemote())
+		return; //let the remote player handle the collsions himself
+
 	bike->registerCollision(impulse);
+
 
 	//
 	// player death
 	//
 	if (bike->player()->isDead())
 	{
+		handlePlayerDeath(bike);
 		handlePlayerDeathNonFence(bike);
+		sendStatusMessage(networking::PLAYER_DEATH_ON_WALL, bike->player(),NULL);
+
+
 	}
 }
 
@@ -282,9 +301,15 @@ void GameLogic::handleCollisionOfBikeAndFence(
 	FenceController* fence,
 	btPersistentManifold* contactManifold)
 {
-	btScalar impulse = impulseFromContactManifold(contactManifold);
 
+
+	btScalar impulse = impulseFromContactManifold(contactManifold);
 	playCollisionSound(impulse);
+	
+	if (bike->player()->isRemote())
+		return; //let the remote player handle the collsions himself
+	
+
 	bike->registerCollision(impulse);
 
 	// workaround to deal with bike bouncing between own and other fence
@@ -301,6 +326,7 @@ void GameLogic::handleCollisionOfBikeAndFence(
 	{
 		handlePlayerDeath(bike);
 		handlePlayerDeathOnFence(fence->player()->bikeController().get(), bike);
+		sendStatusMessage(networking::PLAYER_DEATH_ON_FENCE, bike->player(), fence->player());
 	}
 }
 
@@ -314,7 +340,7 @@ void GameLogic::handlePlayerDeath(
 void GameLogic::handlePlayerDeathOnFence(
 	BikeController* fenceBike, BikeController* deadBike)
 {
-	handlePlayerDeath(deadBike);
+
 	Player* fencePlayer = fenceBike->player();
 	Player* deadPlayer = deadBike->player();
 
@@ -340,7 +366,7 @@ void GameLogic::handlePlayerDeathOnFence(
 		// hit someone elses fence
 
 		fencePlayer->increaseKillCount();
-		for (auto player : t->m_playersWithView)
+		for (auto player : m_troenGame->m_playersWithView)
 		{
 			if (player.get() == fencePlayer)
 			{
@@ -354,13 +380,13 @@ void GameLogic::handlePlayerDeathOnFence(
 	}
 }
 
+
 void GameLogic::handlePlayerDeathNonFence(BikeController* deadBike)
 {
-	handlePlayerDeath(deadBike);
 
 	Player* deadPlayer = deadBike->player();
 
-	for (auto player : t->m_players)
+	for (auto player : m_troenGame->m_players)
 	{
 		if (player.get() != deadPlayer)
 		{
@@ -379,7 +405,7 @@ void GameLogic::handlePlayerFall(BikeController* deadBike)
 
 	Player* deadPlayer = deadBike->player();
 
-	for (auto player : t->m_players)
+	for (auto player : m_troenGame->m_players)
 	{
 		if (player.get() != deadPlayer)
 		{
@@ -418,7 +444,7 @@ btScalar GameLogic::impulseFromContactManifold(btPersistentManifold* contactMani
 
 void GameLogic::removeAllFences()
 {
-	for (auto player : t->m_players)
+	for (auto player : m_troenGame->m_players)
 	{
 		player->fenceController()->removeAllFences();
 	}
@@ -436,7 +462,7 @@ void GameLogic::toggleFencePartsLimit()
 		std::cout << "[GameLogic::toggleFencePartsLimitEvent] turning fenceParsLimit OFF ..." << std::endl;
 	}
 
-	for (auto player : t->m_players)
+	for (auto player : m_troenGame->m_players)
 	{
 		player->fenceController()->setLimitFence(m_limitedFenceMode);
 	}
@@ -447,15 +473,15 @@ void GameLogic::resetBike(BikeController *bikeController)
 	bikeController->reset();
 
 	// TODO should happen in reset()
-	btTransform position = t->m_levelController->getRandomSpawnPoint();
+	btTransform position = m_troenGame->m_levelController->getRandomSpawnPoint();
 	bikeController->moveBikeToPosition(position);
 }
 
 void GameLogic::resetBikePositions()
 {
-	for (auto player : t->m_players)
+	for (auto player : m_troenGame->m_players)
 	{
-		btTransform position = t->m_levelController->getSpawnPointForBikeWithIndex(player->id());
+		btTransform position = m_troenGame->m_levelController->getSpawnPointForBikeWithIndex(player->id());
 		player->bikeController()->moveBikeToPosition(position);
 	}
 }
@@ -470,7 +496,7 @@ void GameLogic::playCollisionSound(float impulse)
 {
 	if (impulse > BIKE_FENCE_IMPACT_THRESHOLD_LOW)
 	{
-		t->m_audioManager->PlaySFX("data/sound/explosion.wav",
+		m_troenGame->m_audioManager->PlaySFX("data/sound/explosion.wav",
 			impulse / BIKE_FENCE_IMPACT_THRESHOLD_HIGH,
 			impulse / (BIKE_FENCE_IMPACT_THRESHOLD_HIGH - BIKE_FENCE_IMPACT_THRESHOLD_LOW),
 			1, 1);
@@ -479,7 +505,7 @@ void GameLogic::playCollisionSound(float impulse)
 
 void GameLogic::hideFencesInRadarForPlayer(int id)
 {
-	for (auto player : t->m_players)
+	for (auto player : m_troenGame->m_players)
 	{
 		player->fenceController()->hideFencesInRadarForPlayer(id);
 	}
@@ -487,15 +513,73 @@ void GameLogic::hideFencesInRadarForPlayer(int id)
 
 void GameLogic::showFencesInRadarForPlayer(int id)
 {
-	for (auto player : t->m_players)
+	for (auto player : m_troenGame->m_players)
 	{
 		player->fenceController()->showFencesInRadarForPlayer(id);
 	}
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// networking methods
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void GameLogic::processNetworkMessages()
+{
+	if (!m_troenGame->isNetworking())
+		return;
+
+	while (!m_receivedGameMessages->empty())
+	{
+		troen::networking::gameStatusMessage message = m_receivedGameMessages->dequeue();
+		Player *player1 = getPlayerWithID(message.bikeID);
+		Player *player2 = getPlayerWithID(message.bikeID2);
+		if (player1 != NULL) //player2 can be null
+			handleNetworkMessage(message.status, player1, player2);
+	}
+}
+
+void GameLogic::handleNetworkMessage(troen::networking::gameStatus status, Player *deadPlayer, Player *fencePlayer)
+{
+	switch (status)
+	{
+	case troen::networking::PLAYER_DEATH_ON_WALL:
+		handlePlayerDeath(deadPlayer->bikeController().get());
+		handlePlayerDeathNonFence(deadPlayer->bikeController().get());
+		break;
+	case troen::networking::PLAYER_DEATH_ON_FENCE:
+		handlePlayerDeath(deadPlayer->bikeController().get());
+		handlePlayerDeathOnFence(fencePlayer->bikeController().get(), deadPlayer->bikeController().get());
+		break;
+	case troen::networking::RESET_SCORE:
+		deadPlayer->setKillCount(0);
+		break;
+	default:
+		break;
+	}
+}
+
+void GameLogic::sendStatusMessage(troen::networking::gameStatus status, Player *deadPlayer, Player *fencePlayer)
+{
+	if (m_troenGame->isNetworking())
+		m_troenGame->getNetworkManager()->sendGameStatusMessage(status, deadPlayer, fencePlayer);
+}
+
+Player* GameLogic::getPlayerWithID(int bikeID)
+{
+	for (auto player : m_troenGame->players())
+	{
+		if (player->getNetworkID() == bikeID)
+			return player.get();
+	}
+	return NULL;
+}
+
 void GameLogic::checkForFallenPlayers()
 {
-	for (auto player : t->m_players)
+	for (auto player : m_troenGame->m_players)
 	{
 		BikeController* bike = player->bikeController().get();
 		if (bike->isFalling())
@@ -504,3 +588,4 @@ void GameLogic::checkForFallenPlayers()
 		}
 	}
 }
+

@@ -150,9 +150,8 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 	// limit
 	enforceFencePartsLimit();
 
-	// TODO
-	// remove if no disadvantages seem necessary?
-	// m_geometry->dirtyBound();
+	//necessary for network fences, because of unpredictable timings
+	m_geometry->dirtyBound();
 	m_drawArrays->setCount(m_coordinates->size());
 }
 
