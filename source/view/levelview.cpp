@@ -130,6 +130,8 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 	osg::ref_ptr<osg::Group> obstaclesGroup = new osg::Group();
 	obstaclesGroup->setName("obstaclesGroup");
 
+	osg::ref_ptr<osg::Group> mainGroup = new osg::Group();
+
 	osg::ref_ptr<osg::Node> readObstacles = osgDB::readNodeFile("data/levels/" + levelName + ".ive");
 	readObstacles->setCullingActive(false);
 
@@ -139,8 +141,8 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 	osg::ref_ptr<osg::Group> rampNode = findRamp->getRampNode();
 	osg::ref_ptr<osg::Group> noRampNode = findRamp->getNoRampNode();
 
-	obstaclesGroup->addChild(rampNode);
-	obstaclesGroup->addChild(noRampNode);
+	mainGroup->addChild(rampNode);
+	mainGroup->addChild(noRampNode);
 
 
 
@@ -154,13 +156,14 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 	setTexture(noRampNode->getOrCreateStateSet(), "data/textures/box.tga", 0);
 	setTexture(rampNode->getOrCreateStateSet(), "data/textures/ramptexture.tga", 0);
 
-	addShaderAndUniforms(obstaclesGroup, shaders::DEFAULT, levelSize, GLOW);
-	rampNode->setNodeMask(CAMERA_MASK_MAIN);
-	noRampNode->setNodeMask(CAMERA_MASK_MAIN);
+	addShaderAndUniforms(mainGroup, shaders::DEFAULT, levelSize, GLOW);
+	mainGroup->setNodeMask(CAMERA_MASK_MAIN);
+
 
 	osg::ref_ptr<osg::Group> radarObstacles = constructRadarElementsForBoxes(m_model->getObstacles());
 	radarObstacles->setNodeMask(CAMERA_MASK_RADAR);
 	obstaclesGroup->addChild(radarObstacles);
+	obstaclesGroup->addChild(mainGroup);
 
 	std::cout << "Obstacles radius" << obstaclesGroup->getBound().radius() << std::endl;
 
