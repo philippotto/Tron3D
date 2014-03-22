@@ -31,6 +31,7 @@
 #ifdef WIN32
 #include "input/gamepad.h"
 #endif
+#include "osgDB/WriteFile"
 using namespace troen;
 
 TroenGameBuilder::TroenGameBuilder(TroenGame * game) :
@@ -225,6 +226,7 @@ bool TroenGameBuilder::composeSceneGraph()
 	//	optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS |
 	//	optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
 	//std::cout << "[TroenGameBuilder::composeSceneGraph] done optimizing" << std::endl;
+
 
 	return true;
 }
