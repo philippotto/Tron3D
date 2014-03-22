@@ -167,11 +167,12 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 
 
 	//bind to 0 and 1 to prevent other textures to fill reflection
-	setTexture(floorsNode->getOrCreateStateSet(), "data/textures/floor.tga", 0);
+	setTexture(floorsNode->getOrCreateStateSet(), "data/textures/raisedlevel.tga", 0);
 
 
 	addShaderAndUniforms(boxesNode, shaders::DEFAULT, levelSize, GLOW);
 	addShaderAndUniforms(rampsNode, shaders::DEFAULT, levelSize, GLOW);
+	addShaderAndUniforms(floorsNode, shaders::DEFAULT, levelSize, GLOW, 0.3);
 	mainGroup->setNodeMask(CAMERA_MASK_MAIN);
 
 
@@ -187,7 +188,7 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 }
 
 
-void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderIndex, int levelSize, int modelID)
+void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderIndex, int levelSize, int modelID, float trueColor)
 {
 	osg::StateSet *stateSet = node->getOrCreateStateSet();
 	stateSet->ref();
@@ -195,7 +196,7 @@ void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderInd
 	stateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaderIndex], osg::StateAttribute::ON);
 	stateSet->addUniform(new osg::Uniform("levelSize", levelSize));
 	stateSet->addUniform(new osg::Uniform("modelID", modelID));
-	stateSet->addUniform(new osg::Uniform("trueColor", 0.f));
+	stateSet->addUniform(new osg::Uniform("trueColor", trueColor));
 	if (modelID == GLOW)
 		stateSet->addUniform(new osg::Uniform("glowIntensity", 1.f));
 
