@@ -11,8 +11,9 @@ namespace troen
 	public:
 		GameEventHandler(TroenGame * game);
 		void attachGameLogic(std::shared_ptr<GameLogic>& gamelogic);
-        
+
 	protected:
+
 		virtual bool handle(const osgGA::GUIEventAdapter& ea,
                             osgGA::GUIActionAdapter& aa,
                             osg::Object*,

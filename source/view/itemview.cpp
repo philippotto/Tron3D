@@ -40,6 +40,8 @@ ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelVie
 		setTexture(obstaclesStateSet, "data/textures/turbostrip.tga", 0);
 	else if (type == ItemController::HEALTHUP)
 		setTexture(obstaclesStateSet, "data/textures/box_health.tga", 0);
+	else if (type == ItemController::BENDEDVIEWS)
+		setTexture(obstaclesStateSet, "data/textures/box_bended.tga", 0);
 	else
 		setTexture(obstaclesStateSet, "data/textures/box_fence.tga", 0);
 
@@ -53,6 +55,7 @@ ItemView::ItemView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelVie
 
 	m_matrixTransform = new osg::MatrixTransform(initialTransform);
 	m_matrixTransform->addChild(boxGeode);
+
 
 	levelView->addItemBox(m_matrixTransform);
 }

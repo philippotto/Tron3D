@@ -12,15 +12,19 @@
 #include "../model/itemmodel.h"
 #include "../view/itemview.h"
 
+#include "../troengame.h"
+
+
 using namespace troen;
 
 
-ItemController::ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> world, LevelView* levelView)
+ItemController::ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> world, TroenGame* troenGame, LevelView* levelView)
 {
 	AbstractController();
 
 	m_type = (ItemController::Type) (int) floor(randf(0, COUNT));
 	m_position = position;
+	m_troenGame = troenGame;
 
 	osg::Vec3 viewDimensions = getDimensions();
 	btVector3 modelDimensions(viewDimensions.x(), viewDimensions.y(), 10);
@@ -33,14 +37,18 @@ ItemController::ItemController(btVector3 position, std::weak_ptr<PhysicsWorld> w
 
 void ItemController::triggerOn(BikeController* bikeController, GameLogic* gamelogic/*= nullptr*/)
 {
-	if (m_type == HEALTHUP)
+
+	switch (m_type)
 	{
+	case troen::ItemController::TURBOSTRIP:
+		bikeController->activateTurbo();
+		remove();
+		break;
+	case troen::ItemController::HEALTHUP:
 		bikeController->player()->increaseHealth(BIKE_DEFAULT_HEALTH / 2);
 		remove();
-
-	}
-	else if (m_type == RADAR)
-	{
+		break;
+	case troen::ItemController::RADAR:
 		if (!gamelogic) return;
 
 		m_id = bikeController->player()->id();
@@ -49,10 +57,16 @@ void ItemController::triggerOn(BikeController* bikeController, GameLogic* gamelo
 		QTimer::singleShot(5000, this, SLOT(hideFencesInRadarForPlayer()));
 		remove();
 		return;
-	}
-	else {
-		bikeController->activateTurbo();
+		break;
+	case troen::ItemController::BENDEDVIEWS:
+		m_troenGame->enableBendedViews();
+		QTimer::singleShot(TIME_TO_ACTIVATE_BENDED_VIEWS * 3, this, SLOT(deactivateBendedViews()));
 		remove();
+		return;
+		break;
+	default:
+		remove();
+		break;
 	}
 
 	destroy();
@@ -81,5 +95,11 @@ osg::Vec3 ItemController::getDimensions()
 void ItemController::hideFencesInRadarForPlayer()
 {
 	m_gamelogic->hideFencesInRadarForPlayer(m_id);
+	destroy();
+}
+
+void ItemController::deactivateBendedViews()
+{
+	m_troenGame->disableBendedViews();
 	destroy();
 }
