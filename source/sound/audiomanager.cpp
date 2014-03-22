@@ -23,7 +23,6 @@ float RandomBetween(float min, float max) {
 }
 
 AudioManager::AudioManager() : currentSong(0), engineChannel(0), fade(FADE_NONE) {
-	return; //reduce loading time
 	// Initialize system
 	FMOD::System_Create(&system);
 	system->init(100, FMOD_INIT_NORMAL, 0);
@@ -57,24 +56,20 @@ AudioManager::~AudioManager() {
 }
 
 void AudioManager::LoadSFX(const std::string& path) {
-	return; //reduce loading time
 	Load(CATEGORY_SFX, path);
 }
 
 void AudioManager::LoadSong(const std::string& path) {
-	return; //reduce loading time
 	Load(CATEGORY_SONG, path);
 }
 
 void AudioManager::LoadEngineSound()
 {
-	return; //reduce loading time
 	Load(CATEGORY_ENGINE, "data/sound/engine-loop-1-normalized.wav");
 }
 
 void AudioManager::PlayEngineSound()
 {
-	return; //reduce loading time
 	// Search for a matching sound in the map
 	SoundMap::iterator sound = sounds[CATEGORY_ENGINE].find("data/sound/engine-loop-1-normalized.wav");
 	if (sound == sounds[CATEGORY_ENGINE].end()) return;
@@ -86,7 +81,6 @@ void AudioManager::PlayEngineSound()
 }
 
 void AudioManager::Load(Category type, const std::string& path) {
-	return; //reduce loading time
 	if (sounds[type].find(path) != sounds[type].end()) return;
 	FMOD::Sound* sound;
 	system->createSound(path.c_str(), modes[type], 0, &sound);
@@ -95,7 +89,6 @@ void AudioManager::Load(Category type, const std::string& path) {
 
 void AudioManager::PlaySFX(const std::string& path, float minVolume, float maxVolume, float minPitch, float maxPitch)
 {
-	return; //reduce loading time
 	// Try to find sound effect and return if not found
 	SoundMap::iterator sound = sounds[CATEGORY_SFX].find(path);
 	if (sound == sounds[CATEGORY_SFX].end()) return;
@@ -115,12 +108,10 @@ void AudioManager::PlaySFX(const std::string& path, float minVolume, float maxVo
 }
 
 void AudioManager::StopSFXs() {
-	return; //reduce loading time
 	groups[CATEGORY_SFX]->stop();
 }
 
 void AudioManager::PlaySong(const std::string& path) {
-	return; //reduce loading time
 	// Ignore if this song is already playing
 	if(currentSongPath == path) return;
 
@@ -152,7 +143,6 @@ void AudioManager::StopSongs() {
 }
 
 void AudioManager::setMotorSpeed(float speed) {
-	return; //reduce loading time
 	float speedFactor = (speed - BIKE_VELOCITY_MIN) / BIKE_VELOCITY_MAX;
 
 	float currentFrequency;
@@ -170,7 +160,6 @@ float AudioManager::getTimeSinceLastBeat()
 
 void AudioManager::detectBeat(float tickCount)
 {
-	return; //reduce loading time
 	// getSpectrum() performs the frequency analysis, see explanation below
 	int sampleSize = 64;
 
@@ -237,7 +226,6 @@ void AudioManager::detectBeat(float tickCount)
 void AudioManager::Update(float elapsed)
 {
 
-	return; //reduce loading time
 
 
 	detectBeat(elapsed);
