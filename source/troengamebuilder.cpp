@@ -282,6 +282,13 @@ bool TroenGameBuilder::buildPhysicsWorld()
 bool TroenGameBuilder::destroy()
 {
 	// clean up in reverse order from initialization
+
+	// AIs
+
+	for (auto player : t->m_players) {
+		player->bikeController()->killThread();
+	}
+
 	t->m_gameloopTimer.reset();
 	t->m_gameTimer.reset();
 

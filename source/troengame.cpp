@@ -31,6 +31,8 @@
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
 
+#include <mutex>
+
 using namespace troen;
 extern long double g_currentTime;
 
@@ -42,6 +44,7 @@ m_gameThread(thread)
 	if (m_gameThread == nullptr) {
 		m_gameThread = new QThread(this);
 	}
+
 	moveToThread(m_gameThread);
 	m_gameThread->start(QThread::HighestPriority);
 }

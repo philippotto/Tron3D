@@ -59,6 +59,9 @@ class btPersistentManifold;
 class btVector3;
 class btTransform;
 
+namespace scriptzeug {
+	class ScriptEnvironment;
+}
 
 // own classes
 namespace troen
