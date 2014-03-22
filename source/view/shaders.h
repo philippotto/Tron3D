@@ -35,8 +35,8 @@ namespace troen
 							VBLUR,
 							SELECT_GLOW_OBJECTS,
 							POST_PROCESSING,
-							OUTER_WALL,
 							SKYDOME,
+							PLAYERMARKER,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
 	}
