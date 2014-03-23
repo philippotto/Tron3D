@@ -2,6 +2,7 @@
 // OSG
 #include <osg/ref_ptr>
 #include <osg/Geode>
+#include "osg/StateAttribute"
 // bullet
 #include <btBulletDynamicsCommon.h>
 // troen
@@ -33,9 +34,8 @@ namespace troen
 
 		osg::ref_ptr<osg::Group> m_floors;
 
-		void setTexture(osg::ref_ptr<osg::StateSet> stateset, const std::string filePath, const int unit);
-
-		void addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderIndex, int levelSize, int modelID, float trueColor=0.0);
+		void setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit, bool override = false);
+		void addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderIndex, int levelSize, int modelID, float alpha, float trueColor = 0.0);
 		std::shared_ptr<LevelModel> m_model;
 
 		osg::Uniform *m_bendedUniform;

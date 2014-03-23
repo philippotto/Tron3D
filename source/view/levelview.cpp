@@ -46,7 +46,7 @@ public:
 			rampsNode->addChild(&node);
 		else if (node.getName().find("floor") != std::string::npos || node.getName().find("raisedFloor") != std::string::npos)
 			raisedFloorsNode->addChild(&node);
-		else
+		else if (node.getName().find("Cube") != std::string::npos) //this check is necessary because toplevelnode is whole obj, which we dont want to add
 			boxesNode->addChild(&node);
 
 		// Keep traversing the rest of the scene graph.
@@ -114,7 +114,7 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 	setTexture(obstaclesStateSet, "data/textures/floor.tga", 0);
 
 	//will be overwritten if reflection is used
-	addShaderAndUniforms(static_cast<osg::ref_ptr<osg::Node>>(floors), shaders::GRID_NOREFLECTION, levelSize, GLOW);
+	addShaderAndUniforms(static_cast<osg::ref_ptr<osg::Node>>(floors), shaders::GRID_NOREFLECTION, levelSize, GLOW, 1.0);
 
 
 	floors->setNodeMask(CAMERA_MASK_MAIN);
@@ -140,12 +140,12 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 	readObstacles->setCullingActive(false);
 
 
-	CategorizeLevelElements *findRamp = new CategorizeLevelElements();
-	readObstacles->accept(*findRamp);
-	osg::ref_ptr<osg::Group> rampsNode = findRamp->getRampNode();
-	osg::ref_ptr<osg::Group> boxesNode = findRamp->getBoxesNode();
+	CategorizeLevelElements *findObjects = new CategorizeLevelElements();
+	readObstacles->accept(*findObjects);
+	osg::ref_ptr<osg::Group> rampsNode = findObjects->getRampNode();
+	osg::ref_ptr<osg::Group> boxesNode = findObjects->getBoxesNode();
 
-	osg::ref_ptr<osg::Group> floorsNode = findRamp->getRaisedFloorsNode();
+	osg::ref_ptr<osg::Group> floorsNode = findObjects->getRaisedFloorsNode();
 
 
 	mainGroup->addChild(rampsNode);
@@ -154,27 +154,21 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 
 
 
-	//osg::ref_ptr<osg::Group> obstacles = constructGroupForBoxes(m_model->getObstacles());
-	osg::StateSet *obstaclesStateSet = obstaclesGroup->getOrCreateStateSet();
-	obstaclesStateSet->ref();
-
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
-	boxesNode->getOrCreateStateSet()->addUniform(textureMapU);
-	rampsNode->getOrCreateStateSet()->addUniform(textureMapU);
 
+	addShaderAndUniforms(floorsNode, shaders::DEFAULT, levelSize, GLOW, 0.5, 1.0);
+	addShaderAndUniforms(boxesNode, shaders::DEFAULT, levelSize, GLOW, 1.0);
+	addShaderAndUniforms(rampsNode, shaders::DEFAULT, levelSize, GLOW, 1.0);
+	
 	setTexture(boxesNode->getOrCreateStateSet(), "data/textures/box.tga", 0);
+	setTexture(floorsNode->getOrCreateStateSet(), "data/textures/raisedlevel.tga", 0, true);
 	setTexture(rampsNode->getOrCreateStateSet(), "data/textures/ramptexture.tga", 0);
+	
+	boxesNode->getOrCreateStateSet()->setMode(GL_BLEND, osg::StateAttribute::OFF);
+	floorsNode->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+	floorsNode->getOrCreateStateSet()->setMode(GL_BLEND, osg::StateAttribute::ON );
 
-
-	//bind to 0 and 1 to prevent other textures to fill reflection
-	setTexture(floorsNode->getOrCreateStateSet(), "data/textures/raisedlevel.tga", 0);
-
-
-	addShaderAndUniforms(boxesNode, shaders::DEFAULT, levelSize, GLOW);
-	addShaderAndUniforms(rampsNode, shaders::DEFAULT, levelSize, GLOW);
-	addShaderAndUniforms(floorsNode, shaders::DEFAULT, levelSize, GLOW, 0.3);
 	mainGroup->setNodeMask(CAMERA_MASK_MAIN);
-
 
 
 	osg::ref_ptr<osg::Group> radarObstacles = constructRadarElementsForBoxes(m_model->getObstacles());
@@ -188,7 +182,7 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 }
 
 
-void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderIndex, int levelSize, int modelID, float trueColor)
+void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderIndex, int levelSize, int modelID, float alpha, float trueColor /*= 0.0*/)
 {
 	osg::StateSet *stateSet = node->getOrCreateStateSet();
 	stateSet->ref();
@@ -197,6 +191,7 @@ void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderInd
 	stateSet->addUniform(new osg::Uniform("levelSize", levelSize));
 	stateSet->addUniform(new osg::Uniform("modelID", modelID));
 	stateSet->addUniform(new osg::Uniform("trueColor", trueColor));
+	stateSet->addUniform(new osg::Uniform("alpha", alpha));
 	if (modelID == GLOW)
 		stateSet->addUniform(new osg::Uniform("glowIntensity", 1.f));
 
@@ -212,16 +207,9 @@ osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel>
 		btVector3 position = boxes[i].center;
 		btQuaternion rotation = boxes[i].rotation;
 
-		// create obstacle
-		//box 0 new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z())
-
-		osg::ref_ptr<osg::TessellationHints> hints = new osg::TessellationHints;
-		hints->setDetailRatio(2.0f);
-		hints->setTargetNumFaces(64);
-		hints->setTessellationMode(osg::TessellationHints::USE_TARGET_NUM_FACES);
 
 		osg::ref_ptr<osg::ShapeDrawable> boxDrawable
-			= new osg::ShapeDrawable(new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z()));// , hints.get());
+			= new osg::ShapeDrawable(new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z()));
 
 
 		//osg::ref_ptr<osg::Geode> boxGeode
@@ -281,7 +269,7 @@ osg::ref_ptr<osg::Group> LevelView::constructRadarElementsForBoxes(std::vector<B
 	return radarBoxGroup;
 }
 
-void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit)
+void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit, bool override)
 {
 
 	osg::Image* image = osgDB::readImageFile(filePath);
@@ -294,7 +282,10 @@ void LevelView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string fil
 		texture->setResizeNonPowerOfTwoHint(false);
 		texture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
 		texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
-		stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
+		if (override)
+			stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+		else
+			stateset->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::ON);
 	}
 }
 
@@ -307,6 +298,7 @@ void troen::LevelView::removeItemBox(osg::ref_ptr<osg::MatrixTransform>& matrixT
 {
 	m_itemGroup->removeChild(matrixTransform);
 }
+
 
 osg::ref_ptr<osg::Group>  LevelView::getFloor()
 {
