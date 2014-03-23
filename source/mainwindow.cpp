@@ -35,8 +35,8 @@ MainWindow::MainWindow(QWidget * parent)
 	QVBoxLayout* vBoxLayoutNetwork = new QVBoxLayout;
 	vMainTab->setLayout(vBoxLayout);
 	vNetworkTab->setLayout(vBoxLayoutNetwork);
-	tabsContainerWidget->addTab(vMainTab, "main");
-	tabsContainerWidget->addTab(vNetworkTab, "network");
+	tabsContainerWidget->addTab(vMainTab, "Main");
+	tabsContainerWidget->addTab(vNetworkTab, "Network");
 	setCentralWidget(tabsContainerWidget);
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ MainWindow::MainWindow(QWidget * parent)
 		QHBoxLayout* timeLimitLayout = new QHBoxLayout;
 		timeLimitWidget->setLayout(timeLimitLayout);
 
-		QLabel* timeLimitLabel = new QLabel("TimeLimit: ");
+		QLabel* timeLimitLabel = new QLabel("Time Limit: ");
 		timeLimitLayout->addWidget(timeLimitLabel);
 
 		m_timeLimitSpinBox = new QSpinBox;
@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget * parent)
 		playerInputWidget->setLayout(playerInputLayout);
 		playerInputLayout->setMargin(1);
 
-		QString playerString = QString("Player_") + QString::number(i);
+		QString playerString = QString("Player ") + QString::number(i + 1);
 		QLabel* playerInputLabel = new QLabel(playerString);
 		playerInputLayout->addWidget(playerInputLabel);
 
@@ -153,7 +153,7 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(chooseColor(int)));
 	updatePlayerInputBoxes();
 
-	//fullscreenCheckBox
+	// fullscreenCheckBox
 	m_fullscreenCheckBox = new QCheckBox("&Fullscreen");
 	vBoxLayout->addWidget(m_fullscreenCheckBox, 0, Qt::AlignLeft);
 
@@ -180,7 +180,7 @@ MainWindow::MainWindow(QWidget * parent)
 
 
 	// gameStartButton
-	m_gameStartButton = new QPushButton(QString("start Game"));
+	m_gameStartButton = new QPushButton(QString("Start Game"));
 	m_gameStartButton->setContentsMargins(0, 5, 0, 5);
 	vBoxLayout->addWidget(m_gameStartButton);
 
@@ -197,7 +197,7 @@ MainWindow::MainWindow(QWidget * parent)
 	//
 	////////////////////////////////////////////////////////////////////////////////
 
-	//server/client parameters
+	// server/client parameters
 	{
 		QWidget* connectionTypeWidget = new QWidget;
 		QHBoxLayout* connectionTypeLayout = new QHBoxLayout;
@@ -222,13 +222,13 @@ MainWindow::MainWindow(QWidget * parent)
 	QWidget* statusWidget = new QWidget;
 	statusWidget->setContentsMargins(0, 5, 0, 5);
 	QHBoxLayout* statusWidgetLayout = new QHBoxLayout;
-	m_statusLabel = new QLabel(QString("no Connection"));
+	m_statusLabel = new QLabel(QString("No Connection"));
 	statusWidgetLayout->addWidget(m_statusLabel);
 	statusWidget->setLayout(statusWidgetLayout);
 	vBoxLayoutNetwork->addWidget(statusWidget);
 
-	//networkConnectButton
-	m_connectNetworkButton = new QPushButton(QString("connect to Network"));
+	// networkConnectButton
+	m_connectNetworkButton = new QPushButton(QString("Connect to Network"));
 	m_connectNetworkButton->setContentsMargins(0, 5, 0, 5);
 	vBoxLayoutNetwork->addWidget(m_connectNetworkButton);
 
@@ -365,7 +365,7 @@ void MainWindow::connectNetworking()
 		std::vector<QString> playerNames;
 		playerNames.push_back(m_playerNameLineEdits[0]->text());
 
-		//add AIs as seperate players in the server
+		// add AIs as seperate players in the server
 		for (int i = 0; i < m_playerComboBoxes.size() && i < m_bikeNumberSpinBox->value(); i++)
 		{
 			if (m_playerComboBoxes[i]->currentText() == "AI")
@@ -386,18 +386,13 @@ void MainWindow::connectNetworking()
 		m_statusLabel->setText(QString("Connected to " + m_connectAdressEdit->text()));
 	}
 
-
-
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(remoteStartCall()), this, SLOT(prepareGameStart()));
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(newNetworkPlayer(QString)), this, SLOT(addNetworkPlayer(QString)));
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(playerNameRefused()), this, SLOT(showPlayerNameRefused()));
 	connect(m_troenGame->getNetworkManager().get(), SIGNAL(levelChanged(int)), this, SLOT(changeLevel(int)));
 	connect(m_levelComboBox, SIGNAL(currentIndexChanged(int)), m_troenGame->getNetworkManager().get(), SLOT(synchronizeLevel(int)));
 	
-
 	m_networkingReady = true;
-
-
 }
 
 void MainWindow::addNetworkPlayer(QString name)
@@ -407,24 +402,24 @@ void MainWindow::addNetworkPlayer(QString name)
 		m_statusLabel->setText(QString(" Connected to ") + name);
 	else
 		m_statusLabel->setText(m_statusLabel->text() + QString("\n Connected to ") + name);
-		//m_statusLabel->setWordWrap(true);
+
 	m_statusLabel->setStyleSheet("QLabel { background-color : green; color : blue; }");
 	m_playerNameLineEdits[m_networkPlayers]->setText(name);
 	m_ownViewCheckboxes[m_networkPlayers]->setChecked(false);
 	m_bikeNumberSpinBox->setValue(m_networkPlayers+1);
-	m_playerComboBoxes[m_networkPlayers]->addItem("MULTIPLAYER");
-	m_playerComboBoxes[m_networkPlayers]->setCurrentText("MULTIPLAYER");
+	m_playerComboBoxes[m_networkPlayers]->addItem("Network Player");
+	m_playerComboBoxes[m_networkPlayers]->setCurrentText("Network Player");
 	bikeNumberChanged(m_networkPlayers+1);
 	updatePlayerInputBoxes();
 
-	//send index of level to clients
+	// send index of level to clients
 	if (m_troenGame->getNetworkManager()->isServer())
 		m_troenGame->getNetworkManager()->synchronizeLevel(m_levelComboBox->currentIndex());
 }
 
 void MainWindow::showPlayerNameRefused()
 {
-	m_statusLabel->setText(QString("This Name is already taken, choose another one"));
+	m_statusLabel->setText(QString("This name is already taken, choose another one."));
 	m_statusLabel->setStyleSheet("QLabel { background-color : red; color : blue; }");
 }
 
@@ -481,7 +476,7 @@ void MainWindow::loadSettings()
 	{
 		//name
 		QString playerName = settings.value("player" + QString::number(i) + "name").toString();
-		if (playerName.isEmpty()) playerName = QString("Player_") + QString::number(i);
+		if (playerName.isEmpty()) playerName = QString("Player ") + QString::number(i);
 		m_playerNameLineEdits[i]->setText(playerName); 
 		//input
 		int playerInput =
