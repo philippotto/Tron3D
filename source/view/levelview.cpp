@@ -167,7 +167,7 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 
 
 	//bind to 0 and 1 to prevent other textures to fill reflection
-	setTexture(floorsNode->getOrCreateStateSet(), "data/textures/raisedlevel.tga", 0);
+	setTexture(floorsNode->getOrCreateStateSet(), "data/textures/floor.tga", 0);
 
 
 	addShaderAndUniforms(boxesNode, shaders::DEFAULT, levelSize, GLOW);

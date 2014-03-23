@@ -141,7 +141,7 @@ float BikeModel::updateState(long double time)
 			float timeDifference = static_cast<float>(RakNet::GetTime() - m_bikeInputState->getReceivementTime());
 			//std::cout << timeDifference << "linVel x" << m_bikeInputState->getLinearVelocity().x() << " linVel y"<< m_bikeInputState->getLinearVelocity().y() <<std::endl;
 			trans.setRotation(m_bikeInputState->getRotation());
-			trans.setOrigin(m_bikeInputState->getPosition() + m_bikeInputState->getLinearVelocity()*timeDifference/(1000.0));
+			trans.setOrigin(m_bikeInputState->getPosition() ); //+ m_bikeInputState->getLinearVelocity()*timeDifference/(1000.0)
 			//std::cout << "x: " << m_bikeInputState->getPosition().x() << " y: " << m_bikeInputState->getPosition().y()
 			//	<< " x estim: " << trans.getOrigin().x() << " y estim: " << trans.getOrigin().y()
 			//	<< " x real: " << getPositionBt().x() << " y real: " << getPositionBt().y() << std::endl;
