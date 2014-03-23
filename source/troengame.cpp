@@ -245,7 +245,7 @@ void TroenGame::handleBending(double interpolationSkalar)
 			m_levelController->setBendingActive(false);
 			for (auto player : m_players)
 			{
-				player->fenceController()->setBendingActive(true);
+				player->fenceController()->setBendingActive(false);
 			}
 
 		}
