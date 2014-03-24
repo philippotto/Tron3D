@@ -266,7 +266,8 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	btPersistentManifold* contactManifold)
 {
 	btScalar impulse = impulseFromContactManifold(contactManifold);
-	playCollisionSound(impulse);
+	if (bike->player()->hasGameView())
+		playCollisionSound(impulse);
 
 
 	if (bike->player()->isRemote())
