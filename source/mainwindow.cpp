@@ -297,7 +297,6 @@ void MainWindow::prepareGameStart()
 {
 
 	GameConfig config = getGameConfig();
-	//TODO: remove ownView checkboxes & replace with spinbox for number of views
 	int i = 0;
 	for (auto ownViewCheckbox : m_ownViewCheckboxes) {
 		config.ownView[i] = ownViewCheckbox->isChecked();
@@ -378,7 +377,6 @@ void MainWindow::connectNetworking()
 
 		m_troenGame->setupServer(playerNames);
 		
-		//player_slot = 0;
 	}
 	else
 	{

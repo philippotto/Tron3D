@@ -42,7 +42,6 @@ void ResourcePool::readData()
 	for (int i = 0; i < m_textureCount; ++i)
 	{
 		const std::string filePath = folder + textureFileNames[i];
-		//m_images[i] = osgDB::readImageFile(filePath);
 		
 		osg::ref_ptr<osg::Image> img = osgDB::readImageFile(filePath);
 		m_images[i] = img.release();

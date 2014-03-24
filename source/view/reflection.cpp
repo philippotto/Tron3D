@@ -79,18 +79,12 @@ public:
 	{
 		if (nv->getVisitorType() == osg::NodeVisitor::CULL_VISITOR)
 		{
-			//osgUtil::CullVisitor	*cv = static_cast<osgUtil::CullVisitor *>(nv);
 			osg::Camera				*camera = static_cast<osg::Camera *>(node->asGroup()->getChild(0));
 
 			camera->setViewMatrix(m_gameView->getCamera()->getViewMatrix());
 			camera->setProjectionMatrix(m_gameView->getCamera()->getProjectionMatrix());
 			
-
-			//g_cameraViewU->set(m_gameView->getCamera()->getViewMatrix());
-
 			g_cameraEyeU->set(osg::Vec3(0.0, 0.0, 0.0) * m_gameView->getCamera()->getInverseViewMatrix());
-
-			//_reflectionCamera->accept(*_cv);
 
 		}
 		this->traverse(node, nv);
@@ -103,7 +97,6 @@ public:
 Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewer::View> gameView, osg::ref_ptr<osg::TextureCubeMap> cubeMap, int playerID )
 
 {
-	//osg::Group		*group = new osg::Group();
 	int texSize = 1024;
 	// Set up the reflection camera
 	cameraGroup = new osg::Group();
@@ -137,11 +130,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
 	texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
 
-
-	//osg::ref_ptr<osg::Texture2D>	idTexture = new osg::Texture2D();
-	//idTexture->setTextureSize(texSize, texSize);
 	reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER0, texture);
-	//reflectionCamera->attach((osg::Camera::BufferComponent) osg::Camera::COLOR_BUFFER1, idTexture);
 
 	reflectionCamera->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
 	reflectionTransform->setMatrix(osg::Matrix::scale(1.0, 1.0, -1.0));
@@ -150,7 +139,6 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	cameraGroup->addChild(reflectionCamera);
 	reflectionCamera->addChild(reflectionTransform);
 	reflectionTransform->addChild(m_reflectionClipNode);
-
 
 	// Set reflection textures
 	osg::ref_ptr<osg::Node> reflectSurface;
@@ -167,12 +155,7 @@ Reflection::Reflection(osg::ref_ptr<osg::Group> levelView, osg::ref_ptr<osgViewe
 	reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(2, cubeMap, osg::StateAttribute::ON);
 
 	reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("skyDome", 2));
-
 	reflectSurface->getOrCreateStateSet()->addUniform(g_cameraEyeU);
-
-	//reflectSurface->getOrCreateStateSet()->setTextureAttributeAndModes(3, idTexture, osg::StateAttribute::ON);
-	//reflectSurface->getOrCreateStateSet()->addUniform(new osg::Uniform("reflectionAttrib", 3));
-
 }
 
 
@@ -186,7 +169,6 @@ bool Reflection::addSceneNode(osg::ref_ptr<osg::Group> sceneNode)
 		FindNamedNode findReflecting(name);
 		sceneNode->accept(findReflecting);
 		reflectionObjectsGroup->addChild(findReflecting.getNode());
-
 	}
 
 	m_reflectionClipNode->addChild(reflectionObjectsGroup);

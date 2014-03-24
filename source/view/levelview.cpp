@@ -105,7 +105,6 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 	osg::ref_ptr<osg::Node> floors = osgDB::readNodeFile("data/models/floor_highres.ive");
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 
-	 //osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
 	floors->setName("floorsNode");
 
 	osg::StateSet *obstaclesStateSet = floors->getOrCreateStateSet();
@@ -212,11 +211,8 @@ osg::ref_ptr<osg::Group> LevelView::constructGroupForBoxes(std::vector<BoxModel>
 			= new osg::ShapeDrawable(new osg::Box(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z()));
 
 
-		//osg::ref_ptr<osg::Geode> boxGeode
-		//	= createCube(osg::Vec3(0, 0, 0), dimensions.x(), dimensions.y(), dimensions.z());// new osg::Geode();
 		osg::ref_ptr<osg::Geode> boxGeode = new osg::Geode();
 		boxGeode->addDrawable(boxDrawable);
-		//boxGeode->getOrCreateStateSet()->setAttribute(new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
 
 		// place objects in world space
 		osg::Matrixd initialTransform;

@@ -363,7 +363,6 @@ float GLDebugDrawer::getTextSize() const
 osgText::Text*
 	GLDebugDrawer::initText()
 {
-		//osg::ref_ptr<osgText::Text> text = new osgText::Text;
 		osgText::Text* text = new osgText::Text;
 		text->setDataVariance(osg::Object::DYNAMIC);
 		text->setFont("fonts/arial.ttf");
@@ -371,9 +370,6 @@ osgText::Text*
 		text->setCharacterSize(_textSize);
 		text->setAxisAlignment(osgText::Text::SCREEN);
 
-		//return( text.release() );
 		return text;
 	}
 
-
-// osgbCollision

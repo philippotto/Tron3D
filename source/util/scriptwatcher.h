@@ -20,19 +20,6 @@ public:
 
 			QFileSystemWatcher *watcher = new QFileSystemWatcher();
 			watcher->addPath("source/scripts/");
-			//watcher->addPath("source/scripts/test.js");
-
-
-			//QStringList directoryList = watcher->files();
-			//Q_FOREACH(QString directory, directoryList)
-			//	qDebug() << "Directory name" << directory << "\n";
-
-			//directoryList = watcher->directories();
-			//Q_FOREACH(QString directory, directoryList)
-			//	qDebug() << "Directory name" << directory << "\n";
-
-
-			//QObject::connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(onFolderChanged(QString)));
 			QObject::connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(onFolderChanged(QString)));
 		}
 

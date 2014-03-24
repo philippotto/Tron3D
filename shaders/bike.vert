@@ -48,7 +48,7 @@ void main()
 	- gl_ModelViewMatrix * gl_Vertex).xyz;
 
 
-	float distance = sqrt(dot(light0.position, light0.position)); //  length(light0.position);
+	float distance = sqrt(dot(light0.position, light0.position));
 
 	attenuation = 1.0;
 
@@ -59,9 +59,7 @@ void main()
 
 	vec3 diffuseReflection = attenuation
 		* diffuseLight.xyz
-		//* max(0.0, dot(normalDirection, lightDirection))
 		* diffuseMaterialColor.xyz;
-		// diffuseReflection = diffuseMaterialColor.xyz;
 	// without material color!
 
 	// sqrt() smoothes body lines

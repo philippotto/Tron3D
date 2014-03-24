@@ -39,7 +39,6 @@ namespace troen
 		void removeCollisionObject(btCollisionObject* obj);
 
 		void checkForCollisionEvents();
-		std::array<std::array<int, 100>, 100>* discretizeWorld();
 
 		// debugview
 		util::GLDebugDrawer* m_debug;
@@ -68,8 +67,6 @@ namespace troen
 
 		bool m_useDebugView;
 		std::weak_ptr<GameLogic> m_gameLogic;
-
-		std::array<std::array<int, 100>, 100> m_discretizedWorld;
 
 		std::mutex m_physicsMutex;
 	};

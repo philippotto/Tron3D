@@ -38,15 +38,11 @@ m_currentWheelyTilt(0)
 		this
 	);
 
-	// TODO
-	// make friction & ineartia work without wrong behaviour of bike (left turn)
 	btVector3 bikeInertia(0, 0, 0);
 	bikeShape->calculateLocalInertia(BIKE_MASS, bikeInertia);
-	//std::cout << bikeInertia.getX() << ".." << bikeInertia.getY() << ".." << bikeInertia.getZ() << std::endl;
 
 	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(BIKE_MASS, bikeMotionState.get(), bikeShape.get(), bikeInertia);
 	m_bikeRigidBodyCI.m_friction = 0.f;
-	//std::cout << m_bikeRigidBodyCI.m_friction << std::endl;
 
 	m_bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
 	
@@ -139,18 +135,12 @@ float BikeModel::updateState(long double time)
 		if (m_bikeInputState->isNewPosition())
 		{
 			float timeDifference = static_cast<float>(RakNet::GetTime() - m_bikeInputState->getReceivementTime());
-			//std::cout << timeDifference << "linVel x" << m_bikeInputState->getLinearVelocity().x() << " linVel y"<< m_bikeInputState->getLinearVelocity().y() <<std::endl;
 			trans.setRotation(m_bikeInputState->getRotation());
 			trans.setOrigin(m_bikeInputState->getPosition() ); //+ m_bikeInputState->getLinearVelocity()*timeDifference/(1000.0)
-			//std::cout << "x: " << m_bikeInputState->getPosition().x() << " y: " << m_bikeInputState->getPosition().y()
-			//	<< " x estim: " << trans.getOrigin().x() << " y estim: " << trans.getOrigin().y()
-			//	<< " x real: " << getPositionBt().x() << " y real: " << getPositionBt().y() << std::endl;
 			m_rigidBodies[0]->setWorldTransform(trans);
 			m_bikeInputState->setIsNewPosition(false);
 		}
 		bikeRigidBody->setLinearVelocity(m_bikeInputState->getLinearVelocity());
-		//bikeRigidBody->setAngularVelocity(btVector3(0, 0, m_bikeInputState->getAngularVelocity()));
-		//m_rigidBodies[0]->set
 		return m_bikeInputState->getLinearVelocity().length();
 	}
 
@@ -172,7 +162,6 @@ float BikeModel::updateState(long double time)
 	// invsquared(t)   (1 - (1 - (t)) * (1 - (t)))
 	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
 
-	// TODO: merge turboInitiation and turboPressed (Philipp)
 	float turboSpeed = 0;
 	// only initiate turbo, if no other turbo is active
 	if (getTurboFactor() == 0 && (m_bikeController->turboInitiated() || m_bikeInputState->getTurboPressed()))

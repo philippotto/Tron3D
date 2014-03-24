@@ -83,9 +83,6 @@ void ServerManager::handleSubClassMessages(RakNet::Packet *packet)
 		case ID_CONNECTION_LOST:
 			printf("A client lost the connection.\n");
 			break;
-		//case REGISTER_PLAYER_AT_SERVER:
-		//	registerClient(packet);
-		//	break;
 		default:
 			printf("Message with identifier %i has arrived.\n", packet->data[0]);
 			break;

@@ -18,8 +18,6 @@ void main(void)
 
 	if (isReflecting || !bendingActivated) {
 		gl_Position = gl_ModelViewProjectionMatrix  * gl_Vertex;
-		//TODO: make mainDeformReflected work
-		//mainDeformReflected();
 	} else {
 		mainDeform();
 	}

@@ -123,7 +123,6 @@ int GamepadPS4::calcDecimalFromBinar(unsigned char *binar, int i, int jMax){
 	long n = ulBytes | binar[i];
 	for (int j = 0; j < jMax; j++)
 	{
-		//int index = i * jMax + j;
 		if (n & 1)
 			tmp += pow(2, j);
 

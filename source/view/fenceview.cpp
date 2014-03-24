@@ -48,8 +48,6 @@ void FenceView::initializeFence()
 	// seems to be important so that we won't crash after 683 fence parts
 	m_geometry->setUseDisplayList(false);
 
-	// use the shared normal array.
-	// polyGeom->setNormalArray(shared_normals.get(), osg::Array::BIND_OVERALL);
 
 	m_drawArrays = new osg::DrawArrays(osg::PrimitiveSet::QUAD_STRIP, 0, 0);
 	m_geometry->addPrimitiveSet(m_drawArrays);
@@ -133,11 +131,9 @@ void FenceView::addFencePart(osg::Vec3 lastPosition, osg::Vec3 currentPosition)
 		mark_shape->setColor(osg::Vec4f(m_playerColor, 1));
 		osg::ref_ptr<osg::Geode> mark_node = new osg::Geode;
 		mark_node->addDrawable(mark_shape.get());
-		//mark_node->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 
 		// place objects in world space
 		osg::Matrixd initialTransform;
-		//initialTransform.makeRotate(rotationQuatXY);
 		initialTransform *= initialTransform.translate((currentPosition + lastPosition) / 2);
 
 		osg::ref_ptr<osg::MatrixTransform> matrixTransformRadar = new osg::MatrixTransform(initialTransform);

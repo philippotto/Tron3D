@@ -159,14 +159,7 @@ void main(void)
 	float hitPulse = 20.0 / max(timeSinceLastHit, 50);
 	circleTransparency += hitPulse;
 
-	//vec3 hsl = RGBToHSL((sceneColor + pongColor).xyz);
-	//hsl.x = mix(hsl.x, 1, 0.99); // .x is hue, .y is saturation, .z is brightness
-	//hsl.y *= 1.4;
-	//hsl.z *= 0.5;
 	vec3 reddedColor = vec3(1.0,0.0,0.0);//HSLToRGB(hsl);
-
-	// BlendPhoenix could be used for a some special mode
-	// color = BlendPhoenix(color, pongColor);
 
 	vec4 newColor = sceneColor + pongColor;
 	newColor = mix(newColor, vec4(reddedColor, 1.f), circleTransparency);

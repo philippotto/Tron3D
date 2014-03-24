@@ -122,7 +122,7 @@ void Gamepad::run()
 
 			float viewingAngle;
 			if (m_rightStickX != 0.0 || m_rightStickY != 0.0) {
-				float relativeAngle = atan(m_rightStickX / m_rightStickY);// *abs(m_rightStickX);
+				float relativeAngle = atan(m_rightStickX / m_rightStickY);
 				viewingAngle = (m_rightStickY < 0.f ? m_rightStickX < 0 ? -PI + relativeAngle : PI + relativeAngle : relativeAngle);
 			}
 			else {

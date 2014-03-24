@@ -17,21 +17,10 @@
 #include "BitStream.h"
 #include "RakNetTypes.h"  // MessageID
 
-//#include "network\networkmanager.h"
-
-
-
 using namespace troen;
-
-
-
-
-
 
 int main(int argc, char* argv[])
 {
-
-
 	int result = -1;
 
 	// register meta types

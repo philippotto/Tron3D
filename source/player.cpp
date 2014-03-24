@@ -36,7 +36,7 @@ Player::Player(
 	const int id) :
 m_id(id),
 m_name(config->playerNames[id].toStdString()),
-m_health(BIKE_DEFAULT_HEALTH), //TODO: rename constants
+m_health(BIKE_DEFAULT_HEALTH),
 m_points(0),
 m_killCount(0),
 m_deathCount(0),

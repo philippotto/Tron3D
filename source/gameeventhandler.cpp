@@ -70,13 +70,6 @@ void GameEventHandler::attachGameLogic(std::shared_ptr<GameLogic>& gamelogic)
         default:
             break;
         }
-    //case osgGA::GUIEventAdapter::KEYUP:
-    //	switch (ea.getKey()) {
-    //	case osgGA::GUIEventAdapter::KEY_H: // toogle Hud Visibility
-    //		m_troenGame->toggleHudVisibility();
-    //		return true;
-    //	}
-    //	break;
     }
     if (ea.getEventType() == osgGA::GUIEventAdapter::RESIZE)
     {

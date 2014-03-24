@@ -84,10 +84,6 @@ void NodeFollowCameraManipulator::computeNodeCenterAndRotation(osg::Vec3d& nodeC
 	playerViewingRotation.slerp(BIKE_VIEWING_ANGLE_DAMPENING_TERM, m_oldPlayerViewingRotation, playerViewingRotation);
 	m_oldPlayerViewingRotation = playerViewingRotation;
 
-	// jd: camera pitch rotation not wanted so far, maybe useful for later
-	//double pitch = atan2(localToFrame(1, 2), localToFrame(2, 2));
-	//nodePitchRelToFrame.makeRotate(pitch, osg::X_AXIS);
-	
 	rotationOfFrame = coordinateFrame.getRotate();
 	nodeRotation = playerViewingRotation*nodeRollRelToFrame*nodeYawRelToFrame*rotationOfFrame;
 }

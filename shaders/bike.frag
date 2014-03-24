@@ -22,8 +22,6 @@ in float attenuation;
 
 void main()
 {
-	//float shininess = 10.0;
-
 	vec3 specularReflection;
 
 	vec3 normal =  normalDirection *  normalize(texture2D(normalTexture, texCoord).rgb * 2.0 - 1.0);

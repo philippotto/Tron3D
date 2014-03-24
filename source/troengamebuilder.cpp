@@ -170,7 +170,6 @@ bool TroenGameBuilder::composeSceneGraph()
 	t->m_sceneWithSkyboxNode->addChild(t->m_skyDome.get());
 
 	t->m_sceneNode->addChild(t->m_levelController->getViewNode());
-	//t->m_sceneNode->addChild(t->m_sunLightSource.get());
 
 	for (auto player : t->m_players)
 	{
@@ -208,7 +207,6 @@ bool TroenGameBuilder::composeSceneGraph()
 
 
  	const osg::BoundingSphere& bs = t->m_sceneNode->getBound();
- 	// todo: the magic number (0.25) can be used to control the length of the deformation and must be possibly adjusted after the scene graph tweaks
  	float radius = LEVEL_SIZE / 5;
 	radius = 1071;
  	double nearD = 0.1;
@@ -221,15 +219,6 @@ bool TroenGameBuilder::composeSceneGraph()
 	{
 		player->hudController()->attachSceneToRadarCamera(radarScene);
 	}
-
-	//// disbled optimizer for now, takes a lot of time to execute
-	//std::cout << "[TroenGameBuilder::composeSceneGraph] starting Optimizer" << std::endl;
-	//osgUtil::Optimizer optimizer;
-	//optimizer.optimize(t->m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
-	//	optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS |
-	//	optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
-	//std::cout << "[TroenGameBuilder::composeSceneGraph] done optimizing" << std::endl;
-
 
 	return true;
 }

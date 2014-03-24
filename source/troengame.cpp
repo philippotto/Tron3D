@@ -2,10 +2,6 @@
 // OSG
 #include <osg/LineWidth>
 
-// todo bended:
-// #include <osg/BoundingSphere>
-// #include <osgViewer/ViewerEventHandlers>
-// #include <osgDB/ReadFile>
 #include <osgUtil/Optimizer>
 // qt
 #include <qcoreapplication>
@@ -110,7 +106,7 @@ void TroenGame::startGameLoop()
 	// - network
 	// - checkForUserInput and updateModels
 	// - physics + updateViews
-	// - render;
+	// - render
 	m_deformationRendering->setDeformationStartEnd(0.1, 100000);
 
 
@@ -179,7 +175,6 @@ void TroenGame::startGameLoop()
 				{
 					player->viewer()->frame();
 				}
-				// TODO: find a way to eleminate this workaround
 				// doesn't work if it's executed earlier
 				if (!nearPlaneAdapted)
 				{
@@ -276,7 +271,6 @@ void TroenGame::setupForFullScreen()
 	}
 	wsi->getScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), m_originalWidth, m_originalHeight);
 
-	//wsi->setScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), 1024, 768);
 	this->resize(m_originalWidth, m_originalHeight);
 }
 

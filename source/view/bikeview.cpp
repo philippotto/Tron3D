@@ -118,7 +118,6 @@ BikeView::BikeView(osg::Vec3 color, ResourcePool *resourcePool) : AbstractView()
 
 	debugShape->setColor(osg::Vec4f(1,1,1,1));
 
-	//debugShape->setColor(osg::Vec4f(1,1,1,1));
 	osg::ref_ptr<osg::Geode> debugNode = new osg::Geode;
 	debugNode->addDrawable(debugShape.get());
 
@@ -159,7 +158,6 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(ResourcePool::ModelResource ob
 
 	osg::Node* Node = m_resourcePool->getNode(objName);
 
-	//osgDB::writeNodeFile(*Node, std::string("file.osg")); //to look at the scenegraph
 	osg::ref_ptr<osg::StateSet> NodeState = Node->getOrCreateStateSet();
 
 	osg::ref_ptr<osg::Geode> singleGeode = dynamic_cast<osg::Geode*>(Node->asGroup()->getChild(0));
@@ -235,7 +233,6 @@ osg::ref_ptr<osg::Node> BikeView::createCyclePart(ResourcePool::ModelResource ob
 void BikeView::setTexture(osg::ref_ptr<osg::StateSet> stateset, ResourcePool::TextureResource textureName, int unit)
 {
 
-	//osg::Image* image = osgDB::readImageFile(filePath);
 	osg::Image* image = m_resourcePool->getImage(textureName);
 
 	osg::Texture2D* texture = new osg::Texture2D;

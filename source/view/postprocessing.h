@@ -34,8 +34,6 @@ namespace troen
 
 		void attachGBufferShaderProgram(osg::ref_ptr<osg::StateSet> state);
 		void attachPostShaderProgram(osg::ref_ptr<osg::StateSet> state);
-		//void attachSkeletonShaderProgram(osg::ref_ptr<osg::StateSet> state);
-		//void attachDistanceTransformShaderProgram(osg::ref_ptr<osg::StateSet> state, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, SHADER_PROGRAM_TYPES type, int step);
 
 		osg::Uniform* m_timeSinceLastBeat;
 		void setBeat(const float beat);
@@ -43,7 +41,6 @@ namespace troen
 	protected:
 		osg::ref_ptr<osg::Camera> gBufferPass();
 		osg::ref_ptr<osg::Camera> postProcessingPass();
-		//osg::ref_ptr<osg::Camera> distanceTransformPass(int order, TEXTURE_CONTENT inputTexture, TEXTURE_CONTENT outputTexture, SHADER_PROGRAM_TYPES type, int step);
 
 		std::vector<osg::ref_ptr<osg::Texture2D> > m_fboTextures;
 		std::vector<osg::ref_ptr<osg::Camera> > m_allCameras;

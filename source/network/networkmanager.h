@@ -61,8 +61,6 @@ namespace troen
 		{
 			RakNet::Time timeStamp; // Put the system time in here returned by RakNet::GetTime()
 			int bikeID;
-			//float x, y, z;
-			//float quat_x, quat_y, quat_z, quat_w;
 			btTransform transform;
 			float linearVelX, linearVelY, linearVelZ;
 		};

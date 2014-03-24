@@ -35,165 +35,8 @@ m_gameLogic(gameLogic)
 	}
 }
 
-std::array<std::array<int, 100>, 100>* PhysicsWorld::discretizeWorld()
-{
-	const float halfedLevelSize = LEVEL_SIZE / 2;
-	const float discreteLevelSize = 100;
-	const float stepSize = LEVEL_SIZE / discreteLevelSize;
-	return &m_discretizedWorld;
-	// print && clear
-
-	for (int x = 0; x < discreteLevelSize; x++) {
-		for (int y = 0; y < discreteLevelSize; y++) {
-			std::cout << " " << m_discretizedWorld[y][x];
-			m_discretizedWorld[y][x] = 0;
-
-		}
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
-
-
-
-
-	btCollisionObjectArray objects = m_world->getCollisionObjectArray();
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		btCollisionObject* object = objects[i];
-		btTransform pos = object->getWorldTransform();
-		pos.getOrigin();
-		btCollisionShape* shape = object->getCollisionShape();
-		//shape->get
-
-	}
-
-
-
-
-
-
-
-
-
-
-	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	btVector3 from, to, direction;
-	// return &m_discretizedWorld;
-	clock_t start, end;
-	start = std::clock();
-
-	// clear
-
-	for (int x = 0; x < discreteLevelSize; x++) {
-		for (int y = 0; y < discreteLevelSize; y++) {
-			std::cout << " " << m_discretizedWorld[y][x];
-			m_discretizedWorld[y][x] = 0;
-
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << std::endl;
-
-
-	// fill
-
-	float y, x;
-
-	from.setY(-halfedLevelSize);
-	to.setY(+halfedLevelSize);
-	from.setZ(1.1);
-	to.setZ(1.1);
-
-	int weirdAnswers = 0;
-
-	for (x = -halfedLevelSize; x < halfedLevelSize; x += stepSize) {
-		from.setX(x);
-		to.setX(x);
-
-		btCollisionWorld::AllHitsRayResultCallback RayCallback(from, to);
-		m_world->rayTest(from, to, RayCallback);
-		if (RayCallback.hasHit()) {
-			btAlignedObjectArray<btVector3> collisionPoints = RayCallback.m_hitPointWorld;
-			std::cout << "length of collisionpoints: " << collisionPoints.size() << std::endl;
-			for (int index = 0; index < collisionPoints.size(); index++) {
-				btVector3 position = collisionPoints.at(index);
-
-				if (false && (abs(position.x()) > halfedLevelSize || abs(position.y()) != halfedLevelSize)) {
-					std::cout << "weird answer of bullet" << position.x() << "  " << position.y() << "  " << position.z() << std::endl;
-					weirdAnswers++;
-				}
-				else {
-
-					int hitY = (position.y() + halfedLevelSize) / stepSize;
-					int hitX = (x + halfedLevelSize) / stepSize;
-
-					if (hitY < 0 || hitX < 0 || hitY >= discreteLevelSize || hitX >= discreteLevelSize) {
-						std::cout << "hitY: " << hitY << " hitX: " << hitX << std::endl;
-					}
-					else
-					{
-						m_discretizedWorld[hitY][hitX] = 1;
-					}
-				}
-			}
-		}
-	}
-
-
-
-	from.setX(-halfedLevelSize);
-	to.setX(+halfedLevelSize);
-	from.setZ(1.1);
-	to.setZ(1.1);
-
-
-	for (y = -LEVEL_SIZE / 2; y < LEVEL_SIZE / 2; y += stepSize) {
-		from.setY(y);
-		to.setY(y);
-
-		btVector3 from, to, direction;
-		btCollisionWorld::AllHitsRayResultCallback RayCallback(from, to);
-		m_world->rayTest(from, to, RayCallback);
-		if (RayCallback.hasHit()) {
-			btAlignedObjectArray<btVector3> collisionPoints = RayCallback.m_hitPointWorld;
-			std::cout << "length of collisionpoints: " << collisionPoints.size() << std::endl;
-
-			for (int index = 0; index < collisionPoints.size(); index++) {
-				btVector3 position = collisionPoints.at(index);
-
-				if (false && (abs(position.y()) > halfedLevelSize || abs(position.x()) != halfedLevelSize)) {
-					std::cout << "weird answer of bullet" << position.x() << "  " << position.y() << "  " << position.z() << std::endl << std::endl;
-					weirdAnswers++;
-				} else {
-
-					int hitX = (position.x() + halfedLevelSize) / stepSize;
-					int hitY = (y + halfedLevelSize) / stepSize;
-					if (hitY < 0 || hitX < 0 || hitY >= discreteLevelSize || hitX >= discreteLevelSize) {
-						std::cout << "hitY: " << hitY << " hitX: " << position.x() << "  " << position.y() << "  " << position.z() << std::endl;
-					}
-					else {
-						m_discretizedWorld[hitY][hitX] = 1;
-					}
-				}
-			}
-		}
-	}
-	//}
-	end = std::clock();
-	double dif = double(end - start) / CLOCKS_PER_SEC;
-	//printf("Elasped time is %.2lf seconds.", dif);
-
-	std::cout << "weird answers in total: " << weirdAnswers << std::endl;
-
-	return &m_discretizedWorld;
-}
-
 PhysicsWorld::~PhysicsWorld()
 {
-	// TODO: why cant we delete m_world without crashes?
-	if (false)
-		delete m_world;
 	delete m_solver;
 	delete m_collisionConfiguration;
 	delete m_dispatcher;
@@ -280,7 +123,6 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 	// careful:
 	// including this debug-printout will significantly reduce
 	// framerate & flow of the game
-	//std::cout << "[PhysicsWorld::stepSimulation] timeSinceLastSimulation = " << timeSinceLastSimulation/1000 << std::endl;
 
 	if (m_useDebugView)
 	{
@@ -300,10 +142,6 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 		m_world->debugDrawWorld();
 		m_debug->EndDraw();
 	}
-
-
-
-	// discretizeWorld();
 
 }
 

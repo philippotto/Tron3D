@@ -69,11 +69,6 @@ namespace troen {
 			void setTextSize(const float size);
 			float getTextSize() const;
 
-
-			//osg::Vec3 asOsgVec3(const btVector3& v);
-			//osg::Vec4 asOsgVec4(const btVector4& v);
-			//osg::Vec4 asOsgVec4(const btVector3& v, const double w);
-
 			// utils
 
 			osg::Vec3 asOsgVec3(const btVector3& v)

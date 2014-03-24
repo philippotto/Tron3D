@@ -12,8 +12,6 @@ void mainDeform();
 
 void main()
 {
-	//uv = step(abs(gl_Vertex.z), abs(gl_Vertex.x)) * gl_Vertex.xy / levelSize + vec2(0.5, 0.5);
-
 	theNormal = normalize(gl_NormalMatrix * gl_Normal);
 	//subtract 1 depending on normal facing in the arena, fixes a stripe shift issue on the walls
 	float x_component = gl_Vertex.x - step(0.5, gl_Normal.x + gl_Normal.y + gl_Normal.z);

@@ -119,9 +119,6 @@ void GameLogic::collisionEvent(btRigidBody * pBody0, btRigidBody * pBody1, btPer
 	objectInfos[0] = static_cast<ObjectInfo *>(pBody0->getUserPointer());
 	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
 
-	// try to recognize invalid pointers - workaround for debugmode
-	//if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
-
 	AbstractController* collisionBodyControllers[2];
 	try {
 		collisionBodyControllers[0] = objectInfos[0]->getUserPointer();
@@ -199,9 +196,6 @@ void GameLogic::separationEvent(btRigidBody * pBody0, btRigidBody * pBody1)
 	objectInfos[0] = static_cast<ObjectInfo *>(pBody0->getUserPointer());
 	objectInfos[1] = static_cast<ObjectInfo *>(pBody1->getUserPointer());
 
-	// try to recognize invalid pointers - workaround for debugmode
-	//if (objectInfos[0] == (void*)0xfeeefeeefeeefeee || objectInfos[1] == (void*)0xfeeefeeefeeefeee) return;
-
 	// get the controllers of the separating objects
 	AbstractController* collisionBodyControllers[2];
 	collisionBodyControllers[0] = objectInfos[0]->getUserPointer();
@@ -249,9 +243,6 @@ void GameLogic::handleCollisionOfTwoBikes(
 	btPersistentManifold* contactManifold)
 {
 	std::cout << "[GameLogic::handleCollisionOfTwoBikes]" << std::endl;
-	// TODO
-	// set different thredsholds of collisions between bikes
-	// they dont have as much impact ?
 	if (m_troenGame->isNetworking() && !m_troenGame->getNetworkManager()->isServer())
 		return; //only server has authority over collision
 
@@ -429,7 +420,6 @@ btScalar GameLogic::impulseFromContactManifold(btPersistentManifold* contactMani
 {
 	btScalar impulse = 0;
 	int numContacts = contactManifold->getNumContacts();
-	//std::cout << numContacts << " - ";
 	for (int i = 0; i < numContacts; i++)
 	{
 		btManifoldPoint& pt = contactManifold->getContactPoint(i);
@@ -479,7 +469,6 @@ void GameLogic::resetBike(BikeController *bikeController)
 {
 	bikeController->reset();
 
-	// TODO should happen in reset()
 	btTransform position = m_troenGame->m_levelController->getRandomSpawnPoint();
 	bikeController->moveBikeToPosition(position);
 }

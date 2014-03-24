@@ -29,7 +29,6 @@ SkyDome::SkyDome() :
     geode->addDrawable(drawable.get());
 
 	m_texture = readCubeMap();
-    //geode->setNodeMask(CameraMask::kMain);
 
     osg::StateSet* stateset = geode->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
@@ -92,8 +91,6 @@ osg::ref_ptr<osg::TextureCubeMap> SkyDome::readCubeMap() {
 
         cubemap->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
         cubemap->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
-
-		//OSG_NOTICE << "Skybox: Loaded correctly.\n";
     } else OSG_NOTICE << "Skybox: Error while loading image files!\n";
 
     return cubemap;

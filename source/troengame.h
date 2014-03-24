@@ -37,7 +37,6 @@ namespace troen
 		bool useReflection;
 		bool ownView[MAX_BIKES];
 		std::string levelName;
-        // TODO: add Destructor to avoid memory leak
 	};
 }
 Q_DECLARE_METATYPE(troen::GameConfig)

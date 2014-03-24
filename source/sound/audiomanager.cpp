@@ -180,16 +180,6 @@ void AudioManager::detectBeat(float tickCount)
 	for (int i = 0; i < sampleSize; i++)
 		spec[i] = (specLeft[i] + specRight[i]) / 2;
 
-	// Find max volume
-	//auto maxIterator = std::max_element(&spec[0], &spec[sampleSize]);
-	//float maxVol = *maxIterator;
-
-	// Normalize
-	// doesn't give good values? maybe sampleSize should be increased?
-	// beatThresholdVolume could need tuning if soundtrack will be changed.
-	// if (maxVol != 0)
-	//	std::transform(&spec[0], &spec[sampleSize], &spec[0], [maxVol](float dB) -> float { return dB / maxVol; });
-	
 	// configuration
 	float beatThresholdVolume = 0.6f;    // The threshold over which to recognize a beat
 	int beatThresholdBar = 0;            // The bar in the volume distribution to examine
