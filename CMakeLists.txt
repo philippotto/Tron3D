@@ -423,7 +423,7 @@ install(
 # bended views
 install(
 	DIRECTORY ${CMAKE_SOURCE_DIR}/BendedViews/shaders
-	DESTINATION ${INSTALL_ROOT}
+	DESTINATION ${INSTALL_ROOT}/BendedViews
 	COMPONENT ${META_PROJECT_NAME})
 #scripts
 install(
