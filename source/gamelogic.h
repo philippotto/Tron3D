@@ -56,7 +56,7 @@ namespace troen
 		void sendStatusMessage(troen::networking::gameStatus status, Player *bikePlayer, Player *fencePlayer);
 		void processNetworkMessages();
 
-	private:
+	
 		//
 		// collision event handling
 		//
@@ -81,13 +81,14 @@ namespace troen
 		void handlePlayerDeathOnFence(BikeController* fenceBike, BikeController* deadBike);
 		void handlePlayerDeathNonFence(BikeController* deadBike);
 		void handlePlayerFall(BikeController* deadBike);
+
+		private:
 		// helper
 		float impulseFromContactManifold(btPersistentManifold* contactManifold);
 		void playCollisionSound(float impulse);
 		Player* getPlayerWithID(int bikeID);
 
 		void checkForFallenPlayers();
-
 		//
 		// communication links
 		//

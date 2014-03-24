@@ -72,6 +72,7 @@ namespace troen
 		osg::ref_ptr<SkyDome> skyDome()
 			{ return m_skyDome; };
 		ResourcePool* resourcePool(){ return &m_resourcePool; };
+		std::shared_ptr<GameLogic> getGameLogic() { return m_gameLogic; }
 
 		//
 		// Events
@@ -145,6 +146,7 @@ namespace troen
 		std::shared_ptr<util::ChronoTimer>			m_gameTimer;
 		std::shared_ptr<PhysicsWorld>				m_physicsWorld;
 		std::shared_ptr<GameLogic>					m_gameLogic;
+
 		std::shared_ptr<sound::AudioManager>		m_audioManager;
 		std::shared_ptr<networking::ServerManager>  m_ServerManager;
 		std::shared_ptr<networking::ClientManager>  m_ClientManager;

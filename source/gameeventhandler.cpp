@@ -1,6 +1,7 @@
 #include "gameeventhandler.h"
 // troen
 #include "troengame.h"
+#include "player.h"
 #include "gamelogic.h"
 #include "view/shaders.h"
 #include "BendedViews/src/SplineDeformationRendering.h"
@@ -45,7 +46,13 @@ void GameEventHandler::attachGameLogic(std::shared_ptr<GameLogic>& gamelogic)
             m_troenGame->pauseEvent();
             return true;
         case osgGA::GUIEventAdapter::KEY_Delete:
-            m_gameLogic.lock()->restartLevel();
+			for (auto player : m_troenGame->players())
+			{
+				if (player->hasGameView())
+				{
+					m_troenGame->getGameLogic()->handlePlayerDeath(player->bikeController().get());
+				}
+			}
             return true;
         case osgGA::GUIEventAdapter::KEY_1:
         {

@@ -108,7 +108,7 @@ void TroenGame::startGameLoop()
 	// - physics + updateViews
 	// - render
 	m_deformationRendering->setDeformationStartEnd(0.1, 100000);
-
+	getBendedViews()->setPreset(2);
 
 	// terminates when first viewer is closed
 	while (!m_players[0]->viewer()->done())
