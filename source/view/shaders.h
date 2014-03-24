@@ -18,7 +18,8 @@ namespace troen
 		bool loadShaderSource(osg::Shader* obj, const std::string& fileName);
 		void reloadShader(osg::ref_ptr<osg::Program> & program,
 			std::string fragmentFileName,
-			std::string vertexFileName = "");
+			std::string vertexFileName,
+			std::string secondVertexFileName);
 
 		void reloadShaders();
 
@@ -34,8 +35,8 @@ namespace troen
 							VBLUR,
 							SELECT_GLOW_OBJECTS,
 							POST_PROCESSING,
-							OUTER_WALL,
 							SKYDOME,
+							PLAYERMARKER,
 							SHADER_NAME_COUNT //always last, isnt a shader
 						};
 	}

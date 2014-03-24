@@ -24,6 +24,8 @@
 
 #include "../resourcepool.h"
 #include "../sound/audiomanager.h"
+#include "../input/remoteplayer.h"
+#include "../model/bikemotionstate.h"
 
 #include "../util/filteredrayresultcallback.h"
 
@@ -35,23 +37,22 @@ BikeController::BikeController(
 	const input::BikeInputState::InputDevice& inputDevice,
 	const btTransform initialPosition,
 	ResourcePool* resourcePool) :
-AbstractController(),
-m_player(player),
-m_keyboardHandler(nullptr),
-m_pollingThread(nullptr),
-m_initialTransform(initialPosition),
-m_state(BIKESTATE::WAITING),
-m_speed(0),
-m_turboInitiated(false),
-m_timeOfLastCollision(-1),
-m_respawnTime(-1),
-m_lastFenceCollision(std::make_pair<float, FenceController*>(0,nullptr))
+	AbstractController(),
+	m_player(player),
+	m_keyboardHandler(nullptr),
+	m_pollingThread(nullptr),
+	m_initialTransform(initialPosition),
+	m_state(BIKESTATE::WAITING),
+	m_speed(0),
+	m_turboInitiated(false),
+	m_timeOfLastCollision(-1),
+	m_respawnTime(-1),
+	m_lastFenceCollision(std::make_pair<float, FenceController*>(0, nullptr))
 {
 	m_view = m_bikeView = std::make_shared<BikeView>(player->color(), resourcePool);
 
 	osg::ref_ptr<osg::Group> viewNode = m_bikeView->getNode();
 	m_model = m_bikeModel = std::make_shared<BikeModel>(m_initialTransform, viewNode, m_player, this);
-
 	initializeInput(inputDevice);
 }
 
@@ -123,6 +124,9 @@ void BikeController::initializeInput(input::BikeInputState::InputDevice inputDev
 	case input::BikeInputState::AI:
 		initializeAI(bikeInputState);
 		break;
+	case input::BikeInputState::REMOTE_PLAYER:
+		initializeRemote(bikeInputState);
+		break;
 	default:
 		break;
 	}
@@ -191,6 +195,11 @@ void BikeController::initializeAI(osg::ref_ptr<input::BikeInputState> bikeInputS
 	std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(bikeInputState, this);
 	m_pollingThread = ai;
 	m_pollingThread->start();
+}
+
+void BikeController::initializeRemote(osg::ref_ptr<input::BikeInputState> bikeInputState)
+{
+	m_remote = std::make_shared<input::RemotePlayer>(bikeInputState);
 }
 
 void BikeController::setInputState(osg::ref_ptr<input::BikeInputState> bikeInputState)
@@ -348,6 +357,27 @@ void BikeController::updateModel(const long double gameTime)
 	updateUniforms();
 }
 
+void BikeController::updateView(const btTransform &worldTrans)
+{
+	btQuaternion rot = worldTrans.getRotation();
+	btVector3 position = worldTrans.getOrigin();
+
+	osg::Vec3 axis = osg::Vec3(rot.getAxis().x(), rot.getAxis().y(), rot.getAxis().z());
+	osg::Quat rotationQuat(rot.getAngle(), axis);
+	osg::Quat attitude = m_bikeModel->getTilt() * rotationQuat;
+
+
+	m_bikeView->m_pat->setAttitude(attitude);
+	m_bikeView->m_pat->setPosition(osg::Vec3(position.x(), position.y(), position.z()));
+	
+	// update fence accordingly
+	if (m_player->getTroenGame()->isNetworking())
+		updateNetworkFence(worldTrans);
+	else
+		m_player->fenceController()->update(position, rot);
+
+}
+
 osg::ref_ptr<osg::Group> BikeController::getViewNode()
 {
 	osg::ref_ptr<osg::Group> group = m_bikeView->getNode();
@@ -355,6 +385,25 @@ osg::ref_ptr<osg::Group> BikeController::getViewNode()
 	//group->setCullingActive(false);
 	return group;
 };
+
+void BikeController::updateNetworkFence(btTransform transform)
+{
+	if (!m_player->isRemote())
+	{
+		m_player->fenceController()->update(transform.getOrigin(),transform.getRotation());
+		m_player->getTroenGame()->getNetworkManager()->updateFencePart(transform, m_player->getNetworkID());
+	}
+
+	else
+	{
+		btTransform trans;
+		// read in every new fence part
+		while (m_remote->tryGetFencePiece(trans))
+		{
+			m_player->fenceController()->update(trans.getOrigin(), trans.getRotation());
+		}
+	}
+}
 
 void BikeController::addUniformsToPlayerNode()
 {
@@ -411,6 +460,13 @@ void BikeController::updateFov(double speed)
 	}
 }
 
+
+
+std::shared_ptr<BikeModel>  BikeController::getModel()
+{
+	return std::static_pointer_cast<BikeModel>(m_model);
+}
+
 float BikeController::getDistanceToObstacle(double angle) {
 	// angle specifies the deviation from the current direction the bike is heading
 
@@ -458,3 +514,4 @@ bool BikeController::isFalling()
 	const int fallThreshold = -100;
 	return m_bikeModel->getPositionBt().z() < fallThreshold && state() == BikeController::BIKESTATE::DRIVING;
 }
+

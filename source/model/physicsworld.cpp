@@ -15,6 +15,7 @@
 #include <ctime>
 
 using namespace troen;
+static void tickCallback(btDynamicsWorld *world, btScalar timeStep);
 
 
 PhysicsWorld::PhysicsWorld(
@@ -214,6 +215,10 @@ void PhysicsWorld::initializeWorld()
 	m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 
 	m_world->setGravity(DEFAULT_GRAVITY);
+	
+	//using callbacks is the preffered way to handle collision events, 
+	//the bullet wiki promises, that are no invalid pointers when using this callback
+	m_world->setInternalTickCallback(tickCallback, static_cast<void *>(this));
 }
 
 void PhysicsWorld::addRigidBodies(const std::vector<std::shared_ptr<btRigidBody>>& bodies, const short group/*=0*/, const short mask/*=0*/)
@@ -296,7 +301,7 @@ void PhysicsWorld::stepSimulation(long double currentTime)
 		m_debug->EndDraw();
 	}
 
-	checkForCollisionEvents();
+
 
 	// discretizeWorld();
 
@@ -326,15 +331,6 @@ void PhysicsWorld::checkForCollisionEvents()
 			const btRigidBody* pSortedBodyA = swapped ? pBody1 : pBody0;
 			const btRigidBody* pSortedBodyB = swapped ? pBody0 : pBody1;
 
-			bool notJustRemoved = true;
-			for (auto removedRigidBody : m_removedRigidBodies) {
-				if (pSortedBodyA == removedRigidBody || pSortedBodyB == removedRigidBody) {
-					notJustRemoved = false;
-					break;
-				}
-			}
-
-			if (notJustRemoved) {
 				// create the pair
 				CollisionPair thisPair = std::make_pair(pSortedBodyA, pSortedBodyB);
 
@@ -346,7 +342,6 @@ void PhysicsWorld::checkForCollisionEvents()
 				// pair and we must send a collision event
 				if (m_pairsLastUpdate.find(thisPair) == m_pairsLastUpdate.end())
 					m_gameLogic.lock()->collisionEvent((btRigidBody*)pBody0, (btRigidBody*)pBody1, contactManifold);
-			}
 		}
 	}
 
@@ -371,3 +366,7 @@ void PhysicsWorld::checkForCollisionEvents()
 }
 
 
+void tickCallback(btDynamicsWorld *world, btScalar timeStep) {
+	PhysicsWorld *w = static_cast<PhysicsWorld *>(world->getWorldUserInfo());
+	w->checkForCollisionEvents();
+}

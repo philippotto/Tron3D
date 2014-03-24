@@ -2,6 +2,8 @@
 // troen
 #include "pollingdevice.h"
 #include "../constants.h"
+#include "LocklessTypes.h"
+
 
 using namespace troen::input;
 
@@ -11,6 +13,11 @@ BikeInputState::BikeInputState()
 	m_angle = 0.0;
 	m_turboPressed = false;
 	m_viewingAngle = 0.0;
+	//only used for network
+	m_position = btVector3(0.0, 0.0, 0.0);
+	m_isRemote = false;
+	m_isNewPosition = true;
+
 }
 
 float BikeInputState::getAngle()
@@ -53,4 +60,74 @@ float BikeInputState::getViewingAngle()
 void BikeInputState::setViewingAngle(float angle)
 {
 	m_viewingAngle = angle;
+}
+
+void BikeInputState::setRemote(bool isRemote)
+{
+	m_isRemote = isRemote;
+}
+
+bool  BikeInputState::isRemote()
+{
+	return m_isRemote;
+}
+
+btVector3 BikeInputState::getPosition()
+{
+	return m_position;
+}
+
+void BikeInputState::setPosition(btVector3 position)
+{
+	m_position = position;
+}
+
+btQuaternion BikeInputState::getRotation() 
+{ 
+	return m_rotation; 
+}
+
+void BikeInputState::setRotation(btQuaternion val) 
+{ 
+	m_rotation = val;
+}
+
+btVector3 BikeInputState::getLinearVelocity() 
+{
+	return m_linearVeloctiy;
+}
+
+void BikeInputState::setLinearVeloctiy(btVector3 val)
+{
+	m_linearVeloctiy = val;
+}
+
+float BikeInputState::getAngularVelocity() 
+{
+	return m_angularVelocity;
+}
+
+void BikeInputState::setAngularVelocityZ(float val) 
+{ 
+	m_angularVelocity = val; 
+}
+
+bool BikeInputState::isNewPosition()
+{
+	return m_isNewPosition;
+}
+
+void BikeInputState::setIsNewPosition(bool value)
+{
+	m_isNewPosition = value;
+}
+
+void BikeInputState::setReceivementTimestamp(RakNet::Time time)
+{
+	m_receivementTime = time;
+}
+
+RakNet::Time BikeInputState::getReceivementTime()
+{
+	return m_receivementTime;
 }

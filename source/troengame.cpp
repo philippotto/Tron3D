@@ -1,6 +1,11 @@
 #include "troengame.h"
 // OSG
 #include <osg/LineWidth>
+
+// todo bended:
+// #include <osg/BoundingSphere>
+// #include <osgViewer/ViewerEventHandlers>
+// #include <osgDB/ReadFile>
 #include <osgUtil/Optimizer>
 // qt
 #include <qcoreapplication>
@@ -18,6 +23,7 @@
 
 #include "model/physicsworld.h"
 
+#include "BendedViews/src/SplineDeformationRendering.h"
 #include "view/postprocessing.h"
 #include "view/reflection.h"
 
@@ -25,7 +31,12 @@
 #include "util/gldebugdrawer.h"
 #include "sound/audiomanager.h"
 
+
+#include "network/clientmanager.h"
+#include "network/servermanager.h"
+#include <thread>
 #include <mutex>
+
 
 using namespace troen;
 extern long double g_currentTime;
@@ -41,7 +52,12 @@ m_gameThread(thread)
 
 	moveToThread(m_gameThread);
 	m_gameThread->start(QThread::HighestPriority);
+	m_ServerManager = NULL;
+	m_ClientManager = NULL;
 }
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -74,6 +90,12 @@ void TroenGame::startGameLoop()
 	m_gameTimer->start();
 	m_gameTimer->pause();
 
+	if (isNetworking())
+	{
+		getNetworkManager()->setLocalGameReady();
+		getNetworkManager()->waitOnAllPlayers(); //blocking call
+	}
+
 	// GAME LOOP VARIABLES
 	long double nextTime = m_gameloopTimer->elapsed();
 	const double minMillisecondsBetweenFrames = 16.7; // vSync to 60 fps
@@ -89,6 +111,8 @@ void TroenGame::startGameLoop()
 	// - checkForUserInput and updateModels
 	// - physics + updateViews
 	// - render;
+	m_deformationRendering->setDeformationStartEnd(0.1, 100000);
+
 
 	// terminates when first viewer is closed
 	while (!m_players[0]->viewer()->done())
@@ -113,16 +137,30 @@ void TroenGame::startGameLoop()
 			{
 				for (auto player : m_players)
 				{
-					player->bikeController()->updateModel(g_gameTime);
+					player->update(g_gameTime);
 				}
 				m_physicsWorld->stepSimulation(g_gameTime);
 				m_levelController->update();
 			}
 
+
+
+			if (isNetworking())
+				getNetworkManager()->update(g_gameTime);
+
+
 			m_audioManager->Update(g_gameLoopTime / 1000);
 			m_audioManager->setMotorSpeed(m_players[0]->bikeController()->speed());
 
-			if (m_postProcessing) m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
+			// Hack: normalize and use the speed to control the deformation
+			float bikeSpeed = m_players[0]->bikeController()->speed();
+			float maxSpeed = 400.f;
+
+			handleBending(double(bikeSpeed / maxSpeed));
+
+
+			if (m_postProcessing)
+				m_postProcessing->setBeat(m_audioManager->getTimeSinceLastBeat());
 
 			// do we have extra time (to draw the frame) or did we skip too many frames already?
 			if (g_gameLoopTime < nextTime || (skippedFrames > maxSkippedFrames))
@@ -181,6 +219,46 @@ void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View> view)
 	view->getCamera()->setProjectionMatrixAsPerspective(fovy, aspect, znear, zfar);
 }
 
+void TroenGame::handleBending(double interpolationSkalar)
+{
+	m_deformationRendering->setInterpolationSkalar(1.0);
+
+	double currentBending = m_deformationRendering->getDeformationEnd();
+	const double targetBending = m_deformationEnd;
+	const double bendedStep = (BENDED_VIEWS_DEACTIVATED - BENDED_VIEWS_ACTIVATED) / 300;
+	
+	if (targetBending == BENDED_VIEWS_ACTIVATED)
+	{
+		m_levelController->setBendingActive(true);
+		for (auto player : m_players)
+		{
+			player->fenceController()->setBendingActive(true);
+		}
+		currentBending -= bendedStep;
+	}
+	else
+	{
+		currentBending += bendedStep;
+		if (currentBending >= BENDED_VIEWS_DEACTIVATED)
+		{
+
+			m_levelController->setBendingActive(false);
+			for (auto player : m_players)
+			{
+				player->fenceController()->setBendingActive(false);
+			}
+
+		}
+	}
+
+	currentBending = clamp(BENDED_VIEWS_ACTIVATED, BENDED_VIEWS_DEACTIVATED, currentBending);
+
+	m_deformationRendering->setDeformationStartEnd(0.05, currentBending);
+	m_levelController->setBendingFactor(1.0 - currentBending / BENDED_VIEWS_DEACTIVATED);
+	
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Full Screen Handling
@@ -190,7 +268,7 @@ void TroenGame::fixCulling(osg::ref_ptr<osgViewer::View> view)
 void TroenGame::setupForFullScreen()
 {
 	osg::GraphicsContext::WindowingSystemInterface* wsi =
-	osg::GraphicsContext::getWindowingSystemInterface();
+		osg::GraphicsContext::getWindowingSystemInterface();
 	if (!wsi)
 	{
 		std::cout << "[TroenGame::setupForFullScreen] error ..." << std::endl;
@@ -214,11 +292,7 @@ void TroenGame::returnFromFullScreen()
 	wsi->setScreenResolution(osg::GraphicsContext::ScreenIdentifier(0), m_originalWidth, m_originalHeight);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Event Handling
-//
-////////////////////////////////////////////////////////////////////////////////
+
 
 void TroenGame::switchSoundVolumeEvent()
 {
@@ -252,8 +326,62 @@ void TroenGame::resize(int width, int height){
 
 	for (auto player : m_playersWithView)
 	{
-			player->hudController()->resize(width, height);
+		player->hudController()->resize(width, height);
 	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Networking
+//
+////////////////////////////////////////////////////////////////////////////////
+
+//setup the network connection
+std::string TroenGame::setupServer(std::vector<QString> playerNames)
+{
+
+		std::cout << "[TroenGame::initialize] networking Server..." << std::endl;
+		m_ServerManager = std::make_shared<networking::ServerManager>(this, playerNames);
+		m_ServerManager->openServer();
+		return std::string("ok");
+}
+
+std::string TroenGame::setupClient(QString playerName, std::string connectAddr)
+{
+		std::cout << "[TroenGame::initialize] networking Client..." << std::endl;
+		m_ClientManager = std::make_shared<networking::ClientManager>(this, playerName);
+		m_ClientManager->openClient(connectAddr);
+		return std::string("ok");
+}
+
+
+
+bool TroenGame::synchronizeGameStart(GameConfig config)
+{
+	getNetworkManager()->synchronizeGameStart(config);
+	return true;
+}
+
+
+bool TroenGame::isNetworking()
+{
+	if (getNetworkManager() != nullptr)
+	{
+		if (getNetworkManager()->isValidSession())
+			return true;
+	}
+	return false;
+}
+
+std::shared_ptr<networking::NetworkManager> TroenGame::getNetworkManager()
+{
+	if (m_ClientManager != NULL)
+		return static_cast<std::shared_ptr<networking::NetworkManager>>(m_ClientManager);
+	else if (m_ServerManager != NULL)
+		return static_cast<std::shared_ptr<networking::NetworkManager>>(m_ServerManager);
+	else
+		return NULL;
 }
 
 void TroenGame::reloadLevel()

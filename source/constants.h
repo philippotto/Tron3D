@@ -10,7 +10,6 @@
 namespace troen
 {
 	// GENERAL
-	// extern const long double g_currentTime;
 
 	// GAME
 	extern const int DEFAULT_WINDOW_WIDTH;
@@ -94,6 +93,11 @@ namespace troen
 	// AUDIO
 	extern const int ENGINE_FREQUENCY_LOW;
 	extern const int ENGINE_FREQUENCY_HIGH;
+
+	// BENDED VIEWS
+	extern const int BENDED_VIEWS_ACTIVATED;
+	extern const int BENDED_VIEWS_DEACTIVATED;
+	extern const int TIME_TO_ACTIVATE_BENDED_VIEWS;
 }
 
 #endif

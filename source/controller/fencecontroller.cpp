@@ -45,6 +45,7 @@ void FenceController::update(btVector3 position, btQuaternion rotation)
 }
 
 
+
 void FenceController::attachWorld(std::shared_ptr<PhysicsWorld> &world)
 {
 	m_world = world;
@@ -113,4 +114,9 @@ osg::ref_ptr<osg::Group> FenceController::getViewNode()
 void FenceController::updateFadeOutFactor(float fadeOutFactor)
 {
 	m_fenceView->updateFadeOutFactor(fadeOutFactor);
+}
+
+void FenceController::setBendingActive(bool active)
+{
+	m_fenceView->setBendingActive(active);
 }

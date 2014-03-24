@@ -9,6 +9,7 @@
 #include "../controller/bikecontroller.h"
 #include "bikemotionstate.h"
 #include "objectinfo.h"
+#include "GetTime.h"
 
 using namespace troen;
 
@@ -19,7 +20,9 @@ BikeModel::BikeModel(
 	BikeController* bikeController) :
 AbstractModel(),
 m_lastUpdateTime(0),
-m_bikeController(bikeController)
+m_bikeController(bikeController),
+m_currentSteeringTilt(0),
+m_currentWheelyTilt(0)
 {
 	resetState();
 
@@ -126,8 +129,30 @@ float BikeModel::updateState(long double time)
 	float timeFactor = m_timeSinceLastUpdate / 16.6f;
 
 	m_lastUpdateTime = time;
+	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
 
 	const btVector3 front = btVector3(0, -1, 0);
+	
+	if (m_bikeInputState->isRemote())
+	{
+		btTransform trans;
+		if (m_bikeInputState->isNewPosition())
+		{
+			float timeDifference = static_cast<float>(RakNet::GetTime() - m_bikeInputState->getReceivementTime());
+			//std::cout << timeDifference << "linVel x" << m_bikeInputState->getLinearVelocity().x() << " linVel y"<< m_bikeInputState->getLinearVelocity().y() <<std::endl;
+			trans.setRotation(m_bikeInputState->getRotation());
+			trans.setOrigin(m_bikeInputState->getPosition() ); //+ m_bikeInputState->getLinearVelocity()*timeDifference/(1000.0)
+			//std::cout << "x: " << m_bikeInputState->getPosition().x() << " y: " << m_bikeInputState->getPosition().y()
+			//	<< " x estim: " << trans.getOrigin().x() << " y estim: " << trans.getOrigin().y()
+			//	<< " x real: " << getPositionBt().x() << " y real: " << getPositionBt().y() << std::endl;
+			m_rigidBodies[0]->setWorldTransform(trans);
+			m_bikeInputState->setIsNewPosition(false);
+		}
+		bikeRigidBody->setLinearVelocity(m_bikeInputState->getLinearVelocity());
+		//bikeRigidBody->setAngularVelocity(btVector3(0, 0, m_bikeInputState->getAngularVelocity()));
+		//m_rigidBodies[0]->set
+		return m_bikeInputState->getLinearVelocity().length();
+	}
 
 	// call this exactly once per frame
 	m_steering = m_bikeInputState->getAngle();
@@ -136,7 +161,6 @@ float BikeModel::updateState(long double time)
 	// if the handbrake is pulled, reduce friction to allow drifting
 	m_bikeFriction = (abs(m_steering) > BIKE_ROTATION_VALUE) ? 0.03 * timeFactor : fmin((1.f + timeFactor * 0.13f) * m_bikeFriction, 1.0);
 
-	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
 
 	btVector3 currentVelocityVectorXY = bikeRigidBody->getLinearVelocity();
 	btScalar zComponent = currentVelocityVectorXY.getZ();
@@ -204,6 +228,41 @@ float BikeModel::updateState(long double time)
 	return speed;
 }
 
+
+
+osg::Quat BikeModel::getTilt()
+{
+
+	float desiredSteeringTilt = getSteering() / BIKE_TILT_MAX;
+
+	// timeFactor is 1 for 60 frames, 0.5 for 30 frames etc..
+	long double timeFactor = 16.7f / getTimeSinceLastUpdate();
+	// sanity check for very large delays
+	if (timeFactor < 1 / BIKE_TILT_DAMPENING)
+		timeFactor = 1 / BIKE_TILT_DAMPENING;
+
+	m_currentSteeringTilt = m_currentSteeringTilt + (desiredSteeringTilt - m_currentSteeringTilt) / (BIKE_TILT_DAMPENING * timeFactor);
+
+	float turboFactor = getTurboFactor();
+
+	if (turboFactor < 0) {
+		// no interpolation on abrupt speed change
+		m_currentWheelyTilt = 0;
+	}
+	else{
+		const float desiredWheelyTilt = getTurboFactor() / BIKE_WHEELY_TILT_MAX;
+		const float tiltDifference = desiredWheelyTilt - m_currentWheelyTilt;
+		m_currentWheelyTilt = m_currentWheelyTilt + tiltDifference / (BIKE_TILT_DAMPENING * timeFactor);
+	}
+
+
+	osg::Quat tiltSteeringQuat, tiltWheelyQuat;
+	tiltSteeringQuat.makeRotate(m_currentSteeringTilt, osg::Vec3(0, 1, 0));
+	tiltWheelyQuat.makeRotate(m_currentWheelyTilt, osg::Vec3(-1, 0, 0));
+
+	return tiltSteeringQuat * tiltWheelyQuat;
+}
+
 float BikeModel::getRotation()
 {
 	return m_rotation;
@@ -212,6 +271,16 @@ float BikeModel::getRotation()
 float BikeModel::getVelocity()
 {
 	return m_oldVelocity;
+}
+
+float BikeModel::getInputAcceleration()
+{
+	return m_bikeInputState->getAcceleration();
+}
+
+float BikeModel::getInputAngle()
+{
+	return m_bikeInputState->getAngle();
 }
 
 osg::Vec3d BikeModel::getPositionOSG()
@@ -225,7 +294,32 @@ btVector3 BikeModel::getPositionBt()
  {
 	btTransform trans;
 	trans = m_rigidBodies[0]->getWorldTransform();
+
 	return trans.getOrigin();
+}
+
+
+btQuaternion BikeModel::getRotationQuat()
+{
+	btTransform trans;
+	trans = m_rigidBodies[0]->getWorldTransform();
+
+	return trans.getRotation();
+}
+
+btTransform BikeModel::getTransform()
+{
+	return  m_rigidBodies[0]->getWorldTransform();
+}
+
+btVector3 BikeModel::getLinearVelocity()
+{
+	return m_rigidBodies[0]->getLinearVelocity();
+}
+
+btVector3 BikeModel::getAngularVelocity()
+{
+	return m_rigidBodies[0]->getAngularVelocity();
 }
 
 btVector3 BikeModel::getDirection()

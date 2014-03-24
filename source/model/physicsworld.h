@@ -16,6 +16,9 @@ typedef std::set<CollisionPair> CollisionPairSet;
 
 namespace troen
 {
+
+
+
 	class PhysicsWorld
 	{
 	public:
@@ -35,6 +38,7 @@ namespace troen
 		void addCollisionObject(btCollisionObject* obj);
 		void removeCollisionObject(btCollisionObject* obj);
 
+		void checkForCollisionEvents();
 		std::array<std::array<int, 100>, 100>* discretizeWorld();
 
 		// debugview
@@ -56,7 +60,6 @@ namespace troen
 		btBroadphaseInterface*				m_broadphase;
 
 		// collision events
-		void checkForCollisionEvents();
 		CollisionPairSet m_pairsLastUpdate;
 		std::vector<btRigidBody*> m_removedRigidBodies;
 

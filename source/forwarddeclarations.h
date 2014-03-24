@@ -71,6 +71,7 @@ namespace troen
 	class SampleOSGViewer;
 	class GameEventHandler;
 	class GameLogic;
+	class GameConfig;
 	class Player;
 
 	class BikeModel;
@@ -91,7 +92,7 @@ namespace troen
 	class BikeView;
 	class LevelView;
 	class FenceView;
-	class AbstractView;	
+	class AbstractView;
 	class HUDView;
 	class ItemView;
 	class SkyDome;
@@ -99,6 +100,8 @@ namespace troen
 	class NodeFollowCameraManipulator;
 	class Reflection;
 	class ResourcePool;
+	class SplineDeformationRendering;
+
 
 	namespace util
 	{
@@ -112,10 +115,20 @@ namespace troen
 		class BikeInputState;
 		class PollingDevice;
 		class AI;
+		class RemotePlayer;
 	}
 
 	namespace sound
 	{
 		class AudioManager;
+	}
+	
+	namespace networking
+	{
+		struct bikeUpdateMessage;
+		class NetworkPlayerInfo;
+		class NetworkManager;
+		class ClientManager;
+		class ServerManager;
 	}
 }

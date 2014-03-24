@@ -18,24 +18,27 @@ namespace troen
 		osg::ref_ptr<osg::Group> getNode();
 
 	private:
+		osg::ref_ptr<osg::MatrixTransform> m_matrixTransform;
 		osg::Vec3 m_playerColor;
 		osg::ref_ptr<osg::Group> m_node;
+		osg::ref_ptr<osg::Uniform> m_markerColorUniform;
 	};
 
 
 	class FadeInOutCallback : public osg::NodeCallback
 	{
 		public:
-			FadeInOutCallback(osg::Material* mat, osg::MatrixTransform *markerTransform);
+			FadeInOutCallback(osg::ref_ptr<osg::Uniform> colorU, osg::Vec3 color, osg::MatrixTransform *markerTransform);
 			
 			virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
 		
 		protected:
 			osg::ref_ptr<osgAnimation::InOutCubicMotion> _motion;
 			osg::ref_ptr<osg::MatrixTransform> _markerTransform;
-			osg::observer_ptr<osg::Material> _material;
+			osg::ref_ptr<osg::Uniform> m_colorUniform;
 			float _lastDistance;
 			int _fadingState;
+			osg::Vec3 m_color;
 	};
 
 }

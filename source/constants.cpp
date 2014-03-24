@@ -3,6 +3,8 @@
 #include "btBulletDynamicsCommon.h"
 #include <osg/Array>
 
+#include "RakNetTypes.h"  // MessageID
+
 // http://stackoverflow.com/questions/3681140/how-do-i-avoid-both-global-variables-and-magic-numbers
 
 namespace troen
@@ -92,11 +94,15 @@ namespace troen
 	const float BIKE_FENCE_IMPACT_THRESHOLD_LOW(BIKE_MASS*BIKE_VELOCITY_MIN);
 	const float BIKE_FENCE_IMPACT_THRESHOLD_HIGH(BIKE_MASS*BIKE_VELOCITY_MAX / 3);
 
-
 	const float BIKE_DEFAULT_HEALTH(3 * BIKE_FENCE_IMPACT_THRESHOLD_HIGH);
 
 	// AUDIO
 	const int ENGINE_FREQUENCY_LOW(50000);
 	const int ENGINE_FREQUENCY_HIGH(120000);
 
+
+	// BENDED VIEWS
+	const int BENDED_VIEWS_ACTIVATED(3000);
+	const int BENDED_VIEWS_DEACTIVATED(12000);
+	const int TIME_TO_ACTIVATE_BENDED_VIEWS(10000);
 }

@@ -154,7 +154,7 @@ void AudioManager::setMotorSpeed(float speed) {
 
 float AudioManager::getTimeSinceLastBeat()
 {
-	return m_timeSinceLastBeat;
+	return 1.0;
 }
 
 void AudioManager::detectBeat(float tickCount)
@@ -224,6 +224,9 @@ void AudioManager::detectBeat(float tickCount)
 
 void AudioManager::Update(float elapsed)
 {
+
+
+
 	detectBeat(elapsed);
 
 	const float fadeTime = 1.0f; // in seconds
@@ -263,7 +266,7 @@ void AudioManager::SetMasterVolume(float volume) {
 float AudioManager::GetMasterVolume(){
 	float volume;
 	master->getVolume(&volume);
-	return volume;
+	return 0.0;
 }
 void AudioManager::SetSFXsVolume(float volume) {
 	groups[CATEGORY_SFX]->setVolume(volume);

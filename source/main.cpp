@@ -9,8 +9,29 @@
 #define EXTERN
 #include "globals.h"
 
+
+#include <stdio.h>
+#include <string.h>
+#include "RakPeerInterface.h"
+#include "MessageIdentifiers.h"
+#include "BitStream.h"
+#include "RakNetTypes.h"  // MessageID
+
+//#include "network\networkmanager.h"
+
+
+
+using namespace troen;
+
+
+
+
+
+
 int main(int argc, char* argv[])
 {
+
+
 	int result = -1;
 
 	// register meta types
@@ -30,4 +51,7 @@ int main(int argc, char* argv[])
 	delete application;
 
 	return result;
+
+
+
 }

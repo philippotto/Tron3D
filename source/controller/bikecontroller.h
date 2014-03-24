@@ -49,6 +49,7 @@ namespace troen
 		// logic events
 		//
 		void updateModel(const long double gameTime);
+		void updateView(const btTransform &worldTrans);
 		void setState(const BIKESTATE newState, const double respawnTime = -1);
 		void moveBikeToPosition(btTransform position);
 		void registerCollision(const btScalar impulse);
@@ -63,15 +64,20 @@ namespace troen
 		virtual osg::ref_ptr<osg::Group> getViewNode() override;
 		Player * player()		{ return m_player; };
 		osg::ref_ptr<input::Keyboard> keyboardHandler()
-								{ return m_keyboardHandler; };
+		{
+			return m_keyboardHandler;
+		};
 		float speed()			{ return m_speed; };
 		BIKESTATE state()		{ return m_state; };
 		double respawnTime()	{ return m_respawnTime; };
 		std::pair<float, FenceController*> lastFenceCollision() { return m_lastFenceCollision; };
 
 		bool turboInitiated()	{ return m_turboInitiated; };
-		bool hasKeyboardHandler() {	return m_keyboardHandler != nullptr; };
+		bool hasKeyboardHandler() { return m_keyboardHandler != nullptr; };
+		
 
+		std::shared_ptr<BikeModel> getModel();
+		std::shared_ptr<input::RemotePlayer> getRemote() const { return m_remote; }
 		float getDistanceToObstacle(double angle);
 		bool isFalling();
 
@@ -98,8 +104,11 @@ namespace troen
 		void initializeAI(osg::ref_ptr<input::BikeInputState> bikeInputState);
 #ifdef WIN32
 		void initializeGamepad(osg::ref_ptr<input::BikeInputState> bikeInputState);
+		void initializeRemote(osg::ref_ptr<input::BikeInputState> bikeInputState);
 #endif
 
+
+		void updateNetworkFence(btTransform transform);
 		long double getTimeFactor();
 
 		//
@@ -109,7 +118,10 @@ namespace troen
 		osg::ref_ptr<osgViewer::View>		m_gameView;
 		osg::ref_ptr<input::Keyboard>		m_keyboardHandler;
 		std::shared_ptr<input::PollingDevice> m_pollingThread;
+
 		osg::ref_ptr<input::BikeInputState> m_bikeInputState;
+		std::shared_ptr<input::RemotePlayer> m_remote;
+		
 
 
 		// the following attributes only exist if the player

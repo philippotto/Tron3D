@@ -33,10 +33,17 @@ namespace troen
 		float getSteering();
 		osg::Vec3d getPositionOSG();
 		btVector3 getPositionBt();
+		btQuaternion getRotationQuat();
 
 		void moveBikeToPosition(const btTransform position);
 		float getTurboFactor();
 		void updateTurboFactor(const float newVelocity, const float time);
+		float getInputAcceleration();
+		float getInputAngle();
+		btVector3 getLinearVelocity();
+		btVector3 getAngularVelocity();
+		osg::Quat getTilt();
+		btTransform getTransform();
 		btVector3 BikeModel::getDirection();
 		std::shared_ptr<btRigidBody> getRigidBody();
 	private:
@@ -50,6 +57,9 @@ namespace troen
 		long double m_lastUpdateTime;
 		BikeController* m_bikeController;
 		long double m_timeSinceLastUpdate;
+		float m_currentSteeringTilt;
+		float m_currentWheelyTilt;
 		std::shared_ptr<btRigidBody> m_bikeRigidBody;
+
 	};
 }

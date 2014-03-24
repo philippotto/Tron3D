@@ -118,6 +118,8 @@ foreach(package ${QT_PACKAGES})
 	find_package(${package} 5.1 REQUIRED)
 endforeach(package)
 
+
+
 # OpenGL
 find_package(OpenGL REQUIRED)
 
@@ -133,6 +135,9 @@ find_package(FMOD REQUIRED)
 
 # HIDAPI
 find_package(HIDAPI REQUIRED)
+
+#RakNet
+find_package(RakNet REQUIRED)
 
 # V8
 find_package(V8 REQUIRED)
@@ -244,12 +249,54 @@ set(sources
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp
-
 	source/util/gldebugdrawer.h
 	source/util/gldebugdrawer.cpp
-
 	source/util/scriptwatcher.h
 	source/util/filteredrayresultcallback.h
+
+
+	source/network/networkmanager.h
+	source/network/networkmanager.cpp
+	source/network/clientmanager.cpp
+	source/network/clientmanager.h
+	source/network/servermanager.cpp
+	source/network/servermanager.h
+	source/input/remoteplayer.cpp
+	source/input/remoteplayer.h
+
+
+	BendedViews/src/DeformationRendering.cpp
+	BendedViews/src/DeformationRendering.h
+	BendedViews/src/GlobalDeformationsExample.cpp
+	BendedViews/src/GlobalDeformationsExample.h
+	BendedViews/src/PreRenderCallback.cpp
+	BendedViews/src/PreRenderCallback.h
+	BendedViews/src/SplineDeformationRendering.cpp
+	BendedViews/src/SplineDeformationRendering.h
+
+	BendedViews/src/deformentities/bsplinedeformationfunction.cpp
+	BendedViews/src/deformentities/bsplinedeformationfunction.h
+	BendedViews/src/deformentities/curve.cpp
+	BendedViews/src/deformentities/curve.h
+	BendedViews/src/deformentities/curvestylingpreset.cpp
+	BendedViews/src/deformentities/curvestylingpreset.h
+	BendedViews/src/deformentities/preset.cpp
+	BendedViews/src/deformentities/preset.h
+	BendedViews/src/deformentities/tagpoint.cpp
+	BendedViews/src/deformentities/tagpoint.h
+
+	##################################################
+	# Bended Views GUI
+	##################################################
+	BendedViews/src/ui/DeformationConfigWidget.ui
+	BendedViews/src/ui/DeformationConfigWidget.h
+	BendedViews/src/ui/DeformationConfigWidget.cpp
+	BendedViews/src/ui/ControlPointItem.h
+	BendedViews/src/ui/ControlPointItem.cpp
+	BendedViews/src/ui/SplineItem.h
+	BendedViews/src/ui/SplineItem.cpp
+	BendedViews/src/ui/SplineSceneItem.h
+	BendedViews/src/ui/SplineSceneItem.cpp
 
 )
 
@@ -266,6 +313,8 @@ set(target ${META_PROJECT_NAME})
 add_executable(${target} ${sources})
 
 qt5_use_modules(${target} Core Gui Widgets)
+qt5_use_modules(${target} Core OpenGL Gui Widgets)
+qt5_wrap_ui(${target} BendedViews/src/ui/DeformationConfigWidget.ui)
 
 include_directories(
 	${CMAKE_SOURCE_DIR}
@@ -273,8 +322,10 @@ include_directories(
 	${BULLET_INCLUDE_DIRS}
 	${FMOD_INCLUDE_DIRS}
 	${HIDAPI_INCLUDE_DIRS}
+	${RakNet_INCLUDES}
 	${V8_INCLUDE}
 	${SCRIPTZEUG_INCLUDE_DIRS}
+	${PROJECT_BINARY_DIR} #for the generated files
 )
 
 
@@ -284,7 +335,8 @@ target_link_libraries( ${target}
     ${OPENSCENEGRAPH_LIBRARIES}
     ${BULLET_LIBRARIES}
     ${FMOD_LIBRARIES}
-		${HIDAPI_LIBRARIES}
+	${HIDAPI_LIBRARIES}
+	${RakNet_LIBRARY}
 		${V8_LIBS}
 		${SCRIPTZEUG_LIBRARIES}
 )
@@ -377,7 +429,7 @@ install(
 
 # hidapi, fmod, raknet
 install(
-	FILES 
+	FILES
 		${CMAKE_SOURCE_DIR}/3rdParty/hidapi/hidapi.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/fmod/api/fmodex64.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/RakNet/Lib/RakNet_VS2008_DLL_Release_x64.dll
@@ -386,7 +438,7 @@ install(
 
 # scriptzeug & v8
 install(
-	FILES 
+	FILES
 		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/propertyzeug.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/signalzeug.dll
 		${CMAKE_SOURCE_DIR}/3rdParty/scriptzeug/lib/scriptzeug.dll
@@ -404,10 +456,10 @@ get_target_property(QtGui_location Qt5::Gui LOCATION)
 get_target_property(QtWidgets_location Qt5::Widgets LOCATION)
 
 install(
-	FILES 
+	FILES
 		${QtCore_location}
 		${QtGui_location}
-		${QtWidgets_location}		
+		${QtWidgets_location}
 	DESTINATION ${INSTALL_ROOT}
 	COMPONENT ${META_PROJECT_NAME})
 
