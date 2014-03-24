@@ -266,7 +266,7 @@ void AudioManager::SetMasterVolume(float volume) {
 float AudioManager::GetMasterVolume(){
 	float volume;
 	master->getVolume(&volume);
-	return 0.0;
+	return volume;
 }
 void AudioManager::SetSFXsVolume(float volume) {
 	groups[CATEGORY_SFX]->setVolume(volume);
