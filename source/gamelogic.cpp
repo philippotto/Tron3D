@@ -275,7 +275,8 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	btPersistentManifold* contactManifold)
 {
 	btScalar impulse = impulseFromContactManifold(contactManifold, bike);
-	playCollisionSound(impulse);
+	if (bike->player()->hasGameView())
+		playCollisionSound(impulse);
 
 
 	if (bike->player()->isRemote())
@@ -568,6 +569,9 @@ void GameLogic::handleNetworkMessage(troen::networking::gameStatus status, Playe
 		handlePlayerDeath(deadPlayer->bikeController().get());
 		handlePlayerDeathOnFence(fencePlayer->bikeController().get(), deadPlayer->bikeController().get());
 		break;
+	case troen::networking::PLAYER_DEATH_FALLEN:
+		handlePlayerFall(deadPlayer->bikeController().get());
+		break;
 	case troen::networking::RESET_SCORE:
 		deadPlayer->setKillCount(0);
 		break;
@@ -597,9 +601,10 @@ void GameLogic::checkForFallenPlayers()
 	for (auto player : m_troenGame->m_players)
 	{
 		BikeController* bike = player->bikeController().get();
-		if (bike->isFalling())
+		if (bike->isFalling() && !bike->player()->isRemote())
 		{
-			//handlePlayerFall(bike);
+			sendStatusMessage(networking::PLAYER_DEATH_FALLEN, bike->player(), NULL);
+			handlePlayerFall(bike);
 		}
 	}
 }
