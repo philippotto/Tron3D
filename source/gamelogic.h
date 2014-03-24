@@ -84,7 +84,7 @@ namespace troen
 
 		private:
 		// helper
-		float impulseFromContactManifold(btPersistentManifold* contactManifold);
+		float impulseFromContactManifold(btPersistentManifold* contactManifold, BikeController* bike);
 		void playCollisionSound(float impulse);
 		Player* getPlayerWithID(int bikeID);
 

@@ -265,7 +265,7 @@ void GameLogic::handleCollisionOfBikeAndNonmovingObject(
 	const int objectType,
 	btPersistentManifold* contactManifold)
 {
-	btScalar impulse = impulseFromContactManifold(contactManifold);
+	btScalar impulse = impulseFromContactManifold(contactManifold, bike);
 	if (bike->player()->hasGameView())
 		playCollisionSound(impulse);
 
@@ -296,7 +296,7 @@ void GameLogic::handleCollisionOfBikeAndFence(
 {
 
 
-	btScalar impulse = impulseFromContactManifold(contactManifold);
+	btScalar impulse = impulseFromContactManifold(contactManifold, bike);
 	if (bike->player()->hasGameView())
 		playCollisionSound(impulse);
 	//else
@@ -417,17 +417,26 @@ void GameLogic::handlePlayerFall(BikeController* deadBike)
 	}
 }
 
-btScalar GameLogic::impulseFromContactManifold(btPersistentManifold* contactManifold)
+btScalar GameLogic::impulseFromContactManifold(btPersistentManifold* contactManifold, BikeController* bike)
 {
 	btScalar impulse = 0;
 	int numContacts = contactManifold->getNumContacts();
+
 	for (int i = 0; i < numContacts; i++)
 	{
 		btManifoldPoint& pt = contactManifold->getContactPoint(i);
+
+		// ignore collisions with xy-plane (so the player doesn't lose health if he drives on a surface)
 		if (abs(pt.m_normalWorldOnB.z()) < 0.5)
 		{
-			// ignore collisions with xy-plane (so the player doesn't lose health if he drives on a surface)
 			impulse = impulse + pt.getAppliedImpulse();
+		}
+		// let the player die instantly if he hits a wall head-on frontal
+		btVector3 bikeDirection = bike->getModel()->getDirection();
+		btVector3 crossProduct = bikeDirection.normalized().cross(pt.m_normalWorldOnB);
+		if (crossProduct.length() < 0.2 && impulse > 5)
+		{
+			impulse = BIKE_FENCE_IMPACT_THRESHOLD_HIGH * 5;
 		}
 	}
 	
@@ -584,7 +593,6 @@ void GameLogic::checkForFallenPlayers()
 		BikeController* bike = player->bikeController().get();
 		if (bike->isFalling() && !bike->player()->isRemote())
 		{
-			//network stuff..
 			sendStatusMessage(networking::PLAYER_DEATH_FALLEN, bike->player(), NULL);
 			handlePlayerFall(bike);
 		}
