@@ -146,7 +146,7 @@ void main(void)
 	vec4 oldColor = texture2D(oldLayer, st);
 
 	// motion blur is framerate independent
-	float motionBlurFactor = smoothstep(300.0, 450.0, velocity);
+	float motionBlurFactor = smoothstep(300.0, 550.0, velocity);
 	float oldFrameWeight = max(0.1, pow(motionBlurFactor * 0.8, timeFactor));
 	float newFrameWeight = 1 - oldFrameWeight;
 
