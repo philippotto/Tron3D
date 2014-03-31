@@ -25,6 +25,8 @@
 
 #include "../constants.h"
 
+/*! \file This class provides several utilities for easing of animations. */
+
 namespace osgAnimation
 {
     struct OutBounceFunction

@@ -16,6 +16,7 @@ class ScriptWatcher : public QObject
 	Q_OBJECT
 
 public:
+	/*! The ScriptWatcher is used to watch JavaScript-files which get automatically reloaded within their Scriptzeug-Context if they get updated.*/
 	ScriptWatcher() : QObject(){
 
 			QFileSystemWatcher *watcher = new QFileSystemWatcher();

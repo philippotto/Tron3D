@@ -1,5 +1,6 @@
 #pragma once
 
+/*! This class is a Uniform::Callback which is used to provide a time variable to the shaders.*/
 class TimeUpdate : public osg::Uniform::Callback
 {
 public:

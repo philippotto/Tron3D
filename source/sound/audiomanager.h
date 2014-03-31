@@ -8,7 +8,7 @@ namespace troen
 {
 namespace sound
 {
-
+	/*! The AudioManager can load/play background songs and sounds for special effects (like collisions or the engine sound).*/
 	class AudioManager {
 	public:
 		AudioManager();

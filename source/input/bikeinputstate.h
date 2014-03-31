@@ -11,6 +11,7 @@ namespace troen
 {
 namespace input
 {
+/*! The BikeInputState holds the information about which input the player has made. It provides a layer of abstraction for the different input methods (like keyboard, controller etc.). Instead of saving which buttons got pressed, it saves values for acceleration/braking, steering etc.*/
 	class BikeInputState : public osg::Referenced
 	{
 	public:

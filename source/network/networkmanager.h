@@ -28,7 +28,8 @@ namespace troen
 {
 
 	namespace networking{
-
+		
+		/*! The NetworkManager is responsible for setting up network connections, queuing and dispatching network packets.*/
 		class NetworkPlayerInfo;
 
 		enum GameMessages

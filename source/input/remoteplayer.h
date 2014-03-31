@@ -12,6 +12,7 @@ namespace troen
 {
 	namespace input
 	{
+	/*! The RemotePlayer class is a representation of an enemy which plays via network.*/
 		class RemotePlayer
 		{
 		public:

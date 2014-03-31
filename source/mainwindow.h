@@ -16,6 +16,9 @@
 
 namespace troen
 {
+	
+	/*! The MainWindow class is responsible for showing a basic game window. It includes GUI elements for settings like the names of players, whether effects like postprocessing or reflections are enabled and if the game should be played via network.*/
+
 	class MainWindow : public QMainWindow
 	{
 		Q_OBJECT

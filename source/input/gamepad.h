@@ -16,6 +16,7 @@ namespace troen
 {
 namespace input
 {
+	/*! The Gamepad class is responsible for receiving input from a X-Box 360 controller. Additionally, it can control the vibration of the controller.*/
 	class Gamepad : public PollingDevice
 	{
 	public:

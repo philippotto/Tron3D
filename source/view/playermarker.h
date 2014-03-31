@@ -11,6 +11,8 @@
 
 namespace troen
 {
+
+	/*! PlayerMarkers are displayed above the players to make it easier to spot enemies which are far away. The screen size of the PlayerMarkers is always constant (no matter how far away they are).*/
 	class PlayerMarker : public AbstractView
 	{
 	public:

@@ -5,6 +5,7 @@
 // troen
 #include "../forwarddeclarations.h"
 
+/* \file This file is responsible for (re)loading the shader files into osg::Programs.*/
 
 namespace troen
 {

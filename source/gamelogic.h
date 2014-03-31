@@ -13,6 +13,8 @@
 
 namespace troen
 {
+
+	/*! The GameLogic class manages the events within the game such as collision/separation events, deaths of players etc.*/
 	class GameLogic
 	{
 

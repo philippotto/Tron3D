@@ -22,6 +22,8 @@
 #define MAX_BIKES 6
 namespace troen
 {
+
+	/*! The TroenGame class contains the logic for the game loop and basic functionality such as pausing the game, resizing the game window or switching to fullscreen.*/
 	class GameConfig
 	{
 	public:
