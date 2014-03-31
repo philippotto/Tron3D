@@ -7,6 +7,8 @@
 
 namespace troen
 {
+
+	/*! The NodeFollowCameraManipulator is a osg::NodeTrackerManipulator and is used to point the camera always to the bike of the current player.*/
 	class NodeFollowCameraManipulator : public osgGA::NodeTrackerManipulator
 	{
 	public:

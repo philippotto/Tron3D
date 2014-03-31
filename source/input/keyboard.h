@@ -8,6 +8,7 @@ namespace troen
 {
 namespace input
 {
+/*! The keyboard class handles user input which is received via keyboard and is intended to navigate the player.*/
 	class Keyboard : public osgGA::GUIEventHandler
 	{
 

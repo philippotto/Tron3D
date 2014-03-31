@@ -6,6 +6,8 @@
 
 namespace troen
 {
+
+	/*! The GameEventHandler handles keypresses which are independent of the current player. This includes toggling music, pausing/reloading, clearing the fences etc. The necessary actions get delegated to the responsible classes. */
 	class GameEventHandler : public osgGA::GUIEventHandler
 	{
 	public:

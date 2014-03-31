@@ -15,6 +15,8 @@
 
 namespace troen
 {
+
+	/*! Each player (no matter if human player, AI or network enemy) is represented by a player instance. This class holds player specific information like an ID, name, points, health, color.*/
 	class Player
 	{
 	public:

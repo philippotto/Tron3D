@@ -12,6 +12,8 @@
 
 namespace troen
 {
+	
+	/*! The reflection class is responsible for rendering the scene into a texture and mapping this texture to the level floor.*/
 	class Reflection
 	{
 	public:

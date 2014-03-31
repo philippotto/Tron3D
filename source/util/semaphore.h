@@ -4,6 +4,8 @@
 #include <condition_variable>
 using namespace std;
 
+
+/*! This is a helper class which provides a semaphore. This can be used for synchronizing multiple threads.*/
 class Semaphore{
 private:
     mutex mtx;

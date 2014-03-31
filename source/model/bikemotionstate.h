@@ -11,6 +11,7 @@
 
 namespace troen
 {
+	/*! The BikeMotionState inherits from Bullet’s btMotionState and updates the physical representation of the bike by getting the necessary values from the BikeController.*/
 	class BikeMotionState : public btMotionState
 	{
 	public:

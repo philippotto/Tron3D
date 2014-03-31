@@ -11,6 +11,7 @@ namespace troen
 {
 namespace input
 {
+/*! The GamepadPS4 class is responsible for receiving input from a Playstation 4 controller. Additionally, it can control the vibration and LED of the controller.*/
 	class GamepadPS4 : public PollingDevice
 	{
 	public:

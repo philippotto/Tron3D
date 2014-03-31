@@ -10,6 +10,7 @@ namespace troen
 {
 	namespace input
 	{
+		/*! The PollingDevice is an abstract class which inherits from QThread. It is used as the base class for controller input and AI.*/
 		class PollingDevice : public QThread
 		{
 		public:

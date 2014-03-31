@@ -23,10 +23,7 @@
 
 using namespace troen;
 
-
-
-
-
+/*! \file The main file is the entry point of the c++ application and sets up the Qt app (see mainwindow.cpp).*/
 
 int main(int argc, char* argv[])
 {
@@ -51,7 +48,4 @@ int main(int argc, char* argv[])
 	delete application;
 
 	return result;
-
-
-
 }

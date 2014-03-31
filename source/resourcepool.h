@@ -4,6 +4,7 @@
 
 namespace troen
 {
+	/*! The ResourcePool is used to manage the acquisition of resources (such as textures or models).*/
 	class ResourcePool
 	{
 	public:

@@ -20,6 +20,7 @@ namespace troen
 {
 	namespace input
 	{
+		/*! The AI class writes the calculated values from the artificial intelligence into the BikeInputState.*/
 		class AI : public reflectionzeug::Object, public PollingDevice
 		{
 		public:

@@ -3,6 +3,8 @@
 #include "../controller/abstractcontroller.h"
 
 namespace troen {
+	/*! The ObjectInfo class is a helper class whose instances get referred from the userPointer-attribute of Bullet’s CollisionBodies. The class can hold a pointer and an integer which are used for classifying collisions. The pointer is used for getting a Troen-Controller and the integer is used for getting the type of the collision (e.g. wall-collision).
+*/
 	class ObjectInfo
 	{
 	public:

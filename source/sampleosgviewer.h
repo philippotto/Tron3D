@@ -16,6 +16,7 @@ namespace troen
 #include <osg/GL>
 #include <windows.h>
 
+/*! This file offers a customized osg::Viewer which can display a game view. V-Sync is turned off due to the adaptive game loop in TroenGame.cpp.*/
 class RealizeOperation : public osg::GraphicsOperation
 {
 public:

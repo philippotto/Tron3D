@@ -6,7 +6,7 @@ namespace troen
 {
 namespace util
 {
-
+	/*! This class provides an abstraction over std::chrono for elapsed time (including start/stop/reset functionality).*/
 	class ChronoTimer
 	{
 	public:

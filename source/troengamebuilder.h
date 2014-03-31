@@ -5,6 +5,8 @@
 
 namespace troen
 {
+
+/*! The TroenGameBuilder is responsible for setting up the entire Troen-Game. This includes acquiring all necessary resources, instantiating the essential classes and wiring everything up.*/
 	class TroenGameBuilder
 	{
 
