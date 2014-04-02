@@ -47,7 +47,7 @@ namespace troen
 		void setCountdownText(const std::string text);
 		void setTimeText(const double gameTime, const int timeLimit);
 		void setKillCountText(const int i, const std::string& playerName, const int killCount);
-
+		void toggleVisibility();
 	private:
 		osg::ref_ptr<osg::Camera> createHUD(const std::vector<std::shared_ptr<Player>>& players);
 		osg::ref_ptr<osg::Camera> createRadar(const int index);

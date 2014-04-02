@@ -100,6 +100,7 @@ namespace troen
 		
 		double m_deformationEnd = BENDED_VIEWS_DEACTIVATED;
 
+		void toggleHUDVisibility();
 
 
 	public slots:
@@ -153,7 +154,6 @@ namespace troen
 		std::shared_ptr<networking::ClientManager>  m_ClientManager;
 
 		ResourcePool m_resourcePool;
-
 
 		// BendedViews
 		SplineDeformationRendering* m_deformationRendering;

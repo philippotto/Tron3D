@@ -195,3 +195,7 @@ void HUDController::addDiedOnFallMessage(Player* deadPlayer)
 	m_ingameMessages.push_back(message);
 }
 
+void HUDController::toggleVisibility()
+{
+	m_HUDView->toggleVisibility();
+}
