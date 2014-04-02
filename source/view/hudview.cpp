@@ -34,6 +34,11 @@ m_playerColor(osg::Vec4(players[i]->color(),1))
 	m_node->addChild(createRadar(i));
 }
 
+void HUDView::toggleVisibility()
+{
+	m_radarCamera->setNodeMask(~m_radarCamera->getNodeMask());
+}
+
 osg::ref_ptr<osg::Camera> HUDView::createHUD(const std::vector<std::shared_ptr<Player>>& players)
 {
 	// create a camera to set up the projection & 
