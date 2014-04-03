@@ -1,8 +1,15 @@
-GP2013 - Awesome Game
+Trön
 ======
 
-Audiovisual sex as a source of inspiration can be found here: http://www.youtube.com/watch?v=3GBLtnxxtzQ
+Trön is an action packed 3D-remake of the classic Armagetron
+featuring polished graphics, customizable maps, powerups, scriptable AI, multiplayer and many more!
 
+
+![Trön](data/screenshots/ramp.png)
+![Bended Views](data/screenshots/bended.png)
+
+
+##Project Setup
 
 Set up OSG:
 - Copy the compiled OpenSceneGraph folder to C:\Program Files\ and create a System Variable "OSG_DIR" with the value: C:\Program Files\OpenSceneGraph
@@ -38,26 +45,24 @@ Set up Oculus Rift
 Set up correct Working Directory:
 - in MSVC goto DEBUG->properties->ConfigurationProperties->Debugging and set WorkingDirectory to ".." (without the quotes)
 
-___________________
 
-STYLE GUIDE
+
+##Styleguide
 
 - use forward declarations & (reference) pointers to reduce compile time
 
 - member variables start with m_
 
-- includes in specifies order:
+- includes in specified order:
 	(classname.h), qt, osg, bullet, fmod, ownHeaders
 - do not "inherit" includes, always include all necessary headers
 
-- use reference counting whereever possible (osg::ref_pr<>)
+- use reference counting whereever possible (osg::ref_pr<>, std::shared_ptr<>)
 
 - use "#pragma once" include guard
 
 - use namespaces for modules
 
-
-
-Naming
 - file names are all lowercase
+
 - classes start with capital letter
