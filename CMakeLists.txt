@@ -204,6 +204,8 @@ set(sources
 	source/model/physicsworld.cpp
 	source/model/bikemotionstate.h
 	source/model/objectinfo.h
+	source/model/ragdoll.h
+	source/model/ragdoll.cpp
 
 	source/controller/bikecontroller.h
 	source/controller/bikecontroller.cpp
@@ -246,6 +248,8 @@ set(sources
 	source/view/easemotion.h
 	source/view/reflection.h
 	source/view/reflection.cpp
+	source/view/ragdollview.h
+	source/view/ragdollview.cpp
 
 	source/util/chronotimer.h
 	source/util/chronotimer.cpp

@@ -11,6 +11,7 @@
 #include "../model/abstractmodel.h"
 #include "../controller/bikecontroller.h"
 #include "../sound/audiomanager.h"
+#include "ragdoll.h"
 
 #include <ctime>
 
@@ -58,6 +59,9 @@ void PhysicsWorld::initializeWorld()
 	m_world = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 
 	m_world->setGravity(DEFAULT_GRAVITY);
+
+	btVector3 startOffset(1, 0.5, 100);
+	RagDoll* ragDoll = new RagDoll(m_world, startOffset);
 	
 	//using callbacks is the preffered way to handle collision events, 
 	//the bullet wiki promises, that are no invalid pointers when using this callback
