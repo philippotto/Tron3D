@@ -27,7 +27,9 @@ CMakeCache.txt
 
 /bullet
 /3rdParty
-/data
+!/data
+/data/*
+!/data/screenshots
 fmod.log
 
 *.orig
