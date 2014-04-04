@@ -17,11 +17,9 @@
 
 using namespace troen;
 
-RagDollView::RagDollView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* levelView)
+RagdollView::RagdollView(osg::Vec3 dimensions, osg::Vec3 position)
 {
 	AbstractView();
-
-	m_levelView = levelView;
 
 	osg::ref_ptr<osg::Box> box
 		= new osg::Box(osg::Vec3(0.0, 0.0, 0.0), dimensions.x(), dimensions.y(), dimensions.z());
@@ -35,7 +33,7 @@ RagDollView::RagDollView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* le
 	bodyStateSet->ref();
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
 	bodyStateSet->addUniform(textureMapU);
-	setTexture(bodyStateSet, "data/textures/turbostrip.tga", 0);
+	setTexture(bodyStateSet, "data/textures/white.tga", 0);
 
 	bodyStateSet->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::DEFAULT], osg::StateAttribute::ON);
 	bodyStateSet->addUniform(new osg::Uniform("levelSize", LEVEL_SIZE));
@@ -48,9 +46,11 @@ RagDollView::RagDollView(osg::Vec3 dimensions, osg::Vec3 position, LevelView* le
 	m_matrixTransform = new osg::MatrixTransform(initialTransform);
 	m_matrixTransform->addChild(boxGeode);
 
+	m_node->addChild(m_matrixTransform);
+
 }
 
-void RagDollView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit)
+void RagdollView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit)
 {
 
 	osg::Image* image = osgDB::readImageFile(filePath);

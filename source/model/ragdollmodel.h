@@ -22,13 +22,14 @@ Written by: Marten Svanfeldt
 
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "../controller/ragdollcontroller.h"
 
 namespace troen
 {
 
-	class RagDoll : public AbstractModel
+	class RagdollModel : public AbstractModel
 	{
-		enum
+		enum BODYPART
 		{
 			BODYPART_PELVIS = 0,
 			BODYPART_SPINE,
@@ -71,7 +72,9 @@ namespace troen
 
 
 	public:
-		RagDoll(btDynamicsWorld* ownerWorld, const btVector3& positionOffset);
+		RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *controller, const btVector3& positionOffset);
+
+		btMotionState** getMotionStates() { return m_motionStates; };
 
 
 	protected:
@@ -80,10 +83,13 @@ namespace troen
 		btCollisionShape* m_shapes[BODYPART_COUNT];
 		btRigidBody* m_bodies[BODYPART_COUNT];
 		btTypedConstraint* m_joints[JOINT_COUNT];
+		btMotionState* m_motionStates[BODYPART_COUNT];
+
+		RagdollController *m_ragdollController;
 
 
-		btRigidBody* localCreateRigidBody(btScalar mass, const btTransform& startTransform, btCollisionShape* shape);
-		virtual	~RagDoll();
+		btRigidBody* localCreateRigidBody(btScalar mass, const btTransform& startTransform, BODYPART bodyPart);
+		//virtual	~RagdollModel();
 
 
 	};

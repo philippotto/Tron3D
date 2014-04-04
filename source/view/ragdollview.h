@@ -10,11 +10,12 @@
 
 namespace troen
 {
-	class RagDollView : public AbstractView
+	class RagdollView : public AbstractView
 	{
 	public:
-		RagDollView(osg::Vec3 dimensions, osg::Vec3 position, LevelView*  levelView);
+		RagdollView(osg::Vec3 dimensions, osg::Vec3 position);
 		void remove();
+		void updateBonePositions();
 	private:
 		void setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit);
 		osg::ref_ptr<osg::MatrixTransform> m_matrixTransform;

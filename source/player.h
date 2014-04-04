@@ -12,6 +12,7 @@
 #include "controller/bikecontroller.h"
 #include "controller/fencecontroller.h"
 #include "controller/hudcontroller.h"
+#include "controller/ragdollcontroller.h"
 
 namespace troen
 {
@@ -47,6 +48,9 @@ namespace troen
 			{ return m_fenceController; };
 		std::shared_ptr<HUDController>	hudController()
 			{ return m_HUDController; };
+
+		std::shared_ptr<RagdollController>	ragdollController()
+		   {  return m_ragdollController; };
 		//
 		// osg related
 		//
@@ -55,6 +59,7 @@ namespace troen
 		osg::ref_ptr<osgViewer::View> gameView()	{ return m_gameView; };
 		osg::ref_ptr<osg::Group> playerNode()		{ return m_playerNode; };
 		std::shared_ptr<Reflection> reflection()	{ return m_reflection; };
+
 
 		//
 		// setters
@@ -97,6 +102,7 @@ namespace troen
 		std::shared_ptr<BikeController>	m_bikeController;
 		std::shared_ptr<FenceController> m_fenceController;
 		std::shared_ptr<HUDController>	m_HUDController;
+		std::shared_ptr<RagdollController> m_ragdollController;
 
 		//
 		// osg elements

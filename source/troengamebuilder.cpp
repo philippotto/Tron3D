@@ -175,6 +175,7 @@ bool TroenGameBuilder::composeSceneGraph()
 	{
 		t->m_sceneNode->addChild(player->bikeController()->getViewNode());
 		t->m_sceneNode->addChild(player->fenceController()->getViewNode());
+		t->m_sceneNode->addChild(player->ragdollController()->getViewNode());
 	}
 
 	t->m_sceneNode->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::ON);
@@ -270,6 +271,7 @@ bool TroenGameBuilder::buildPhysicsWorld()
 	{
 		player->bikeController()->attachWorld(t->m_physicsWorld);
 		player->fenceController()->attachWorld(t->m_physicsWorld);
+		player->ragdollController()->attachWorld(t->m_physicsWorld);
 	}
 
 	return true;

@@ -78,6 +78,8 @@ m_hasGameView(config->ownView[id])
 
 	m_fenceController = std::make_shared<FenceController>(this, initialTransform);
 
+	m_ragdollController = std::make_shared<RagdollController>(this, initialTransform);
+
 	// HUDController must be initialized later, because it
 	// can only be created, once all Players are created
 

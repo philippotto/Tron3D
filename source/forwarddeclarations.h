@@ -80,6 +80,7 @@ namespace troen
 	class AbstractModel;
 	class PhysicsWorld;
 	class ItemModel;
+	class RagdollModel;
 
 	class BikeController;
 	class LevelController;
@@ -87,8 +88,9 @@ namespace troen
 	class AbstractController;
 	class HUDController;
 	class ItemController;
+	class RagdollController;
 
-
+	class RagdollView;
 	class BikeView;
 	class LevelView;
 	class FenceView;

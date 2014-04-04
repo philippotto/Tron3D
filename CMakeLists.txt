@@ -204,8 +204,8 @@ set(sources
 	source/model/physicsworld.cpp
 	source/model/bikemotionstate.h
 	source/model/objectinfo.h
-	source/model/ragdoll.h
-	source/model/ragdoll.cpp
+	source/model/ragdollmodel.h
+	source/model/ragdollmodel.cpp
 
 	source/controller/bikecontroller.h
 	source/controller/bikecontroller.cpp
@@ -219,6 +219,8 @@ set(sources
 	source/controller/hudcontroller.cpp
 	source/controller/itemcontroller.h
 	source/controller/itemcontroller.cpp
+	source/controller/ragdollcontroller.h
+	source/controller/ragdollcontroller.cpp
 
 
 	source/view/bikeview.h

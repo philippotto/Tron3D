@@ -16,10 +16,10 @@ subject to the following restrictions:
 Written by: Marten Svanfeldt
 */
 
-#define CONSTRAINT_DEBUG_SIZE 0.2f
+#define CONSTRAINT_DEBUG_SIZE 1.0f
 
 
-#include "ragdoll.h"
+#include "ragdollmodel.h"
 #include "abstractmodel.h"
 
 #include "../util/gldebugdrawer.h"
@@ -43,31 +43,13 @@ using namespace troen;
 #define M_PI_4     0.785398163397448309616
 #endif
 
-btRigidBody* RagDoll::localCreateRigidBody (btScalar mass, const btTransform& startTransform, btCollisionShape* shape)
-{
-	bool isDynamic = (mass != 0.f);
 
-	btVector3 localInertia(0,0,0);
-	if (isDynamic)
-		shape->calculateLocalInertia(mass,localInertia);
-
-	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-		
-	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,localInertia);
-	btRigidBody* body = new btRigidBody(rbInfo);
-
-	ObjectInfo* info = new ObjectInfo(new AbstractController(), ABSTRACTTYPE);
-	body->setUserPointer(info);
-
-	m_ownerWorld->addRigidBody(body, COLGROUP_BIKE, COLMASK_BIKE);
-
-	return body;
-}
-
-RagDoll::RagDoll(btDynamicsWorld* ownerWorld, const btVector3& positionOffset)
+RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *controller, const btVector3& positionOffset)
 		: m_ownerWorld (ownerWorld)
 	{
 		AbstractModel();
+
+		m_ragdollController = controller;
 
 		// Setup the geometry
 		m_shapes[BODYPART_PELVIS] = new btCapsuleShape(btScalar(0.15), btScalar(0.20));
@@ -89,51 +71,51 @@ RagDoll::RagDoll(btDynamicsWorld* ownerWorld, const btVector3& positionOffset)
 		btTransform transform;
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.), btScalar(0.)));
-		m_bodies[BODYPART_PELVIS] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_PELVIS]);
+		m_bodies[BODYPART_PELVIS] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_PELVIS);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.2), btScalar(0.)));
-		m_bodies[BODYPART_SPINE] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_SPINE]);
+		m_bodies[BODYPART_SPINE] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_SPINE);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.6), btScalar(0.)));
-		m_bodies[BODYPART_HEAD] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_HEAD]);
+		m_bodies[BODYPART_HEAD] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_HEAD);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(-0.18), btScalar(0.65), btScalar(0.)));
-		m_bodies[BODYPART_LEFT_UPPER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_UPPER_LEG]);
+		m_bodies[BODYPART_LEFT_UPPER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_LEFT_UPPER_LEG);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(-0.18), btScalar(0.2), btScalar(0.)));
-		m_bodies[BODYPART_LEFT_LOWER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_LOWER_LEG]);
+		m_bodies[BODYPART_LEFT_LOWER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_LEFT_LOWER_LEG);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.18), btScalar(0.65), btScalar(0.)));
-		m_bodies[BODYPART_RIGHT_UPPER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_UPPER_LEG]);
+		m_bodies[BODYPART_RIGHT_UPPER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_RIGHT_UPPER_LEG);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.18), btScalar(0.2), btScalar(0.)));
-		m_bodies[BODYPART_RIGHT_LOWER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_LOWER_LEG]);
+		m_bodies[BODYPART_RIGHT_LOWER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_RIGHT_LOWER_LEG);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(-0.35), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0,0,M_PI_2);
-		m_bodies[BODYPART_LEFT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_UPPER_ARM]);
+		transform.getBasis().setEulerZYX(0, 0, M_PI_2);
+		m_bodies[BODYPART_LEFT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_LEFT_UPPER_ARM);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(-0.7), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0,0,M_PI_2);
-		m_bodies[BODYPART_LEFT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_LOWER_ARM]);
+		transform.getBasis().setEulerZYX(0, 0, M_PI_2);
+		m_bodies[BODYPART_LEFT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_LEFT_LOWER_ARM);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.35), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0,0,-M_PI_2);
-		m_bodies[BODYPART_RIGHT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_UPPER_ARM]);
+		transform.getBasis().setEulerZYX(0, 0, -M_PI_2);
+		m_bodies[BODYPART_RIGHT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_RIGHT_UPPER_ARM);
 
 		transform.setIdentity();
 		transform.setOrigin(btVector3(btScalar(0.7), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0,0,-M_PI_2);
-		m_bodies[BODYPART_RIGHT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_LOWER_ARM]);
+		transform.getBasis().setEulerZYX(0, 0, -M_PI_2);
+		m_bodies[BODYPART_RIGHT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_RIGHT_LOWER_ARM);
 
 		// Setup some damping on the m_bodies
 		for (int i = 0; i < BODYPART_COUNT; ++i)
@@ -258,28 +240,52 @@ RagDoll::RagDoll(btDynamicsWorld* ownerWorld, const btVector3& positionOffset)
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_ELBOW], true);
 	}
 
-RagDoll::~RagDoll()
-{
-	int i;
 
-	// Remove all constraints
-	for ( i = 0; i < JOINT_COUNT; ++i)
+
+	btRigidBody* RagdollModel::localCreateRigidBody(btScalar mass, const btTransform& startTransform, BODYPART bodyPart)
 	{
-		m_ownerWorld->removeConstraint(m_joints[i]);
-		delete m_joints[i]; m_joints[i] = 0;
+		bool isDynamic = (mass != 0.f);
+
+		btVector3 localInertia(0, 0, 0);
+		if (isDynamic)
+			m_shapes[bodyPart]->calculateLocalInertia(mass, localInertia);
+
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+		m_motionStates[bodyPart] = myMotionState;
+
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, m_shapes[bodyPart], localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		ObjectInfo* info = new ObjectInfo(m_ragdollController, ABSTRACTTYPE);
+		body->setUserPointer(info);
+
+		m_ownerWorld->addRigidBody(body, COLGROUP_BIKE, COLMASK_BIKE);
+
+		return body;
 	}
 
-	// Remove all bodies and shapes
-	for ( i = 0; i < BODYPART_COUNT; ++i)
-	{
-		m_ownerWorld->removeRigidBody(m_bodies[i]);
-			
-		delete m_bodies[i]->getMotionState();
-
-		delete m_bodies[i]; m_bodies[i] = 0;
-		delete m_shapes[i]; m_shapes[i] = 0;
-	}
-}
+//RagdollModel::~RagdollModel()
+//{
+//	int i;
+//
+//	// Remove all constraints
+//	for ( i = 0; i < JOINT_COUNT; ++i)
+//	{
+//		m_ownerWorld->removeConstraint(m_joints[i]);
+//		delete m_joints[i]; m_joints[i] = 0;
+//	}
+//
+//	// Remove all bodies and shapes
+//	for ( i = 0; i < BODYPART_COUNT; ++i)
+//	{
+//		m_ownerWorld->removeRigidBody(m_bodies[i]);
+//			
+//		delete m_bodies[i]->getMotionState();
+//
+//		delete m_bodies[i]; m_bodies[i] = 0;
+//		delete m_shapes[i]; m_shapes[i] = 0;
+//	}
+//}
 
 
 
@@ -330,9 +336,9 @@ RagDoll::~RagDoll()
 //
 //	}
 //
-//	// Spawn one ragdoll
+//	// Spawn one RagdollModel
 //	btVector3 startOffset(1,0.5,0);
-//	spawnRagdoll(startOffset);
+//	spawnRagdollModel(startOffset);
 //	startOffset.setValue(-1,0.5,0);
 //	spawnRagdoll(startOffset);
 //
