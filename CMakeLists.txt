@@ -259,6 +259,7 @@ set(sources
 	source/util/gldebugdrawer.cpp
 	source/util/scriptwatcher.h
 	source/util/filteredrayresultcallback.h
+	source/util/conversionutils.h
 
 
 	source/network/networkmanager.h

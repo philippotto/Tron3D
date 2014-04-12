@@ -16,6 +16,7 @@ namespace troen
 		RagdollView(osg::Vec3 dimensions, osg::Vec3 position);
 		void remove();
 		void updateBonePositions();
+		osg::ref_ptr<osg::PositionAttitudeTransform> createBodyPart(btTransform transform, float radius, float height);
 	private:
 		void setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string filePath, int unit);
 		osg::ref_ptr<osg::MatrixTransform> m_matrixTransform;

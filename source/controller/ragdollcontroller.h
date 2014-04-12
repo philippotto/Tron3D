@@ -14,15 +14,21 @@ namespace troen
 	public:
 		RagdollController(Player *player, btTransform startTransform);
 		void attachWorld(std::shared_ptr<PhysicsWorld> &world);
+		void updateView(const btTransform &worldTrans);
+		
+		std::shared_ptr<RagdollView> getView()
+		{
+			return m_ragdollView;
+		}
+
 
 
 	private:
-		std::shared_ptr<RagdollView> m_ragdollView;
-		std::shared_ptr<RagdollModel> m_ragdollModel;
 		btVector3 m_startPosition;
 
 		std::weak_ptr<PhysicsWorld> m_world;
 
 		Player* m_player;
+		std::shared_ptr<RagdollView> m_ragdollView;
 	};
 }

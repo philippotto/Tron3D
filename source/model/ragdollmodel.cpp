@@ -16,7 +16,10 @@ subject to the following restrictions:
 Written by: Marten Svanfeldt
 */
 
-#define CONSTRAINT_DEBUG_SIZE 1.0f
+const float CONSTRAINT_DEBUG_SIZE = 0.2f;
+const float SHAPE_SIZE_MULTIPLIER = 10.0f;
+
+
 
 
 #include "ragdollmodel.h"
@@ -26,6 +29,7 @@ Written by: Marten Svanfeldt
 #include "../constants.h"
 #include "../globals.h"
 #include "objectinfo.h"
+#include "../view/ragdollview.h"
 
 using namespace troen;
 
@@ -50,19 +54,19 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		AbstractModel();
 
 		m_ragdollController = controller;
-
+		float ssm = SHAPE_SIZE_MULTIPLIER;
 		// Setup the geometry
-		m_shapes[BODYPART_PELVIS] = new btCapsuleShape(btScalar(0.15), btScalar(0.20));
-		m_shapes[BODYPART_SPINE] = new btCapsuleShape(btScalar(0.15), btScalar(0.28));
-		m_shapes[BODYPART_HEAD] = new btCapsuleShape(btScalar(0.10), btScalar(0.05));
-		m_shapes[BODYPART_LEFT_UPPER_LEG] = new btCapsuleShape(btScalar(0.07), btScalar(0.45));
-		m_shapes[BODYPART_LEFT_LOWER_LEG] = new btCapsuleShape(btScalar(0.05), btScalar(0.37));
-		m_shapes[BODYPART_RIGHT_UPPER_LEG] = new btCapsuleShape(btScalar(0.07), btScalar(0.45));
-		m_shapes[BODYPART_RIGHT_LOWER_LEG] = new btCapsuleShape(btScalar(0.05), btScalar(0.37));
-		m_shapes[BODYPART_LEFT_UPPER_ARM] = new btCapsuleShape(btScalar(0.05), btScalar(0.33));
-		m_shapes[BODYPART_LEFT_LOWER_ARM] = new btCapsuleShape(btScalar(0.04), btScalar(0.25));
-		m_shapes[BODYPART_RIGHT_UPPER_ARM] = new btCapsuleShape(btScalar(0.05), btScalar(0.33));
-		m_shapes[BODYPART_RIGHT_LOWER_ARM] = new btCapsuleShape(btScalar(0.04), btScalar(0.25));
+		m_shapes[BODYPART_PELVIS] = new btCapsuleShape(btScalar(0.15 * ssm), btScalar(0.20 * ssm));
+		m_shapes[BODYPART_SPINE] = new btCapsuleShape(btScalar(0.15 * ssm), btScalar(0.28 * ssm));
+		m_shapes[BODYPART_HEAD] = new btCapsuleShape(btScalar(0.10 * ssm), btScalar(0.05 * ssm));
+		m_shapes[BODYPART_LEFT_UPPER_LEG] = new btCapsuleShape(btScalar(0.07 * ssm), btScalar(0.45 * ssm));
+		m_shapes[BODYPART_LEFT_LOWER_LEG] = new btCapsuleShape(btScalar(0.05 * ssm), btScalar(0.37 * ssm));
+		m_shapes[BODYPART_RIGHT_UPPER_LEG] = new btCapsuleShape(btScalar(0.07 * ssm), btScalar(0.45 * ssm));
+		m_shapes[BODYPART_RIGHT_LOWER_LEG] = new btCapsuleShape(btScalar(0.05 * ssm), btScalar(0.37 * ssm));
+		m_shapes[BODYPART_LEFT_UPPER_ARM] = new btCapsuleShape(btScalar(0.05 * ssm), btScalar(0.33 * ssm));
+		m_shapes[BODYPART_LEFT_LOWER_ARM] = new btCapsuleShape(btScalar(0.04 * ssm), btScalar(0.25 * ssm));
+		m_shapes[BODYPART_RIGHT_UPPER_ARM] = new btCapsuleShape(btScalar(0.05 * ssm), btScalar(0.33 * ssm));
+		m_shapes[BODYPART_RIGHT_LOWER_ARM] = new btCapsuleShape(btScalar(0.04 * ssm), btScalar(0.25 * ssm));
 
 		// Setup all the rigid bodies
 		btTransform offset; offset.setIdentity();
@@ -70,50 +74,50 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 		btTransform transform;
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.), btScalar(0.)) * ssm);
 		m_bodies[BODYPART_PELVIS] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_PELVIS);
 
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.2), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.2), btScalar(0.)) * ssm);
 		m_bodies[BODYPART_SPINE] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_SPINE);
 
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.6), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(0.), btScalar(1.6), btScalar(0.)) * ssm);
 		m_bodies[BODYPART_HEAD] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_HEAD);
 
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(-0.18), btScalar(0.65), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(-0.18), btScalar(0.65), btScalar(0.)) * ssm);
 		m_bodies[BODYPART_LEFT_UPPER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_LEFT_UPPER_LEG);
 
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(-0.18), btScalar(0.2), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(-0.18), btScalar(0.2), btScalar(0.)) * ssm);
 		m_bodies[BODYPART_LEFT_LOWER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_LEFT_LOWER_LEG);
 
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(0.18), btScalar(0.65), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(0.18), btScalar(0.65), btScalar(0.)) * ssm);
 		m_bodies[BODYPART_RIGHT_UPPER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_RIGHT_UPPER_LEG);
 
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(0.18), btScalar(0.2), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(0.18), btScalar(0.2), btScalar(0.)) * ssm);
 		m_bodies[BODYPART_RIGHT_LOWER_LEG] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_RIGHT_LOWER_LEG);
 
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(-0.35), btScalar(1.45), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(-0.35), btScalar(1.45), btScalar(0.)) * ssm);
 		transform.getBasis().setEulerZYX(0, 0, M_PI_2);
 		m_bodies[BODYPART_LEFT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_LEFT_UPPER_ARM);
 
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(-0.7), btScalar(1.45), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(-0.7), btScalar(1.45), btScalar(0.)) * ssm);
 		transform.getBasis().setEulerZYX(0, 0, M_PI_2);
 		m_bodies[BODYPART_LEFT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_LEFT_LOWER_ARM);
 
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(0.35), btScalar(1.45), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(0.35), btScalar(1.45), btScalar(0.)) * ssm);
 		transform.getBasis().setEulerZYX(0, 0, -M_PI_2);
 		m_bodies[BODYPART_RIGHT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_RIGHT_UPPER_ARM);
 
 		transform.setIdentity();
-		transform.setOrigin(btVector3(btScalar(0.7), btScalar(1.45), btScalar(0.)));
+		transform.setOrigin(btVector3(btScalar(0.7), btScalar(1.45), btScalar(0.)) * ssm);
 		transform.getBasis().setEulerZYX(0, 0, -M_PI_2);
 		m_bodies[BODYPART_RIGHT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, BODYPART_RIGHT_LOWER_ARM);
 
@@ -132,8 +136,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		btTransform localA, localB;
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.15), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0, M_PI_2, 0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.15), btScalar(0.)) * ssm);
+		localB.getBasis().setEulerZYX(0, M_PI_2, 0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.15), btScalar(0.)) * ssm);
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_SPINE], localA, localB);
 		hingeC->setLimit(btScalar(-M_PI_4), btScalar(M_PI_2));
 		m_joints[JOINT_PELVIS_SPINE] = hingeC;
@@ -143,8 +147,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,0,M_PI_2); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.30), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,M_PI_2); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0, 0, M_PI_2); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.30), btScalar(0.)) * ssm);
+		localB.getBasis().setEulerZYX(0, 0, M_PI_2); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)) * ssm);
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_HEAD], localA, localB);
 		coneC->setLimit(M_PI_4, M_PI_4, M_PI_2);
 		m_joints[JOINT_SPINE_HEAD] = coneC;
@@ -164,8 +168,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_HIP], true);
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0, M_PI_2, 0); localA.setOrigin(btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)) * ssm);
+		localB.getBasis().setEulerZYX(0, M_PI_2, 0); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)) * ssm);
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_LEFT_UPPER_LEG], *m_bodies[BODYPART_LEFT_LOWER_LEG], localA, localB);
 		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
 		m_joints[JOINT_LEFT_KNEE] = hingeC;
@@ -175,8 +179,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,0,M_PI_4); localA.setOrigin(btVector3(btScalar(0.18), btScalar(-0.10), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,M_PI_4); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0, 0, M_PI_4); localA.setOrigin(btVector3(btScalar(0.18), btScalar(-0.10), btScalar(0.)) * ssm);
+		localB.getBasis().setEulerZYX(0, 0, M_PI_4); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)) * ssm);
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_RIGHT_UPPER_LEG], localA, localB);
 		coneC->setLimit(M_PI_4, M_PI_4, 0);
 		m_joints[JOINT_RIGHT_HIP] = coneC;
@@ -185,8 +189,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_HIP], true);
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0, M_PI_2, 0); localA.setOrigin(btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)) * ssm);
+		localB.getBasis().setEulerZYX(0, M_PI_2, 0); localB.setOrigin(btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)) * ssm);
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_RIGHT_UPPER_LEG], *m_bodies[BODYPART_RIGHT_LOWER_LEG], localA, localB);
 		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
 		m_joints[JOINT_RIGHT_KNEE] = hingeC;
@@ -196,8 +200,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,0,M_PI); localA.setOrigin(btVector3(btScalar(-0.2), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,M_PI_2); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0, 0, M_PI); localA.setOrigin(btVector3(btScalar(-0.2), btScalar(0.15), btScalar(0.)) * ssm);
+		localB.getBasis().setEulerZYX(0, 0, M_PI_2); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)) * ssm);
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_LEFT_UPPER_ARM], localA, localB);
 		coneC->setLimit(M_PI_2, M_PI_2, 0);
 		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
@@ -206,8 +210,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_SHOULDER], true);
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0, M_PI_2, 0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)) * ssm);
+		localB.getBasis().setEulerZYX(0, M_PI_2, 0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)) * ssm);
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_LEFT_UPPER_ARM], *m_bodies[BODYPART_LEFT_LOWER_ARM], localA, localB);
 //		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
 		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
@@ -219,8 +223,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,0,0); localA.setOrigin(btVector3(btScalar(0.2), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,M_PI_2); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0, 0, 0); localA.setOrigin(btVector3(btScalar(0.2), btScalar(0.15), btScalar(0.)) * ssm);
+		localB.getBasis().setEulerZYX(0, 0, M_PI_2); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)) * ssm);
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_RIGHT_UPPER_ARM], localA, localB);
 		coneC->setLimit(M_PI_2, M_PI_2, 0);
 		m_joints[JOINT_RIGHT_SHOULDER] = coneC;
@@ -229,8 +233,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_SHOULDER], true);
 
 		localA.setIdentity(); localB.setIdentity();
-		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
+		localA.getBasis().setEulerZYX(0, M_PI_2, 0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)) * ssm);
+		localB.getBasis().setEulerZYX(0, M_PI_2, 0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)) * ssm);
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_RIGHT_UPPER_ARM], *m_bodies[BODYPART_RIGHT_LOWER_ARM], localA, localB);
 //		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
 		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
@@ -250,7 +254,11 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		if (isDynamic)
 			m_shapes[bodyPart]->calculateLocalInertia(mass, localInertia);
 
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+		
+		osg::PositionAttitudeTransform *pat = m_ragdollController->getView()->createBodyPart(startTransform, 
+			((btCapsuleShape*)m_shapes[bodyPart])->getRadius(), ((btCapsuleShape*)m_shapes[bodyPart])->getHalfHeight() * 2.0);
+
+		RagdollMotionState* myMotionState = new RagdollMotionState(startTransform, pat, m_ragdollController);
 		m_motionStates[bodyPart] = myMotionState;
 
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, m_shapes[bodyPart], localInertia);
@@ -263,6 +271,9 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 		return body;
 	}
+
+
+
 
 //RagdollModel::~RagdollModel()
 //{
