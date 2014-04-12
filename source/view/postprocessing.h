@@ -19,6 +19,7 @@
 namespace troen
 {
 
+	/*! The PostProcessing class manages the post processing pipeline by adding additional cameras to the scene. Rendering-to-texture and ping pong rendering is used here. */
 	class PostProcessing : public AbstractView //, public osg::Referenced
 	{
 	public:

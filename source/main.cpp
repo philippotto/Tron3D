@@ -19,6 +19,7 @@
 
 using namespace troen;
 
+
 int main(int argc, char* argv[])
 {
 	int result = -1;
@@ -40,7 +41,4 @@ int main(int argc, char* argv[])
 	delete application;
 
 	return result;
-
-
-
 }

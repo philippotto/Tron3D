@@ -4,6 +4,7 @@
 
 using namespace troen;
 
+/*! This class offers a customized RayResultCallback which filters a specific CollisionObject and item objects. This is used for giving the AI enemies the ability to “look around” in the scene.*/
 class FilteredRayResultCallback : public btCollisionWorld::ClosestRayResultCallback
 {
 public:

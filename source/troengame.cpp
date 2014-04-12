@@ -383,3 +383,9 @@ void TroenGame::reloadLevel()
 	m_levelController->reload();
 	m_builder->setupReflections();
 }
+
+
+void TroenGame::toggleHUDVisibility()
+{
+	m_players[0]->hudController()->toggleVisibility();
+}
