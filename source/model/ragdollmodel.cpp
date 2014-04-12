@@ -52,52 +52,62 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		m_bones[BODYPART_SPINE] = new Bone(BODYPART_SPINE,
 			btTransform(btQuaternion(), btVector3(0.0, 1.2, 0.0)),
 			btScalar(0.15), btScalar(0.28), btScalar(1.0),
-			m_ragdollController, m_ownerWorld);
+			m_ragdollController, m_ownerWorld, 
+			m_bones[BODYPART_PELVIS]);
 		
 		m_bones[BODYPART_HEAD] = new Bone(BODYPART_HEAD,
 			btTransform(btQuaternion(), btVector3(0.0, 1.6, 0.0)),
 			btScalar(0.1), btScalar(0.05), btScalar(1.0),
-			m_ragdollController, m_ownerWorld);
+			m_ragdollController, m_ownerWorld,
+			m_bones[BODYPART_SPINE]);
 
 		m_bones[BODYPART_LEFT_UPPER_LEG] = new Bone(BODYPART_LEFT_UPPER_LEG,
 			btTransform(btQuaternion(), btVector3(-0.18, 0.65, 0.0)),
 			btScalar(0.07), btScalar(0.45), btScalar(1.0),
-			m_ragdollController, m_ownerWorld);
+			m_ragdollController, m_ownerWorld,
+			m_bones[BODYPART_PELVIS]);
 		
 		m_bones[BODYPART_LEFT_LOWER_LEG] = new Bone(BODYPART_LEFT_LOWER_LEG,
 			btTransform(btQuaternion(), btVector3(-0.18, 0.2, 0.0)),
 			btScalar(0.05), btScalar(0.37), btScalar(1.0),
-			m_ragdollController, m_ownerWorld);
+			m_ragdollController, m_ownerWorld,
+			m_bones[BODYPART_LEFT_UPPER_LEG]);
 
 		m_bones[BODYPART_RIGHT_UPPER_LEG] = new Bone(BODYPART_RIGHT_UPPER_LEG,
 			btTransform(btQuaternion(), btVector3(0.18, 0.65, 0.0)),
 			btScalar(0.07), btScalar(0.45), btScalar(1.0),
-			m_ragdollController, m_ownerWorld);
+			m_ragdollController, m_ownerWorld,
+			m_bones[BODYPART_PELVIS]);
 		
 		m_bones[BODYPART_RIGHT_LOWER_LEG] = new Bone(BODYPART_RIGHT_LOWER_LEG,
 			btTransform(btQuaternion(), btVector3(0.18, 0.2, 0.0)),
 			btScalar(0.05), btScalar(0.37), btScalar(1.0),
-			m_ragdollController, m_ownerWorld);
+			m_ragdollController, m_ownerWorld,
+			m_bones[BODYPART_RIGHT_UPPER_LEG]);
 
 		m_bones[BODYPART_LEFT_UPPER_ARM] = new Bone(BODYPART_LEFT_UPPER_ARM,
 			btTransform(btQuaternion(0, 0, PI_2), btVector3(-0.35, 1.45, 0.0)),
 			btScalar(0.05), btScalar(0.33), btScalar(1.0),
-			m_ragdollController, m_ownerWorld);
+			m_ragdollController, m_ownerWorld,
+			m_bones[BODYPART_SPINE]);
 
 		m_bones[BODYPART_LEFT_LOWER_ARM] = new Bone(BODYPART_LEFT_LOWER_ARM,
 			btTransform(btQuaternion(0, 0, PI_2), btVector3(-0.7, 1.45, 0.0)),
 			btScalar(0.04), btScalar(0.25), btScalar(1.0),
-			m_ragdollController, m_ownerWorld);
+			m_ragdollController, m_ownerWorld,
+			m_bones[BODYPART_LEFT_UPPER_ARM]);
 
 		m_bones[BODYPART_RIGHT_UPPER_ARM] = new Bone(BODYPART_RIGHT_UPPER_ARM,
 			btTransform(btQuaternion(0, 0, -PI_2), btVector3(0.35, 1.45, 0.0)),
 			btScalar(0.05), btScalar(0.33), btScalar(1.0),
-			m_ragdollController, m_ownerWorld);
+			m_ragdollController, m_ownerWorld,
+			m_bones[BODYPART_SPINE]);
 
 		m_bones[BODYPART_RIGHT_LOWER_ARM] = new Bone(BODYPART_RIGHT_LOWER_ARM,
 			btTransform(btQuaternion(0, 0, -PI_2), btVector3(0.7, 1.45, 0.0)),
 			btScalar(0.04), btScalar(0.25), btScalar(1.0),
-			m_ragdollController, m_ownerWorld);
+			m_ragdollController, m_ownerWorld,
+			m_bones[BODYPART_RIGHT_UPPER_ARM]);
 
 
 		// Setup some damping on the m_bodies
@@ -227,15 +237,13 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 
 
-	Bone::Bone(BODYPART bodyType, btTransform origin, btScalar radius, btScalar height, float mass, RagdollController *ragdollController, btDynamicsWorld* ownerWorld)
+	Bone::Bone(BODYPART bodyType, btTransform origin, btScalar radius, btScalar height, float mass, RagdollController *ragdollController, btDynamicsWorld* ownerWorld, Bone *parent):
+		m_bodyType(bodyType), m_initialTransform(origin), m_radius(radius), m_height(height), 
+		m_ragdollController(ragdollController), m_ownerWorld(ownerWorld), m_parent(parent)
 	{
 		btScalar ssm = SHAPE_SIZE_MULTIPLIER;
-		m_bodyType = bodyType;
-		m_origin = origin;
-		m_origin.setOrigin(m_origin.getOrigin() * ssm);
+		m_initialTransform.setOrigin(m_initialTransform.getOrigin() * ssm);
 		m_shape = new btCapsuleShape(radius * ssm, height * ssm);
-		m_ragdollController = ragdollController;
-		m_ownerWorld = ownerWorld;
 
 
 		bool isDynamic = (mass != 0.f);
@@ -245,10 +253,24 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 			m_shape->calculateLocalInertia(mass, localInertia);
 
 
-		osg::PositionAttitudeTransform *pat = m_ragdollController->getView()->createBodyPart(origin,
-			((btCapsuleShape*)m_shape)->getRadius(), ((btCapsuleShape*)m_shape)->getHalfHeight() * 2.0);
+		//osg::PositionAttitudeTransform *pat = m_ragdollController->getView()->createBodyPart(origin,
+		//	((btCapsuleShape*)m_shape)->getRadius(), ((btCapsuleShape*)m_shape)->getHalfHeight() * 2.0);
 
-		RagdollMotionState* myMotionState = new RagdollMotionState(origin, pat, m_ragdollController);
+		RagdollView *ragdollView = m_ragdollController->getView().get();
+
+		if (parent == nullptr)
+		{
+			m_viewBone = ragdollView->createBone(std::to_string(bodyType).c_str(), Conversion::asOsgMatrix(origin), ragdollView->getSkelRoot());
+		}
+		else
+		{
+
+			m_viewBone = ragdollView->createBone(std::to_string(bodyType).c_str(), Conversion::asOsgMatrix(localBoneTransform(origin)), parent->m_viewBone);
+		}
+
+
+
+		RagdollMotionState* myMotionState = new RagdollMotionState(origin, m_viewBone, m_ragdollController);
 		m_motionState = myMotionState;
 
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, m_shape, localInertia);
@@ -259,4 +281,18 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		body->setUserPointer(info);
 
 		m_ownerWorld->addRigidBody(body, COLGROUP_BIKE, COLMASK_BIKE);
+	}
+
+	btTransform Bone::localBoneTransform(btTransform worldTransform)
+	{
+		if (m_parent != nullptr)
+		{
+			btVector3 parentToChild = m_parent->m_initialTransform.getOrigin() - worldTransform.getOrigin();
+			btQuaternion parentToChildQuat = m_parent->m_initialTransform.getRotation() * worldTransform.getRotation().inverse();
+
+			return btTransform(parentToChildQuat, parentToChild);
+		}
+		else
+			return worldTransform;
+
 	}

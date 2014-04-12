@@ -2,6 +2,7 @@
 #pragma once
 #include "../forwarddeclarations.h"
 #include "abstractmodel.h"
+#include <osgAnimation/Bone>
 
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btAlignedObjectArray.h"
@@ -56,18 +57,21 @@ namespace troen
 	{
 	public:
 		BODYPART m_bodyType;
-		btTransform m_origin;
 		btCollisionShape *m_shape;
 		btRigidBody *m_rigidBody;
 		btMotionState *m_motionState;
-		btDynamicsWorld* m_ownerWorld;
-		RagdollController *m_ragdollController;
+		
+		Bone *m_parent;
+		osgAnimation::Bone *m_viewBone;
 
+		Bone(BODYPART bodyType, btTransform origin, btScalar radius, btScalar height, float mass, RagdollController *ragdollController, btDynamicsWorld* ownerWorld, Bone *parent=nullptr);
+		btTransform localBoneTransform(btTransform worldTransform);
+
+		btTransform m_initialTransform;
 		btScalar m_radius;
 		btScalar m_height;
-
-
-		Bone(BODYPART bodyType, btTransform origin, btScalar radius, btScalar height, float mass, RagdollController *ragdollController, btDynamicsWorld* ownerWorld);
+		btDynamicsWorld* m_ownerWorld;
+		RagdollController *m_ragdollController;
 
 	};
 
@@ -104,19 +108,19 @@ namespace troen
 	public:
 		RagdollMotionState(
 			const btTransform &initialTransform,
-			osg::PositionAttitudeTransform* pat,
+			osgAnimation::Bone *viewBone,
 			RagdollController *ragdollController) :
 			btMotionState(),
 			m_ragdollController(ragdollController),
-			m_visibleBodyPart(pat),
+			m_viewBone(viewBone),
 			m_positionTransform(initialTransform)
 		{}
 
 		virtual ~RagdollMotionState() {}
 
 
-		void setNode(osg::PositionAttitudeTransform* pat) {
-			m_visibleBodyPart = pat;
+		void setNode(osgAnimation::Bone *viewBone) {
+			m_viewBone = viewBone;
 		}
 
 		virtual void getWorldTransform(btTransform &worldTrans) const {
@@ -125,21 +129,22 @@ namespace troen
 
 
 		virtual void setWorldTransform(const btTransform &worldTrans) {
-			if (nullptr == m_visibleBodyPart)
+			if (nullptr == m_viewBone)
 				return; // silently return before we set a node
 
 			//osg::NodePathList     paths = m_visibleBodyPart->getParentalNodePaths();
 			//osg::Matrix   localMatrix = osg::computeWorldToLocal(paths.at(0)) * Conversion::asOsgMatrix(worldTrans);
 			//m_visibleBodyPart->setAttitude(localMatrix.getRotate());
 			//m_visibleBodyPart->setPosition(localMatrix.getTrans());
-			Conversion::updateWithTransform(worldTrans, m_visibleBodyPart);
+			//Conversion::updateWithTransform(worldTrans, m_viewBone);
+			//m_viewBone->setMatrixInSkeletonSpace(Conversion::asOsgMatrix(worldTrans) * m_viewBone->getMatrixInSkeletonSpace());
 		}
 
 
 	protected:
 		RagdollModel* m_ragdollModel;
 		RagdollController *m_ragdollController;
-		osg::PositionAttitudeTransform* m_visibleBodyPart;
+		osgAnimation::Bone *m_viewBone;
 		btTransform m_positionTransform;
 
 	};
