@@ -31,6 +31,9 @@ namespace troen
 
 		BODYPART_COUNT
 	};
+	//declare extern to allow definition in cpp file
+	extern char *bodyPartNames[BODYPART_COUNT];
+
 
 	enum
 	{
@@ -53,18 +56,19 @@ namespace troen
 	};
 
 
-	class Bone
+
+	class ModelBone
 	{
 	public:
 		BODYPART m_bodyType;
-		btCollisionShape *m_shape;
-		btRigidBody *m_rigidBody;
-		btMotionState *m_motionState;
+		btCollisionShape *m_shape = nullptr;
+		btRigidBody *m_rigidBody = nullptr;
+		btMotionState *m_motionState = nullptr;
 		
-		Bone *m_parent;
-		osgAnimation::Bone *m_viewBone;
+		ModelBone *m_parent = nullptr;
+		osgAnimation::Bone *m_viewBone = nullptr;
 
-		Bone(BODYPART bodyType, btTransform origin, btScalar radius, btScalar height, float mass, RagdollController *ragdollController, btDynamicsWorld* ownerWorld, Bone *parent=nullptr);
+		ModelBone(BODYPART bodyType, btTransform origin, btScalar radius, btScalar height, float mass, RagdollController *ragdollController, btDynamicsWorld* ownerWorld, ModelBone *parent=nullptr);
 		btTransform localBoneTransform(btTransform worldTransform);
 
 		btTransform m_initialTransform;
@@ -83,12 +87,13 @@ namespace troen
 	public:
 		RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *controller, const btVector3& positionOffset);
 
-
+		btDynamicsWorld *getOwnerWorld()
+		{ return m_ownerWorld; }
 
 	protected:
 
-		Bone *m_bones[BODYPART_COUNT];
 		btDynamicsWorld* m_ownerWorld;
+		ModelBone *m_bones[BODYPART_COUNT];
 		btTypedConstraint* m_joints[JOINT_COUNT];
 
 		RagdollController *m_ragdollController;
@@ -96,6 +101,7 @@ namespace troen
 
 		//btRigidBody* localCreateRigidBody(btScalar mass, const btTransform& startTransform, BODYPART bodyPart);
 		//virtual	~RagdollModel();
+
 
 
 	};
@@ -106,22 +112,15 @@ namespace troen
 	class RagdollMotionState : public btMotionState
 	{
 	public:
-		RagdollMotionState(
-			const btTransform &initialTransform,
-			osgAnimation::Bone *viewBone,
-			RagdollController *ragdollController) :
-			btMotionState(),
-			m_ragdollController(ragdollController),
-			m_viewBone(viewBone),
-			m_positionTransform(initialTransform)
-		{}
+		RagdollMotionState(ModelBone *bone):
+			m_bone(bone)
+		{
+			m_positionTransform = m_bone->m_initialTransform;
+		}
 
 		virtual ~RagdollMotionState() {}
 
 
-		void setNode(osgAnimation::Bone *viewBone) {
-			m_viewBone = viewBone;
-		}
 
 		virtual void getWorldTransform(btTransform &worldTrans) const {
 			worldTrans = m_positionTransform;
@@ -129,7 +128,7 @@ namespace troen
 
 
 		virtual void setWorldTransform(const btTransform &worldTrans) {
-			if (nullptr == m_viewBone)
+			if (nullptr == m_bone->m_viewBone)
 				return; // silently return before we set a node
 
 			//osg::NodePathList     paths = m_visibleBodyPart->getParentalNodePaths();
@@ -137,14 +136,24 @@ namespace troen
 			//m_visibleBodyPart->setAttitude(localMatrix.getRotate());
 			//m_visibleBodyPart->setPosition(localMatrix.getTrans());
 			//Conversion::updateWithTransform(worldTrans, m_viewBone);
-			//m_viewBone->setMatrixInSkeletonSpace(Conversion::asOsgMatrix(worldTrans) * m_viewBone->getMatrixInSkeletonSpace());
+			//m_bone->m_viewBone->setMatrixInSkeletonSpace(Conversion::asOsgMatrix(worldTrans) * m_bone->getMatrixInSkeletonSpace());
+
+			osgAnimation::Bone *b = m_bone->m_viewBone;
+			b->setMatrix(Conversion::asOsgMatrix(worldTrans));
+
+			osgAnimation::Bone* parent = b->getBoneParent();
+			if (parent)
+				b->setMatrixInSkeletonSpace(b->getMatrixInBoneSpace() * parent->getMatrixInSkeletonSpace());
+			else
+				b->setMatrixInSkeletonSpace(b->getMatrixInBoneSpace());
+			
+			
+
 		}
 
 
 	protected:
-		RagdollModel* m_ragdollModel;
-		RagdollController *m_ragdollController;
-		osgAnimation::Bone *m_viewBone;
+		ModelBone *m_bone;
 		btTransform m_positionTransform;
 
 	};

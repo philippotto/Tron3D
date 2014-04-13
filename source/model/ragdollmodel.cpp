@@ -33,6 +33,9 @@ const float SHAPE_SIZE_MULTIPLIER = 10.0f;
 
 using namespace troen;
 
+char *troen::bodyPartNames[BODYPART_COUNT] = { "BODYPART_PELVIS", "BODYPART_SPINE", "BODYPART_HEAD", "BODYPART_LEFT_UPPER_LEG",
+"BODYPART_LEFT_LOWER_LEG", "BODYPART_RIGHT_UPPER_LEG", "BODYPART_RIGHT_LOWER_LEG",
+"BODYPART_LEFT_UPPER_ARM", "BODYPART_LEFT_LOWER_ARM", "BODYPART_RIGHT_UPPER_ARM", "BODYPART_RIGHT_LOWER_ARM" };
 
 
 RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *controller, const btVector3& positionOffset)
@@ -44,66 +47,66 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		float ssm = SHAPE_SIZE_MULTIPLIER;
 		// Setup the geometry
 
-		m_bones[BODYPART_PELVIS] = new Bone(BODYPART_PELVIS,
+		m_bones[BODYPART_PELVIS] = new ModelBone(BODYPART_PELVIS,
 			btTransform(btQuaternion(), btVector3(0.0, 1.0, 0.0)),
 			btScalar(0.15), btScalar(0.2), btScalar(1.0),
 			m_ragdollController, m_ownerWorld);
 
-		m_bones[BODYPART_SPINE] = new Bone(BODYPART_SPINE,
+		m_bones[BODYPART_SPINE] = new ModelBone(BODYPART_SPINE,
 			btTransform(btQuaternion(), btVector3(0.0, 1.2, 0.0)),
 			btScalar(0.15), btScalar(0.28), btScalar(1.0),
 			m_ragdollController, m_ownerWorld, 
 			m_bones[BODYPART_PELVIS]);
 		
-		m_bones[BODYPART_HEAD] = new Bone(BODYPART_HEAD,
+		m_bones[BODYPART_HEAD] = new ModelBone(BODYPART_HEAD,
 			btTransform(btQuaternion(), btVector3(0.0, 1.6, 0.0)),
 			btScalar(0.1), btScalar(0.05), btScalar(1.0),
 			m_ragdollController, m_ownerWorld,
 			m_bones[BODYPART_SPINE]);
 
-		m_bones[BODYPART_LEFT_UPPER_LEG] = new Bone(BODYPART_LEFT_UPPER_LEG,
+		m_bones[BODYPART_LEFT_UPPER_LEG] = new ModelBone(BODYPART_LEFT_UPPER_LEG,
 			btTransform(btQuaternion(), btVector3(-0.18, 0.65, 0.0)),
 			btScalar(0.07), btScalar(0.45), btScalar(1.0),
 			m_ragdollController, m_ownerWorld,
 			m_bones[BODYPART_PELVIS]);
 		
-		m_bones[BODYPART_LEFT_LOWER_LEG] = new Bone(BODYPART_LEFT_LOWER_LEG,
+		m_bones[BODYPART_LEFT_LOWER_LEG] = new ModelBone(BODYPART_LEFT_LOWER_LEG,
 			btTransform(btQuaternion(), btVector3(-0.18, 0.2, 0.0)),
 			btScalar(0.05), btScalar(0.37), btScalar(1.0),
 			m_ragdollController, m_ownerWorld,
 			m_bones[BODYPART_LEFT_UPPER_LEG]);
 
-		m_bones[BODYPART_RIGHT_UPPER_LEG] = new Bone(BODYPART_RIGHT_UPPER_LEG,
+		m_bones[BODYPART_RIGHT_UPPER_LEG] = new ModelBone(BODYPART_RIGHT_UPPER_LEG,
 			btTransform(btQuaternion(), btVector3(0.18, 0.65, 0.0)),
 			btScalar(0.07), btScalar(0.45), btScalar(1.0),
 			m_ragdollController, m_ownerWorld,
 			m_bones[BODYPART_PELVIS]);
 		
-		m_bones[BODYPART_RIGHT_LOWER_LEG] = new Bone(BODYPART_RIGHT_LOWER_LEG,
+		m_bones[BODYPART_RIGHT_LOWER_LEG] = new ModelBone(BODYPART_RIGHT_LOWER_LEG,
 			btTransform(btQuaternion(), btVector3(0.18, 0.2, 0.0)),
 			btScalar(0.05), btScalar(0.37), btScalar(1.0),
 			m_ragdollController, m_ownerWorld,
 			m_bones[BODYPART_RIGHT_UPPER_LEG]);
 
-		m_bones[BODYPART_LEFT_UPPER_ARM] = new Bone(BODYPART_LEFT_UPPER_ARM,
+		m_bones[BODYPART_LEFT_UPPER_ARM] = new ModelBone(BODYPART_LEFT_UPPER_ARM,
 			btTransform(btQuaternion(0, 0, PI_2), btVector3(-0.35, 1.45, 0.0)),
 			btScalar(0.05), btScalar(0.33), btScalar(1.0),
 			m_ragdollController, m_ownerWorld,
 			m_bones[BODYPART_SPINE]);
 
-		m_bones[BODYPART_LEFT_LOWER_ARM] = new Bone(BODYPART_LEFT_LOWER_ARM,
+		m_bones[BODYPART_LEFT_LOWER_ARM] = new ModelBone(BODYPART_LEFT_LOWER_ARM,
 			btTransform(btQuaternion(0, 0, PI_2), btVector3(-0.7, 1.45, 0.0)),
 			btScalar(0.04), btScalar(0.25), btScalar(1.0),
 			m_ragdollController, m_ownerWorld,
 			m_bones[BODYPART_LEFT_UPPER_ARM]);
 
-		m_bones[BODYPART_RIGHT_UPPER_ARM] = new Bone(BODYPART_RIGHT_UPPER_ARM,
+		m_bones[BODYPART_RIGHT_UPPER_ARM] = new ModelBone(BODYPART_RIGHT_UPPER_ARM,
 			btTransform(btQuaternion(0, 0, -PI_2), btVector3(0.35, 1.45, 0.0)),
 			btScalar(0.05), btScalar(0.33), btScalar(1.0),
 			m_ragdollController, m_ownerWorld,
 			m_bones[BODYPART_SPINE]);
 
-		m_bones[BODYPART_RIGHT_LOWER_ARM] = new Bone(BODYPART_RIGHT_LOWER_ARM,
+		m_bones[BODYPART_RIGHT_LOWER_ARM] = new ModelBone(BODYPART_RIGHT_LOWER_ARM,
 			btTransform(btQuaternion(0, 0, -PI_2), btVector3(0.7, 1.45, 0.0)),
 			btScalar(0.04), btScalar(0.25), btScalar(1.0),
 			m_ragdollController, m_ownerWorld,
@@ -237,7 +240,7 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 
 
-	Bone::Bone(BODYPART bodyType, btTransform origin, btScalar radius, btScalar height, float mass, RagdollController *ragdollController, btDynamicsWorld* ownerWorld, Bone *parent):
+	ModelBone::ModelBone(BODYPART bodyType, btTransform origin, btScalar radius, btScalar height, float mass, RagdollController *ragdollController, btDynamicsWorld* ownerWorld, ModelBone *parent):
 		m_bodyType(bodyType), m_initialTransform(origin), m_radius(radius), m_height(height), 
 		m_ragdollController(ragdollController), m_ownerWorld(ownerWorld), m_parent(parent)
 	{
@@ -260,17 +263,21 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 		if (parent == nullptr)
 		{
-			m_viewBone = ragdollView->createBone(std::to_string(bodyType).c_str(), Conversion::asOsgMatrix(origin), ragdollView->getSkelRoot());
+			m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(origin), ragdollView->getSkelRoot());
 		}
-		else
-		{
+		//else
+		//{
 
-			m_viewBone = ragdollView->createBone(std::to_string(bodyType).c_str(), Conversion::asOsgMatrix(localBoneTransform(origin)), parent->m_viewBone);
-		}
+		//	m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(localBoneTransform(origin)), parent->m_viewBone);
+		//}
 
 
+		// draw bone name in debugview
+		static_cast<troen::util::GLDebugDrawer*>(m_ownerWorld->getDebugDrawer())->setTextSize(200.0);
+		static_cast<troen::util::GLDebugDrawer*>(m_ownerWorld->getDebugDrawer())->draw3dText(origin.getOrigin(), bodyPartNames[m_bodyType]);
 
-		RagdollMotionState* myMotionState = new RagdollMotionState(origin, m_viewBone, m_ragdollController);
+
+		RagdollMotionState* myMotionState = new RagdollMotionState(this);
 		m_motionState = myMotionState;
 
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, m_shape, localInertia);
@@ -283,14 +290,15 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		m_ownerWorld->addRigidBody(body, COLGROUP_BIKE, COLMASK_BIKE);
 	}
 
-	btTransform Bone::localBoneTransform(btTransform worldTransform)
+	btTransform ModelBone::localBoneTransform(btTransform worldTransform)
 	{
 		if (m_parent != nullptr)
 		{
-			btVector3 parentToChild = m_parent->m_initialTransform.getOrigin() - worldTransform.getOrigin();
+			btVector3 parentToChild = m_parent->m_initialTransform.getOrigin() - worldTransform.getOrigin() ;
 			btQuaternion parentToChildQuat = m_parent->m_initialTransform.getRotation() * worldTransform.getRotation().inverse();
 
-			return btTransform(parentToChildQuat, parentToChild);
+			//return btTransform(parentToChildQuat, parentToChild);
+			return btTransform(worldTransform.getRotation(), parentToChild);
 		}
 		else
 			return worldTransform;
