@@ -101,6 +101,9 @@ GLDebugDrawer::GLDebugDrawer()
 	for (idx = 0; idx<10; idx++)
 		_textVec[idx] = initText();
 
+	_textStrings = 0;
+	_font = osgText::readFontFile("data/fonts/arial.ttf");
+
 
 	// Set up for HUD
 	_hudCam = new osg::Camera;
@@ -225,8 +228,8 @@ void GLDebugDrawer::draw3dText(const btVector3& location, const char* textString
 	if (!getEnabled())
 		return;
 
-	if ((_debugMode & btIDebugDraw::DBG_DrawText) == 0)
-		return;
+	//if ((_debugMode & btIDebugDraw::DBG_DrawText) == 0)
+	//	return;
 
 	if (!_active)
 	{
@@ -243,10 +246,21 @@ void GLDebugDrawer::draw3dText(const btVector3& location, const char* textString
 		for (idx = oldSize; idx<newSize; idx++)
 			_textVec[idx] = initText();
 	}
+
+
+
 	osgText::Text* text = _textVec[_textStrings].get();
 	_textStrings++;
 
+	text->setFont(_font);
+	text->setColor(osg::Vec4(1, 1, 1, 1));
+	text->setCharacterSizeMode(osgText::TextBase::CharacterSizeMode::SCREEN_COORDS);
+	text->setCharacterSize(200);
+	text->setFontResolution(200, 200);
+	text->setAxisAlignment(osgText::Text::SCREEN);
+
 	text->setPosition(asOsgVec3(location));
+	//text->setPosition(osg::Vec3(0.0, 0.0, 0.0));
 	text->setText(std::string(textString));
 
 	_geode->addDrawable(text);
@@ -365,7 +379,7 @@ osgText::Text*
 {
 		osgText::Text* text = new osgText::Text;
 		text->setDataVariance(osg::Object::DYNAMIC);
-		text->setFont("fonts/arial.ttf");
+		text->setFont("data/fonts/arial.ttf");
 		text->setColor(osg::Vec4(1., 1., 1., 1.));
 		text->setCharacterSize(_textSize);
 		text->setAxisAlignment(osgText::Text::SCREEN);

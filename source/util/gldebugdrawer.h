@@ -106,6 +106,7 @@ namespace troen {
 			typedef std::vector< osg::ref_ptr< osgText::Text > > TextVec;
 			TextVec _textVec;
 			unsigned int _textStrings;
+			osg::ref_ptr<osgText::Font> _font;
 
 			osg::Vec3Array* _ptVerts;
 			osg::Vec4Array* _ptColors;
