@@ -18,6 +18,7 @@ Written by: Marten Svanfeldt
 
 const float CONSTRAINT_DEBUG_SIZE = 0.2f;
 const float SHAPE_SIZE_MULTIPLIER = 10.0f;
+const float Z_OFFSET = 0.5;
 
 
 
@@ -245,15 +246,15 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		m_ragdollController(ragdollController), m_ownerWorld(ownerWorld), m_parent(parent)
 	{
 		btScalar ssm = SHAPE_SIZE_MULTIPLIER;
-		m_initialTransform.setOrigin(m_initialTransform.getOrigin() * ssm);
+		m_initialTransform.setOrigin((m_initialTransform.getOrigin() + btVector3(0.0,0.0,Z_OFFSET)) * ssm);
 		m_shape = new btCapsuleShape(radius * ssm, height * ssm);
 
-
-		bool isDynamic = (mass != 0.f);
+		btScalar _mass = mass;
+		bool isDynamic = (_mass != 0.f);
 
 		btVector3 localInertia(0, 0, 0);
 		if (isDynamic)
-			m_shape->calculateLocalInertia(mass, localInertia);
+			m_shape->calculateLocalInertia(_mass, localInertia);
 
 
 		//osg::PositionAttitudeTransform *pat = m_ragdollController->getView()->createBodyPart(origin,
@@ -263,13 +264,13 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 		if (parent == nullptr)
 		{
-			m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(origin), ragdollView->getSkelRoot());
+			m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(m_initialTransform), ragdollView->getSkelRoot());
 		}
-		//else
-		//{
+		else
+		{
 
-		//	m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(localBoneTransform(origin)), parent->m_viewBone);
-		//}
+			m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(localBoneTransform(m_initialTransform)), parent->m_viewBone);
+		}
 
 
 		// draw bone name in debugview
@@ -280,7 +281,7 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		RagdollMotionState* myMotionState = new RagdollMotionState(this);
 		m_motionState = myMotionState;
 
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, m_shape, localInertia);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, myMotionState, m_shape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 		m_rigidBody = body;
 
@@ -297,8 +298,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 			btVector3 parentToChild = m_parent->m_initialTransform.getOrigin() - worldTransform.getOrigin() ;
 			btQuaternion parentToChildQuat = m_parent->m_initialTransform.getRotation() * worldTransform.getRotation().inverse();
 
-			//return btTransform(parentToChildQuat, parentToChild);
-			return btTransform(worldTransform.getRotation(), parentToChild);
+			return btTransform(parentToChildQuat, parentToChild);
+			//return btTransform(worldTransform.getRotation(), parentToChild);
 		}
 		else
 			return worldTransform;

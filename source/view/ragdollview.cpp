@@ -91,11 +91,11 @@ void RagdollView::setTexture(osg::ref_ptr<osg::StateSet> stateset, std::string f
 
 
 
-osg::ref_ptr<osg::PositionAttitudeTransform>  RagdollView::createBodyPart(btTransform transform, float radius, float height)
+osg::ref_ptr<osg::PositionAttitudeTransform>  RagdollView::createBodyPart(btTransform transform, osg::Node* parent)
 {
 	osg::ref_ptr<osg::PositionAttitudeTransform> pat = Conversion::transformToPAT(transform);
 	
-	osg::Cylinder *cylinder = new osg::Cylinder(osg::Vec3(0.0, 0.0, 0.0), radius, height);
+	osg::Cylinder *cylinder = new osg::Cylinder(osg::Vec3(0.0, 0.0, 0.0), 1.0, 1.0);
 	osg::ref_ptr<osg::ShapeDrawable> cylinderDrawable = new osg::ShapeDrawable(cylinder);
 
 	osg::ref_ptr<osg::Geode> cylinderGeode = new osg::Geode();
@@ -152,7 +152,7 @@ osgAnimation::Bone* RagdollView::createBone(const char* name, const osg::Matrix&
 	updater->getStackedTransforms().push_back(new osgAnimation::StackedQuaternionElement("quaternion",transform.getRotate()));
 
 	bone->setUpdateCallback(updater.get());
-	bone->setMatrixInSkeletonSpace(osg::Matrix::translate(transform.getTrans()) * bone->getMatrixInSkeletonSpace());
+	bone->setMatrixInSkeletonSpace(osg::Matrix::translate(transform.getTrans()) * bone->getMatrixInSkeletonSpace()); //osg::Matrix::translate(transform.getTrans())
 	bone->setName(name);
 	return bone.get();
 }

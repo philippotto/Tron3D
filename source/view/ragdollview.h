@@ -24,7 +24,7 @@ namespace troen
 		RagdollView(osg::Vec3 dimensions, osg::Vec3 position);
 		void remove();
 		void updateBonePositions();
-		osg::ref_ptr<osg::PositionAttitudeTransform> createBodyPart(btTransform transform, float radius, float height);
+		osg::ref_ptr<osg::PositionAttitudeTransform> createBodyPart(btTransform transform, osg::Node* parent);
 		osgAnimation::Bone* createBone(const char* name, const osg::Matrix& transform, osg::Group* parent);
 
 		osg::ref_ptr<osgAnimation::Skeleton> getSkelRoot()
