@@ -109,23 +109,22 @@ namespace troen
 
 
 
-	class RagdollMotionState : public btMotionState
+	class BoneMotionState : public btMotionState
 	{
 	public:
-		RagdollMotionState(ModelBone *bone):
+		BoneMotionState(ModelBone *bone):
 			m_bone(bone)
 		{
 			m_positionTransform = m_bone->m_initialTransform;
 		}
 
-		virtual ~RagdollMotionState() {}
+		virtual ~BoneMotionState() {}
 
 
 
 		virtual void getWorldTransform(btTransform &worldTrans) const {
 			worldTrans = m_positionTransform;
 		}
-
 
 		virtual void setWorldTransform(const btTransform &worldTrans) {
 			if (nullptr == m_bone->m_viewBone)
@@ -135,20 +134,8 @@ namespace troen
 			//osg::Matrix   localMatrix = osg::computeWorldToLocal(paths.at(0)) * Conversion::asOsgMatrix(worldTrans);
 			//m_visibleBodyPart->setAttitude(localMatrix.getRotate());
 			//m_visibleBodyPart->setPosition(localMatrix.getTrans());
-			//Conversion::updateWithTransform(worldTrans, m_viewBone);
-			//m_bone->m_viewBone->setMatrixInSkeletonSpace(Conversion::asOsgMatrix(worldTrans) * m_bone->getMatrixInSkeletonSpace());
-
-			osgAnimation::Bone *b = m_bone->m_viewBone;
-			b->setMatrix(Conversion::asOsgMatrix(worldTrans));
-
-			osgAnimation::Bone* parent = b->getBoneParent();
-			if (parent)
-				b->setMatrixInSkeletonSpace(b->getMatrixInBoneSpace() * parent->getMatrixInSkeletonSpace());
-			else
-				b->setMatrixInSkeletonSpace(b->getMatrixInBoneSpace());
-			
-			
-
+			btTransform localTransform = m_bone->localBoneTransform(worldTrans);
+			m_positionTransform = localTransform;// localTransform;
 		}
 
 

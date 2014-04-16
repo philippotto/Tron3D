@@ -15,6 +15,7 @@
 #include "../forwarddeclarations.h"
 #include "abstractview.h"
 #include "../controller/itemcontroller.h"
+#include "../model/ragdollmodel.h"
 
 namespace troen
 {
@@ -25,7 +26,7 @@ namespace troen
 		void remove();
 		void updateBonePositions();
 		osg::ref_ptr<osg::PositionAttitudeTransform> createBodyPart(btTransform transform, osg::Node* parent);
-		osgAnimation::Bone* createBone(const char* name, const osg::Matrix& transform, osg::Group* parent);
+		osgAnimation::Bone* createBone(const char* name, const osg::Matrix& transform, osg::Group* parent, BoneMotionState *motionState);
 
 		osg::ref_ptr<osgAnimation::Skeleton> getSkelRoot()
 		{

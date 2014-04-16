@@ -260,26 +260,27 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 		//osg::PositionAttitudeTransform *pat = m_ragdollController->getView()->createBodyPart(origin,
 		//	((btCapsuleShape*)m_shape)->getRadius(), ((btCapsuleShape*)m_shape)->getHalfHeight() * 2.0);
 
+		BoneMotionState* myMotionState = new BoneMotionState(this);
+		m_motionState = myMotionState;
+
 		RagdollView *ragdollView = m_ragdollController->getView().get();
 
 		if (parent == nullptr)
 		{
-			m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(m_initialTransform), ragdollView->getSkelRoot());
+			m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(m_initialTransform), ragdollView->getSkelRoot(),myMotionState);
 		}
 		else
 		{
 
-			m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(localBoneTransform(m_initialTransform)), parent->m_viewBone);
+			//m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(localBoneTransform(m_initialTransform)), parent->m_viewBone, myMotionState);
 		}
-
 
 		// draw bone name in debugview
 		static_cast<troen::util::GLDebugDrawer*>(m_ownerWorld->getDebugDrawer())->setTextSize(200.0);
 		static_cast<troen::util::GLDebugDrawer*>(m_ownerWorld->getDebugDrawer())->draw3dText(origin.getOrigin(), bodyPartNames[m_bodyType]);
 
 
-		RagdollMotionState* myMotionState = new RagdollMotionState(this);
-		m_motionState = myMotionState;
+
 
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(_mass, myMotionState, m_shape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
@@ -298,8 +299,8 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 			btVector3 parentToChild = m_parent->m_initialTransform.getOrigin() - worldTransform.getOrigin() ;
 			btQuaternion parentToChildQuat = m_parent->m_initialTransform.getRotation() * worldTransform.getRotation().inverse();
 
-			return btTransform(parentToChildQuat, parentToChild);
-			//return btTransform(worldTransform.getRotation(), parentToChild);
+			//return btTransform(parentToChildQuat, parentToChild);
+			return btTransform(worldTransform.getRotation(), parentToChild);
 		}
 		else
 			return worldTransform;
