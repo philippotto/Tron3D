@@ -242,11 +242,11 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 
 	ModelBone::ModelBone(BODYPART bodyType, btTransform origin, btScalar radius, btScalar height, float mass, RagdollController *ragdollController, btDynamicsWorld* ownerWorld, ModelBone *parent):
-		m_bodyType(bodyType), m_initialTransform(origin), m_radius(radius), m_height(height), 
+		m_bodyType(bodyType), m_worldTransform(origin), m_radius(radius), m_height(height), 
 		m_ragdollController(ragdollController), m_ownerWorld(ownerWorld), m_parent(parent)
 	{
 		btScalar ssm = SHAPE_SIZE_MULTIPLIER;
-		m_initialTransform.setOrigin((m_initialTransform.getOrigin() + btVector3(0.0,0.0,Z_OFFSET)) * ssm);
+		m_worldTransform.setOrigin((m_worldTransform.getOrigin() + btVector3(0.0,0.0,Z_OFFSET)) * ssm);
 		m_shape = new btCapsuleShape(radius * ssm, height * ssm);
 
 		btScalar _mass = mass;
@@ -267,12 +267,12 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 
 		if (parent == nullptr)
 		{
-			m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(m_initialTransform), ragdollView->getSkelRoot(),myMotionState);
+			m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(m_worldTransform), ragdollView->getSkelRoot(),myMotionState);
 		}
-		else
+		else //if (parent->m_bodyType == BODYPART_PELVIS)
 		{
 
-			//m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(localBoneTransform(m_initialTransform)), parent->m_viewBone, myMotionState);
+			m_viewBone = ragdollView->createBone(bodyPartNames[bodyType], Conversion::asOsgMatrix(localBoneTransform(m_worldTransform)), parent->m_viewBone, myMotionState);
 		}
 
 		// draw bone name in debugview
@@ -296,13 +296,12 @@ RagdollModel::RagdollModel(btDynamicsWorld* ownerWorld, RagdollController *contr
 	{
 		if (m_parent != nullptr)
 		{
-			btVector3 parentToChild = m_parent->m_initialTransform.getOrigin() - worldTransform.getOrigin() ;
-			btQuaternion parentToChildQuat = m_parent->m_initialTransform.getRotation() * worldTransform.getRotation().inverse();
+			btVector3 parentToChild = m_parent->m_worldTransform.getOrigin() - worldTransform.getOrigin() ;
+			btQuaternion parentToChildQuat = m_parent->m_worldTransform.getRotation() * worldTransform.getRotation().inverse();
 
-			//return btTransform(parentToChildQuat, parentToChild);
-			return btTransform(worldTransform.getRotation(), parentToChild);
+			return btTransform(parentToChildQuat, parentToChild);
+			//return btTransform(worldTransform.getRotation(), parentToChild);
 		}
 		else
 			return worldTransform;
-
 	}

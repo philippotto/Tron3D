@@ -45,9 +45,10 @@ public:
 			}
 
 			// here we would prefer to have a flag inside transform stack in order to avoid update and a dirty state in matrixTransform if it's not require.
+			//const osg::Matrix& matrix = _transforms.getMatrix();
+			//b->setMatrix(matrix);
 
-			btTransform transform;
-			m_motionState->getWorldTransform(transform);
+			btTransform transform = m_motionState->getLocalTransform();
 			const osg::Matrix& matrix = Conversion::asOsgMatrix(transform);
 			b->setMatrix(matrix);
 
@@ -191,11 +192,11 @@ osgAnimation::Bone* RagdollView::createBone(const char* name, const osg::Matrix&
 	parent->addChild(createBoneShape(transform.getTrans(), osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	osg::ref_ptr<RagdollBoneUpdater> updater = new RagdollBoneUpdater(motionState, name);
-	updater->getStackedTransforms().push_back(new osgAnimation::StackedTranslateElement("translate", transform.getTrans()));
-	updater->getStackedTransforms().push_back(new osgAnimation::StackedQuaternionElement("quaternion",transform.getRotate()));
+	//updater->getStackedTransforms().push_back(new osgAnimation::StackedTranslateElement("translate", transform.getTrans()));
+	//updater->getStackedTransforms().push_back(new osgAnimation::StackedQuaternionElement("quaternion",transform.getRotate()));
 
 	bone->setUpdateCallback(updater.get());
-	//bone->setMatrixInSkeletonSpace(osg::Matrix::translate(transform.getTrans()) * bone->getMatrixInSkeletonSpace()); //osg::Matrix::translate(transform.getTrans())
+	bone->setMatrixInSkeletonSpace(osg::Matrix::translate(transform.getTrans()) * bone->getMatrixInSkeletonSpace()); //osg::Matrix::translate(transform.getTrans())
 	bone->setName(name);
 	return bone.get();
 }

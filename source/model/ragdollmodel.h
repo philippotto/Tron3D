@@ -71,7 +71,7 @@ namespace troen
 		ModelBone(BODYPART bodyType, btTransform origin, btScalar radius, btScalar height, float mass, RagdollController *ragdollController, btDynamicsWorld* ownerWorld, ModelBone *parent=nullptr);
 		btTransform localBoneTransform(btTransform worldTransform);
 
-		btTransform m_initialTransform;
+		btTransform m_worldTransform;
 		btScalar m_radius;
 		btScalar m_height;
 		btDynamicsWorld* m_ownerWorld;
@@ -115,7 +115,7 @@ namespace troen
 		BoneMotionState(ModelBone *bone):
 			m_bone(bone)
 		{
-			m_positionTransform = m_bone->m_initialTransform;
+			m_positionTransform = m_bone->m_worldTransform;
 		}
 
 		virtual ~BoneMotionState() {}
@@ -130,14 +130,20 @@ namespace troen
 			if (nullptr == m_bone->m_viewBone)
 				return; // silently return before we set a node
 
+
 			//osg::NodePathList     paths = m_visibleBodyPart->getParentalNodePaths();
 			//osg::Matrix   localMatrix = osg::computeWorldToLocal(paths.at(0)) * Conversion::asOsgMatrix(worldTrans);
 			//m_visibleBodyPart->setAttitude(localMatrix.getRotate());
 			//m_visibleBodyPart->setPosition(localMatrix.getTrans());
-			btTransform localTransform = m_bone->localBoneTransform(worldTrans);
-			m_positionTransform = localTransform;// localTransform;
+			m_bone->m_worldTransform = worldTrans;
+			m_positionTransform = worldTrans;// localTransform;
 		}
 
+
+		btTransform getLocalTransform() const {
+			btTransform localTransform = m_bone->localBoneTransform(m_positionTransform);
+			return localTransform;
+		}
 
 	protected:
 		ModelBone *m_bone;
