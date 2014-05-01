@@ -165,9 +165,9 @@ bool TroenGameBuilder::composeSceneGraph()
 			player->playerNode()->addChild(t->m_rootNode);
 	}
 
-	t->m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
-	t->m_sceneWithSkyboxNode->addChild(t->m_sceneNode);
+	//t->m_skyDome->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
 	t->m_sceneWithSkyboxNode->addChild(t->m_skyDome.get());
+	t->m_sceneWithSkyboxNode->addChild(t->m_sceneNode);
 
 	t->m_sceneNode->addChild(t->m_levelController->getViewNode());
 	//t->m_sceneNode->addChild(t->m_sunLightSource.get());
@@ -222,13 +222,12 @@ bool TroenGameBuilder::composeSceneGraph()
 		player->hudController()->attachSceneToRadarCamera(radarScene);
 	}
 
-	//// disbled optimizer for now, takes a lot of time to execute
-	//std::cout << "[TroenGameBuilder::composeSceneGraph] starting Optimizer" << std::endl;
-	//osgUtil::Optimizer optimizer;
-	//optimizer.optimize(t->m_rootNode, optimizer.REMOVE_REDUNDANT_NODES |
-	//	optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS |
-	//	optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
-	//std::cout << "[TroenGameBuilder::composeSceneGraph] done optimizing" << std::endl;
+	// disbled optimizer for now, takes a lot of time to execute
+	std::cout << "[TroenGameBuilder::composeSceneGraph] starting Optimizer" << std::endl;
+	osgUtil::Optimizer optimizer;
+	optimizer.optimize(t->m_rootNode, 		optimizer.TRISTRIP_GEOMETRY | optimizer.OPTIMIZE_TEXTURE_SETTINGS |
+		optimizer.VERTEX_POSTTRANSFORM | optimizer.INDEX_MESH);
+	std::cout << "[TroenGameBuilder::composeSceneGraph] done optimizing" << std::endl;
 
 
 	return true;

@@ -14,6 +14,7 @@
 #include <osg/TexEnv>
 #include <osg/TexGen>
 #include <osg/TexGenNode>
+#include "osg/Node"
 
 #include <osg/PolygonMode>
 // bullet
@@ -42,6 +43,8 @@ public:
 	//   out target. If so, save the node's address.
 	virtual void apply(osg::Node& node)
 	{
+		//clear stateset of loaded obj model
+		node.getOrCreateStateSet()->clear();
 		if (node.getName().find("ramp") != std::string::npos)
 			rampsNode->addChild(&node);
 		else if (node.getName().find("floor") != std::string::npos || node.getName().find("raisedFloor") != std::string::npos)
@@ -72,8 +75,8 @@ AbstractView()
 
 	int levelSize = m_model->getLevelSize();
 
-	m_node->addChild(constructObstacles(levelSize, levelName));
 	m_node->addChild(constructFloors(levelSize));
+	m_node->addChild(constructObstacles(levelSize, levelName));
 
 
 	osg::StateSet *stateSet = m_node->getOrCreateStateSet();
@@ -105,7 +108,6 @@ osg::ref_ptr<osg::Group> LevelView::constructFloors(int levelSize)
 	osg::ref_ptr<osg::Node> floors = osgDB::readNodeFile("data/models/floor_highres.ive");
 	floors->setNodeMask(CAMERA_MASK_MAIN);
 
-	 //osg::ref_ptr<osg::Group> floors = constructGroupForBoxes(m_model->getFloors());
 	floors->setName("floorsNode");
 
 	osg::StateSet *obstaclesStateSet = floors->getOrCreateStateSet();
@@ -136,8 +138,8 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 
 	osg::ref_ptr<osg::Group> mainGroup = new osg::Group();
 
-	osg::ref_ptr<osg::Node> readObstacles = osgDB::readNodeFile("data/levels/" + levelName + ".ive");
-	readObstacles->setCullingActive(false);
+	osg::ref_ptr<osg::Group> readObstacles = static_cast<osg::Group*>(osgDB::readNodeFile("data/levels/" + levelName + ".ive"));
+	//readObstacles->setCullingActive(false);
 
 
 	CategorizeLevelElements *findObjects = new CategorizeLevelElements();
@@ -145,31 +147,29 @@ osg::ref_ptr<osg::Group> LevelView::constructObstacles(int levelSize, std::strin
 	osg::ref_ptr<osg::Group> rampsNode = findObjects->getRampNode();
 	osg::ref_ptr<osg::Group> boxesNode = findObjects->getBoxesNode();
 
-	osg::ref_ptr<osg::Group> floorsNode = findObjects->getRaisedFloorsNode();
-
+	osg::ref_ptr<osg::Group> plateauNode = findObjects->getRaisedFloorsNode();
 
 	mainGroup->addChild(rampsNode);
-	mainGroup->addChild(floorsNode);
+	mainGroup->addChild(plateauNode);
 	mainGroup->addChild(boxesNode);
 
-
+	int children = readObstacles->getNumChildren();
+	readObstacles->removeChildren(0, children);
 
 	osg::Uniform* textureMapU = new osg::Uniform("diffuseTexture", 0);
+	boxesNode->getOrCreateStateSet()->addUniform(textureMapU);
 
-	addShaderAndUniforms(floorsNode, shaders::DEFAULT, levelSize, GLOW, 0.5, 1.0);
-	addShaderAndUniforms(boxesNode, shaders::DEFAULT, levelSize, GLOW, 1.0);
-	addShaderAndUniforms(rampsNode, shaders::DEFAULT, levelSize, GLOW, 1.0);
 	
 	setTexture(boxesNode->getOrCreateStateSet(), "data/textures/box.tga", 0);
-	setTexture(floorsNode->getOrCreateStateSet(), "data/textures/raisedlevel.tga", 0, true);
-	setTexture(rampsNode->getOrCreateStateSet(), "data/textures/ramptexture.tga", 0);
+	addShaderAndUniforms(boxesNode, shaders::DEFAULT, levelSize, GLOW, 1.0);
 	
-	boxesNode->getOrCreateStateSet()->setMode(GL_BLEND, osg::StateAttribute::OFF);
-	floorsNode->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-	floorsNode->getOrCreateStateSet()->setMode(GL_BLEND, osg::StateAttribute::ON );
-
+	setTexture(plateauNode->getOrCreateStateSet(), "data/textures/raisedlevel.tga", 0, true);
+	addShaderAndUniforms(plateauNode, shaders::DEFAULT, levelSize, DEFAULT, 0.5, 1.0);
+	
+	setTexture(rampsNode->getOrCreateStateSet(), "data/textures/ramptexture.tga", 0);
+	addShaderAndUniforms(rampsNode, shaders::DEFAULT, levelSize, GLOW, 1.0);
+	
 	mainGroup->setNodeMask(CAMERA_MASK_MAIN);
-
 
 	osg::ref_ptr<osg::Group> radarObstacles = constructRadarElementsForBoxes(m_model->getObstacles());
 	radarObstacles->setNodeMask(CAMERA_MASK_RADAR);
@@ -194,6 +194,8 @@ void LevelView::addShaderAndUniforms(osg::ref_ptr<osg::Node> node, int shaderInd
 	stateSet->addUniform(new osg::Uniform("alpha", alpha));
 	if (modelID == GLOW)
 		stateSet->addUniform(new osg::Uniform("glowIntensity", 1.f));
+	else
+		stateSet->addUniform(new osg::Uniform("glowIntensity", 0.f));
 
 }
 

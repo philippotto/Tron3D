@@ -134,7 +134,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	osg::ref_ptr<osg::Camera> cam = new osg::Camera();
 	// output textures
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + COLOR), m_fboTextures[COLOR]);
-	//cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
 	cam->attach((osg::Camera::BufferComponent)(osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
 
 	// Configure fboCamera to draw fullscreen textured quad
@@ -143,22 +142,8 @@ osg::ref_ptr<osg::Camera> PostProcessing::gBufferPass()
 	cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
 
 	cam->setReferenceFrame(osg::Camera::RELATIVE_RF);
-	//cam->setRenderOrder(osg::Camera::PRE_RENDER, 0);
-
-	// need to know about near far changes for correct depth 
-	//cam->setCullCallback(new NearFarCallback());
 	cam->addChild(m_sceneNode);
 
-	// attach shader program
-	//cam->getOrCreateStateSet()->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
-	//cam->getOrCreateStateSet()->addUniform(new osg::Uniform("colorTex", COLOR));
-	//cam->getOrCreateStateSet()->setAttributeAndModes(shaders::m_allShaderPrograms[shaders::GBUFFER], osg::StateAttribute::ON);
-	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
-	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
-	//cam->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
-
-	//g_nearFarUniform = new osg::Uniform("nearFar", osg::Vec2(0.0, 1.0));
-	//cam->getOrCreateStateSet()->addUniform(g_nearFarUniform);
 
 	return cam;
 }
@@ -223,9 +208,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 
 	// input textures
 	postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + OLDCOLOR), m_fboTextures[OLDCOLOR]);
-	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + NORMALDEPTH), m_fboTextures[NORMALDEPTH]);
-	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + ID), m_fboTextures[ID]);
-	//postRenderCamera->attach((osg::Camera::BufferComponent) (osg::Camera::COLOR_BUFFER0 + PONG), m_fboTextures[PONG]);
 
 	// configure postRenderCamera to draw fullscreen textured quad
 	postRenderCamera->setClearColor(osg::Vec4(0.0, 0.5, 0.0, 1)); // should never see this.
@@ -235,10 +217,6 @@ osg::ref_ptr<osg::Camera> PostProcessing::postProcessingPass()
 	// geometry
 	osg::Geode* geode(new osg::Geode());
 	geode->addDrawable(osg::createTexturedQuadGeometry(osg::Vec3(-1, -1, 0), osg::Vec3(2, 0, 0), osg::Vec3(0, 2, 0)));
-	//geode->getOrCreateStateSet()->setTextureAttributeAndModes(COLOR, m_fboTextures[COLOR], osg::StateAttribute::ON);
-	//geode->getOrCreateStateSet()->setTextureAttributeAndModes(NORMALDEPTH, m_fboTextures[NORMALDEPTH], osg::StateAttribute::ON);
-	/*geode->getOrCreateStateSet()->setTextureAttributeAndModes(ID, m_fboTextures[ID], osg::StateAttribute::ON);
-	geode->getOrCreateStateSet()->setTextureAttributeAndModes(PONG, m_fboTextures[PONG], osg::StateAttribute::ON);*/
 	geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 	postRenderCamera->addChild(geode);
 

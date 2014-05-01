@@ -23,8 +23,6 @@ void main(void)
 	} else {
 		mainDeform();
 	}
-
-
 	return;
 
 }
