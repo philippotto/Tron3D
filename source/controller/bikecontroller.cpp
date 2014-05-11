@@ -88,6 +88,10 @@ BikeController::~BikeController()
 		m_pollingThread->stop();
 		m_pollingThread->wait();
 	}
+	if (m_keyboardHandler == nullptr)
+	{
+		delete m_pollingThread;
+	}
 }
 
 void BikeController::killThread()
@@ -142,6 +146,9 @@ void BikeController::initializeWASD(osg::ref_ptr<input::BikeInputState> bikeInpu
 			osgGA::GUIEventAdapter::KEY_Space,
 			osgGA::GUIEventAdapter::KEY_G
 	});
+
+	m_pollingThread = m_keyboardHandler.get();
+	m_pollingThread->start();
 }
 
 void BikeController::initializeArrows(osg::ref_ptr<input::BikeInputState> bikeInputState)
@@ -154,12 +161,15 @@ void BikeController::initializeArrows(osg::ref_ptr<input::BikeInputState> bikeIn
 			osgGA::GUIEventAdapter::KEY_Control_R,
 			osgGA::GUIEventAdapter::KEY_M,
 	});
+
+	m_pollingThread = m_keyboardHandler.get();
+	m_pollingThread->start();
 }
 
 #ifdef WIN32
 void BikeController::initializeGamepad(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
-	std::shared_ptr<input::Gamepad> gamepad = std::make_shared<input::Gamepad>(bikeInputState);
+	input::Gamepad* gamepad = new input::Gamepad(bikeInputState);
 
 	if (gamepad->checkConnection())
 	{
@@ -176,7 +186,7 @@ void BikeController::initializeGamepad(osg::ref_ptr<input::BikeInputState> bikeI
 
 void BikeController::initializeGamepadPS4(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
-	std::shared_ptr<input::GamepadPS4> gamepad = std::make_shared<input::GamepadPS4>(bikeInputState, m_player->color());
+	input::GamepadPS4* gamepad = new input::GamepadPS4(bikeInputState, m_player->color());
 
 	if (gamepad->checkConnection())
 	{
@@ -192,7 +202,7 @@ void BikeController::initializeGamepadPS4(osg::ref_ptr<input::BikeInputState> bi
 
 void BikeController::initializeAI(osg::ref_ptr<input::BikeInputState> bikeInputState)
 {
-	std::shared_ptr<input::AI> ai = std::make_shared<input::AI>(bikeInputState, this);
+	input::AI* ai = new input::AI(bikeInputState, this);
 	m_pollingThread = ai;
 	m_pollingThread->start();
 }
