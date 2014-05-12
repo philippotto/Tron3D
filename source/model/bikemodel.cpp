@@ -42,14 +42,12 @@ m_currentWheelyTilt(0)
 	// make friction & ineartia work without wrong behaviour of bike (left turn)
 	btVector3 bikeInertia(0, 0, 0);
 	bikeShape->calculateLocalInertia(BIKE_MASS, bikeInertia);
-	//std::cout << bikeInertia.getX() << ".." << bikeInertia.getY() << ".." << bikeInertia.getZ() << std::endl;
 
 	btRigidBody::btRigidBodyConstructionInfo m_bikeRigidBodyCI(BIKE_MASS, bikeMotionState.get(), bikeShape.get(), bikeInertia);
 	m_bikeRigidBodyCI.m_friction = 0.f;
-	//std::cout << m_bikeRigidBodyCI.m_friction << std::endl;
 
 	m_bikeRigidBody = std::make_shared<btRigidBody>(m_bikeRigidBodyCI);
-	
+
 	m_bikeRigidBody->setCcdMotionThreshold(1 / BIKE_DIMENSIONS.y());
 	m_bikeRigidBody->setCcdSweptSphereRadius(BIKE_DIMENSIONS.x() * .5f - BIKE_DIMENSIONS.x() * 0.01);
 	// this seems to be necessary so that we can move the object via setVelocity()
@@ -80,7 +78,6 @@ void BikeModel::resetState()
 {
 	m_oldVelocity = 0.0;
 	m_rotation = 0.0;
-	m_bikeFriction = 1.0;
 }
 
 float BikeModel::getSteering()
@@ -123,112 +120,143 @@ long double BikeModel::getTimeSinceLastUpdate()
 	return m_timeSinceLastUpdate;
 }
 
-float BikeModel::updateState(long double time)
+float BikeModel::updateRemoteState()
 {
-	m_timeSinceLastUpdate = time - m_lastUpdateTime;
-	float timeFactor = m_timeSinceLastUpdate / 16.6f;
-
-	m_lastUpdateTime = time;
-	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
-
-	const btVector3 front = btVector3(0, -1, 0);
-	
-	if (m_bikeInputState->isRemote())
+	if (m_bikeInputState->isNewPosition())
 	{
 		btTransform trans;
-		if (m_bikeInputState->isNewPosition())
-		{
-			float timeDifference = static_cast<float>(RakNet::GetTime() - m_bikeInputState->getReceivementTime());
-			//std::cout << timeDifference << "linVel x" << m_bikeInputState->getLinearVelocity().x() << " linVel y"<< m_bikeInputState->getLinearVelocity().y() <<std::endl;
-			trans.setRotation(m_bikeInputState->getRotation());
-			trans.setOrigin(m_bikeInputState->getPosition() ); //+ m_bikeInputState->getLinearVelocity()*timeDifference/(1000.0)
-			//std::cout << "x: " << m_bikeInputState->getPosition().x() << " y: " << m_bikeInputState->getPosition().y()
-			//	<< " x estim: " << trans.getOrigin().x() << " y estim: " << trans.getOrigin().y()
-			//	<< " x real: " << getPositionBt().x() << " y real: " << getPositionBt().y() << std::endl;
-			m_rigidBodies[0]->setWorldTransform(trans);
-			m_bikeInputState->setIsNewPosition(false);
-		}
-		bikeRigidBody->setLinearVelocity(m_bikeInputState->getLinearVelocity());
-		//bikeRigidBody->setAngularVelocity(btVector3(0, 0, m_bikeInputState->getAngularVelocity()));
-		//m_rigidBodies[0]->set
-		return m_bikeInputState->getLinearVelocity().length();
+		trans.setRotation(m_bikeInputState->getRotation());
+		trans.setOrigin(m_bikeInputState->getPosition() );
+		m_bikeRigidBody->setWorldTransform(trans);
+		m_bikeInputState->setIsNewPosition(false);
 	}
+	m_bikeRigidBody->setLinearVelocity(m_bikeInputState->getLinearVelocity());
+	return m_bikeInputState->getLinearVelocity().length();
+}
 
-	// call this exactly once per frame
-	m_steering = m_bikeInputState->getAngle();
-	float acceleration = m_bikeInputState->getAcceleration();
-
-	// if the handbrake is pulled, reduce friction to allow drifting
-	m_bikeFriction = (abs(m_steering) > BIKE_ROTATION_VALUE) ? 0.03 * timeFactor : fmin((1.f + timeFactor * 0.13f) * m_bikeFriction, 1.0);
-
-
-	btVector3 currentVelocityVectorXY = bikeRigidBody->getLinearVelocity();
-	btScalar zComponent = currentVelocityVectorXY.getZ();
-	currentVelocityVectorXY = btVector3(currentVelocityVectorXY.getX(), currentVelocityVectorXY.getY(), 0);
-	btVector3 currentAngularVelocity = bikeRigidBody->getAngularVelocity();
-
-	// accelerate
-	float speedFactor = max(0, 1 - currentVelocityVectorXY.length() / BIKE_VELOCITY_MAX);
-	// invsquared(t)   (1 - (1 - (t)) * (1 - (t)))
-	float accInterpolation = acceleration * interpolate(speedFactor, InterpolateInvSquared);
-
+float BikeModel::calculatePossibleTurboBoost()
+{
 	// TODO: merge turboInitiation and turboPressed (Philipp)
 	float turboSpeed = 0;
 	// only initiate turbo, if no other turbo is active
 	if (getTurboFactor() == 0 && (m_bikeController->turboInitiated() || m_bikeInputState->getTurboPressed()))
 	{
-		turboSpeed =  BIKE_VELOCITY_MAX / 2;
+		turboSpeed = BIKE_VELOCITY_MAX / 2;
 	}
+	return turboSpeed;
+}
 
-	float speed = currentVelocityVectorXY.length() + turboSpeed + ((accInterpolation * BIKE_ACCELERATION_FACTOR_MAX) - BIKE_VELOCITY_DAMPENING_TERM) * timeFactor;
-
-	updateTurboFactor(speed, time);
-
+void BikeModel::updateAngularVelocity(float speed)
+{
 	// rotate:
 	// turnFactor
 	// -> stronger steering for low velocities
 	// -> weaker steering at high velocities
-	float turnFactor = clamp(.1,1, BIKE_VELOCITY_MIN / (.5f * speed));
+	float turnFactor = clamp(0.1, 1, 2 * BIKE_VELOCITY_MIN / speed);
 	float turningRad = PI / 180 * m_steering * (BIKE_TURN_FACTOR_MAX * turnFactor);
 
-	bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
+	m_bikeRigidBody->setAngularVelocity(btVector3(0, 0, turningRad));
+}
 
-	if (speed > BIKE_VELOCITY_MAX) {
+float BikeModel::calculateAttenuatedSpeed(float speed)
+{
+	if (speed > BIKE_VELOCITY_MAX)
+	{
 		const float timeToSlowDown = 2000;
 		// decrease speed so that the user will reach the maximum speed within timeToSlowDown milli seconds
 		// this is done so that the turbo won't be resetted instantly
 		speed -= (speed - BIKE_VELOCITY_MAX) * m_timeSinceLastUpdate / timeToSlowDown;
-		if (speed > BIKE_TURBO_VELOCITY_MAX) {
+		if (speed > BIKE_TURBO_VELOCITY_MAX)
+		{
 			speed = BIKE_TURBO_VELOCITY_MAX;
 		}
 	}
 
 	if (speed < BIKE_VELOCITY_MIN)
+	{
 	 	speed = BIKE_VELOCITY_MIN;
-
-	m_oldVelocity = speed;
-
-	// adapt velocity vector to real direction
-	float angle =  bikeRigidBody->getOrientation().getAngle();
-	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
-
-	// restrict the drifting angle and increase friction if it gets too big
-	if (abs(currentVelocityVectorXY.angle(front.rotate(axis, angle))) > PI_4) {
-		m_bikeFriction = 0.1 * timeFactor;
 	}
-
-	// let the bike drift, if the friction is low
-	currentVelocityVectorXY = (1 - m_bikeFriction) * currentVelocityVectorXY + m_bikeFriction * front.rotate(axis, angle) * speed;
-	if (currentVelocityVectorXY.length() > 0) {
-		currentVelocityVectorXY = currentVelocityVectorXY.normalized() * speed;
-	}
-	currentVelocityVectorXY.setZ(zComponent);
-	bikeRigidBody->setLinearVelocity(currentVelocityVectorXY);
 
 	return speed;
 }
 
+float BikeModel::calculateAcceleratedSpeed(btVector3 velocityXY, float timeFactor)
+{
+	// accelerate
+	float speed;
+	float speedFactor = max(0, 1 - velocityXY.length() / BIKE_VELOCITY_MAX);
+	float accInterpolation = m_bikeInputState->getAcceleration() * interpolate(speedFactor, InterpolateInvSquared);
 
+	speed  = velocityXY.length();
+	speed += calculatePossibleTurboBoost();
+	speed += timeFactor * (accInterpolation * BIKE_ACCELERATION_FACTOR_MAX - BIKE_VELOCITY_DAMPENING_TERM);
+
+	return speed;
+}
+
+float BikeModel::updateState(long double time)
+{
+	m_timeSinceLastUpdate = time - m_lastUpdateTime;
+	m_lastUpdateTime = time;
+
+	if (m_bikeInputState->isRemote())
+	{
+		return updateRemoteState();
+	}
+
+	float timeFactor = m_timeSinceLastUpdate / 16.6f;
+
+	// call this exactly once per frame
+	m_steering = m_bikeInputState->getAngle();
+
+	// project velocity to XY and save Z
+	btVector3 velocityXY = m_bikeRigidBody->getLinearVelocity();
+	btScalar zComponent = velocityXY.getZ();
+	velocityXY.setZ(0);
+
+
+	float speed = calculateAcceleratedSpeed(velocityXY, timeFactor);
+
+	updateTurboFactor(speed, time);
+	updateAngularVelocity(speed);
+
+	speed = m_oldVelocity = calculateAttenuatedSpeed(speed);
+
+	adaptVelocityToRealDirection(velocityXY, speed, timeFactor);
+
+	velocityXY.setZ(zComponent);
+	m_bikeRigidBody->setLinearVelocity(velocityXY);
+
+	return speed;
+}
+
+btVector3 BikeModel::adaptVelocityToRealDirection(btVector3 &velocityXY, float speed, float timeFactor)
+{
+	// adapt velocity vector to real direction
+	// let the bike drift, if the friction is low
+	float bikeFriction = calculateBikeFriction(velocityXY.angle(getDirection()), timeFactor);
+	velocityXY = (1 - bikeFriction) * velocityXY + bikeFriction * getDirection() * speed;
+	if (velocityXY.length() > 0)
+	{
+		velocityXY = velocityXY.normalized() * speed;
+	}
+
+	return velocityXY;
+}
+
+float BikeModel::calculateBikeFriction(const btScalar currentAngle, float timeFactor)
+{
+	// if the handbrake is pulled, reduce friction to allow drifting
+	float bikeFriction = abs(m_steering) > BIKE_ROTATION_VALUE
+		? 0.03 * timeFactor
+		: fmin((1.f + timeFactor * 0.13f) * bikeFriction, 1.0);
+
+	// restrict the drifting angle and increase friction if it gets too big
+	if (abs(currentAngle) > PI_4) {
+		bikeFriction = 0.1 * timeFactor;
+	}
+	return bikeFriction;
+}
 
 osg::Quat BikeModel::getTilt()
 {
@@ -286,14 +314,14 @@ float BikeModel::getInputAngle()
 osg::Vec3d BikeModel::getPositionOSG()
 {
 	btTransform trans;
-	trans = m_rigidBodies[0]->getWorldTransform();
+	trans = m_bikeRigidBody->getWorldTransform();
 	return osg::Vec3d(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ());
 }
 
 btVector3 BikeModel::getPositionBt()
  {
 	btTransform trans;
-	trans = m_rigidBodies[0]->getWorldTransform();
+	trans = m_bikeRigidBody->getWorldTransform();
 
 	return trans.getOrigin();
 }
@@ -302,31 +330,30 @@ btVector3 BikeModel::getPositionBt()
 btQuaternion BikeModel::getRotationQuat()
 {
 	btTransform trans;
-	trans = m_rigidBodies[0]->getWorldTransform();
+	trans = m_bikeRigidBody->getWorldTransform();
 
 	return trans.getRotation();
 }
 
 btTransform BikeModel::getTransform()
 {
-	return  m_rigidBodies[0]->getWorldTransform();
+	return  m_bikeRigidBody->getWorldTransform();
 }
 
 btVector3 BikeModel::getLinearVelocity()
 {
-	return m_rigidBodies[0]->getLinearVelocity();
+	return m_bikeRigidBody->getLinearVelocity();
 }
 
 btVector3 BikeModel::getAngularVelocity()
 {
-	return m_rigidBodies[0]->getAngularVelocity();
+	return m_bikeRigidBody->getAngularVelocity();
 }
 
 btVector3 BikeModel::getDirection()
 {
-	std::shared_ptr<btRigidBody> bikeRigidBody = m_rigidBodies[0];
-	float angle = bikeRigidBody->getOrientation().getAngle();
-	btVector3 axis = bikeRigidBody->getOrientation().getAxis();
+	float angle = m_bikeRigidBody->getOrientation().getAngle();
+	btVector3 axis = m_bikeRigidBody->getOrientation().getAxis();
 	const btVector3 front = btVector3(0, -1, 0);
 	return front.rotate(axis, angle);
 }
@@ -334,13 +361,13 @@ btVector3 BikeModel::getDirection()
 
 void BikeModel::moveBikeToPosition(btTransform position)
 {
-	m_rigidBodies[0]->setWorldTransform(position);
-	m_rigidBodies[0]->setAngularVelocity(btVector3(0, 0, 0));
-	m_rigidBodies[0]->setLinearVelocity(btVector3(0, 0, 0));
+	m_bikeRigidBody->setWorldTransform(position);
+	m_bikeRigidBody->setAngularVelocity(btVector3(0, 0, 0));
+	m_bikeRigidBody->setLinearVelocity(btVector3(0, 0, 0));
 }
 
 void BikeModel::freeze()
 {
-	m_rigidBodies[0]->setAngularVelocity(btVector3(0, 0, 0));
-	m_rigidBodies[0]->setLinearVelocity(btVector3(0, 0, 0));
+	m_bikeRigidBody->setAngularVelocity(btVector3(0, 0, 0));
+	m_bikeRigidBody->setLinearVelocity(btVector3(0, 0, 0));
 }

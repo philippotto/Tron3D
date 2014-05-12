@@ -314,7 +314,6 @@ void BikeController::updateModel(const long double gameTime)
 		double speed = m_bikeModel->updateState(gameTime);
 		m_player->increasePoints(speed / 1000);
 		updateFov(speed);
-		//std::cout << gameTime - (m_respawnTime + RESPAWN_DURATION) << ": DRIVING" << std::endl;
 		break;
 	}
 	case RESPAWN:
@@ -328,8 +327,6 @@ void BikeController::updateModel(const long double gameTime)
 
 		if (gameTime > m_respawnTime + RESPAWN_DURATION * 2.f / 3.f)
 		{
-			//osg::Quat attitude = btToOSGQuat(m_initialTransform.getRotation());
-			//m_bikeView->m_pat->setAttitude(attitude);
 			moveBikeToPosition(m_initialTransform);
 			reset();
 			updateFov(0);
@@ -379,7 +376,7 @@ void BikeController::updateView(const btTransform &worldTrans)
 
 	m_bikeView->m_pat->setAttitude(attitude);
 	m_bikeView->m_pat->setPosition(osg::Vec3(position.x(), position.y(), position.z()));
-	
+
 	// update fence accordingly
 	if (m_player->getTroenGame()->isNetworking())
 		updateNetworkFence(worldTrans);

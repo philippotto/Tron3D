@@ -23,6 +23,13 @@ namespace troen
 
 		long double getTimeSinceLastUpdate();
 		float updateState(const long double time);
+		float updateRemoteState();
+		void updateAngularVelocity(float speed);
+		float calculatePossibleTurboBoost();
+		float calculateAttenuatedSpeed(float speed);
+		float calculateAcceleratedSpeed(btVector3 velocityXY, float timeFactor);
+		float calculateBikeFriction(const btScalar currentAngle, float timeFactor);
+		btVector3 adaptVelocityToRealDirection(btVector3 &velocityXY, float speed, float timeFactor);
 		void resetState();
 		void freeze();
 
@@ -51,7 +58,6 @@ namespace troen
 		float m_oldVelocity;
 		float m_rotation;
 		float m_steering;
-		float m_bikeFriction;
 		float m_turboFactor;
 		float m_timeOfLastTurboInitiation;
 		long double m_lastUpdateTime;
