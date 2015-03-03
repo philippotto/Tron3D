@@ -19,7 +19,9 @@ Trailer
 
 
 ##Project Setup
-The binaries can be downloaded at http://gameprogramming.hpi3d.de/201314/troen/, if you plan on building the game yourself here are the required steps, please file an issue, if you have trouble building the game (or want to get access to prebuilt libraries).
+The binaries can be downloaded at http://gameprogramming.hpi3d.de/201314/troen/, if you plan on building the game yourself here are the required steps. 
+Please file an issue, if you have trouble building the game (or want to get access to prebuilt libraries).
+
 Contributions are always welcome!
 
 
